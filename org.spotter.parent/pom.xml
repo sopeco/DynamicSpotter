@@ -1,0 +1,227 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.spotter</groupId>
+	<artifactId>org.spotter.parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>Spotter Parent</name>
+
+	<properties>
+		<lpe.common.version>1.0.2-SNAPSHOT</lpe.common.version>
+	</properties>
+
+	<modules>
+		<module>../org.spotter.shared</module>
+		<module>../org.spotter.core</module>
+		<module>../org.spotter.measurement</module>
+		<module>../org.spotter.instrumentation</module>
+		<module>../org.spotter.jmeter.client</module>
+		<module>../org.spotter.loadrunner.client</module>
+		<module>../org.spotter.detection.gcoverloading</module>
+		<module>../org.spotter.detection.godclass</module>
+		<module>../org.spotter.detection.highmemory</module>
+		<module>../org.spotter.detection.olb</module>
+		<module>../org.spotter.detection.osj</module>
+		<module>../org.spotter.detection.ramp</module>
+		<module>../org.spotter.detection.rthiccups</module>
+		<module>../org.spotter.detection.dboverhead</module>
+		<module>../org.spotter.detection.emptysemitrucks</module>
+		<module>../org.spotter.detection.stifle</module>
+		<module>../org.spotter.dummy</module>
+		<module>../org.spotter.runner</module>
+		<module>../org.spotter.workload</module>
+		<module>../org.spotter.service</module>
+		<module>../org.spotter.client</module>
+		<module>../org.spotter.demo</module>
+		<module>../org.spotter.eclipse.ui</module>
+
+
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>lpe-repos</id>
+			<name>LPE Repository</name>
+			<url>http://i43vm-saas.ipd.uka.de:8081/artifactory/lpe-repos</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>0.9.28</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.28</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.2.6</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xeiam.xchart</groupId>
+			<artifactId>xchart</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.utils</artifactId>
+			<version>${lpe.common.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.aim.api</artifactId>
+			<version>${lpe.common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.aim.artifacts.core</artifactId>
+			<version>${lpe.common.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.config</artifactId>
+			<version>${lpe.common.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.extension</artifactId>
+			<version>${lpe.common.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>test</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>rsc</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>rsc</directory>
+			</testResource>
+		</testResources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<configLocation>checkstyle-sopeco.config.xml</configLocation>
+					<excludes>test/**/*</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<formats>
+						<format>xml</format>
+					</formats>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<maxRank>15</maxRank>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.9.0</version>
+				<configuration>
+					<header>${basedir}/../org.spotter.parent/license.txt</header>
+					<mapping>
+						<conf>SCRIPT_STYLE</conf>
+						<xml>XML_STYLE</xml>
+					</mapping>
+					<excludes>
+            			<exclude>**/README</exclude>
+            			<exclude>**license.txt</exclude>
+        			</excludes>
+					<properties>
+						<year>2014</year>
+						<organization>SAP AG</organization>
+						<copyrightHolder>SAP AG</copyrightHolder>
+					</properties>
+					<useDefaultExcludes>true</useDefaultExcludes>
+				</configuration>
+			</plugin>
+		</plugins>
+
+	</build>
+</project>
