@@ -1,0 +1,141 @@
+====
+    Copyright 2014 SAP AG
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+====
+
+#################################### USAGE #######################################
+Enter a ticket like this
+#NUMBER - PRIORITY - TITLE
+..TEXT..
+##################################################################################
+
+
+################################## TICKETS #######################################
+#1 - low - TestDetection option in hirarchy
+The TestDetection option in the hirarchy of DS is loaded with a delay (150ms?) into
+the optionbox after clicking on "add" in the hirarchy.xml.
+
+#2 - low - Hirarchy is a configuration, too
+Why is the Hierarchy no in the configuration part? This is confusing. Of course it does not
+need to be set by the user, but it still is a configuration.
+
+#3 - low - context menu to open items
+Add a the options "Open" and "Open with" in the context menu for each file. It will
+help users to open the file, when they don't realize to double-click on it.
+
+#4 - low - Spotter config below Workload adapter
+Please put the Spotter Config configuration file below the workload adapter.
+
+#5 - low - rename history to result
+History is confusing, because one does not expect the most recent results there.
+
+
+
+#6 - low - format History entries
+Format the history entries to have readable format. E.g. "DD-MM-YY HH:MM:SS"
+
+#7 - low - omitExperiments
+a dropdown box for omitting experiment is more intuitive then clicking on a text field for a boolean
+to trigger it.
+
+#8 - high - Path to dummyData
+The path to dummy data is not correctly parsed. The "/" on the paths are missing after selecting the data.
+
+#8 - mid - Application shutdown when hierarchy missing
+Add a check if at least one entry is in the hierarchy and stop if there is none. Currently the application
+explodes when the hierarchy is absent but DS executed.
+
+#9 - low - Rename hiearchy to "Detection hierarchy"
+One expects a list beyond hierarchy when seeing it. It is confusing to double-click it
+to edit it.
+
+#10 - low - Default satellites names
+Change the default satellites names to something more useful. E.g. "Spotter Satellite Extension" in measurement environment
+to "Spotter measurement controller".
+
+#11 - low - Satellites with same name
+Append "(1)" "(2)" and so forth when the name of the satellite is already taken. But just focus on the current
+view. So don't say "Spotter Satellite Extension (1)" in MeasCon, when there is a "Spotter Satellite Extension"
+in the InstrContr list.
+
+#12 - low - name of the open file
+It might be possible to change the open file name to be diffrent than "mEnv.xml". It is "mEnv.xml" for the InstrControl, 
+MeasurContro and WorkAda configuration. I know all the options are in one file, but I would appreciate a tab
+naming like:
+"Instrumentation Controllers"
+"Measurement Controllers"
+"Workload Adapater"
+If this is not possible, please rename "mEnv.xml" to "satellites.xml". This would be fine, too.
+
+#13 - low - name of satellites for MeasCon and InstuCon same
+There is a dynamic instrumentation satellite. The best choice would be to leave the word "dynamic" away. This is
+confusing, especially because there is the exact same configuration for a measurement satellite, which cannot be
+dynamic. But actually the measurement satellites can receive updated measurement information, too.
+
+#14 - low - filter jmeter result file to *.csv
+The jmeter result file must be in csv ending. The file must not exists before running the experiment!
+
+#15 - low - filter jmeter scenario file to *.jmx
+The jmeter scenario file must be in jmx ending.
+
+#16 - low - Jmeter root dir is actually the bin dir
+Change the field information and name to workload.jmeter.bin,workload.jmeter.bin.dir or equal.
+
+#17 - high - UI load extensions at startup
+When directly executing experiment after starting the UI, an exception is thrown concering the extension loading.
+So, once the extensions MUST be loaded at starting.
+
+#18 - low - SUT warmup duration
+Enable the possiblity to set the SUT warmup duration, which is currently hardcoded in AbstractDetectionController.SUT_WARMPUP_DURATION.
+
+
+
+
+
+
+
+#19 - low - fix bugs concerning shutdown of the spotter service server
+
+The org.spotter.service.ServerLauncher throws a ConnectException when the server is shutdown before any request has been performed:
+Exception in thread "main" com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused: connect
+	at com.sun.jersey.client.urlconnection.URLConnectionClientHandler.handle(URLConnectionClientHandler.java:151)
+	at com.sun.jersey.api.client.Client.handle(Client.java:648)
+	at com.sun.jersey.api.client.WebResource.voidHandle(WebResource.java:704)
+	at com.sun.jersey.api.client.WebResource.post(WebResource.java:231)
+	at org.lpe.common.util.web.WebServer.triggerServerShutdown(WebServer.java:182)
+	at org.lpe.common.util.web.WebServer.triggerServerShutdown(WebServer.java:165)
+	at org.spotter.service.ServerLauncher.main(ServerLauncher.java:56)
+Caused by: java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+	at java.net.PlainSocketImpl.connect(Unknown Source)
+	at java.net.SocksSocketImpl.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at java.net.Socket.connect(Unknown Source)
+	at sun.net.NetworkClient.doConnect(Unknown Source)
+	at sun.net.www.http.HttpClient.openServer(Unknown Source)
+	at sun.net.www.http.HttpClient.openServer(Unknown Source)
+	at sun.net.www.http.HttpClient.parseHTTP(Unknown Source)
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(Unknown Source)
+	at java.net.HttpURLConnection.getResponseCode(Unknown Source)
+	at com.sun.jersey.client.urlconnection.URLConnectionClientHandler._invoke(URLConnectionClientHandler.java:249)
+	at com.sun.jersey.client.urlconnection.URLConnectionClientHandler.handle(URLConnectionClientHandler.java:149)
+	... 6 more
+
+
+#20 - normal - provide general information/description about different performance problems
+Currently there is no description provided for the different performance problems that could be displayed to the user in the UI.

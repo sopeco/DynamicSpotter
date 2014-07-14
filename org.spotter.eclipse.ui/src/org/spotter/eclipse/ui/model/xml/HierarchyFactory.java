@@ -1,0 +1,106 @@
+/**
+ * Copyright 2014 SAP AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.spotter.eclipse.ui.model.xml;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spotter.shared.environment.model.XMConfiguration;
+import org.spotter.shared.hierarchy.model.ObjectFactory;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
+
+/**
+ * A factory to create empty root instances of <code>XPerformanceProblem</code>
+ * or to create a <code>XPerformanceProblem</code> by parsing a performance
+ * problem hierarchy XML file.
+ */
+public final class HierarchyFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(HierarchyFactory.class);
+
+	private static HierarchyFactory instance;
+
+	/**
+	 * @return singleton instance
+	 */
+	public static HierarchyFactory getInstance() {
+		if (instance == null) {
+			instance = new HierarchyFactory();
+		}
+		return instance;
+	}
+
+	private HierarchyFactory() {
+	}
+
+	/**
+	 * Reads the file from disk specified by the given <code>fileName</code> and
+	 * parses it for creation of an {@link XPerformanceProblem}.
+	 * 
+	 * @param fileName
+	 *            specifies the name of the XML file containing the performance
+	 *            problem hierarchy
+	 * @return the <code>XPerformanceProblem</code> root object
+	 * @throws IllegalArgumentException
+	 *             when either file could not be found or when there was an
+	 *             error parsing the file
+	 */
+	public XPerformanceProblem parseHierarchyFile(String fileName) throws IllegalArgumentException {
+		try {
+			FileReader fileReader = new FileReader(fileName);
+			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
+			Unmarshaller u = jc.createUnmarshaller();
+
+			@SuppressWarnings("unchecked")
+			JAXBElement<XPerformanceProblem> element = (JAXBElement<XPerformanceProblem>) u.unmarshal(fileReader);
+			XPerformanceProblem xRoot = element.getValue();
+
+			return xRoot;
+		} catch (FileNotFoundException e) {
+			String msg = "Could not find file '" + fileName + "'!";
+			LOGGER.error(msg + ", " + e.getMessage());
+			throw new IllegalArgumentException(msg, e);
+		} catch (JAXBException e) {
+			String msg = "Failed parsing performance problem hierarchy file '" + fileName + "'";
+			LOGGER.error(msg + ", " + e.getMessage());
+			throw new IllegalArgumentException(msg, e);
+		}
+	}
+
+	/**
+	 * Creates an empty root instance of a performance problem hierarchy.
+	 * 
+	 * @return an empty root instance
+	 */
+	public XPerformanceProblem createProblemHierarchyRoot() {
+		XPerformanceProblem problem = new XPerformanceProblem();
+		problem.setConfig(new ArrayList<XMConfiguration>());
+		XMConfiguration xmConfig = new XMConfiguration();
+		xmConfig.setKey("org.spotter.detection.detectable");
+		xmConfig.setValue(Boolean.toString(false));
+		problem.getConfig().add(xmConfig);
+		return problem;
+	}
+
+}
