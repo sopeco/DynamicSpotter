@@ -16,22 +16,27 @@
 package org.spotter.eclipse.ui.util;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 public final class DialogUtils {
 
-	private static final String DEFAULT_TITLE_ERR_DIALOG = "Spotter";
+	public static final String DEFAULT_DLG_TITLE = "Spotter";
+	
 	private static final String MSG_NO_FURTHER_INFO = "No further information provided.";
 
 	private DialogUtils() {
 	}
 
-	public static void errorMessage(String message) {
-		errorMessage(message, null);
+	public static void errorMessage(String message, String detailMessage) {
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		MessageDialog.openError(shell, DEFAULT_DLG_TITLE,
+				String.format(message, detailMessage == null ? MSG_NO_FURTHER_INFO : detailMessage));
 	}
 	
-	public static void errorMessage(String message, String detailMessage) {
-		MessageDialog.openError(null, DEFAULT_TITLE_ERR_DIALOG,
-				String.format(message, detailMessage == null ? MSG_NO_FURTHER_INFO : detailMessage));
+	public static void warningMessage(String message) {
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		MessageDialog.openWarning(shell, DEFAULT_DLG_TITLE, message);
 	}
 
 }

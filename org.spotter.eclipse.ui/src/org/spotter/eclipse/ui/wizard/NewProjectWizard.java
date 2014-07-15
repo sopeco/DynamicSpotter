@@ -75,7 +75,7 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 		String port = pageTwo.getPort();
 
 		if (!pageTwo.testConnection()) {
-			ServiceClientWrapper.showWarningMessage(null, host, port);
+			ServiceClientWrapper.showConnectionProblemMessage(null, host, port, true);
 			return false;
 		}
 
@@ -91,7 +91,7 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 		ServiceClientWrapper client = Activator.getDefault().getClient(name);
 		if (!client.saveServiceClientSettings(host, port)) {
 			return false;
-		}		
+		}
 		if (SpotterProjectSupport.createProject(name, location) == null) {
 			return false;
 		}

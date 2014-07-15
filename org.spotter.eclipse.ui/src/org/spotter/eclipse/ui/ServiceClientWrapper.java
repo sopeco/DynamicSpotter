@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,12 +48,12 @@ public class ServiceClientWrapper {
 	private static final String DIALOG_TITLE = "Spotter Service Client";
 	private static final String ERR_MSG_CONN = "Connection to '%s' at port %s could not be established!";
 	private static final String MSG_FAIL_SAFE = "Error while storing preferences. Please try again.";
-	private static final String MSG_NO_CONN = "Action cannot be performed without connection to Spotter Service. Please check connection settings and try again.";
+	private static final String MSG_NO_ACTION = "Action cannot be performed without connection to Spotter Service. Please check connection settings and try again.";
 	private static final String MSG_START_DIAGNOSIS = "Could not start diagnosis!";
-	private static final String MSG_NO_STATUS = "Could not query status due to missing connection.";
-	private static final String MSG_NO_CONFIG_PARAMS = "Could not query configuration parameters due to missing connection.";
-	private static final String MSG_NO_EXTENSIONS = "Could not query list of extensions due to missing connection.";
-	private static final String MSG_NO_SATTELITE_TEST = "Could not test sattelite connection because cannot reach Spotter Service.";
+	private static final String MSG_NO_STATUS = "Could not retrieve status.";
+	private static final String MSG_NO_CONFIG_PARAMS = "Could not retrieve configuration parameters.";
+	private static final String MSG_NO_EXTENSIONS = "Could not retrieve list of extensions.";
+	private static final String MSG_NO_SATTELITE_TEST = "Could not test sattelite connection.";
 
 	private final String projectName;
 	private final SpotterServiceClient client;
@@ -163,7 +164,9 @@ public class ServiceClientWrapper {
 			// restore old values
 			prefs.put(KEY_SERVICE_HOST, oldHost);
 			prefs.put(KEY_SERVICE_PORT, oldPort);
-			showErrorMessage(MSG_FAIL_SAFE);
+
+			Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+			MessageDialog.openError(shell, DIALOG_TITLE, MSG_FAIL_SAFE);
 		}
 		return false;
 	}
@@ -172,8 +175,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.startDiagnosis(configurationFile);
 		} catch (Exception e) {
-			LOGGER.error("startDiagnosis request failed: " + e.getMessage());
-			showErrorMessage(MSG_START_DIAGNOSIS + (e.getMessage() == null ? "" : " " + e.getMessage()), host, port);
+			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false);
 		}
 		return null;
 	}
@@ -182,7 +184,10 @@ public class ServiceClientWrapper {
 		try {
 			return client.isRunning();
 		} catch (Exception e) {
-			showWarningMessage(MSG_NO_STATUS);
+			handleException("isRunning", MSG_NO_STATUS, e, true);
+			// Shell shell =
+			// PlatformUI.getWorkbench().getDisplay().getActiveShell();
+			// MessageDialog.openWarning(shell, DIALOG_TITLE, MSG_NO_STATUS);
 		}
 		return false;
 	}
@@ -198,8 +203,7 @@ public class ServiceClientWrapper {
 		try {
 			cachedSpotterConfParameters = client.getConfigurationParameters();
 		} catch (Exception e) {
-			LOGGER.error("getConfigurationParameters request failed: " + e.getMessage());
-			showErrorMessage(MSG_NO_CONFIG_PARAMS, host, port);
+			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, false);
 		}
 		return cachedSpotterConfParameters;
 	}
@@ -267,8 +271,7 @@ public class ServiceClientWrapper {
 			extNames = client.getAvailableExtensions(extType);
 			cachedExtensionNames.put(extType, extNames);
 		} catch (Exception e) {
-			LOGGER.error("getAvailableExtensions request failed for extType " + extType + ": " + e.getMessage());
-			showErrorMessage(MSG_NO_EXTENSIONS, host, port);
+			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, false);
 		}
 		return extNames;
 	}
@@ -284,9 +287,9 @@ public class ServiceClientWrapper {
 		try {
 			confParams = client.getExtensionConfigParamters(extName);
 			cachedExtensionConfParamters.put(extName, confParams);
+			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
 		} catch (Exception e) {
-			LOGGER.error("getExtensionConfigParameters request failed: " + e.getMessage());
-			showErrorMessage(MSG_NO_CONFIG_PARAMS, host, port);
+			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, false);
 		}
 		return confParams;
 	}
@@ -303,8 +306,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.getCurrentProgressReport();
 		} catch (Exception e) {
-			LOGGER.error("getCurrentProgressReport request failed: " + e.getMessage());
-			showErrorMessage(MSG_NO_STATUS, host, port);
+			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, false);
 		}
 		return null;
 	}
@@ -313,8 +315,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.getCurrentJobId();
 		} catch (Exception e) {
-			LOGGER.error("getCurrentJobId request failed: " + e.getMessage());
-			showErrorMessage(MSG_NO_STATUS, host, port);
+			handleException("getCurrentJobId", MSG_NO_STATUS, e, false);
 		}
 		return null;
 	}
@@ -323,8 +324,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.testConnectionToSattelite(extName, host, port);
 		} catch (Exception e) {
-			LOGGER.error("testConnectionToSattelite request failed: " + e.getMessage());
-			showErrorMessage(MSG_NO_SATTELITE_TEST, host, port);
+			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, false);
 		}
 		return false;
 	}
@@ -334,11 +334,10 @@ public class ServiceClientWrapper {
 		try {
 			connection = client.testConnection();
 		} catch (Exception e) {
-			// LOGGER.debug("testConnection request returned due to no connection to server");
 			connection = false;
 		}
 		if (showErrorDialog && !connection) {
-			showErrorMessage(MSG_NO_CONN, host, port);
+			showConnectionProblemMessage(MSG_NO_ACTION, host, port, false);
 		}
 		return connection;
 	}
@@ -364,32 +363,55 @@ public class ServiceClientWrapper {
 		cachedExtensionDescriptions.clear();
 	}
 
-	public static void showErrorMessage(String errorMessage) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		MessageDialog.openError(shell, DIALOG_TITLE, errorMessage);
-	}
-
-	public static void showErrorMessage(String detailedMessage, String host, String port) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		String msg = String.format(ERR_MSG_CONN, host, port);
-		if (detailedMessage != null) {
-			msg += "\n\n" + detailedMessage;
-		}
-		MessageDialog.openError(shell, DIALOG_TITLE, msg);
-	}
-
-	public static void showWarningMessage(String warningMessage) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		MessageDialog.openWarning(shell, DIALOG_TITLE, warningMessage);
-	}
-
-	public static void showWarningMessage(String detailedMessage, String host, String port) {
+	/**
+	 * Shows a message on the screen explaining the connection problem. If cause
+	 * is not <code>null<code> it will be appended to the message.
+	 * 
+	 * @param cause
+	 *            The cause of the problem
+	 * @param host
+	 *            The host used for the connection
+	 * @param port
+	 *            The port used for the connection
+	 * @param warning
+	 *            <code>true</code> to only show a warning, otherwise an error
+	 *            is shown
+	 */
+	public static void showConnectionProblemMessage(String cause, String host, String port, boolean warning) {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		String msg = String.format(ERR_MSG_CONN, host, port);
-		if (detailedMessage != null) {
-			msg += "\n\n" + detailedMessage;
+		if (cause != null) {
+			msg += "\n\n" + cause;
 		}
-		MessageDialog.openWarning(shell, DIALOG_TITLE, msg);
+		if (warning) {
+			MessageDialog.openWarning(shell, DIALOG_TITLE, msg);
+		} else {
+			MessageDialog.openError(shell, DIALOG_TITLE, msg);
+		}
+	}
+
+	private void handleException(String requestName, String requestErrorMsg, Exception e, boolean warning) {
+		if (warning) {
+			LOGGER.warn("{} request failed! Cause: {}", requestName, e.getMessage());
+		} else {
+			LOGGER.error("{} request failed! Cause: {}", requestName, e.getMessage());
+		}
+		if (e instanceof ConnectException) {
+			// problems with connection
+			String cause = e.getMessage() == null ? "" : " Cause: " + e.getMessage();
+			String msg = requestErrorMsg + cause;
+			showConnectionProblemMessage(msg, host, port, warning);
+		} else {
+			// illegal response state or server error
+			Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+			String errLocalMsg = e.getLocalizedMessage();
+			String msg = errLocalMsg == null ? e.getClass().getName() : errLocalMsg;
+			if (warning) {
+				MessageDialog.openWarning(shell, DIALOG_TITLE, msg);
+			} else {
+				MessageDialog.openError(shell, DIALOG_TITLE, msg);
+			}
+		}
 	}
 
 	private Map<String, ConfigParameterDescription> initSpotterConfParamsMap() {

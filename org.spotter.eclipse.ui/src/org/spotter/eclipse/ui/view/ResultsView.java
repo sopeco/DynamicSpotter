@@ -230,7 +230,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		SashForm sashResources = new SashForm(grpResources, SWT.HORIZONTAL | SWT.SMOOTH);
 		// grpResources.setLayout(WidgetUtils.createGridLayout(2));
 
-		listResources = new List(sashResources, SWT.NONE);
+		listResources = new List(sashResources, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		// listResources.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
 		// false));
 

@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui.model.xml;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.hierarchy.model.ObjectFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -36,6 +38,11 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  * problem hierarchy XML file.
  */
 public final class HierarchyFactory {
+
+	/**
+	 * The name of the default hierarchy configuration file.
+	 */
+	private static final String DEFAULT_HIERARCHY_FILENAME = "default-hierarchy.xml";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HierarchyFactory.class);
 
@@ -89,11 +96,37 @@ public final class HierarchyFactory {
 	}
 
 	/**
-	 * Creates an empty root instance of a performance problem hierarchy.
+	 * Creates a new performance problem hierarchy using the default hierarchy
+	 * configuration file located in the root directory of the execution path of
+	 * the UI. The default configuration has to be named
+	 * {@value #DEFAULT_HIERARCHY_FILENAME}. If the file does not exist an empty
+	 * hierarchy is returned.
 	 * 
-	 * @return an empty root instance
+	 * @return the default hierarchy given by the configuration file or an empty
+	 *         root instance if file can not be parsed
 	 */
 	public XPerformanceProblem createProblemHierarchyRoot() {
+		File file = new File(DEFAULT_HIERARCHY_FILENAME);
+		XPerformanceProblem root;
+		try {
+			root = parseHierarchyFile(DEFAULT_HIERARCHY_FILENAME);
+		} catch (IllegalArgumentException e) {
+			String msg = "Could not load the default hierarchy file '" + file.getAbsolutePath()
+					+ "', using empty hierarchy instead! Cause: " + e.getMessage();
+			LOGGER.warn(msg);
+			DialogUtils.warningMessage(msg);
+			root = createEmptyHierarchy();
+		}
+
+		return root;
+	}
+
+	/**
+	 * Creates an empty hierarchy.
+	 * 
+	 * @return The root of an empty hierarchy.
+	 */
+	private XPerformanceProblem createEmptyHierarchy() {
 		XPerformanceProblem problem = new XPerformanceProblem();
 		problem.setConfig(new ArrayList<XMConfiguration>());
 		XMConfiguration xmConfig = new XMConfiguration();

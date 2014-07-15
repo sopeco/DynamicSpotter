@@ -29,29 +29,32 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 
 /**
- * A dialog to add configuration parameters.
+ * A dialog to add extensions.
  */
-public class AddConfigParamDialog extends TitleAreaDialog {
+public class AddExtensionDialog extends TitleAreaDialog {
 
-	private static final String MSG_MULTI_SELECT = "Selected %d config parameters.";
+	private static final String MSG_MULTI_SELECT = "Selected %d extensions.";
+	private static final String MSG_NO_DESCRIPTION = "No description available.";
 
-	private final ConfigParameterDescription[] configParams;
-	private ConfigParameterDescription[] result;
-	private List listConfigParams;
-	//private Label lblDescription;
+	private final ExtensionMetaobject[] extensions;
+	private ExtensionMetaobject[] result;
+	private List listExtensions;
 	private Text textDescription;
 
 	/**
 	 * Create the dialog.
 	 * 
-	 * @param parentShell The parent shell of this dialog
+	 * @param parentShell
+	 *            The parent shell of this dialog
 	 */
-	public AddConfigParamDialog(Shell parentShell, ConfigParameterDescription[] configParams) {
+	public AddExtensionDialog(Shell parentShell, ExtensionMetaobject[] extensions) {
 		super(parentShell);
-		this.configParams = configParams;
+		this.extensions = extensions;
 		this.result = null;
 		setHelpAvailable(false);
 	}
@@ -59,53 +62,55 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 	/**
 	 * Create contents of the dialog.
 	 * 
-	 * @param parent The parent composite the content is placed in
+	 * @param parent
+	 *            The parent composite the content is placed in
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		setMessage("Choose which non-mandatory config parameters you want to add.");
-		setTitle("Add Config Parameters");
+		setMessage("Choose which extensions you want to add.");
+		setTitle("Add Extensions");
 		Composite area = (Composite) super.createDialogArea(parent);
 		Composite container = new Composite(area, SWT.NONE);
 		container.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		listConfigParams = new List(container, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		listConfigParams.setItems(createListItems());
-		listConfigParams.setBounds(10, 10, 309, 183);
+		listExtensions = new List(container, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		listExtensions.setItems(createListItems());
+		listExtensions.setBounds(10, 10, 309, 183);
 		createListListener();
-		
+
 		textDescription = new Text(container, SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
 		textDescription.setBounds(325, 10, 209, 183);
-		textDescription.setText(configParams[0].getDescription());
-
-		//lblDescription = new Label(container, SWT.WRAP | SWT.V_SCROLL);
-		//lblDescription.setBounds(325, 10, 209, 183);
-		//lblDescription.setText(configParams[0].getDescription());
+		updateDescriptionText(extensions[0]);
 
 		return area;
 	}
 
+	private void updateDescriptionText(ExtensionMetaobject extension) {
+		String projectName = extension.getProjectName();
+		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		String description = client.getExtensionDescription(extension.getExtensionName());
+		textDescription.setText(description == null ? MSG_NO_DESCRIPTION : description);
+	}
+
 	private void createListListener() {
-		listConfigParams.setSelection(0);
-		listConfigParams.addSelectionListener(new SelectionAdapter() {
+		listExtensions.setSelection(0);
+		listExtensions.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int selectionCount = listConfigParams.getSelectionCount();
+				int selectionCount = listExtensions.getSelectionCount();
 				if (selectionCount == 1) {
-					int index = listConfigParams.getSelectionIndex();
-					//lblDescription.setText(configParams[index].getDescription());
-					textDescription.setText(configParams[index].getDescription());
+					int index = listExtensions.getSelectionIndex();
+					updateDescriptionText(extensions[index]);
 				} else if (selectionCount > 1) {
-					//lblDescription.setText(String.format(MSG_MULTI_SELECT, selectionCount));
 					textDescription.setText(String.format(MSG_MULTI_SELECT, selectionCount));
 				}
 			}
 		});
-		listConfigParams.addMouseListener(new MouseAdapter() {
+		listExtensions.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-				int itemCount = listConfigParams.getItemCount();
-				int itemHeight = listConfigParams.getItemHeight();
+				int itemCount = listExtensions.getItemCount();
+				int itemHeight = listExtensions.getItemHeight();
 				if (e.y <= itemCount * itemHeight) {
 					okPressed();
 				}
@@ -133,31 +138,30 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 	}
 
 	private String[] createListItems() {
-		String[] items = new String[configParams.length];
-		for (int i = 0; i < configParams.length; ++i) {
-			items[i] = configParams[i].getName();
+		String[] items = new String[extensions.length];
+		for (int i = 0; i < extensions.length; ++i) {
+			items[i] = extensions[i].getExtensionName();
 		}
 		return items;
 	}
 
 	@Override
 	protected void okPressed() {
-		int selectionCount = listConfigParams.getSelectionCount();
+		int selectionCount = listExtensions.getSelectionCount();
 		if (selectionCount != 0) {
-			result = new ConfigParameterDescription[selectionCount];
-			int[] indices = listConfigParams.getSelectionIndices();
+			result = new ExtensionMetaobject[selectionCount];
+			int[] indices = listExtensions.getSelectionIndices();
 			for (int i = 0; i < selectionCount; ++i) {
-				result[i] = configParams[indices[i]];
+				result[i] = extensions[indices[i]];
 			}
 		}
 		super.okPressed();
 	}
 
 	/**
-	 * @return the previously selected configuration parameter descriptions if
-	 *         any or 'null'
+	 * @return the previously selected extensions if any or 'null'
 	 */
-	public ConfigParameterDescription[] getResult() {
+	public ExtensionMetaobject[] getResult() {
 		return result;
 	}
 
