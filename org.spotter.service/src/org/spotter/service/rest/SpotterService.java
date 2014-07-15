@@ -67,7 +67,7 @@ public class SpotterService {
 				return new SpotterServiceResponse<Long>(jobId, ResponseStatus.OK);
 			}
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Long>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -83,7 +83,7 @@ public class SpotterService {
 			Boolean isRunning = SpotterServiceWrapper.getInstance().isRunning();
 			return new SpotterServiceResponse<Boolean>(isRunning, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Boolean>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -99,8 +99,7 @@ public class SpotterService {
 			Set<ConfigParameterDescription> set = SpotterServiceWrapper.getInstance().getConfigurationParameters();
 			return new SpotterServiceResponse<Set<ConfigParameterDescription>>(set, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Set<ConfigParameterDescription>>(null, ResponseStatus.SERVER_ERROR,
-					e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -116,13 +115,11 @@ public class SpotterService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public SpotterServiceResponse<Set<String>> getAvailableExtensions(@PathParam("extType") String extType) {
 		try {
-
 			SpotterExtensionType type = SpotterExtensionType.valueOf(extType);
 			Set<String> set = SpotterServiceWrapper.getInstance().getAvailableExtensions(type);
 			return new SpotterServiceResponse<Set<String>>(set, ResponseStatus.OK);
-
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Set<String>>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -145,8 +142,7 @@ public class SpotterService {
 					extName);
 			return new SpotterServiceResponse<Set<ConfigParameterDescription>>(set, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Set<ConfigParameterDescription>>(null, ResponseStatus.SERVER_ERROR,
-					e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -163,7 +159,7 @@ public class SpotterService {
 			SpotterProgress progress = SpotterServiceWrapper.getInstance().getCurrentProgressReport();
 			return new SpotterServiceResponse<SpotterProgress>(progress, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<SpotterProgress>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -180,7 +176,7 @@ public class SpotterService {
 			Long id = SpotterServiceWrapper.getInstance().getCurrentJobId();
 			return new SpotterServiceResponse<Long>(id, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Long>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -205,7 +201,7 @@ public class SpotterService {
 			Boolean connected = SpotterServiceWrapper.getInstance().testConnectionToSattelite(extName, host, port);
 			return new SpotterServiceResponse<Boolean>(connected, ResponseStatus.OK);
 		} catch (Exception e) {
-			return new SpotterServiceResponse<Boolean>(null, ResponseStatus.SERVER_ERROR, e.getMessage());
+			return createErrorResponse(e);
 		}
 	}
 
@@ -219,6 +215,16 @@ public class SpotterService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public SpotterServiceResponse<Boolean> testConnection() {
 		return new SpotterServiceResponse<Boolean>(true, ResponseStatus.OK);
+	}
+
+	private <T> SpotterServiceResponse<T> createErrorResponse(Exception e) {
+		SpotterServiceResponse<T> response = new SpotterServiceResponse<T>(null, ResponseStatus.SERVER_ERROR);
+		if (e.getMessage() == null) {
+			response.setErrorMessage(e.getClass().getSimpleName());
+		} else {
+			response.setErrorMessage(e.getLocalizedMessage());
+		}
+		return response;
 	}
 
 }

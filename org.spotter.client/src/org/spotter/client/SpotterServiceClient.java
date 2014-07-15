@@ -15,11 +15,6 @@
  */
 package org.spotter.client;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
@@ -42,8 +37,7 @@ import com.sun.jersey.api.client.WebResource;
  * 
  */
 public class SpotterServiceClient {
-	private static final String CHARSET = "UTF8";
-	
+
 	private String url;
 	private WebResource webResource;
 	private Client client;
@@ -96,7 +90,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		default:
 			throw new IllegalStateException("Illegal response state!");
 		}
@@ -115,7 +109,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -137,7 +131,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -160,7 +154,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -186,7 +180,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -207,7 +201,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -228,7 +222,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -261,7 +255,7 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
@@ -282,104 +276,11 @@ public class SpotterServiceClient {
 		case OK:
 			return response.getPayload();
 		case SERVER_ERROR:
-			throw new RuntimeException("Server error!: " + response.getErrorMessage());
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
 		case INVALID_STATE:
 		default:
 			throw new IllegalStateException("Illegal response state!");
 		}
-	}
-
-	public static String encodeUrl(String url) {
-		try {
-			return encodeUrl(url, CHARSET);
-		} catch (UnsupportedEncodingException ex) {
-			throw new IllegalArgumentException(CHARSET);
-		}
-	}
-	
-	public static String encodeUrl(String url, String charsetName) throws UnsupportedEncodingException {
-		if (!needsEncoding(url)) {
-			return url;
-		}
-
-		int length = url.length();
-
-		StringBuffer out = new StringBuffer(length);
-
-		ByteArrayOutputStream buf = new ByteArrayOutputStream(10);
-
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(buf, charsetName));
-
-		for (int i = 0; i < length; i++) {
-			int c = (int) url.charAt(i);
-			if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == ' ') {
-				if (c == ' ') {
-					c = '+';
-				}
-
-				toHex(out, buf.toByteArray());
-				buf.reset();
-
-				out.append((char) c);
-			} else {
-				try {
-					writer.write(c);
-
-					if (c >= 0xD800 && c <= 0xDBFF && i < length - 1) {
-						int d = (int) url.charAt(i + 1);
-						if (d >= 0xDC00 && d <= 0xDFFF) {
-							writer.write(d);
-							i++;
-						}
-					}
-
-					writer.flush();
-				} catch (IOException ex) {
-					throw new IllegalArgumentException(url);
-				}
-			}
-		}
-		try {
-			writer.close();
-		} catch (IOException ioe) {
-			// Ignore exceptions on close.
-		}
-
-		toHex(out, buf.toByteArray());
-
-		return out.toString();
-	}
-
-	private static void toHex(StringBuffer buffer, byte[] b) {
-		for (int i = 0; i < b.length; i++) {
-			buffer.append('%');
-
-			char ch = Character.forDigit((b[i] >> 4) & 0xF, 16);
-			if (Character.isLetter(ch)) {
-				ch -= 32;
-			}
-			buffer.append(ch);
-
-			ch = Character.forDigit(b[i] & 0xF, 16);
-			if (Character.isLetter(ch)) {
-				ch -= 32;
-			}
-			buffer.append(ch);
-		}
-	}
-
-	private static boolean needsEncoding(String s) {
-		if (s == null)
-			return false;
-
-		for (int i = 0; i < s.length(); i++) {
-			int c = (int) s.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'))
-				return true;
-			// Otherwise, keep going
-		}
-
-		return false;
 	}
 
 }
