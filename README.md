@@ -1,7 +1,9 @@
 DynamicSpotter
 ==============
 
-A framework for measurement-based, automatic detection of software performance problems 
+A framework for measurement-based, automatic detection of software performance problems.
 
-http://sopeco.github.io/DynamicSpotter
+For further description on the project please visit the [DynamicSpotter website](http://sopeco.github.io/DynamicSpotter).
+
+
 
