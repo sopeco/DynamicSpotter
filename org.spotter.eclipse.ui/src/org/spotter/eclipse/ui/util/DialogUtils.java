@@ -21,7 +21,7 @@ import org.eclipse.ui.PlatformUI;
 
 public final class DialogUtils {
 
-	public static final String DEFAULT_TITLE_ERR_DIALOG = "Spotter";
+	public static final String DEFAULT_DLG_TITLE = "Spotter";
 	
 	private static final String MSG_NO_FURTHER_INFO = "No further information provided.";
 
@@ -30,8 +30,13 @@ public final class DialogUtils {
 
 	public static void errorMessage(String message, String detailMessage) {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		MessageDialog.openError(shell, DEFAULT_TITLE_ERR_DIALOG,
+		MessageDialog.openError(shell, DEFAULT_DLG_TITLE,
 				String.format(message, detailMessage == null ? MSG_NO_FURTHER_INFO : detailMessage));
+	}
+	
+	public static void warningMessage(String message) {
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		MessageDialog.openWarning(shell, DEFAULT_DLG_TITLE, message);
 	}
 
 }
