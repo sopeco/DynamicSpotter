@@ -20,29 +20,48 @@ import java.util.Set;
 import org.lpe.common.config.ConfigParameterDescription;
 
 /**
- * This class contains relevant meta information about an extension such as its name
- * and its configuration parameter descriptions.
+ * This class contains relevant meta information about an extension such as its
+ * name and its configuration parameter descriptions.
  */
 public class ExtensionMetaobject {
 
 	private final String projectName;
 	private final String extensionName;
 	private final Set<ConfigParameterDescription> configParams;
-	
+
+	/**
+	 * Create a new instance for the given project.
+	 * 
+	 * @param projectName
+	 *            The project the extension is associated with
+	 * @param extensionName
+	 *            The name of the extension
+	 * @param configParams
+	 *            The parameters of the extension
+	 */
 	public ExtensionMetaobject(String projectName, String extensionName, Set<ConfigParameterDescription> configParams) {
 		this.projectName = projectName;
 		this.extensionName = extensionName;
 		this.configParams = configParams;
 	}
 
+	/**
+	 * @return the project name
+	 */
 	public String getProjectName() {
 		return projectName;
 	}
-	
+
+	/**
+	 * @return the extension name
+	 */
 	public String getExtensionName() {
 		return extensionName;
 	}
 
+	/**
+	 * @return the configuration parameters
+	 */
 	public Set<ConfigParameterDescription> getConfigParams() {
 		return configParams;
 	}

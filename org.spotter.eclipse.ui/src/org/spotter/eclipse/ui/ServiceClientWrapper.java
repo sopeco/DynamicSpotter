@@ -287,6 +287,7 @@ public class ServiceClientWrapper {
 		try {
 			confParams = client.getExtensionConfigParamters(extName);
 			cachedExtensionConfParamters.put(extName, confParams);
+			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
 		} catch (Exception e) {
 			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, false);
 		}

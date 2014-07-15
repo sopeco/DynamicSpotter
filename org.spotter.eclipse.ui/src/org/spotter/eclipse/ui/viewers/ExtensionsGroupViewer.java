@@ -25,7 +25,6 @@ import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -46,18 +45,17 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.PlatformUI;
 import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
-import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
-import org.spotter.eclipse.ui.providers.SimpleExtensionsRenderer;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsContentProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
 import org.spotter.eclipse.ui.util.WidgetUtils;
@@ -264,23 +262,18 @@ public class ExtensionsGroupViewer {
 	 *            will be added
 	 */
 	private void showAndHandleAddDialog(ExtensionItem parentItem) {
-		Shell shell = Display.getCurrent().getActiveShell();
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ExtensionMetaobject[] extensions = editor.getAvailableExtensions();
-		ILabelProvider renderer = new SimpleExtensionsRenderer();
-		ElementListSelectionDialog dialog = new ElementListSelectionDialog(shell, renderer);
-		dialog.setTitle("Add");
-		dialog.setMessage("Choose one or more extensions to be added.");
-		dialog.setHelpAvailable(false);
-		dialog.setMultipleSelection(true);
-		dialog.setElements(extensions);
+		// TODO: refactor ExtensionAddDialog later to reuse shared parts of AddConfigParamDialog and remove SimpleExtensionsRenderer
+		AddExtensionDialog dialog = new AddExtensionDialog(shell, extensions);
 
 		if (dialog.open() == Window.OK) {
-			Object[] result = dialog.getResult();
+			ExtensionMetaobject[] result = dialog.getResult();
 			IModelWrapper parentWrapper = parentItem.getModelWrapper();
 			Object xmlParent = parentWrapper == null ? null : parentWrapper.getXMLModel();
 			ExtensionItem lastAdded = null;
-			for (Object component : result) {
-				ExtensionItem item = processAddedComponent(xmlParent, (ExtensionMetaobject) component);
+			for (ExtensionMetaobject component : result) {
+				ExtensionItem item = processAddedComponent(xmlParent, component);
 				parentItem.addItem(item);
 				item.updateConnectionStatus();
 				lastAdded = item;

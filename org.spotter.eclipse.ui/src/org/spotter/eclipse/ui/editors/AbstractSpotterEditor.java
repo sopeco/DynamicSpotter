@@ -151,6 +151,21 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 		}
 	}
 
+	/**
+	 * Returns the project this editor's input currently is associated with or
+	 * <code>null</code> if none.
+	 * 
+	 * @return the associated project or <code>null</code> if none
+	 */
+	public IProject getProject() {
+		IEditorInput editorInput = getEditorInput();
+		if (editorInput instanceof AbstractSpotterEditorInput) {
+			return ((AbstractSpotterEditorInput) editorInput).getProject();
+		}
+
+		return null;
+	}
+
 	@Override
 	public boolean isDirty() {
 		return dirtyFlag;
@@ -189,21 +204,6 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 			LOGGER.error("Unhandled PartInitException = '" + e.getMessage() + "', " + ERR_MSG_INPUT_INVALID);
 			throw new RuntimeException(e);
 		}
-	}
-
-	/**
-	 * Returns the project this editor's input currently is associated with or
-	 * <code>null</code> if none.
-	 * 
-	 * @return the associated project or <code>null</code> if none
-	 */
-	protected IProject getProject() {
-		IEditorInput editorInput = getEditorInput();
-		if (editorInput instanceof AbstractSpotterEditorInput) {
-			return ((AbstractSpotterEditorInput) editorInput).getProject();
-		}
-
-		return null;
 	}
 
 	/**
