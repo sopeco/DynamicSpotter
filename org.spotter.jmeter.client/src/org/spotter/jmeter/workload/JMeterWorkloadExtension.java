@@ -28,14 +28,18 @@ import org.spotter.jmeter.JMeterConfigKeys;
  * 
  */
 public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
-
+	
+	private static final String EXTENSION_DESCRIPTION = "The workload satellite adapter connecting to a JMeter "
+														+ "workload satellite.";
+	
+	public static final String THINK_TIME_MIN = "org.spotter.workload.jmeter.thinkTimeMin";
+	
+	public static final String THINK_TIME_MAX = "org.spotter.workload.jmeter.thinkTimeMax";
+	
 	@Override
 	public String getName() {
-		return "workload.adapter.jmeter";
+		return "workload.satellite.adapter.jmeter";
 	}
-
-	public static final String THINK_TIME_MIN = "org.spotter.workload.jmeter.thinkTimeMin";
-	public static final String THINK_TIME_MAX = "org.spotter.workload.jmeter.thinkTimeMax";
 
 	private ConfigParameterDescription createJMeterHomeParameter() {
 		ConfigParameterDescription jMeterHomeParameter = new ConfigParameterDescription(
@@ -102,6 +106,7 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		addConfigParameter(createJMeterResultFileParameter());
 		addConfigParameter(createJMeterThinkTimeMinParameter());
 		addConfigParameter(createJMeterThinkTimeMaxParameter());
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override
