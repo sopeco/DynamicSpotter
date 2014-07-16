@@ -15,45 +15,18 @@
  */
 package org.spotter.eclipse.ui.navigator;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.graphics.Image;
-
 /**
- * An interface for spotter project elements of the Spotter Project Navigator.
+ * An interface for elements of the Spotter Project Navigator that can be
+ * duplicated.
  * 
  * @author Denis Knoepfle
  * 
  */
-public interface ISpotterProjectElement {
+public interface IDuplicatable {
 
 	/**
-	 * @return the text of this element
+	 * Duplicates this element.
 	 */
-	public String getText();
-
-	/**
-	 * @return the image of this element
-	 */
-	public Image getImage();
-
-	/**
-	 * @return the children elements of this element
-	 */
-	public Object[] getChildren();
-
-	/**
-	 * @return whether this element has children
-	 */
-	public boolean hasChildren();
-
-	/**
-	 * @return the parent of this element
-	 */
-	public Object getParent();
-
-	/**
-	 * @return the associated project
-	 */
-	public IProject getProject();
+	public void duplicate();
 
 }

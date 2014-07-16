@@ -90,11 +90,6 @@ public class SpotterProjectConfig implements ISpotterProjectElement {
 	}
 
 	@Override
-	public void open() {
-		// not editable
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof SpotterProjectConfig)) {
 			return false;

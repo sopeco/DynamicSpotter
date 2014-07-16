@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,7 +34,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -66,7 +66,10 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,6 +165,54 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		getViewSite().getPage().addPostSelectionListener(this);
 	}
 
+	/**
+	 * Resets the results view and deletes its contents if the given project
+	 * matches the current content's associated project. If <code>project</code>
+	 * is <code>null</code>, then the view is reset regardless of its current
+	 * content.
+	 * 
+	 * @param project
+	 *            the project to match for the reset or <code>null</code> to
+	 *            match any
+	 */
+	public static void reset(IProject project) {
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+			for (IWorkbenchPage page : window.getPages()) {
+				ResultsView resultsView = (ResultsView) page.findView(ResultsView.VIEW_ID);
+				if (resultsView != null) {
+					SpotterProjectRunResult result = resultsView.getResult();
+					if (project == null || result != null && project.equals(result.getProject())) {
+						resultsView.setResult(null);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Resets the results view and deletes its contents if the given project
+	 * matches the current content's associated folder. If <code>folder</code>
+	 * is <code>null</code>, then the view is reset regardless of its current
+	 * content.
+	 * 
+	 * @param folder
+	 *            the folder to match for the reset or <code>null</code> to
+	 *            match any
+	 */
+	public static void reset(IFolder folder) {
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+			for (IWorkbenchPage page : window.getPages()) {
+				ResultsView resultsView = (ResultsView) page.findView(ResultsView.VIEW_ID);
+				if (resultsView != null) {
+					SpotterProjectRunResult result = resultsView.getResult();
+					if (folder == null || result != null && folder.equals(result.getResultFolder())) {
+						resultsView.setResult(null);
+					}
+				}
+			}
+		}
+	}
+
 	private void createHierarchyTab(TabFolder folder) {
 		TabItem tabItem = new TabItem(folder, SWT.NONE);
 		tabItem.setText(TAB_HIERARCHY_NAME);
@@ -234,15 +285,10 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		grpResources.setText("Resources");
 		grpResources.setLayout(new FillLayout(SWT.HORIZONTAL));
 		SashForm sashResources = new SashForm(grpResources, SWT.HORIZONTAL | SWT.SMOOTH);
-		// grpResources.setLayout(WidgetUtils.createGridLayout(2));
 
 		listResources = new List(sashResources, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		// listResources.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false,
-		// false));
-
 		canvasRes = new Canvas(sashResources, SWT.NONE);
-		// canvasRes.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-		// true));
+
 		sashResources.setWeights(new int[] { 1, 2 });
 		addCanvasListeners();
 	}
@@ -505,23 +551,62 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		updateTabs();
 	}
 
+	/**
+	 * Returns the run result currently shown.
+	 * 
+	 * @return the run result currently shown or <code>null</code> if none
+	 */
+	public SpotterProjectRunResult getResult() {
+		return runResultItem;
+	}
+
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (!selection.isEmpty() && selection instanceof StructuredSelection) {
-			Object first = ((StructuredSelection) selection).getFirstElement();
+		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
+			Object first = ((IStructuredSelection) selection).getFirstElement();
 			if (first instanceof SpotterProjectRunResult) {
-				setResult((SpotterProjectRunResult) first);
+				IFolder newFolder = ((SpotterProjectRunResult) first).getResultFolder();
+				if (getResult() == null || !getResult().getResultFolder().equals(newFolder)) {
+					setResult((SpotterProjectRunResult) first);
+				}
 			}
 		}
 	}
 
 	private void updateTabs() {
-		String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(), runResultItem
-				.getProject().getName());
-		setContentDescription(contentDescription);
+		if (runResultItem == null) {
+			setContentDescription(RESULTS_EMPTY_CONTENT_DESC);
+			resetHierarchy();
+			resetReport();
+		} else {
+			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
+					runResultItem.getProject().getName());
+			setContentDescription(contentDescription);
+			updateHierarchy();
+			updateReport();
+		}
+	}
 
-		updateHierarchy();
-		updateReport();
+	private void resetHierarchy() {
+		hierarchyTreeViewer.setInput(new ExtensionItem());
+		lblProblemName.setText(LABEL_NONE_SELECTED);
+		lblDescription.setText("");
+		lblStatus.setText("");
+		textResult.setText("");
+		listResources.removeAll();
+		for (Shell shell : resourceShells.values()) {
+			shell.close();
+		}
+		if (resourceImage != null) {
+			resourceImage.dispose();
+		}
+		resourceImage = null;
+		resourceImageData = null;
+		canvasRes.setBackgroundImage(null);
+	}
+
+	private void resetReport() {
+		textReport.setText(EMPTY_RESULTS);
 	}
 
 	private void updateHierarchy() {
@@ -553,6 +638,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
 		} finally {
 			imageProvider.setResultsContainer(resultsContainer);
+			if (input == null) {
+				input = new ExtensionItem();
+			}
 			hierarchyTreeViewer.setInput(input);
 			hierarchyTreeViewer.expandAll();
 		}

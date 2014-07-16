@@ -30,7 +30,7 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfigMeasurement implements ISpotterProjectElement {
+public class SpotterProjectConfigMeasurement implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/measurement.png"; //$NON-NLS-1$
 

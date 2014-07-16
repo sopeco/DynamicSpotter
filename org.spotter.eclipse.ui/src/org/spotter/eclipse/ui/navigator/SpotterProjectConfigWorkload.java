@@ -30,7 +30,7 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfigWorkload implements ISpotterProjectElement {
+public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/workload-adapter.png"; //$NON-NLS-1$
 

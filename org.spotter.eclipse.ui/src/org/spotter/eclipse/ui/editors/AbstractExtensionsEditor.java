@@ -117,7 +117,9 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 
 	@Override
 	public void setFocus() {
-		extensionsGroupViewer.setFocus();
+		if (extensionsGroupViewer != null) {
+			extensionsGroupViewer.setFocus();
+		}
 	}
 
 	/**

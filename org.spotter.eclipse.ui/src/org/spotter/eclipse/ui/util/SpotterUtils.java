@@ -27,6 +27,11 @@ import javax.xml.bind.Marshaller;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.navigator.IDeletable;
+import org.spotter.eclipse.ui.navigator.IDuplicatable;
+import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
@@ -38,6 +43,11 @@ import org.spotter.shared.environment.model.XMConfiguration;
 public final class SpotterUtils {
 
 	private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	private static final String ERR_MSG_OPEN = "Error while opening element '%s'!";
+	private static final String ERR_MSG_DUPLICATE = "Error while duplicating element '%s'!";
+	private static final String ERR_MSG_DELETE = "Error while deleting element '%s'!";
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterUtils.class);
 
 	/**
 	 * Available name formatters for the displayed keys.
@@ -78,6 +88,16 @@ public final class SpotterUtils {
 		}
 	}
 
+	/**
+	 * Checks whether the given list of config parameters contains the key.
+	 * 
+	 * @param config
+	 *            The list to check
+	 * @param key
+	 *            The key to find
+	 * @return <code>true</code> when the key is found, <code>false</code>
+	 *         otherwise
+	 */
 	public static boolean hasConfigParameter(List<XMConfiguration> config, String key) {
 		if (config != null) {
 			for (XMConfiguration xmConfig : config) {
@@ -89,6 +109,16 @@ public final class SpotterUtils {
 		return false;
 	}
 
+	/**
+	 * Extracts the config parameter with the given key.
+	 * 
+	 * @param config
+	 *            The list to check
+	 * @param key
+	 *            The key of the config parameter
+	 * @return the config parameter matching the key or <code>null</code> if not
+	 *         found
+	 */
 	public static String extractConfigValue(List<XMConfiguration> config, String key) {
 		if (config != null) {
 			for (XMConfiguration xmConfig : config) {
@@ -100,6 +130,18 @@ public final class SpotterUtils {
 		return null;
 	}
 
+	/**
+	 * Convenience method to set a config parameter in the given list. If the
+	 * list was <code>null</code> a new one is created.
+	 * 
+	 * @param config
+	 *            The list to modify
+	 * @param key
+	 *            The key of the config parameter
+	 * @param value
+	 *            The new value of the config parameter
+	 * @return the modified list
+	 */
 	public static List<XMConfiguration> setConfigValue(List<XMConfiguration> config, String key, String value) {
 		if (config == null) {
 			config = new ArrayList<XMConfiguration>();
@@ -116,6 +158,66 @@ public final class SpotterUtils {
 				}
 			}
 			return config;
+		}
+	}
+
+	/**
+	 * Calls the <code>open()</code> method on the given element if it is
+	 * openable.
+	 * 
+	 * @param element
+	 *            the element to open
+	 */
+	public static void openNavigatorElement(Object element) {
+		if (element instanceof IOpenableProjectElement) {
+			IOpenableProjectElement openable = (IOpenableProjectElement) element;
+			try {
+				openable.open();
+			} catch (Exception e) {
+				String msg = String.format(ERR_MSG_OPEN, openable.getText());
+				LOGGER.warn(DialogUtils.appendCause(msg, e.toString()));
+				DialogUtils.openWarning(DialogUtils.appendCause(msg, e.getMessage()));
+			}
+		}
+	}
+
+	/**
+	 * Calls the <code>duplicate()</code> method on the given element if it is
+	 * duplicatable.
+	 * 
+	 * @param element
+	 *            the element to duplicate
+	 */
+	public static void duplicateNavigatorElement(Object element) {
+		if (element instanceof IDuplicatable) {
+			IDuplicatable duplicatable = (IDuplicatable) element;
+			try {
+				duplicatable.duplicate();
+			} catch (Exception e) {
+				String msg = String.format(ERR_MSG_DUPLICATE, duplicatable.toString());
+				LOGGER.error(DialogUtils.appendCause(msg, e.toString()));
+				DialogUtils.openError(DialogUtils.appendCause(msg, e.getMessage()));
+			}
+		}
+	}
+
+	/**
+	 * Calls the <code>delete()</code> method on the given element if it is
+	 * deletable.
+	 * 
+	 * @param element
+	 *            the element to delete
+	 */
+	public static void deleteNavigatorElement(Object element) {
+		if (element instanceof IDeletable) {
+			IDeletable deletable = (IDeletable) element;
+			try {
+				deletable.delete();
+			} catch (Exception e) {
+				String msg = String.format(ERR_MSG_DELETE, deletable.toString());
+				LOGGER.error(DialogUtils.appendCause(msg, e.toString()));
+				DialogUtils.openError(DialogUtils.appendCause(msg, e.getMessage()));
+			}
 		}
 	}
 

@@ -114,7 +114,9 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 
 	@Override
 	public void setFocus() {
-		propertiesGroupViewer.setFocus();
+		if (propertiesGroupViewer != null) {
+			propertiesGroupViewer.setFocus();
+		}
 	}
 
 	private ExtensionItem createInputModel(IFile file) {

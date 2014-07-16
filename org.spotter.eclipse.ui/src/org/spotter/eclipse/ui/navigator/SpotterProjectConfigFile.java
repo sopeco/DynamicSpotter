@@ -30,7 +30,7 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfigFile implements ISpotterProjectElement {
+public class SpotterProjectConfigFile implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/spotter-conf.gif"; //$NON-NLS-1$
 
