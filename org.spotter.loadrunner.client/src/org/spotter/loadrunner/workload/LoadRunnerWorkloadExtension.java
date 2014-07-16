@@ -30,9 +30,13 @@ import org.spotter.loadrunner.LRConfigKeys;
  */
 public class LoadRunnerWorkloadExtension extends AbstractWorkloadExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The loadrunner workload satellite adapter connects to the workload "
+														+ "satellite executed on the Loadrunner system. This satellite adapter "
+														+ "provokes the workload satellite to start the workload on Loadrunner.";
+	
 	@Override
 	public String getName() {
-		return "workload.adapter.loadrunner";
+		return "workload.satellite.adapter.loadrunner";
 	}
 
 	private ConfigParameterDescription createLoadRunnerPathParameter() {
@@ -79,6 +83,7 @@ public class LoadRunnerWorkloadExtension extends AbstractWorkloadExtension {
 		addConfigParameter(createLoadRunnerPathParameter());
 		addConfigParameter(createScenarioPathParameter());
 		addConfigParameter(createResultDirParameter());
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override
