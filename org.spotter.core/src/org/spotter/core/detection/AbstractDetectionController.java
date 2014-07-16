@@ -79,7 +79,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	public static final long KILO = 1000L;
 	public static final String DETECTABLE_KEY = "org.spotter.detection.detectable";
-	private static final int SUT_WARMPUP_DURATION = 10; // [s]
+	private static final int SUT_WARMPUP_DURATION = GlobalConfiguration.getInstance().getPropertyAsInteger(ConfigKeys.PREWARUMUP_DURATION, 180);
 	private static final int MIN_NUM_USERS = 1;
 	protected static final String NUMBER_OF_USERS = "numUsers";
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
@@ -184,7 +184,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	}
 
 	/**
-	 * this method triggers the load generators to put low load on the system
+	 * This method triggers the load generators to put low load on the system
 	 * under test in order to warm it up. E.g. all required classes of the SUT
 	 * should be loaded.
 	 * 
@@ -192,7 +192,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	private void warmUpSUT() throws WorkloadException {
 		if (!sutWarmedUp) {
+			
 			Spotter.getInstance().getProgress().updateProgressStatus(getProvider().getName(), DiagnosisStatus.WARM_UP);
+			
 			Properties wlProperties = new Properties();
 			wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, String.valueOf(1));
@@ -200,8 +202,10 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_DURATION, String.valueOf(SUT_WARMPUP_DURATION));
+			
 			workloadAdapter.startLoad(wlProperties);
 			workloadAdapter.waitForFinishedLoad();
+			
 			sutWarmedUp = true;
 		}
 	}
