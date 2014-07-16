@@ -15,6 +15,7 @@
  */
 package org.spotter.loadrunner.instrumentation;
 
+import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.loadgenerator.LoadGeneratorClient;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
 import org.spotter.core.instrumentation.ISpotterInstrumentation;
@@ -26,6 +27,11 @@ import org.spotter.core.instrumentation.ISpotterInstrumentation;
  */
 public class LoadRunnerInstrumentationExtension extends AbstractInstrumentationExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The instrumentation satellite adapter for Loadrunner can be used to "
+														+ "connect to an Loadrunner instrumentation satellite. This satellite "
+														+ "will only be applicable if you have a Loadrunner as a workload "
+														+ "generator.";
+	
 	@Override
 	public ISpotterInstrumentation createExtensionArtifact() {
 		return new LoadRunnerInstrumentationClient(this);
@@ -33,12 +39,12 @@ public class LoadRunnerInstrumentationExtension extends AbstractInstrumentationE
 
 	@Override
 	public String getName() {
-		return "loadrunner.instrumentation";
+		return "instrumentation.satellite.adapter.loadrunner";
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

@@ -30,9 +30,13 @@ import org.spotter.core.instrumentation.ISpotterInstrumentation;
  */
 public class DynamicInstrumentationClientExtension extends AbstractInstrumentationExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The default instrumentation satellite adapter can be used to "
+														+ "connect to every instrumentation satellite which is not "
+														+ "covered by other instrumentation satellite adapters.";
+	
 	@Override
 	public String getName() {
-		return "instrumentation.dynamic.client";
+		return "instrumentation.satellite.adapter.default";
 	}
 
 	private ConfigParameterDescription createPackagesToIncludeParameter() {
@@ -64,6 +68,7 @@ public class DynamicInstrumentationClientExtension extends AbstractInstrumentati
 	protected void initializeConfigurationParameters() {
 		addConfigParameter(createPackagesToIncludeParameter());
 		addConfigParameter(createPackagesToExcludeParameter());
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override
