@@ -201,7 +201,7 @@ public final class ConfigKeys {
 		parameter.setDirectory(true);
 		parameter.setDefaultValue("");
 		parameter.setDescription("If experiments should be omitted, this parameter specified "
-				+ "the path to the experiment data which should be used for analysis instead.");
+				+ "the path to the experiment data which should be used for analysis instead. The path must point to the root folder which contains the SpotterReport.txt file.");
 		return parameter;
 	}
 
