@@ -22,6 +22,10 @@ import org.spotter.core.workload.IWorkloadAdapter;
 
 public class TestLoadDriverExtension extends  AbstractWorkloadExtension  {
 
+	private static final String EXTENSION_DESCRIPTION = "The test workload satellite adapter is used for test purposes only. The "
+														+ "satellite adapter is a dummy and does nothing. The dummy will be removed after "
+														+ "the first version has been officially released.";
+
 	public static final String NUM_EXPERIMENTS = "org.spotter.test.numExperiments";
 
 	@Override
@@ -31,7 +35,7 @@ public class TestLoadDriverExtension extends  AbstractWorkloadExtension  {
 
 	@Override
 	public String getName() {
-		return "test.loadDriver";
+		return "workload.satellite.adapter.test";
 	}
 
 	@Override
@@ -41,6 +45,7 @@ public class TestLoadDriverExtension extends  AbstractWorkloadExtension  {
 		par.setDefaultValue(String.valueOf(100));
 		par.setDescription("Number of experiments.");
 		addConfigParameter(par);
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override
