@@ -27,15 +27,21 @@ import org.spotter.core.measurement.IMeasurementController;
  * 
  */
 public class MeasurementExtension extends AbstractMeasurmentExtension {
+	
+	private static final String EXTENSION_DESCRIPTION = "The measurement satellite adapter is used to connect to system where "
+														+ "instrumentation is possible. This satellite adapter can enable and "
+														+ "disable the collecting of data fetched with instrumentation. "
+														+ "Hence, this satellite adapter will be mainly used on systems where "
+														+ "a instrumentation satellite is running.";
 
 	@Override
 	public String getName() {
-		return "measurement.client";
+		return "measurement.satellite.adapter.default";
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override
