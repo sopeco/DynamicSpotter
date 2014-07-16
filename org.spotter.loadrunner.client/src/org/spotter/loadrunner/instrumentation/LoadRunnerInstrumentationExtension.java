@@ -41,6 +41,11 @@ public class LoadRunnerInstrumentationExtension extends AbstractInstrumentationE
 	public String getName() {
 		return "instrumentation.satellite.adapter.loadrunner";
 	}
+	
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "LoadRunner Instrumentation Satellite Adapter";
+	}
 
 	@Override
 	protected void initializeConfigurationParameters() {

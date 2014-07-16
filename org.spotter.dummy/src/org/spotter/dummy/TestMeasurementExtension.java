@@ -39,6 +39,11 @@ public class TestMeasurementExtension extends AbstractMeasurmentExtension {
 	}
 
 	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Test Measurement Satellite Adapter";
+	}
+	
+	@Override
 	protected void initializeConfigurationParameters() {
 		ConfigParameterDescription par = new ConfigParameterDescription(NUM_RECORDS, LpeSupportedTypes.Integer);
 		par.setMandatory(false);

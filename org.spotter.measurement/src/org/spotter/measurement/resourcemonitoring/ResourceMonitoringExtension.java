@@ -37,6 +37,11 @@ public class ResourceMonitoringExtension extends AbstractMeasurmentExtension {
 		return "measurement.satellite.adapter.sampling";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Sampling Measurement Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createSamplingDelayParameter() {
 		ConfigParameterDescription samplingDelayParameter = new ConfigParameterDescription(
 				ResourceMonitoringAdapter.SAMPLING_DELAY, LpeSupportedTypes.Long);

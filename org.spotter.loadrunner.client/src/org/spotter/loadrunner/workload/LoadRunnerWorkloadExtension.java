@@ -39,6 +39,11 @@ public class LoadRunnerWorkloadExtension extends AbstractWorkloadExtension {
 		return "workload.satellite.adapter.loadrunner";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "LoadRunner Workload Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createLoadRunnerPathParameter() {
 		ConfigParameterDescription loadRunnerPathParameter = new ConfigParameterDescription(LRConfigKeys.CONTROLLER_EXE,
 				LpeSupportedTypes.String);

@@ -28,21 +28,27 @@ import org.lpe.common.util.LpeSupportedTypes;
  * 
  */
 public abstract class AbstractSpotterSatelliteExtension {
+	
 	/**
 	 * property key for host.
 	 */
-	public static final String HOST_KEY = "org.spotter.satellite.host";
+	public static final String HOST_KEY = "org.spotter.satellite.adapter.host";
+	
 	/**
 	 * property key for port.
 	 */
-	public static final String PORT_KEY = "org.spotter.satellite.port";
+	public static final String PORT_KEY = "org.spotter.satellite.adapter.port";
+	
 	/**
 	 * property key for name.
 	 */
-	public static final String NAME_KEY = "org.spotter.satellite.name";
-
+	public static final String NAME_KEY = "org.spotter.satellite.adapter.name";
+	
+	/**
+	 * The set contains all the configuration for this extension.
+	 */
 	protected final Set<ConfigParameterDescription> configParameters;
-
+	
 	/**
 	 * Constructor.
 	 */
@@ -57,6 +63,15 @@ public abstract class AbstractSpotterSatelliteExtension {
 	}
 
 	protected abstract void initializeConfigurationParameters();
+	
+	/**
+	 * Returns the default name for the satellite adapter.
+	 * 
+	 * @return the default name for the satellite adapter
+	 */
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Spotter Satellite Adapter";
+	}
 
 	/**
 	 * @param configuration
@@ -70,8 +85,8 @@ public abstract class AbstractSpotterSatelliteExtension {
 		ConfigParameterDescription nameParameter = new ConfigParameterDescription(NAME_KEY, LpeSupportedTypes.String);
 		nameParameter.setMandatory(true);
 		nameParameter.setAset(false);
-		nameParameter.setDefaultValue("Spotter Satellite Extension");
-		nameParameter.setDescription("The name of this satellite.");
+		nameParameter.setDefaultValue(getDefaultSatelleiteExtensionName());
+		nameParameter.setDescription("The name of this satellite adapter.");
 
 		return nameParameter;
 	}
@@ -81,7 +96,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 		hostParameter.setMandatory(true);
 		hostParameter.setAset(false);
 		hostParameter.setDefaultValue("localhost");
-		hostParameter.setDescription("The host/ip of this satellite.");
+		hostParameter.setDescription("The host/ip where this satellite adapter should connect to.");
 
 		return hostParameter;
 	}
@@ -92,7 +107,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 		portParameter.setAset(false);
 		portParameter.setRange("0", "65535");
 		portParameter.setDefaultValue("8080");
-		portParameter.setDescription("The name of this satellite.");
+		portParameter.setDescription("The port the satellite adapter should connect to.");
 
 		return portParameter;
 	}

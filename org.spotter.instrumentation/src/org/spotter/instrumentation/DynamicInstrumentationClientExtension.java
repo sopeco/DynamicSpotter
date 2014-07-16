@@ -38,6 +38,11 @@ public class DynamicInstrumentationClientExtension extends AbstractInstrumentati
 	public String getName() {
 		return "instrumentation.satellite.adapter.default";
 	}
+	
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Default Instrumentation Satellite Adapter";
+	}
 
 	private ConfigParameterDescription createPackagesToIncludeParameter() {
 		ConfigParameterDescription packagesToIncludeParameter = new ConfigParameterDescription(

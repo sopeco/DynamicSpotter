@@ -40,6 +40,11 @@ public class LoadRunnerMeasurementExtension extends AbstractMeasurmentExtension 
 		return "measurement.satellite.adapter.loadrunner";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "LoadRunner Measurement Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createAnalysisPathParameter() {
 		ConfigParameterDescription analysisPathParameter = new ConfigParameterDescription(LRConfigKeys.ANALYSIS_EXE,
 				LpeSupportedTypes.String);

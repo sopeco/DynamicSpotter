@@ -39,6 +39,11 @@ public class JmsServerMeasurementExtension extends AbstractMeasurmentExtension {
 	}
 
 	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "JMSServer Sampling Measurement Satellite Adapter";
+	}
+	
+	@Override
 	public IMeasurementController createExtensionArtifact() {
 		return new JmsServerMeasurement(this);
 	}

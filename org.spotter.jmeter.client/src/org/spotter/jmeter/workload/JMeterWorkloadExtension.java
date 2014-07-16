@@ -46,7 +46,12 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 	public String getName() {
 		return "workload.satellite.adapter.jmeter";
 	}
-
+	
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "JMeter Workload Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createJMeterHomeParameter() {
 		ConfigParameterDescription jMeterHomeParameter = new ConfigParameterDescription(
 				JMeterConfigKeys.JMETER_HOME, LpeSupportedTypes.String);

@@ -39,6 +39,11 @@ public class TestLoadDriverExtension extends  AbstractWorkloadExtension  {
 	}
 
 	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Test Workload Satellite Adapter";
+	}
+	
+	@Override
 	protected void initializeConfigurationParameters() {
 		ConfigParameterDescription par = new ConfigParameterDescription(NUM_EXPERIMENTS, LpeSupportedTypes.Integer);
 		par.setMandatory(false);

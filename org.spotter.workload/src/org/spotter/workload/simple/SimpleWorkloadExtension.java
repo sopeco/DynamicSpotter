@@ -38,6 +38,11 @@ public class SimpleWorkloadExtension extends AbstractWorkloadExtension {
 		return "workload.satellite.adapter.customized";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Customized Workload Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createScriptPathParameter() {
 		ConfigParameterDescription scriptParameter = new ConfigParameterDescription(
 				SimpleWorkloadDriver.USER_SCRIPT_PATH, LpeSupportedTypes.String);

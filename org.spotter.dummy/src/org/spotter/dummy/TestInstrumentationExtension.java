@@ -36,6 +36,11 @@ public class TestInstrumentationExtension extends AbstractInstrumentationExtensi
 	}
 
 	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Test Instrumentation Satellite Adapter";
+	}
+	
+	@Override
 	protected void initializeConfigurationParameters() {
 		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
