@@ -21,13 +21,16 @@ import org.eclipse.core.runtime.CoreException;
 
 /**
  * A project nature for Spotter projects.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ProjectNature implements IProjectNature {
 
 	public static final String NATURE_ID = "org.spotter.eclipse.ui.projectNature"; //$NON-NLS-1$
-	
+
 	private IProject project;
-	
+
 	@Override
 	public void configure() throws CoreException {
 	}

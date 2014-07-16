@@ -86,6 +86,12 @@ import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
 
+/**
+ * A view to display results of a Spotter run.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ResultsView extends ViewPart implements ISelectionListener {
 
 	public static final String VIEW_ID = "org.spotter.eclipse.ui.view.resultsView";
@@ -176,7 +182,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 		createHierarchyDetailsUpperPart(grpDetails);
 		createHierarchyDetailsLowerPart(grpDetails);
-		
+
 		container.setWeights(new int[] { 1, 2 });
 
 		addSelectionListeners();

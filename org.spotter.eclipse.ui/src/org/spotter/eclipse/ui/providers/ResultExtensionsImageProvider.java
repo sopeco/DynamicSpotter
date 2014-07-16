@@ -22,6 +22,12 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
 
+/**
+ * An image provider for extension items displayed in the results view.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ResultExtensionsImageProvider extends SpotterExtensionsImageProvider {
 
 	private static final Image IMG_NO_LOOKUP = Activator.getImage("icons/exclamation.png");

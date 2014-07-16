@@ -61,13 +61,16 @@ import org.spotter.eclipse.ui.util.DialogUtils;
 /**
  * Content provider for items of Spotter Project Navigator. This provider is
  * used by the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener {
 
 	private static final String TITLE_ERR_DIALOG = "Spotter";
-	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command! (%s)";
-	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command! (%s)";
-	
+	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command!";
+	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command!";
+
 	private static final Object[] NO_CHILDREN = {};
 	private final Map<String, Object> wrapperCache = new HashMap<String, Object>();
 	private TreeViewer viewer;
@@ -139,7 +142,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 					try {
 						handlerService.executeCommand(DeleteHandler.DELETE_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.errorMessage(ERR_MSG_DELETE, e.getMessage());
+						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_DELETE, e.getMessage()));
 					}
 				} else if (event.keyCode == SWT.F5) {
 					IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
@@ -147,7 +150,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 					try {
 						handlerService.executeCommand(RefreshHandler.REFRESH_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.errorMessage(ERR_MSG_REFRESH, e.getMessage());
+						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_REFRESH, e.getMessage()));
 					}
 				}
 			}
@@ -179,7 +182,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		if (parentElement instanceof IWorkspaceRoot) {
 			IProject[] projects = ((IWorkspaceRoot) parentElement).getProjects();
 			children = createSpotterProjectParents(projects);
-			//parentElements = children;
+			// parentElements = children;
 		} else if (parentElement instanceof ISpotterProjectElement) {
 			children = ((ISpotterProjectElement) parentElement).getChildren();
 		} else {

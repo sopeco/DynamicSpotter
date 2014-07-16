@@ -34,8 +34,11 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
 
 /**
- * A class implementing editing support for properties. The cell editor returned by this editing
- * support depends on the type of the property in the cell.
+ * A class implementing editing support for properties. The cell editor returned
+ * by this editing support depends on the type of the property in the cell.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public final class PropertiesEditingSupport extends EditingSupport {
 

@@ -27,6 +27,9 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the results node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectResults implements ISpotterProjectElement {
 

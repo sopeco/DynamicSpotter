@@ -21,6 +21,9 @@ import org.spotter.eclipse.ui.Activator;
 
 /**
  * This is the parent element of all other items and represents the project node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectParent implements ISpotterProjectElement {
 

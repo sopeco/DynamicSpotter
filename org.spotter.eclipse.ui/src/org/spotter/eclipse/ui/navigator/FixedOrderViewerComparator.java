@@ -24,6 +24,14 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
+/**
+ * An implementation of a viewer comparator that sorts the elements in a
+ * predetermined order. Elements not included in this predefinition are sorted
+ * using the default comparator, thus are sorted in lexicographical order.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class FixedOrderViewerComparator extends ViewerComparator {
 
 	// The order in which the elements appear in the navigator viewer. Elements

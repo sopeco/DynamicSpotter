@@ -28,7 +28,11 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 import org.eclipse.ui.navigator.WizardActionGroup;
 
 /**
- * A custom new action provider that uses commonWizard contributions to fill the context menu.
+ * A custom new action provider that uses commonWizard contributions to fill the
+ * context menu.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class CustomNewActionProvider extends CommonActionProvider {
 
@@ -67,11 +71,11 @@ public class CustomNewActionProvider extends CommonActionProvider {
 
 		submenu.add(new Separator(ICommonMenuConstants.GROUP_ADDITIONS));
 
-		// Add other ..
+		// add other
 		submenu.add(new Separator());
 		submenu.add(showDlgAction);
 
-		// append the submenu after the GROUP_NEW group.
+		// append the submenu after the GROUP_NEW group
 		menu.insertAfter(ICommonMenuConstants.GROUP_NEW, submenu);
 	}
 

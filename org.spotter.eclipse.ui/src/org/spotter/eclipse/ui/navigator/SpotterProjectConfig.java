@@ -21,6 +21,9 @@ import org.spotter.eclipse.ui.Activator;
 
 /**
  * This is the parent element of all other configuration elements represents the configuration node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectConfig implements ISpotterProjectElement {
 

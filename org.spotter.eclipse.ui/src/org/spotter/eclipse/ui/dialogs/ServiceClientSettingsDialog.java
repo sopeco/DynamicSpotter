@@ -31,6 +31,9 @@ import org.spotter.eclipse.ui.wizard.ConnectionWizardPage;
 
 /**
  * A dialog to edit the service client settings of a Spotter project.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ServiceClientSettingsDialog extends TitleAreaDialog implements IConnectionChangedListener {
 

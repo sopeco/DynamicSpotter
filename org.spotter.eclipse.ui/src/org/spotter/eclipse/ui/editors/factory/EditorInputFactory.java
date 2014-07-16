@@ -21,10 +21,18 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IFile;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
 
+/**
+ * A factory to create instances of {@link AbstractSpotterEditorInput} using
+ * reflection. The runtime type of the produced editor input is determined by
+ * the passed class in the constructor.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class EditorInputFactory {
 
 	private static final String ERR_CALL_CONSTRUCTOR = "Error occured while trying to create Editor Input";
-	
+
 	private Class<?> editorInputClazz;
 
 	/**

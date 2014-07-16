@@ -25,7 +25,10 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.view.ResultsView;
 
 /**
- * An element that represents the instrumentation controllers node.
+ * An element that represents a run result node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectRunResult implements ISpotterProjectElement {
 

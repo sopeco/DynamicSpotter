@@ -22,6 +22,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.spotter.eclipse.ui.dialogs.ConnectionTestComposite;
 
+/**
+ * A modify listener that validates fields in the ConnectionTestComposite.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ConnectionParamModifyListener implements ModifyListener {
 
 	private static final int MIN_PORT = 0;

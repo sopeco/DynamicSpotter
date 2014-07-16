@@ -29,6 +29,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
 /**
  * A model wrapper which wraps only a configuration parameter list. This wrapper is not associated
  * with an extension.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterConfigModelWrapper implements IModelWrapper {
 

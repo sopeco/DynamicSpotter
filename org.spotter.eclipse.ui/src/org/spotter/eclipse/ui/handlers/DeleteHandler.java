@@ -41,6 +41,9 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 /**
  * A delete handler for the delete command which deletes selected projects in
  * the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class DeleteHandler extends AbstractHandler {
 

@@ -15,6 +15,12 @@
  */
 package org.spotter.eclipse.ui.listeners;
 
+/**
+ * A listener that is notified when the connection changed.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public interface IConnectionChangedListener {
 
 	public void connectionChanged(boolean connectionOk);

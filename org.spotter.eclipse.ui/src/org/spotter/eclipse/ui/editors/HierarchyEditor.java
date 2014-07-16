@@ -40,6 +40,9 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  * An editor to edit a performance problem hierarchy. Overrides
  * <code>supportsHierarchicalExtensionItems()</code> to provide hierarchical
  * extension items.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class HierarchyEditor extends AbstractExtensionsEditor {
 

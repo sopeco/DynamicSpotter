@@ -32,6 +32,9 @@ import org.eclipse.swt.widgets.Text;
  * cell's text widget to red whenever the error message of the text cell editor is set and not
  * <code>null</code>.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class TextEditorErrorListener implements ICellEditorListener {
 

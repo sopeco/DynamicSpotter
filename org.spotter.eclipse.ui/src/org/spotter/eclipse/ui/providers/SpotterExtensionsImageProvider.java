@@ -21,6 +21,9 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
 /**
  * Image provider used by {@link SpotterExtensionsLabelProvider} to get images
  * for the extension items.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterExtensionsImageProvider {
 

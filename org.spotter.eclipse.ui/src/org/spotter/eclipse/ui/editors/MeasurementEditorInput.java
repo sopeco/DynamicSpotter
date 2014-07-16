@@ -26,12 +26,15 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 
 /**
  * Editor input for the Measurement Editor.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class MeasurementEditorInput extends AbstractSpotterEditorInput {
 
 	private static final String NAME = "Measurement";
 	private static final String IMAGE_PATH = SpotterProjectConfigMeasurement.IMAGE_PATH;
-	
+
 	private List<XMeasurementEnvObject> measurementControllers;
 
 	/**

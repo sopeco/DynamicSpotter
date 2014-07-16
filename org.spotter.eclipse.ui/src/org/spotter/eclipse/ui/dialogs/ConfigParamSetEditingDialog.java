@@ -45,6 +45,9 @@ import org.lpe.common.config.ConfigParameterDescription;
 
 /**
  * A dialog to edit a configuration parameter set.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 

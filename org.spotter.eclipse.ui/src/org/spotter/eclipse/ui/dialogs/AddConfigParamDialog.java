@@ -33,6 +33,9 @@ import org.lpe.common.config.ConfigParameterDescription;
 
 /**
  * A dialog to add configuration parameters.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class AddConfigParamDialog extends TitleAreaDialog {
 
@@ -41,13 +44,13 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 	private final ConfigParameterDescription[] configParams;
 	private ConfigParameterDescription[] result;
 	private List listConfigParams;
-	//private Label lblDescription;
 	private Text textDescription;
 
 	/**
 	 * Create the dialog.
 	 * 
-	 * @param parentShell The parent shell of this dialog
+	 * @param parentShell
+	 *            The parent shell of this dialog
 	 */
 	public AddConfigParamDialog(Shell parentShell, ConfigParameterDescription[] configParams) {
 		super(parentShell);
@@ -59,7 +62,8 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 	/**
 	 * Create contents of the dialog.
 	 * 
-	 * @param parent The parent composite the content is placed in
+	 * @param parent
+	 *            The parent composite the content is placed in
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
@@ -73,14 +77,10 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 		listConfigParams.setItems(createListItems());
 		listConfigParams.setBounds(10, 10, 309, 183);
 		createListListener();
-		
+
 		textDescription = new Text(container, SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
 		textDescription.setBounds(325, 10, 209, 183);
 		textDescription.setText(configParams[0].getDescription());
-
-		//lblDescription = new Label(container, SWT.WRAP | SWT.V_SCROLL);
-		//lblDescription.setBounds(325, 10, 209, 183);
-		//lblDescription.setText(configParams[0].getDescription());
 
 		return area;
 	}
@@ -93,10 +93,8 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 				int selectionCount = listConfigParams.getSelectionCount();
 				if (selectionCount == 1) {
 					int index = listConfigParams.getSelectionIndex();
-					//lblDescription.setText(configParams[index].getDescription());
 					textDescription.setText(configParams[index].getDescription());
 				} else if (selectionCount > 1) {
-					//lblDescription.setText(String.format(MSG_MULTI_SELECT, selectionCount));
 					textDescription.setText(String.format(MSG_MULTI_SELECT, selectionCount));
 				}
 			}

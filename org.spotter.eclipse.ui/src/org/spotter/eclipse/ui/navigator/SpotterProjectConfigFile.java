@@ -26,6 +26,9 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the Spotter configuration file node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectConfigFile implements ISpotterProjectElement {
 

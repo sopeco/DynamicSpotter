@@ -16,27 +16,100 @@
 package org.spotter.eclipse.ui.util;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * An utility class for showing different kinds of message dialogs in the
+ * Spotter UI.
+ * <p>
+ * The methods to display dialogs are thread-access safe regarding the problem
+ * that only the UI thread is allowed to access and manipulate SWT components.
+ * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public final class DialogUtils {
 
 	public static final String DEFAULT_DLG_TITLE = "Spotter";
-	
-	private static final String MSG_NO_FURTHER_INFO = "No further information provided.";
 
 	private DialogUtils() {
 	}
 
-	public static void errorMessage(String message, String detailMessage) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		MessageDialog.openError(shell, DEFAULT_DLG_TITLE,
-				String.format(message, detailMessage == null ? MSG_NO_FURTHER_INFO : detailMessage));
+	/**
+	 * Returns the message string with the appended cause. If cause was
+	 * <code>null</code> or empty the message is returned unchanged.
+	 * 
+	 * @param message
+	 *            The message to append to.
+	 * @param cause
+	 *            The cause to append. May be <code>null</code>.
+	 * @return the message appended by the cause
+	 */
+	public static String appendCause(String message, String cause) {
+		return appendCause(message, cause, false);
 	}
-	
-	public static void warningMessage(String message) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		MessageDialog.openWarning(shell, DEFAULT_DLG_TITLE, message);
+
+	/**
+	 * Returns the message string with the appended cause. If cause was
+	 * <code>null</code> or empty the message is returned unchanged.
+	 * 
+	 * @param message
+	 *            The message to append to.
+	 * @param cause
+	 *            The cause to append. May be <code>null</code>.
+	 * @param insertBlankLine
+	 *            <code>true</code> to insert a blank line before the cause.
+	 * @return the message appended by the cause
+	 */
+	public static String appendCause(String message, String cause, boolean insertBlankLine) {
+		if (cause == null || cause.isEmpty()) {
+			return message;
+		}
+		String blank = insertBlankLine ? "\n\n" : " ";
+		String formattedCause = blank + "Cause: " + cause;
+		return message.concat(formattedCause);
+	}
+
+	public static void openWarning(final String title, final String message) {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		// check if operating on UI thread
+		if (Thread.currentThread() == display.getThread()) {
+			// already executing on the UI thread
+			MessageDialog.openWarning(display.getActiveShell(), title, message);
+		} else {
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(display.getActiveShell(), title, message);
+				}
+			});
+		}
+	}
+
+	public static void openWarning(final String message) {
+		openWarning(DEFAULT_DLG_TITLE, message);
+	}
+
+	public static void openError(final String title, final String message) {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		// check if operating on UI thread
+		if (Thread.currentThread() == display.getThread()) {
+			// already executing on the UI thread
+			MessageDialog.openError(display.getActiveShell(), title, message);
+		} else {
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openError(display.getActiveShell(), title, message);
+				}
+			});
+		}
+	}
+
+	public static void openError(final String message) {
+		openError(DEFAULT_DLG_TITLE, message);
 	}
 
 }

@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.dialogs;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -35,6 +36,9 @@ import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 
 /**
  * A dialog to add extensions.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class AddExtensionDialog extends TitleAreaDialog {
 
@@ -54,7 +58,11 @@ public class AddExtensionDialog extends TitleAreaDialog {
 	 */
 	public AddExtensionDialog(Shell parentShell, ExtensionMetaobject[] extensions) {
 		super(parentShell);
-		this.extensions = extensions;
+		if (extensions == null) {
+			this.extensions = new ExtensionMetaobject[0];
+		} else {
+			this.extensions = extensions;
+		}
 		this.result = null;
 		setHelpAvailable(false);
 	}
@@ -75,12 +83,17 @@ public class AddExtensionDialog extends TitleAreaDialog {
 
 		listExtensions = new List(container, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		listExtensions.setItems(createListItems());
+		if (listExtensions.getItemCount() > 0) {
+			listExtensions.setSelection(0);
+		}
 		listExtensions.setBounds(10, 10, 309, 183);
 		createListListener();
 
 		textDescription = new Text(container, SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
 		textDescription.setBounds(325, 10, 209, 183);
-		updateDescriptionText(extensions[0]);
+		if (extensions.length > 0) {
+			updateDescriptionText(extensions[0]);
+		}
 
 		return area;
 	}
@@ -93,12 +106,14 @@ public class AddExtensionDialog extends TitleAreaDialog {
 	}
 
 	private void createListListener() {
-		listExtensions.setSelection(0);
 		listExtensions.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int selectionCount = listExtensions.getSelectionCount();
-				if (selectionCount == 1) {
+				getButton(Window.OK).setEnabled(selectionCount > 0);
+				if (selectionCount == 0) {
+					textDescription.setText("");
+				} else if (selectionCount == 1) {
 					int index = listExtensions.getSelectionIndex();
 					updateDescriptionText(extensions[index]);
 				} else if (selectionCount > 1) {
@@ -127,6 +142,8 @@ public class AddExtensionDialog extends TitleAreaDialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		
+		getButton(Window.OK).setEnabled(extensions.length > 0);
 	}
 
 	/**

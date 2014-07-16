@@ -22,6 +22,9 @@ import org.lpe.common.config.ConfigParameterDescription;
 /**
  * This class contains relevant meta information about an extension such as its
  * name and its configuration parameter descriptions.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ExtensionMetaobject {
 

@@ -36,6 +36,9 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 /**
  * A duplicate handler for the duplicate command which duplicates the selected project. The handler
  * is only enabled when a single project is selected in the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class DuplicateHandler extends AbstractHandler {
 

@@ -26,9 +26,10 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
 
 /**
- * Abstract base class for all spotter editor inputs. This class also serves as
- * abstract factory for the <code>ElementFactory</code> to create editor input
- * using {@link #createInstance(IFile)}.
+ * Abstract base class for all spotter editor inputs.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractSpotterEditorInput extends FileEditorInput {
 

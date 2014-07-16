@@ -31,6 +31,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
  * An utility class for the Spotter UI.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public final class SpotterUtils {
 

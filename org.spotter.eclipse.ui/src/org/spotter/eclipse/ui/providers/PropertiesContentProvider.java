@@ -33,6 +33,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * Content provider for property items that can be used e.g. in a
  * <code>TableViewer</code>. This content provider expects input of type
  * {@link ExtensionItem}.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class PropertiesContentProvider implements IStructuredContentProvider, IItemPropertiesChangedListener {
 

@@ -50,6 +50,9 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
  * An utility class to support project management for Spotter projects.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectSupport {
 

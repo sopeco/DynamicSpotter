@@ -35,6 +35,9 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
  * A factory to create empty instances of <code>XMeasurementEnvironment</code>
  * or to create a <code>XMeasurementEnvironment</code> by parsing a measurement
  * environment XML file.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public final class MeasurementEnvironmentFactory {
 

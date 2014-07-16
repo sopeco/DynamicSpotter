@@ -19,6 +19,9 @@ import org.eclipse.swt.layout.GridLayout;
 
 /**
  * An utility class for widgets and layouts in the Spotter UI.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public final class WidgetUtils {
 
