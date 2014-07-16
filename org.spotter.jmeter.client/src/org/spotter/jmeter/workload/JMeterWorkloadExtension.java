@@ -31,6 +31,12 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 	
 	private static final String EXTENSION_DESCRIPTION = "The workload satellite adapter connecting to a JMeter "
 														+ "workload satellite.";
+
+	private static final String[] FILE_RESULTS_EXTENSIONS = {"*.csv"};
+	
+	private static final String FILE_RESULTS_DEFAULT = "result.csv";
+	
+	private static final String[] FILE_SCENARIO_EXTENSIONS = {"*.jmx"};
 	
 	public static final String THINK_TIME_MIN = "org.spotter.workload.jmeter.thinkTimeMin";
 	
@@ -59,6 +65,7 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		jMeterScenarioFileParameter.setFile(true);
 		jMeterScenarioFileParameter.setMandatory(true);
 		jMeterScenarioFileParameter.setDefaultValue("");
+		jMeterScenarioFileParameter.setFileExtensions(FILE_SCENARIO_EXTENSIONS);
 		jMeterScenarioFileParameter
 				.setDescription("The path to the JMeter user script file.");
 
@@ -71,6 +78,8 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		jMeterResultFileParameter.setFile(true);
 		jMeterResultFileParameter.setMandatory(true);
 		jMeterResultFileParameter.setDefaultValue("");
+		jMeterResultFileParameter.setDefaultFileName(FILE_RESULTS_DEFAULT);
+		jMeterResultFileParameter.setFileExtensions(FILE_RESULTS_EXTENSIONS);
 		jMeterResultFileParameter
 				.setDescription("The path to the JMeter result CSV file!");
 

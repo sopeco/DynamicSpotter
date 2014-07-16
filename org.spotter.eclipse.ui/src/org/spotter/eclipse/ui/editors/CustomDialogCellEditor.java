@@ -212,6 +212,8 @@ public class CustomDialogCellEditor extends CellEditor {
 			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 			dialog.setFileName(oldValue);
 			dialog.setText("Edit " + configParamDesc.getName());
+			dialog.setFilterExtensions(configParamDesc.getFileExtensions());
+			dialog.setFileName(configParamDesc.getDefaultFileName());
 			result = dialog.open();
 			needCharConversion = result != null;
 		} else if (configParamDesc.isAset()) {
