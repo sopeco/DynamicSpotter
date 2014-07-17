@@ -76,7 +76,7 @@ public interface IDetectionController extends IExtensionArtifact {
 	 * @return the path where this heuristic stores the measurement data
 	 */
 	String getDataPath();
-	
+
 	/**
 	 * Loads properties from hierarchy description.
 	 */

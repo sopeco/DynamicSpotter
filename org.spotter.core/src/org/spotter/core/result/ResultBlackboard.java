@@ -44,19 +44,21 @@ public class ResultBlackboard {
 		return instance;
 	}
 
-	// maps performance problems using their unique id to the corresponding spotter result
+	// maps performance problems using their unique id to the corresponding
+	// spotter result
 	private final Map<String, SpotterResult> results = new HashMap<String, SpotterResult>();
 	private final List<PerformanceProblem> knownProblems = new ArrayList<PerformanceProblem>();
 
 	/**
-	 * Returns the results as a mapping of performance problems to the corresponding spotter result.
+	 * Returns the results as a mapping of performance problems to the
+	 * corresponding spotter result.
 	 * 
 	 * @return returns the results currently on the result blackboard.
 	 */
 	public Map<String, SpotterResult> getResults() {
 		return results;
 	}
-	
+
 	/**
 	 * Resets the blackboard.
 	 */
@@ -81,7 +83,7 @@ public class ResultBlackboard {
 	/**
 	 * Returns the diagnosis result for the given problem.
 	 * 
-	 * @param problem
+	 * @param problemUniqueId
 	 *            performance problem for which the diagnosis result should be
 	 *            returned
 	 * @return the diagnosis result for the given problem.

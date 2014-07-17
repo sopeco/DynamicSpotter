@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://www.sopeco.org/PerformanceProblemHierarchySchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.sopeco.org/PerformanceProblemHierarchySchema http://i43vm-saas.ipd.kit.edu/schema/PerformanceProblemHierarchySchema.xsd">
+	<config key="org.spotter.detection.detectable" value="false" />
+	<uniqueId>18187b4e-32a7-49cb-863f-819da6810f90</uniqueId>
+	<problem>
+		<extensionName>DetectionA</extensionName>
+		<uniqueId>18187b4e-32a7-49cb-863f-819da6810f80</uniqueId>
+		<config key="org.spotter.detection.detectable" value="true" />
+		<problem>
+			<extensionName>DetectionB</extensionName>
+			<uniqueId>18187b4e-32a7-49cb-863f-819da6810f01</uniqueId>
+			<config key="org.spotter.detection.detectable" value="true" />
+		</problem>
+		<problem>
+			<extensionName>DetectionC</extensionName>
+			<uniqueId>18187b4e-32a7-49cb-863f-819da6810f02</uniqueId>
+			<config key="org.spotter.detection.detectable" value="false" />
+			<problem>
+				<extensionName>DetectionD</extensionName>
+				<uniqueId>18187b4e-32a7-49cb-863f-819da6810f03</uniqueId>
+				<config key="org.spotter.detection.detectable" value="true" />
+				<problem>
+					<extensionName>DetectionF</extensionName>
+					<uniqueId>18187b4e-32a7-49cb-863f-819da6810f05</uniqueId>
+					<config key="org.spotter.detection.detectable" value="true" />
+					<config key="test.key" value="test.value" />
+				</problem>
+			</problem>
+			<problem>
+				<extensionName>DetectionE</extensionName>
+				<uniqueId>18187b4e-32a7-49cb-863f-819da6810f04</uniqueId>
+				<config key="org.spotter.detection.detectable" value="true" />
+			</problem>
+		</problem>
+	</problem>
+</root>

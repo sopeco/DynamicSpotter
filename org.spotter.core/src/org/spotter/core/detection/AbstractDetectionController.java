@@ -169,10 +169,12 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		long elapsedTime = (System.currentTimeMillis() - GlobalConfiguration.getInstance().getPropertyAsLong(
 				ConfigKeys.PPD_RUN_TIMESTAMP, 0L))
 				/ KILO;
-		
+
 		long currentEstimatedOverallDuration = getEstimatedOverallDuration();
 
-		// as the estimated overall duration might not have been calculated yet and return default
+		// as the estimated overall duration might not have been calculated yet
+		// and return default
+
 		// value 0, it must be checked to be greater 0
 		if (currentEstimatedOverallDuration > 0) {
 			Spotter.getInstance()
@@ -180,6 +182,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 					.updateProgress(getProvider().getName(), (double) (elapsedTime / getEstimatedOverallDuration()),
 							getEstimatedOverallDuration() - elapsedTime);
 		}
+
 	
 	}
 
@@ -192,9 +195,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	private void warmUpSUT() throws WorkloadException {
 		if (!sutWarmedUp) {
-			
 			Spotter.getInstance().getProgress().updateProgressStatus(getProvider().getName(), DiagnosisStatus.WARM_UP);
-			
 			Properties wlProperties = new Properties();
 			wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, String.valueOf(1));
@@ -202,10 +203,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_DURATION, String.valueOf(SUT_WARMPUP_DURATION));
-			
+
 			workloadAdapter.startLoad(wlProperties);
 			workloadAdapter.waitForFinishedLoad();
-			
 			sutWarmedUp = true;
 		}
 	}
@@ -519,8 +519,15 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 		long stablePhase = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L);
 
-		long rampUp = (numUsers / rampUpUsersPerInterval) * rampUpInterval;
-		long coolDown = (numUsers / coolDownUsersPerInterval) * coolDownInterval;
+		long rampUp = 0;
+		if (rampUpUsersPerInterval != 0) {
+			rampUp = (numUsers / rampUpUsersPerInterval) * rampUpInterval;
+		}
+
+		long coolDown = 0;
+		if (coolDownUsersPerInterval != 0) {
+			coolDown = (numUsers / coolDownUsersPerInterval) * coolDownInterval;
+		}
 
 		return rampUp + stablePhase + coolDown;
 
