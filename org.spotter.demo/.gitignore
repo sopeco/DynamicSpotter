@@ -1,0 +1,14 @@
+/bin
+/target
+/.classpath
+/.settings
+/.project
+.DS_Store
+/.prefs
+/src/META-INF/MANIFEST.MF
+/data
+/app.log
+/app.log.err
+/sampler.log
+/sampler.log.err
+/results

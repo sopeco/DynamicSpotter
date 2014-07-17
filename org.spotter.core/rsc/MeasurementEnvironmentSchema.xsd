@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2014 SAP AG
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="org.ppd.measurementEnvironmentModel" xmlns:tns="org.ppd.measurementEnvironmentModel"
+	elementFormDefault="qualified" xmlns="org.ppd.measurementEnvironmentModel">
+
+
+	<xs:element name="measurementEnvironment" type="MeasurementEnvironment" />
+
+	<xs:complexType name="MeasurementEnvironment" mixed="true">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="instrumentationController" type="InstrumentationController" />
+			</xs:sequence>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="measurementController" type="MeasurementController" />
+			</xs:sequence>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="workloadAdapter" type="WorkloadAdapter" />
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="MeasurementController" mixed="true">
+		<xs:all>
+			<xs:element name="name" type="xs:string" minOccurs="0" />
+			<xs:element name="host" type="xs:string" />
+			<xs:element name="port" type="xs:string" />
+			<xs:element name="extensionName" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="InstrumentationController" mixed="true">
+		<xs:all>
+			<xs:element name="name" type="xs:string" minOccurs="0" />
+			<xs:element name="host" type="xs:string" />
+			<xs:element name="port" type="xs:string" />
+			<xs:element name="extensionName" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+	
+	<xs:complexType name="WorkloadAdapter" mixed="true">
+		<xs:all>
+			<xs:element name="name" type="xs:string" minOccurs="0" />
+			<xs:element name="host" type="xs:string" />
+			<xs:element name="port" type="xs:string" />
+			<xs:element name="extensionName" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+</xs:schema>
