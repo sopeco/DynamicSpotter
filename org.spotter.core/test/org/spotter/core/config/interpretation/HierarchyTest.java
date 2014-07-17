@@ -27,6 +27,7 @@ import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.config.GlobalConfiguration;
 import org.spotter.core.detection.DetectionControllerAccessor;
 import org.spotter.core.result.ResultBlackboard;
@@ -85,6 +86,15 @@ public class HierarchyTest {
 		Assert.assertEquals(1, problemA.getConfiguration().size());
 		uniqueIds.add(problemA.getUniqueId());
 		Assert.assertTrue(problemA.getDetectionController() instanceof DetectionA);
+		Assert.assertEquals(3, problemA.getDetectionController().getProvider().getConfigParameters().size());
+		boolean foundParameter = false;
+		for(ConfigParameterDescription cpd : problemA.getDetectionController().getProvider().getConfigParameters()){
+			if(cpd.getName().equals("test.parameter")){
+				foundParameter=true;
+			}
+		}
+		Assert.assertTrue(foundParameter);
+		
 
 		PerformanceProblem problemB = problemA.getChildren().get(0);
 		Assert.assertNotNull(problemB);

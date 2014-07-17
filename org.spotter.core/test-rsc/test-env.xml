@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<measurementEnvironment xmlns="org.spotter.shared.environment.model">
+    <instrumentationController>
+        <extensionName>DummyInstrumentation</extensionName>
+        <config key="org.spotter.satellite.adapter.port" value="0"/>
+        <config key="org.spotter.satellite.adapter.host" value="X"/>
+        <config key="org.spotter.satellite.adapter.name" value="Y"/>
+    </instrumentationController>
+    <measurementController>
+        <extensionName>DummyMeasurement</extensionName>
+        <config key="org.test.measurement.key" value="measurement.value"/>
+    </measurementController>
+    <workloadAdapter>
+        <extensionName>DummyWorkload</extensionName>
+        <config key="org.test.workload.key" value="workload.value"/>
+    </workloadAdapter>
+</measurementEnvironment>
