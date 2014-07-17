@@ -29,6 +29,7 @@ import org.lpe.common.util.LpeSupportedTypes;
 public final class ConfigKeys {
 
 	private static final int _10 = 10;
+	private static final int _180 = 180;
 
 	/**
 	 * Config-Key for the path to the performance problem hierarchy file.<br />
@@ -101,6 +102,16 @@ public final class ConfigKeys {
 	public static final String OMIT_EXPERIMENTS = "org.spotter.omitExperiments";
 
 	public static final String OMIT_WARMUP = "org.spotter.omitWarmup";
+	
+	/**
+	 * Duration in seconds the pre-warmup phase should be running. The pre-warmup phase is the phase
+	 * the SUT is visited to load the required classes for the experiment into the JVM. The JVM does
+	 * only load a class when it is required. We need to ensure that all the classes for the experiment
+	 * are already loaded when the the real experiment is started. Thus, we need to run a pre-warmup
+	 * phase where the workload is already executed and necessary classes are loaded.<br />
+	 * <b>Optional configuration key.</b>
+	 */
+	public static final String PREWARUMUP_DURATION = "org.spotter.prewarmup.duration"; // [seconds]
 	
 	/**
 	 * Required configuration key, when the experiments are omitted.
@@ -201,10 +212,20 @@ public final class ConfigKeys {
 		parameter.setDirectory(true);
 		parameter.setDefaultValue("");
 		parameter.setDescription("If experiments should be omitted, this parameter specified "
-				+ "the path to the experiment data which should be used for analysis instead.");
+				+ "the path to the experiment data which should be used for analysis instead. The path must point to the root folder which contains the SpotterReport.txt file.");
 		return parameter;
 	}
 
+	private static ConfigParameterDescription getPreWarumupDuration() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(PREWARUMUP_DURATION, LpeSupportedTypes.Integer);
+		parameter.setMandatory(false);
+		parameter.setDefaultValue(String.valueOf(_180));
+		parameter.setDescription("Specifies the duration the pre-warmup phase should be running. In the pre-warmup phase workload is started "
+				+ "to force the JVM to load classes which are used in the real experiment. Then, in the real experiment theses classes can be instrumented "
+				+ "directly. (Instrumentation of an unloaded class would fail.)");
+		return parameter;
+	}
+	
 	/**
 	 * 
 	 * @return returns a set of configuration parameters of Dynamic Spotter.
@@ -219,6 +240,7 @@ public final class ConfigKeys {
 		configParameters.add(getExperimentDurationParameter());
 		configParameters.add(getOmitExperimentParameter());
 		configParameters.add(getDummyDataParameter());
+		configParameters.add(getPreWarumupDuration());
 		return configParameters;
 	}
 }

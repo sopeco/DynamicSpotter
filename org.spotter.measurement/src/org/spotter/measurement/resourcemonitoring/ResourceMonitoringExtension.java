@@ -28,12 +28,20 @@ import org.spotter.core.measurement.IMeasurementController;
  * 
  */
 public class ResourceMonitoringExtension extends AbstractMeasurmentExtension {
+	
+	private static final String EXTENSION_DESCRIPTION = "The sampling measurement satellite adapter is used to connect "
+														+ "to all sampling satellites.";
 
 	@Override
 	public String getName() {
-		return "measurement.sampler";
+		return "measurement.satellite.adapter.sampling";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Sampling Measurement Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createSamplingDelayParameter() {
 		ConfigParameterDescription samplingDelayParameter = new ConfigParameterDescription(
 				ResourceMonitoringAdapter.SAMPLING_DELAY, LpeSupportedTypes.Long);
@@ -48,7 +56,7 @@ public class ResourceMonitoringExtension extends AbstractMeasurmentExtension {
 	@Override
 	protected void initializeConfigurationParameters() {
 		addConfigParameter(createSamplingDelayParameter());
-
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

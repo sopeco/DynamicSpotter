@@ -116,7 +116,6 @@ public final class HierarchyFactory {
 			String msg = "Could not load the default hierarchy file '" + file.getAbsolutePath()
 					+ "', using empty hierarchy instead! Cause: " + e.getMessage();
 			LOGGER.warn(msg);
-			DialogUtils.openWarning(msg);
 			root = createEmptyHierarchy();
 		}
 

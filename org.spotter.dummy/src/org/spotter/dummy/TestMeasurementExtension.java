@@ -22,6 +22,10 @@ import org.spotter.core.measurement.IMeasurementController;
 
 public class TestMeasurementExtension extends AbstractMeasurmentExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The test measurement satellite adapter is used for test purposes only. The "
+														+ "satellite adapter is a dummy and does nothing. The dummy will be removed after "
+														+ "the first version has been officially released.";
+	
 	public static final String NUM_RECORDS = "org.spotter.test.numRecords";
 
 	@Override
@@ -31,9 +35,14 @@ public class TestMeasurementExtension extends AbstractMeasurmentExtension {
 
 	@Override
 	public String getName() {
-		return "test.measruement";
+		return "measurement.satellite.adapter.test";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Test Measurement Satellite Adapter";
+	}
+	
 	@Override
 	protected void initializeConfigurationParameters() {
 		ConfigParameterDescription par = new ConfigParameterDescription(NUM_RECORDS, LpeSupportedTypes.Integer);
@@ -41,6 +50,7 @@ public class TestMeasurementExtension extends AbstractMeasurmentExtension {
 		par.setDefaultValue(String.valueOf(100));
 		par.setDescription("Number of records to return as result.");
 		addConfigParameter(par);
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

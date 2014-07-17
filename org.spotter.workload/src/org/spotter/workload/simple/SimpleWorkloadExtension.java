@@ -28,11 +28,21 @@ import org.spotter.core.workload.IWorkloadAdapter;
  */
 public class SimpleWorkloadExtension extends AbstractWorkloadExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The customized workload satellite adapter can be used to "
+														+ "execute custom written Java client classes. This satellite "
+														+ "adapter is hence only applicable when you have written "
+														+ "your own Java client class.";
+	
 	@Override
 	public String getName() {
-		return "workload.adapter.simple";
+		return "workload.satellite.adapter.customized";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "Customized Workload Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createScriptPathParameter() {
 		ConfigParameterDescription scriptParameter = new ConfigParameterDescription(
 				SimpleWorkloadDriver.USER_SCRIPT_PATH, LpeSupportedTypes.String);
@@ -40,7 +50,8 @@ public class SimpleWorkloadExtension extends AbstractWorkloadExtension {
 		scriptParameter.setAset(false);
 		scriptParameter.setDefaultValue("");
 		scriptParameter
-				.setDescription("Path to the directory which contains the package containing the load script class file.");
+				.setDescription("Path to the directory which contains the package containing the load script class file. "
+								+ "This is most times the path to the folder where the source folder is located.");
 
 		return scriptParameter;
 	}
@@ -60,6 +71,7 @@ public class SimpleWorkloadExtension extends AbstractWorkloadExtension {
 	protected void initializeConfigurationParameters() {
 		addConfigParameter(createScriptPathParameter());
 		addConfigParameter(createScriptClassParameter());
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

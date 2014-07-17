@@ -28,11 +28,21 @@ import org.spotter.core.measurement.IMeasurementController;
  */
 public class JmsServerMeasurementExtension extends AbstractMeasurmentExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The jmsserver sampling measurement satellite adapter is used "
+														+ "to connect to the special sampling satellites for Java Messaging "
+														+ "Service (JMS) server. They sample more than the default sampling "
+														+ "satellites.";
+	
 	@Override
 	public String getName() {
-		return "measurement.sampler.jmsserver";
+		return "measurement.satellite.adapter.sampling.jmsserver";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "JMSServer Sampling Measurement Satellite Adapter";
+	}
+	
 	@Override
 	public IMeasurementController createExtensionArtifact() {
 		return new JmsServerMeasurement(this);
@@ -74,7 +84,7 @@ public class JmsServerMeasurementExtension extends AbstractMeasurmentExtension {
 		addConfigParameter(createSamplingDelayParameter());
 		addConfigParameter(createCollectorTypeParameter());
 		addConfigParameter(createServerConnectionStringParameter());
-
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

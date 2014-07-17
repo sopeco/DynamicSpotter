@@ -30,11 +30,21 @@ import org.spotter.loadrunner.LRConfigKeys;
  */
 public class LoadRunnerMeasurementExtension extends AbstractMeasurmentExtension {
 
+	private static final String EXTENSION_DESCRIPTION = "The loadrunner measurement satellite adapter connects to a measurement "
+														+ "satellite executed on a Loadrunner system. This satellite adapter is "
+														+ "responsible to fetch the result data after a Loadrunner workload "
+														+ "execution.";
+
 	@Override
 	public String getName() {
-		return "measurement.loadrunner";
+		return "measurement.satellite.adapter.loadrunner";
 	}
 
+	@Override
+	protected String getDefaultSatelleiteExtensionName() {
+		return "LoadRunner Measurement Satellite Adapter";
+	}
+	
 	private ConfigParameterDescription createAnalysisPathParameter() {
 		ConfigParameterDescription analysisPathParameter = new ConfigParameterDescription(LRConfigKeys.ANALYSIS_EXE,
 				LpeSupportedTypes.String);
@@ -89,7 +99,7 @@ public class LoadRunnerMeasurementExtension extends AbstractMeasurmentExtension 
 		addConfigParameter(createAnalysisTemplateParameter());
 		addConfigParameter(createResultDirParameter());
 		addConfigParameter(createAnalysisSessionParameter());
-
+		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
 	@Override

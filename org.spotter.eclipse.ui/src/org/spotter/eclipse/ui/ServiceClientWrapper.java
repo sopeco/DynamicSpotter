@@ -70,7 +70,7 @@ public class ServiceClientWrapper {
 	private static final String MSG_NO_STATUS = "Could not retrieve status.";
 	private static final String MSG_NO_CONFIG_PARAMS = "Could not retrieve configuration parameters.";
 	private static final String MSG_NO_EXTENSIONS = "Could not retrieve list of extensions.";
-	private static final String MSG_NO_SATTELITE_TEST = "Could not test sattelite connection.";
+	private static final String MSG_NO_SATTELITE_TEST = "Could not test satellite connection.";
 
 	private final String projectName;
 	private final SpotterServiceClient client;
