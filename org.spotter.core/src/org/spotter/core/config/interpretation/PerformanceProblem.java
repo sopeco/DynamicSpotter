@@ -43,21 +43,20 @@ public class PerformanceProblem {
 	private String problemName = null;
 
 	private Boolean detectable = null;
-	
+
 	private String uniqueId;
 
 	/**
 	 * Create a new instance with the given unique id.
 	 * 
-	 * @param id unique id of this problem
+	 * @param uniqueId
+	 *            unique id of this problem
 	 */
 	public PerformanceProblem(String uniqueId) {
 		this.uniqueId = uniqueId;
 		this.children = new ArrayList<PerformanceProblem>();
 		setConfiguration(new Properties());
 	}
-
-
 
 	/**
 	 * Returns the detection controller ({@link AbstractDetectionController}) to
@@ -89,7 +88,7 @@ public class PerformanceProblem {
 	public String getUniqueId() {
 		return uniqueId;
 	}
-	
+
 	/**
 	 * Returns all child performance problems as described by the performance
 	 * problem hierarchy.
@@ -149,48 +148,7 @@ public class PerformanceProblem {
 		this.configuration = configuration;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((configuration == null) ? 0 : configuration.hashCode());
-		result = prime * result + (isDetectable() ? _1231 : _1237);
-		result = prime * result + ((getProblemName() == null) ? 0 : problemName.hashCode());
-		result = prime * result + ((getUniqueId() == null) ? 0 : uniqueId.hashCode());
-		return result;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PerformanceProblem other = (PerformanceProblem) obj;
-		if (configuration == null) {
-			if (other.configuration != null)
-				return false;
-		} else if (!configuration.equals(other.configuration))
-			return false;
-		if (detectable == null) {
-			if (other.detectable != null)
-				return false;
-		} else if (!detectable.equals(other.detectable))
-			return false;
-		if (problemName == null) {
-			if (other.problemName != null)
-				return false;
-		} else if (!problemName.equals(other.problemName))
-			return false;
-		if (uniqueId == null) {
-			if (other.uniqueId != null)
-				return false;
-		} else if (!uniqueId.equals(other.uniqueId))
-			return false;
-		return true;
-	}
 
 	/**
 	 * @return the problemName
@@ -199,13 +157,46 @@ public class PerformanceProblem {
 		return problemName;
 	}
 
-
-
 	/**
-	 * @param problemName the problemName to set
+	 * @param problemName
+	 *            the problemName to set
 	 */
 	public void setProblemName(String problemName) {
 		this.problemName = problemName;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((uniqueId == null) ? 0 : uniqueId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PerformanceProblem other = (PerformanceProblem) obj;
+		if (uniqueId == null) {
+			if (other.uniqueId != null) {
+				return false;
+			}
+		} else if (!uniqueId.equals(other.uniqueId)) {
+			return false;
+		}
+		return true;
+	}
+
+
+	
+	
 
 }

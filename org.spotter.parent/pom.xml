@@ -140,7 +140,7 @@
 		</resources>
 		<testResources>
 			<testResource>
-				<directory>rsc</directory>
+				<directory>test-rsc</directory>
 			</testResource>
 		</testResources>
 
