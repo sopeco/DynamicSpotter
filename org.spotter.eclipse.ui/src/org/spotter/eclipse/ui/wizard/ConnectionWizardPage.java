@@ -30,8 +30,8 @@ import org.spotter.eclipse.ui.listeners.IConnectionChangedListener;
  */
 public class ConnectionWizardPage extends WizardPage implements IConnectionChangedListener {
 
-	public static final String TITLE = "Connection Settings for Spotter Service";
-	public static final String DESCRIPTION = "Define the connection settings to the Spotter service.";
+	public static final String TITLE = "Connection Settings for DynamicSpotter Service";
+	public static final String DESCRIPTION = "Define the connection settings to the DynamicSpotter service.";
 
 	private ConnectionTestComposite connTestComposite;
 
