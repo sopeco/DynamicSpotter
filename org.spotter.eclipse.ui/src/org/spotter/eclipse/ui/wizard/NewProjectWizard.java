@@ -69,7 +69,7 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 		pageTwo = new ConnectionWizardPage();
 
 		addPage(pageOne);
-		//addPage(pageTwo);
+		addPage(pageTwo);
 	}
 
 	@Override

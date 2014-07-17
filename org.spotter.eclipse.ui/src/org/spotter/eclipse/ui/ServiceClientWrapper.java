@@ -62,10 +62,10 @@ public class ServiceClientWrapper {
 	public static final String KEY_SERVICE_PORT = "spotter.service.port";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceClientWrapper.class);
-	private static final String DIALOG_TITLE = "Spotter Service Client";
+	private static final String DIALOG_TITLE = "DynamicSpotter Service Client";
 	private static final String ERR_MSG_CONN = "Connection to '%s' at port %s could not be established!";
 	private static final String MSG_FAIL_SAFE = "Error while storing preferences. Please try again.";
-	private static final String MSG_NO_ACTION = "Action cannot be performed without connection to Spotter Service. Please check connection settings and try again.";
+	private static final String MSG_NO_ACTION = "Action cannot be performed without connection to DynamicSpotter Service. Please check connection settings and try again.";
 	private static final String MSG_START_DIAGNOSIS = "Could not start diagnosis!";
 	private static final String MSG_NO_STATUS = "Could not retrieve status.";
 	private static final String MSG_NO_CONFIG_PARAMS = "Could not retrieve configuration parameters.";

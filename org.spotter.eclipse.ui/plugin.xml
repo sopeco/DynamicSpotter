@@ -66,7 +66,7 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.spotter.eclipse.ui.category.SpotterTools"
-            name="Spotter Tools">
+            name="DynamicSpotter Tools">
       </category>
       <wizard
             category="org.spotter.eclipse.ui.category.SpotterTools"
@@ -74,7 +74,7 @@
             finalPerspective="org.spotter.eclipse.ui.Perspective"
             icon="icons/perspective.png"
             id="org.spotter.eclipse.ui.wizard.NewProjectWizard"
-            name="Spotter Project">
+            name="DynamicSpotter Project">
       </wizard>
    </extension>
    <extension
@@ -84,11 +84,11 @@
             class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/navigator.gif"
             id="org.spotter.eclipse.ui.navigator"
-            name="Spotter Project Navigator">
+            name="DynamicSpotter Project Navigator">
       </view>
       <category
             id="org.spotter.eclipse.ui.navigator.category"
-            name="Spotter Projects">
+            name="DynamicSpotter Projects">
       </category>
       <view
             allowMultiple="false"
@@ -105,7 +105,7 @@
             class="org.spotter.eclipse.ui.perspectives.Perspective"
             icon="icons/perspective.png"
             id="org.spotter.eclipse.ui.Perspective"
-            name="Spotter Project">
+            name="DynamicSpotter Project">
       </perspective>
    </extension>
    <extension
@@ -148,7 +148,7 @@
             contentProvider="org.spotter.eclipse.ui.providers.NavigatorContentProvider"
             id="org.spotter.eclipse.ui.navigatorContent"
             labelProvider="org.spotter.eclipse.ui.providers.NavigatorLabelProvider"
-            name="Spotter Project Navigator Content"
+            name="DynamicSpotter Project Navigator Content"
             priority="normal">
          <triggerPoints>
             <or>
@@ -212,7 +212,7 @@
             default="false"
             icon="icons/spotter-conf.gif"
             id="org.spotter.eclipse.ui.editors.spotterconfig"
-            name="Spotter Config Editor">
+            name="DynamicSpotter Config Editor">
       </editor>
       <editor
             class="org.spotter.eclipse.ui.editors.HierarchyEditor"
@@ -257,13 +257,13 @@
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.RunHandler"
-            description="Run selected Spotter Project"
+            description="Run selected DynamicSpotter Project"
             id="org.spotter.eclipse.ui.commands.run"
             name="Run">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.ServiceClientSettingsHandler"
-            description="Open Spotter Service Client Settings"
+            description="Open DynamicSpotter Service Client Settings"
             id="org.spotter.eclipse.ui.commands.serviceClientSettings"
             name="Service Client Settings">
       </command>
@@ -276,9 +276,9 @@
          <command
                commandId="org.spotter.eclipse.ui.commands.run"
                icon="icons/run.gif"
-               label="Run Spotter"
+               label="Run DynamicSpotter"
                style="push"
-               tooltip="Run selected Spotter Project">
+               tooltip="Run selected DynamicSpotter Project">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -296,9 +296,9 @@
          <command
                commandId="org.spotter.eclipse.ui.commands.run"
                icon="icons/run.gif"
-               label="Run Spotter"
+               label="Run DynamicSpotter"
                style="push"
-               tooltip="Run selected Spotter Project">
+               tooltip="Run selected DynamicSpotter Project">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -358,16 +358,16 @@
          <command
                commandId="org.spotter.eclipse.ui.commands.run"
                icon="icons/run.gif"
-               label="Run Spotter"
+               label="Run DynamicSpotter"
                style="push"
-               tooltip="Run selected Spotter Project">
+               tooltip="Run selected DynamicSpotter Project">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.serviceClientSettings"
                icon="icons/conn-settings.png"
                label="Service Client Settings"
                style="push"
-               tooltip="Open Spotter Service Client Settings">
+               tooltip="Open DynamicSpotter Service Client Settings">
          </command>
       </menuContribution>
    </extension>
