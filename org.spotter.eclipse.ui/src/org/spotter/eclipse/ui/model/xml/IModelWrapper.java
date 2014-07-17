@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
@@ -29,9 +30,20 @@ import org.spotter.shared.environment.model.XMConfiguration;
  */
 public interface IModelWrapper {
 
-	String NAME_KEY = "org.spotter.satellite.name";
-	String HOST_KEY = "org.spotter.satellite.host";
-	String PORT_KEY = "org.spotter.satellite.port";
+	/**
+	 * The host configuration key.
+	 */
+	String HOST_KEY = ConfigKeys.SATELLITE_ADAPTER_HOST_KEY;
+	
+	/**
+	 * The port configuration key.
+	 */
+	String PORT_KEY = ConfigKeys.SATELLITE_ADAPTER_PORT_KEY;
+	
+	/**
+	 * The name configuration key.
+	 */
+	String NAME_KEY = ConfigKeys.SATELLITE_ADAPTER_NAME_KEY;
 
 	/**
 	 * @return the name of the extension that the model is associated with

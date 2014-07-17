@@ -119,6 +119,21 @@ public final class ConfigKeys {
 	public static final String DUMMY_EXPERIMENT_DATA = "org.spotter.dummyData";
 	
 	public static final String SPOTTER_RUN_NAME = "org.spotter.runName";
+	
+	/**
+	 * The host the satellite adapter is connecting to.
+	 */
+	public static final String SATELLITE_ADAPTER_HOST_KEY = "org.spotter.satellite.adapter.host";
+	
+	/**
+	 * The port the satellite adapter is connecting to.
+	 */
+	public static final String SATELLITE_ADAPTER_PORT_KEY = "org.spotter.satellite.adapter.port";
+	
+	/**
+	 * The name for a satellite adapter.
+	 */
+	public static final String SATELLITE_ADAPTER_NAME_KEY = "org.spotter.satellite.adapter.name";
 
 	public static final String SPOTTER_REST_BASE = "spotter";
 	public static final String SPOTTER_REST_START_DIAG = "startDiagnosis";
