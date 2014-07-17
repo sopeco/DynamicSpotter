@@ -25,6 +25,9 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
  * Editor input for the Hierarchy Editor.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class HierarchyEditorInput extends AbstractSpotterEditorInput {
 

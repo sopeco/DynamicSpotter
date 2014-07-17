@@ -25,6 +25,9 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 
 /**
  * An instrumentation editor to edit instrumentation controllers.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class InstrumentationEditor extends AbstractEnvironmentEditor {
 

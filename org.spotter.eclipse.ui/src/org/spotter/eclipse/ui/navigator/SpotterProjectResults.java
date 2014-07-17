@@ -27,12 +27,16 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the results node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectResults implements ISpotterProjectElement {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
 
 	private static final String ELEMENT_NAME = "Results";
+	private static final String EMPTY_SUFFIX = " (empty)";
 
 	private ISpotterProjectElement parent;
 	private ISpotterProjectElement[] children;
@@ -50,7 +54,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 
 	@Override
 	public String getText() {
-		return ELEMENT_NAME;
+		String suffix = hasChildren() ? "" : EMPTY_SUFFIX;
+		return ELEMENT_NAME + suffix;
 	}
 
 	@Override
@@ -93,11 +98,6 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	}
 
 	@Override
-	public void open() {
-		// not editable
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof SpotterProjectResults)) {
 			return false;
@@ -132,7 +132,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 			children = new ISpotterProjectElement[runFolders.size()];
 			int i = 0;
 			for (File runFolder : runFolders) {
-				IFolder runResultFolder = iProject.getFolder(defaultResultsDir + File.separatorChar + runFolder.getName());
+				IFolder runResultFolder = iProject.getFolder(defaultResultsDir + File.separatorChar
+						+ runFolder.getName());
 				children[i++] = new SpotterProjectRunResult(this, runFolder.getName(), runResultFolder);
 			}
 		}

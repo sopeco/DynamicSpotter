@@ -19,6 +19,9 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
 
 /**
  * A listener which is notified of structure modification or appearance change events.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public interface IItemChangedListener {
 

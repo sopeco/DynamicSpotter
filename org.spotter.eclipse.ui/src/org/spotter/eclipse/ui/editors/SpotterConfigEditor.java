@@ -20,8 +20,12 @@ import java.util.Properties;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
 import org.spotter.eclipse.ui.model.ExtensionItem;
@@ -33,6 +37,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
  * An editor to edit Spotter properties.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterConfigEditor extends AbstractSpotterEditor {
 
@@ -42,8 +49,6 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 	public static final String ID = "org.spotter.eclipse.ui.editors.spotterconfig";
 
 	private static final String EDITOR_NAME = "Spotter Config";
-	
-	private static final String ERR_MSG_CONFIG_INIT = "Could not initialize editor with configuration data.";
 
 	private IModelWrapper wrapper;
 	private PropertiesGroupViewer propertiesGroupViewer;
@@ -61,7 +66,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) getEditorInput();
-		
+
 		try {
 			Properties properties = new Properties();
 
@@ -89,6 +94,15 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 			parent.setLayout(new FillLayout());
 		}
 
+		String projectName = editorInput.getProject().getName();
+		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		if (!client.testConnection(false)) {
+			// cannot create part without server information
+			Label label = new Label(parent, SWT.WRAP);
+			label.setText(ERR_MSG_INIT + "\n\nReason: No connection to Spotter Service. Check settings and try again.");
+			return;
+		}
+
 		propertiesGroupViewer = new PropertiesGroupViewer(parent, this);
 		ExtensionItem inputModel = createInputModel(editorInput.getFile());
 		if (inputModel != null) {
@@ -100,7 +114,9 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 
 	@Override
 	public void setFocus() {
-		propertiesGroupViewer.setFocus();
+		if (propertiesGroupViewer != null) {
+			propertiesGroupViewer.setFocus();
+		}
 	}
 
 	private ExtensionItem createInputModel(IFile file) {
@@ -108,7 +124,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		try {
 			properties = SpotterProjectSupport.getSpotterConfig(file);
 		} catch (UICoreException e) {
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_CONFIG_INIT + "\n\nReason: " + e.getMessage());
+			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_INIT + "\n\nReason: " + e.getMessage());
 			return null;
 		}
 

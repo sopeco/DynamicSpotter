@@ -19,6 +19,9 @@ package org.spotter.eclipse.ui.util;
  * An abstract string formatter that formats a given name. This base implementation does no
  * modifications on the given input. Subclasses must implement {@link #getFormatterName} and may
  * override {@link #format(String)}.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractNameFormatter {
 

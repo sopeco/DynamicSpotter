@@ -36,6 +36,9 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 
 /**
  * Abstract base class for environment editors.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor {
 

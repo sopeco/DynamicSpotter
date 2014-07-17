@@ -19,6 +19,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
@@ -33,6 +36,9 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
  * to a non-hierarchical extensions viewer. The lower part consists of a
  * <code>PropertiesGroupViewer</code> showing the editable properties of the
  * selected extension.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 
@@ -85,6 +91,16 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 		if (!(parent.getLayout() instanceof FillLayout)) {
 			parent.setLayout(new FillLayout());
 		}
+
+		String projectName = editorInput.getProject().getName();
+		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		if (!client.testConnection(false)) {
+			// cannot create part without server information
+			Label label = new Label(parent, SWT.WRAP);
+			label.setText(ERR_MSG_INIT + "\n\nReason: No connection to Spotter Service. Check settings and try again.");
+			return;
+		}
+
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
 		// first part: configured components group
@@ -101,7 +117,9 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 
 	@Override
 	public void setFocus() {
-		extensionsGroupViewer.setFocus();
+		if (extensionsGroupViewer != null) {
+			extensionsGroupViewer.setFocus();
+		}
 	}
 
 	/**

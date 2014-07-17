@@ -20,6 +20,9 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 /**
  * A perspective for Spotter projects.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class Perspective implements IPerspectiveFactory {
 

@@ -15,7 +15,6 @@
  */
 package org.spotter.eclipse.ui;
 
-import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +32,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.client.SpotterServiceClient;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+
+/**
+ * <p>
+ * A wrapper for the Spotter Service Client that delegates to the client and
+ * handles arising exceptions by providing meaningful screen messages to the
+ * user.
+ * </p>
+ * <p>
+ * This wrapper class also caches requested information from the server for
+ * future use. Whenever the client settings change, the cache will also be
+ * cleared automatically.
+ * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ServiceClientWrapper {
 
 	public static final String DEFAULT_SERVICE_HOST = "localhost";
@@ -378,15 +395,14 @@ public class ServiceClientWrapper {
 	 *            is shown
 	 */
 	public static void showConnectionProblemMessage(String cause, String host, String port, boolean warning) {
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		String msg = String.format(ERR_MSG_CONN, host, port);
 		if (cause != null) {
 			msg += "\n\n" + cause;
 		}
 		if (warning) {
-			MessageDialog.openWarning(shell, DIALOG_TITLE, msg);
+			DialogUtils.openWarning(DIALOG_TITLE, msg);
 		} else {
-			MessageDialog.openError(shell, DIALOG_TITLE, msg);
+			DialogUtils.openError(DIALOG_TITLE, msg);
 		}
 	}
 
@@ -396,20 +412,20 @@ public class ServiceClientWrapper {
 		} else {
 			LOGGER.error("{} request failed! Cause: {}", requestName, e.getMessage());
 		}
-		if (e instanceof ConnectException) {
-			// problems with connection
-			String cause = e.getMessage() == null ? "" : " Cause: " + e.getMessage();
-			String msg = requestErrorMsg + cause;
-			showConnectionProblemMessage(msg, host, port, warning);
+		if (e instanceof ClientHandlerException) {
+			// problem with connection
+			showConnectionProblemMessage(requestErrorMsg, host, port, warning);
 		} else {
 			// illegal response state or server error
-			Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 			String errLocalMsg = e.getLocalizedMessage();
-			String msg = errLocalMsg == null ? e.getClass().getName() : errLocalMsg;
+			if (errLocalMsg == null) {
+				errLocalMsg = e.getClass().getName();
+			}
+			String msg = requestErrorMsg + "\n\nCause: " + errLocalMsg;
 			if (warning) {
-				MessageDialog.openWarning(shell, DIALOG_TITLE, msg);
+				DialogUtils.openWarning(DIALOG_TITLE, msg);
 			} else {
-				MessageDialog.openError(shell, DIALOG_TITLE, msg);
+				DialogUtils.openError(DIALOG_TITLE, msg);
 			}
 		}
 	}

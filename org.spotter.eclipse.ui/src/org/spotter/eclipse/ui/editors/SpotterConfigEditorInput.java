@@ -20,6 +20,9 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectConfigFile;
 
 /**
  * Editor input for the Spotter Config Editor.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterConfigEditorInput extends AbstractSpotterEditorInput {
 

@@ -16,12 +16,14 @@
 package org.spotter.eclipse.ui;
 
 /**
- * An exception that is thrown whenever a problem arises which the UI needs to
- * recover from or handle accordingly.
+ * An exception thrown in the UI which needs to be recovered from.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class UICoreException extends Exception {
 
-	private static final long serialVersionUID = -7528743470447912878L;
+	private static final long serialVersionUID = 3259913739139980614L;
 
 	/**
 	 * Creates an empty exception.

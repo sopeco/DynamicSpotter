@@ -21,6 +21,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
  * This property item represents a configuration parameter.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ConfigParamPropertyItem extends AbstractPropertyItem {
 

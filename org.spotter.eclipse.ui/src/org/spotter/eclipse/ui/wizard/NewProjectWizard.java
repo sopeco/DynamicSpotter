@@ -32,6 +32,9 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * A wizard to create new Spotter projects.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class NewProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 

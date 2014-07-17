@@ -20,6 +20,9 @@ import org.lpe.common.util.LpeSupportedTypes;
 
 /**
  * A cell editor validator for numbers.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class NumberValidator implements ICellEditorValidator {
 

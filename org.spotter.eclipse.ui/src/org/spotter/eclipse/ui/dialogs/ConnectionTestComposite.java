@@ -37,6 +37,13 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.listeners.ConnectionParamModifyListener;
 import org.spotter.eclipse.ui.listeners.IConnectionChangedListener;
 
+/**
+ * A composite which offers functionality to test a connection to the Spotter
+ * Service with configurable host and port.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ConnectionTestComposite {
 
 	private static final String[] LABEL_EXPLANATION = {

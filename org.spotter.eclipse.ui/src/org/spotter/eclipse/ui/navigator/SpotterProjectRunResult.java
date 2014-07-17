@@ -17,19 +17,27 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 
 /**
- * An element that represents the instrumentation controllers node.
+ * An element that represents a run result node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
-public class SpotterProjectRunResult implements ISpotterProjectElement {
+public class SpotterProjectRunResult implements IOpenableProjectElement, IDeletable {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
+
+	private static final String DELETE_DLG_TITLE = "Delete Resources";
 
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
@@ -120,6 +128,21 @@ public class SpotterProjectRunResult implements ISpotterProjectElement {
 		result = prime * result + getProject().hashCode();
 		result = prime * result + ((elementName == null) ? 0 : elementName.hashCode());
 		return result;
+	}
+
+	@Override
+	public void delete() {
+		try {
+			ResultsView.reset(resultFolder);
+			resultFolder.delete(true, null);
+			// update navigator viewer
+			((SpotterProjectResults) getParent()).refreshChildren();
+			TreeViewer viewer = Activator.getDefault().getNavigatorViewer();
+			viewer.refresh();
+		} catch (CoreException e) {
+			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
+			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));
+		}
 	}
 
 }

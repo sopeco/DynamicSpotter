@@ -26,6 +26,9 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 
 /**
  * Editor input for the Workload Editor.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class WorkloadEditorInput extends AbstractSpotterEditorInput {
 

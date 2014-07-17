@@ -64,6 +64,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * {@link ExtensionItem}. The input model can be updated via
  * {@link #updateProperties(ExtensionItem)}.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class PropertiesGroupViewer {
 

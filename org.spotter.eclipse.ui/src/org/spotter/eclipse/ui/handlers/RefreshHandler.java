@@ -27,6 +27,9 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 /**
  * A refresh handler for the refresh command which refreshes the elements shown
  * in the navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class RefreshHandler extends AbstractHandler {
 

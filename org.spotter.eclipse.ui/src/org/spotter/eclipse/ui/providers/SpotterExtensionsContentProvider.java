@@ -27,6 +27,9 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
  * Content provider for extension items that can be used e.g. in a
  * <code>TableViewer</code> or <code>TreeViewer</code>. This content provider
  * expects input of type {@link ExtensionItem}.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterExtensionsContentProvider implements ITreeContentProvider, IItemChangedListener {
 

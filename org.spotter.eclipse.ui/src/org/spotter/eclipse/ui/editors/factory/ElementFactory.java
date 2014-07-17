@@ -39,6 +39,9 @@ import org.spotter.eclipse.ui.editors.WorkloadEditorInput;
 
 /**
  * A element factory to restore Spotter editor inputs.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ElementFactory implements IElementFactory {
 

@@ -18,6 +18,9 @@ package org.spotter.eclipse.ui.util;
 /**
  * A string formatter that returns the name whereas package names within the name are replaced by
  * their initials.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class PackageInitialsNameFormatter extends FullNameFormatter {
 

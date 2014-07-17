@@ -26,8 +26,11 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the measurement controllers node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
-public class SpotterProjectConfigMeasurement implements ISpotterProjectElement {
+public class SpotterProjectConfigMeasurement implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/measurement.png"; //$NON-NLS-1$
 

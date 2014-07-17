@@ -23,6 +23,9 @@ import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 /**
  * Label provider for items of Spotter Project Navigator. This provider is used
  * by the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class NavigatorLabelProvider implements ILabelProvider {
 

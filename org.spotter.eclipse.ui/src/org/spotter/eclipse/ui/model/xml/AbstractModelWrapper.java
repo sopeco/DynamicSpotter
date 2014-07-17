@@ -24,6 +24,12 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
+/**
+ * An abstract base class for model wrappers.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public abstract class AbstractModelWrapper implements IModelWrapper {
 	protected final ExtensionMetaobject extension;
 	protected final String extensionName;
