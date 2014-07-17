@@ -19,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -34,6 +36,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -43,13 +50,18 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ProjectNature;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
+import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
  * An utility class to support project management for Spotter projects.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterProjectSupport {
 
@@ -119,6 +131,42 @@ public class SpotterProjectSupport {
 		}
 
 		return project;
+	}
+
+	/**
+	 * Delete the given project entirely from the workspace and from disk.
+	 * 
+	 * @param project
+	 *            The project to delete
+	 * @throws CoreException
+	 *             if deletion fails
+	 */
+	public static void deleteProject(IProject project) throws CoreException {
+		// close or reset open views and editors that refer to the project first
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+			for (IWorkbenchPage page : window.getPages()) {
+				// reset results view for the deleted project
+				ResultsView.reset(project);
+				
+				// close spotter editors
+				List<IEditorReference> closeEditors = new ArrayList<IEditorReference>();
+				for (IEditorReference ref : page.getEditorReferences()) {
+					IEditorPart editorPart = ref.getEditor(true);
+					if (editorPart != null && editorPart.getEditorInput() instanceof AbstractSpotterEditorInput) {
+						AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) editorPart.getEditorInput();
+						if (project.equals(input.getProject())) {
+							closeEditors.add(ref);
+						}
+					}
+				}
+				page.closeEditors(closeEditors.toArray(new IEditorReference[closeEditors.size()]), false);
+			}
+		}
+		// deletes project completely from disk
+		// TODO: adjust dialog to allow soft deletion only from workspace
+		// without deleting it from disk
+		project.delete(true, true, null);
+		deleteProjectPreferences(project.getName());
 	}
 
 	/**
@@ -444,7 +492,7 @@ public class SpotterProjectSupport {
 		writeKeyValuePair(sb, general, KEY_RESULTS_DIR, KEY_RESULTS_DIR_DESC);
 		sb.append("\r\n\r\n");
 		writeHeading(sb, "SPECIFIED SETTINGS");
-		
+
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		for (String key : properties.stringPropertyNames()) {
 			ConfigParameterDescription desc = client.getSpotterConfigParam(key);

@@ -17,6 +17,9 @@ package org.spotter.eclipse.ui.listeners;
 
 /**
  * A listener which is notified of property change events.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public interface IItemPropertiesChangedListener {
 

@@ -17,6 +17,9 @@ package org.spotter.eclipse.ui.util;
 
 /**
  * A string formatter that returns the full name unchanged.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class FullNameFormatter extends AbstractNameFormatter {
 

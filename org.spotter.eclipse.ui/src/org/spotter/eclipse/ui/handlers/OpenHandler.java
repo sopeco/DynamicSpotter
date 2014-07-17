@@ -23,23 +23,21 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.spotter.eclipse.ui.Activator;
-import org.spotter.eclipse.ui.navigator.IDuplicatable;
+import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
- * A duplicate handler for the duplicate command which duplicates the selected
- * element. The handler is only enabled when a single, duplicatable element is
- * selected in the Spotter Project Navigator.
+ * An open handler for the open command which opens the selected elements.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class DuplicateHandler extends AbstractHandler {
+public class OpenHandler extends AbstractHandler {
 
 	/**
-	 * The id of the duplicate command.
+	 * The id of the open command.
 	 */
-	public static final String DUPLICATE_COMMAND_ID = "org.spotter.eclipse.ui.commands.duplicate";
+	public static final String OPEN_COMMAND_ID = "org.spotter.eclipse.ui.commands.open";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -52,14 +50,14 @@ public class DuplicateHandler extends AbstractHandler {
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 		Iterator<?> iter = selection.iterator();
 		while (iter.hasNext()) {
-			SpotterUtils.duplicateNavigatorElement(iter.next());
+			SpotterUtils.openNavigatorElement(iter.next());
 		}
 
 		return null;
 	}
 
 	/**
-	 * Only allow duplication if single element is selected.
+	 * Only allow opening if just elements are selected that are openable.
 	 */
 	@Override
 	public boolean isEnabled() {
@@ -70,15 +68,18 @@ public class DuplicateHandler extends AbstractHandler {
 		}
 
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		if (selection.size() != 1) {
+		if (selection.isEmpty()) {
 			return false;
 		}
+		Iterator<?> iter = selection.iterator();
 
-		// check if selected element is duplicatable
-		Object element = selection.iterator().next();
-		boolean isDuplicatable = (element instanceof IDuplicatable);
+		while (iter.hasNext()) {
+			if (!(iter.next() instanceof IOpenableProjectElement)) {
+				return false;
+			}
+		}
 
-		return isDuplicatable;
+		return true;
 	}
 
 }

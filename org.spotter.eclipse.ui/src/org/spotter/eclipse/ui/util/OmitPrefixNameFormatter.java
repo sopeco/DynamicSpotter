@@ -17,6 +17,9 @@ package org.spotter.eclipse.ui.util;
 
 /**
  * A string formatter that returns the name with the common package name "org.spotter." omitted.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class OmitPrefixNameFormatter extends AbstractNameFormatter {
 

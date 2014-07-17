@@ -25,6 +25,9 @@ import org.spotter.eclipse.ui.model.xml.IModelWrapper;
  * provides information about how the property might be changed. Concrete property items must
  * implement the value access/modify methods.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractPropertyItem {
 

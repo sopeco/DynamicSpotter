@@ -15,8 +15,6 @@
  */
 package org.spotter.eclipse.ui.handlers;
 
-import java.util.Collection;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,12 +28,13 @@ import org.eclipse.ui.PlatformUI;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
-import org.spotter.shared.status.DiagnosisProgress;
-import org.spotter.shared.status.SpotterProgress;
 
 /**
  * A run handler for the Spotter run command which starts the Spotter diagnosis
  * if it is not already running.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class RunHandler extends AbstractHandler {
 
@@ -137,20 +136,21 @@ public class RunHandler extends AbstractHandler {
 	}
 
 	private void updateCurrentRun(ServiceClientWrapper client) {
-		SpotterProgress spotterProgress = client.getCurrentProgressReport();
-		if (spotterProgress == null || spotterProgress.getProblemProgressMapping() == null) {
-			return;
-		}
-		Collection<DiagnosisProgress> progressAll = spotterProgress.getProblemProgressMapping().values();
-		double estimatedProgress = 0;
-		long estimatedRemainingDuration = 0;
-		for (DiagnosisProgress progress : progressAll) {
-			estimatedProgress += progress.getEstimatedProgress();
-			estimatedRemainingDuration += progress.getEstimatedRemainingDuration();
-		}
-		estimatedProgress /= progressAll.size();
-		String status = "estimated progress: " + estimatedProgress * 100 + " %, remaining duration: "
-				+ estimatedRemainingDuration;
+		// TODO: implement correct progress view (needs more accurate data from the server)
+//		SpotterProgress spotterProgress = client.getCurrentProgressReport();
+//		if (spotterProgress == null || spotterProgress.getProblemProgressMapping() == null) {
+//			return;
+//		}
+//		Collection<DiagnosisProgress> progressAll = spotterProgress.getProblemProgressMapping().values();
+//		double estimatedProgress = 0;
+//		long estimatedRemainingDuration = 0;
+//		for (DiagnosisProgress progress : progressAll) {
+//			estimatedProgress += progress.getEstimatedProgress();
+//			estimatedRemainingDuration += progress.getEstimatedRemainingDuration();
+//		}
+//		estimatedProgress /= progressAll.size();
+//		String status = "estimated progress: " + estimatedProgress * 100 + " %, remaining duration: "
+//				+ estimatedRemainingDuration;
 	}
 
 	private void showFinishMsgOnUIThread() {

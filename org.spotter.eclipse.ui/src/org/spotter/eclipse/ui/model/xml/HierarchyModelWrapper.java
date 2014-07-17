@@ -27,6 +27,9 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  * Does not support connection tests which means <code>testConnection()</code>
  * will do nothing and always return <code>null</code>.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class HierarchyModelWrapper extends AbstractModelWrapper {
 

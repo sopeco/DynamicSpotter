@@ -28,6 +28,9 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
 /**
  * Label provider for properties table. This label provider expects objects of
  * type {@link AbstractPropertyItem}.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class PropertiesLabelProvider extends CellLabelProvider {
 

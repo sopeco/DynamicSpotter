@@ -20,6 +20,9 @@ import org.eclipse.swt.graphics.Image;
 
 /**
  * An interface for spotter project elements of the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public interface ISpotterProjectElement {
 
@@ -52,10 +55,5 @@ public interface ISpotterProjectElement {
 	 * @return the associated project
 	 */
 	public IProject getProject();
-
-	/**
-	 * Opens this element in an according view if opening is supported.
-	 */
-	public void open();
 
 }

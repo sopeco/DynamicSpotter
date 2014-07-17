@@ -23,6 +23,9 @@ import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
  * An interface for model wrappers.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public interface IModelWrapper {
 

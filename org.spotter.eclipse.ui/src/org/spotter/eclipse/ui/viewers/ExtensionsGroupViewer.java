@@ -51,6 +51,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
 import org.spotter.eclipse.ui.model.ExtensionItem;
@@ -75,11 +77,16 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * group viewer is set, it will be updated when the selection of the extension
  * changes.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ExtensionsGroupViewer {
 
 	private static final int VIEWER_CONTROL_STYLE = SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL
 			| SWT.V_SCROLL;
+
+	private static final String NO_SERVICE_CONNECTION = "No connection to Spotter Service";
 
 	private final AbstractExtensionsEditor editor;
 	private final boolean isHierarchical;
@@ -264,7 +271,12 @@ public class ExtensionsGroupViewer {
 	private void showAndHandleAddDialog(ExtensionItem parentItem) {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ExtensionMetaobject[] extensions = editor.getAvailableExtensions();
-		// TODO: refactor ExtensionAddDialog later to reuse shared parts of AddConfigParamDialog and remove SimpleExtensionsRenderer
+		if (extensions.length == 0) {
+			return;
+		}
+
+		// TODO: refactor AddExtensionsDialog later to reuse shared parts of
+		// AddConfigParamDialog and remove SimpleExtensionsRenderer
 		AddExtensionDialog dialog = new AddExtensionDialog(shell, extensions);
 
 		if (dialog.open() == Window.OK) {
@@ -347,7 +359,12 @@ public class ExtensionsGroupViewer {
 			btnRefreshExtensions.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					extensionsInput.updateChildrenConnections();
+					ServiceClientWrapper client = Activator.getDefault().getClient(editor.getProject().getName());
+					if (client.testConnection(true)) {
+						extensionsInput.updateChildrenConnections();
+					} else {
+						extensionsInput.setChildrenError(NO_SERVICE_CONNECTION);
+					}
 				}
 			});
 		}

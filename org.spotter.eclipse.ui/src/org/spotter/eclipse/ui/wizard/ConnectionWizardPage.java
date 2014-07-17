@@ -21,6 +21,13 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.dialogs.ConnectionTestComposite;
 import org.spotter.eclipse.ui.listeners.IConnectionChangedListener;
 
+/**
+ * A wizard page for the creation of a new project providing a
+ * <code>ConnectionTestComposite</code> to test Spotter service connectivity.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ConnectionWizardPage extends WizardPage implements IConnectionChangedListener {
 
 	public static final String TITLE = "Connection Settings for Spotter Service";
@@ -40,7 +47,6 @@ public class ConnectionWizardPage extends WizardPage implements IConnectionChang
 		connTestComposite.addConnectionChangedListener(this);
 		connTestComposite.testConnection();
 
-		// required to avoid an error in the system
 		setControl(connTestComposite.getControl());
 	}
 

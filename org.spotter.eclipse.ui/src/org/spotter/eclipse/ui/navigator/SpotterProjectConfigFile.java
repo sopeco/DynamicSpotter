@@ -26,8 +26,11 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the Spotter configuration file node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
-public class SpotterProjectConfigFile implements ISpotterProjectElement {
+public class SpotterProjectConfigFile implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/spotter-conf.gif"; //$NON-NLS-1$
 

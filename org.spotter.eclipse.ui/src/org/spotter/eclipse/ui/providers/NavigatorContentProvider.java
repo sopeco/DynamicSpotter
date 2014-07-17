@@ -31,13 +31,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -46,6 +45,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.progress.UIJob;
 import org.spotter.eclipse.ui.Activator;
@@ -57,17 +57,20 @@ import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * Content provider for items of Spotter Project Navigator. This provider is
  * used by the Spotter Project Navigator.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener {
 
-	private static final String TITLE_ERR_DIALOG = "Spotter";
-	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command! (%s)";
-	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command! (%s)";
-	
+	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command!";
+	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command!";
+
 	private static final Object[] NO_CHILDREN = {};
 	private final Map<String, Object> wrapperCache = new HashMap<String, Object>();
 	private TreeViewer viewer;
@@ -110,14 +113,14 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		dblClickListener = new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				StructuredSelection sel = (StructuredSelection) event.getSelection();
-				openEditor(sel.getFirstElement());
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				SpotterUtils.openNavigatorElement(sel.getFirstElement());
 			}
 		};
 		selectionListener = new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				StructuredSelection sel = (StructuredSelection) event.getSelection();
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 				if (sel.isEmpty()) {
 					return;
 				}
@@ -131,23 +134,30 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 			}
 		};
 		keyListener = new KeyAdapter() {
+			private IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
+					IHandlerService.class);
+			private ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(
+					ICommandService.class);
+
 			@Override
 			public void keyPressed(KeyEvent event) {
 				if (event.keyCode == SWT.DEL) {
-					IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
-							IHandlerService.class);
+					if (!commandService.getCommand(DeleteHandler.DELETE_COMMAND_ID).isEnabled()) {
+						return;
+					}
 					try {
 						handlerService.executeCommand(DeleteHandler.DELETE_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.errorMessage(ERR_MSG_DELETE, e.getMessage());
+						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_DELETE, e.getMessage()));
 					}
 				} else if (event.keyCode == SWT.F5) {
-					IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
-							IHandlerService.class);
+					if (!commandService.getCommand(RefreshHandler.REFRESH_COMMAND_ID).isEnabled()) {
+						return;
+					}
 					try {
 						handlerService.executeCommand(RefreshHandler.REFRESH_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.errorMessage(ERR_MSG_REFRESH, e.getMessage());
+						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_REFRESH, e.getMessage()));
 					}
 				}
 			}
@@ -156,16 +166,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		viewer.addDoubleClickListener(dblClickListener);
 		viewer.addPostSelectionChangedListener(selectionListener);
 		listenersRegistered = true;
-	}
-
-	private void openEditor(Object element) {
-		if (element instanceof ISpotterProjectElement) {
-			try {
-				((ISpotterProjectElement) element).open();
-			} catch (Exception e) {
-				MessageDialog.openError(null, TITLE_ERR_DIALOG, e.getMessage());
-			}
-		}
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		if (parentElement instanceof IWorkspaceRoot) {
 			IProject[] projects = ((IWorkspaceRoot) parentElement).getProjects();
 			children = createSpotterProjectParents(projects);
-			//parentElements = children;
+			// parentElements = children;
 		} else if (parentElement instanceof ISpotterProjectElement) {
 			children = ((ISpotterProjectElement) parentElement).getChildren();
 		} else {

@@ -34,8 +34,12 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.dialogs.ConfigParamSetEditingDialog;
 
 /**
- * A custom dialog cell editor used by <code>PropertiesEditingSupport</code>. No SWT control is used
- * by this editor to open the dialog, editing starts directly when the cell editor gets activated.
+ * A custom dialog cell editor used by <code>PropertiesEditingSupport</code>. No
+ * SWT control is used by this editor to open the dialog, editing starts
+ * directly when the cell editor gets activated.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class CustomDialogCellEditor extends CellEditor {
 
@@ -72,8 +76,9 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Creates a new custom dialog cell editor parented under the given control. The cell editor
-	 * value is <code>null</code> initially, and has no validator.
+	 * Creates a new custom dialog cell editor parented under the given control.
+	 * The cell editor value is <code>null</code> initially, and has no
+	 * validator.
 	 * 
 	 * @param parent
 	 *            the parent control
@@ -83,8 +88,9 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Creates a new custom dialog cell editor parented under the given control. The cell editor
-	 * value is <code>null</code> initially, and has no validator.
+	 * Creates a new custom dialog cell editor parented under the given control.
+	 * The cell editor value is <code>null</code> initially, and has no
+	 * validator.
 	 * 
 	 * @param parent
 	 *            the parent control
@@ -106,9 +112,10 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * This will directly start editing the cell. Needs to be executed as async Runnable because of
-	 * the structure of the framework and <code>activate()</code> must return first before
-	 * <code>editValue()</code> can be called.
+	 * This will directly start editing the cell. Needs to be executed as async
+	 * Runnable because of the structure of the framework and
+	 * <code>activate()</code> must return first before <code>editValue()</code>
+	 * can be called.
 	 */
 	@Override
 	public void activate() {
@@ -146,12 +153,12 @@ public class CustomDialogCellEditor extends CellEditor {
 		editor.setFont(font);
 		editor.setBackground(bg);
 		editor.setLayout(new FillLayout());
-		
-//		editor.addFocusListener(new FocusAdapter() {
-//            public void focusLost(FocusEvent e) {
-//                CustomDialogCellEditor.this.focusLost();
-//            }
-//        });
+
+		// editor.addFocusListener(new FocusAdapter() {
+		// public void focusLost(FocusEvent e) {
+		// CustomDialogCellEditor.this.focusLost();
+		// }
+		// });
 
 		createContents(editor);
 		updateContents(value);
@@ -169,7 +176,8 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/*
-	 * (non-Javadoc) Method declared on CellEditor. The focus is set to the cell editor's text.
+	 * (non-Javadoc) Method declared on CellEditor. The focus is set to the cell
+	 * editor's text.
 	 */
 	protected void doSetFocus() {
 		defaultLabel.setFocus();
@@ -184,14 +192,14 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Opens a dialog box under the given parent control and returns the dialog's value when it
-	 * closes, or <code>null</code> if the dialog was canceled or no selection was made in the
-	 * dialog.
+	 * Opens a dialog box under the given parent control and returns the
+	 * dialog's value when it closes, or <code>null</code> if the dialog was
+	 * canceled or no selection was made in the dialog.
 	 * 
 	 * @param cellEditorWindow
 	 *            the parent control cell editor's window
-	 * @return the selected value, or <code>null</code> if the dialog was canceled or no selection
-	 *         was made in the dialog
+	 * @return the selected value, or <code>null</code> if the dialog was
+	 *         canceled or no selection was made in the dialog
 	 */
 	private Object openDialogBox(Control cellEditorWindow) {
 		if (configParamDesc == null) {
@@ -246,8 +254,8 @@ public class CustomDialogCellEditor extends CellEditor {
 		} else {
 			fireCancelEditor();
 		}
-		//focusLost();
-		//defaultLabel.setFocus();
+		// focusLost();
+		// defaultLabel.setFocus();
 	}
 
 	/**

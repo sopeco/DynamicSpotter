@@ -26,6 +26,9 @@ import org.spotter.eclipse.ui.dialogs.ServiceClientSettingsDialog;
 /**
  * A handler for the service client settings command which opens the service
  * client settings dialog.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class ServiceClientSettingsHandler extends AbstractHandler {
 

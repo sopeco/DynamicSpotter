@@ -26,8 +26,11 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the hierarchy node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
-public class SpotterProjectHierarchy implements ISpotterProjectElement {
+public class SpotterProjectHierarchy implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/hierarchy.gif"; //$NON-NLS-1$
 	

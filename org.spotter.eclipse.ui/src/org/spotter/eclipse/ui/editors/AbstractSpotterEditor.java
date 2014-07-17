@@ -45,6 +45,9 @@ import org.spotter.eclipse.ui.UICoreException;
  * change this. But <code>doSave(IProgressMonitor)</code> has basic
  * functionality implemented and may be used by subclasses.
  * </p>
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public abstract class AbstractSpotterEditor extends EditorPart {
 
@@ -56,6 +59,10 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * Error message for failure when saving
 	 */
 	protected static final String ERR_MSG_SAVE = "Could not save file!\n\nReason: ";
+	/**
+	 * Error message for failing to initialize editor
+	 */
+	protected static final String ERR_MSG_INIT = "Could not initialize editor with configuration data.";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSpotterEditor.class);
 	private static final String ERR_MSG_INPUT_INVALID = "Invalid input: The editor's input is corrupted or the linked file does not exist.";

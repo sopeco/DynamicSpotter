@@ -232,27 +232,38 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.spotter.eclipse.ui.handlers.RunHandler"
-            id="org.spotter.eclipse.ui.commands.run"
-            name="Run">
+            defaultHandler="org.spotter.eclipse.ui.handlers.OpenHandler"
+            description="Open the selected element"
+            id="org.spotter.eclipse.ui.commands.open"
+            name="Open">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.DeleteHandler"
+            description="Delete the selected project(s)"
             id="org.spotter.eclipse.ui.commands.delete"
             name="Delete">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.DuplicateHandler"
+            description="Duplicate the selected project"
             id="org.spotter.eclipse.ui.commands.duplicate"
             name="Duplicate">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.RefreshHandler"
+            description="Refresh elements"
             id="org.spotter.eclipse.ui.commands.refresh"
             name="Refresh">
       </command>
       <command
+            defaultHandler="org.spotter.eclipse.ui.handlers.RunHandler"
+            description="Run selected Spotter Project"
+            id="org.spotter.eclipse.ui.commands.run"
+            name="Run">
+      </command>
+      <command
             defaultHandler="org.spotter.eclipse.ui.handlers.ServiceClientSettingsHandler"
+            description="Open Spotter Service Client Settings"
             id="org.spotter.eclipse.ui.commands.serviceClientSettings"
             name="Service Client Settings">
       </command>
@@ -307,19 +318,34 @@
                visible="true">
          </separator>
          <command
+               commandId="org.spotter.eclipse.ui.commands.open"
+               label="Open"
+               style="push"
+               tooltip="Open the selected element">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <separator
+               name="org.spotter.eclipse.ui.navigator.separator2"
+               visible="true">
+         </separator>
+         <command
                commandId="org.spotter.eclipse.ui.commands.delete"
                icon="icons/delete_16x16.png"
                label="Delete"
-               style="push">
+               style="push"
+               tooltip="Delete the selected project(s)">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.duplicate"
                icon="icons/copy_16x16.png"
                label="Duplicate"
-               style="push">
+               style="push"
+               tooltip="Duplicate the selected project">
          </command>
          <separator
-               name="org.spotter.eclipse.ui.navigator.separator2"
+               name="org.spotter.eclipse.ui.navigator.separator3"
                visible="true">
          </separator>
          <command
@@ -327,7 +353,7 @@
                icon="icons/refresh_nav_enabled.gif"
                label="Refresh"
                style="push"
-               tooltip="Refresh elements.">
+               tooltip="Refresh elements">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.run"

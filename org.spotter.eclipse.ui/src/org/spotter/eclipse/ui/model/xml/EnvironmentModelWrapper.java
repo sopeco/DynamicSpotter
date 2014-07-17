@@ -22,8 +22,11 @@ import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
 
 /**
- * A model wrapper which wraps an instrumentation controller and an
- * instrumentation extension.
+ * A model wrapper which wraps an environment measurement satellite and a
+ * corresponding extension.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class EnvironmentModelWrapper extends AbstractModelWrapper {
 
@@ -34,7 +37,7 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 	 * Creates a new wrapper.
 	 * 
 	 * @param extension
-	 *            the associated extension. Must not be <code>null</code>.
+	 *            the associated extension
 	 * @param allControllers
 	 *            the containing list for the given controller
 	 * @param controller

@@ -33,6 +33,9 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class Activator extends AbstractUIPlugin {
 

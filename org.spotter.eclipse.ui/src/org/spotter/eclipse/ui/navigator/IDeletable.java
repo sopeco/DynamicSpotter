@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.eclipse.ui.providers;
-
-import org.eclipse.swt.graphics.Image;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+package org.spotter.eclipse.ui.navigator;
 
 /**
- * Image provider used by {@link SpotterExtensionsLabelProvider} to get images
- * for the extension items.
+ * An interface for elements of the Spotter Project Navigator that can be
+ * deleted.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class SpotterExtensionsImageProvider {
+public interface IDeletable {
 
 	/**
-	 * Returns the image for the given extension item.
-	 * 
-	 * @param item
-	 *            the item the image is requested for
-	 * @return the image for the given extension item
+	 * Deletes this element.
 	 */
-	public Image getImage(ExtensionItem item) {
-		return item.getImage();
-	}
+	public void delete();
 
 }

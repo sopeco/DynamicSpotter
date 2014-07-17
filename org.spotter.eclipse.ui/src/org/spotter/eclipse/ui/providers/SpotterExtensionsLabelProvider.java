@@ -23,6 +23,9 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
  * Label provider for extension items that can be used e.g. in a
  * <code>TableViewer</code>. This label provider expects objects of type
  * {@link ExtensionItem}.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 

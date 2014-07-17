@@ -32,12 +32,19 @@ import org.spotter.eclipse.ui.listeners.IItemPropertiesChangedListener;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.shared.environment.model.XMConfiguration;
 
+/**
+ * An item that represents an extension. The item can hold children items as
+ * well and thus can be used for hierarchical trees as well.
+ * 
+ * @author Denis Knoepfle
+ * 
+ */
 public class ExtensionItem {
 
 	private static final String MSG_CONN_PENDING = "Connection test pending...";
 	private static final String MSG_CONN_AVAILABLE = "Connection OK";
 	private static final String MSG_CONN_UNAVAILABLE = "No connection";
-	private static final String MSG_CONN_INVALID = "Invalid connection parameters";
+	private static final String MSG_CONN_INVALID = "Invalid state";
 
 	private static final Image IMG_CONN_PENDING = Activator.getImage("icons/pending.gif");
 	private static final Image IMG_CONN_AVAILABLE = Activator.getImage("icons/tick.png");
@@ -427,6 +434,23 @@ public class ExtensionItem {
 	}
 
 	/**
+	 * Convenience method to update the error message for all children items
+	 * recursively. The connection status will be set to erroneous with the
+	 * given error message.
+	 * 
+	 * @param errorMessage
+	 *            The error message to set
+	 */
+	public void setChildrenError(String errorMessage) {
+		for (ExtensionItem item : childrenItems) {
+			item.connection = null;
+			item.errorMsg = errorMessage;
+			item.fireItemAppearanceChanged();
+			item.setChildrenError(errorMessage);
+		}
+	}
+
+	/**
 	 * Convenience method to update the connection status for all children items
 	 * recursively.
 	 */
@@ -445,6 +469,7 @@ public class ExtensionItem {
 	public ConfigParameterDescription getExtensionConfigParam(String key) {
 		if (paramsMap == null) {
 			initParamsMap();
+			return paramsMap == null ? null : paramsMap.get(key);
 		}
 		return paramsMap.get(key);
 	}
@@ -487,8 +512,13 @@ public class ExtensionItem {
 	}
 
 	private void initParamsMap() {
+		Set<ConfigParameterDescription> params = modelWrapper.getExtensionConfigParams();
+		if (params == null) {
+			// can not initialize the params map
+			return;
+		}
 		paramsMap = new HashMap<String, ConfigParameterDescription>();
-		for (ConfigParameterDescription desc : modelWrapper.getExtensionConfigParams()) {
+		for (ConfigParameterDescription desc : params) {
 			paramsMap.put(desc.getName(), desc);
 		}
 	}
@@ -530,7 +560,7 @@ public class ExtensionItem {
 		return configurable;
 	}
 
-	// Call propagates to parent items recursively.
+	// Call propagates to parent items recursively
 	private void fireItemAppearanceChanged(ExtensionItem item) {
 		for (IItemChangedListener listener : itemChangedListeners) {
 			listener.appearanceChanged(item);

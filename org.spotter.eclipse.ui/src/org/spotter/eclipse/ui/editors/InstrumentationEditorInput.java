@@ -26,12 +26,15 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 
 /**
  * Editor input for the Instrumentation Editor.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public class InstrumentationEditorInput extends AbstractSpotterEditorInput {
 
 	private static final String NAME = "Instrumentation";
 	private static final String IMAGE_PATH = SpotterProjectConfigInstrumentation.IMAGE_PATH;
-	
+
 	private List<XMeasurementEnvObject> instrumentationControllers;
 
 	/**
@@ -44,7 +47,7 @@ public class InstrumentationEditorInput extends AbstractSpotterEditorInput {
 		super(file);
 		MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
 		XMeasurementEnvironment measurementEnv;
-		
+
 		try {
 			measurementEnv = factory.parseXMLFile(getPath().toString());
 		} catch (IllegalArgumentException e) {

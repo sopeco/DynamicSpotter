@@ -26,8 +26,11 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
  * An element that represents the instrumentation controllers node.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
-public class SpotterProjectConfigInstrumentation implements ISpotterProjectElement {
+public class SpotterProjectConfigInstrumentation implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/instrumentation.gif"; //$NON-NLS-1$
 

@@ -34,8 +34,10 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
  * A factory to create empty root instances of <code>XPerformanceProblem</code>
- * or to create a <code>XPerformanceProblem</code> by parsing a performance
- * problem hierarchy XML file.
+ * or instances that are parsed from a performance problem hierarchy XML file.
+ * 
+ * @author Denis Knoepfle
+ * 
  */
 public final class HierarchyFactory {
 
@@ -114,7 +116,7 @@ public final class HierarchyFactory {
 			String msg = "Could not load the default hierarchy file '" + file.getAbsolutePath()
 					+ "', using empty hierarchy instead! Cause: " + e.getMessage();
 			LOGGER.warn(msg);
-			DialogUtils.warningMessage(msg);
+			DialogUtils.openWarning(msg);
 			root = createEmptyHierarchy();
 		}
 
