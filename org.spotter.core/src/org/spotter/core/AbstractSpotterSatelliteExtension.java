@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
+import org.spotter.shared.configuration.ConfigKeys;
 
 /**
  * Abstract class for all Dynamic Spotter satellites.
@@ -32,17 +33,17 @@ public abstract class AbstractSpotterSatelliteExtension {
 	/**
 	 * property key for host.
 	 */
-	public static final String HOST_KEY = "org.spotter.satellite.adapter.host";
+	public static final String HOST_KEY = ConfigKeys.SATELLITE_ADAPTER_HOST_KEY;
 	
 	/**
 	 * property key for port.
 	 */
-	public static final String PORT_KEY = "org.spotter.satellite.adapter.port";
+	public static final String PORT_KEY = ConfigKeys.SATELLITE_ADAPTER_PORT_KEY;
 	
 	/**
 	 * property key for name.
 	 */
-	public static final String NAME_KEY = "org.spotter.satellite.adapter.name";
+	public static final String NAME_KEY = ConfigKeys.SATELLITE_ADAPTER_NAME_KEY;
 	
 	/**
 	 * The set contains all the configuration for this extension.
