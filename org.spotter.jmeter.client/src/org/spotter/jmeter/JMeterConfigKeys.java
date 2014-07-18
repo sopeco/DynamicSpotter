@@ -29,6 +29,8 @@ public final class JMeterConfigKeys {
 
 	public static final String SAMPLING_FILE = "org.spotter.workload.jmeter.samplingFile";
 
+	public static final String SAMPLING_FLAG = "org.spotter.workload.jmeter.samplingFlag";
+	
 	public static final String LOG_FILE_FLAG = "org.spotter.workload.jmeter.logFileFlag";
 
 	public static final String LOG_FILE_PREFIX = "org.spotter.workload.jmeter.logFilePrefix";

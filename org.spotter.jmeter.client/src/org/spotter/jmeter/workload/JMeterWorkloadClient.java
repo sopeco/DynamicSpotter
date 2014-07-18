@@ -109,7 +109,7 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 
 	private JMeterWorkloadConfig createJMeterConfig(Properties properties) {
 		JMeterWorkloadConfig jMeterConfig = new JMeterWorkloadConfig();
-		
+
 		// required properties
 		jMeterConfig.setExperimentDuration(Integer.parseInt(LpeStringUtils.getPropertyOrFail(	properties,
 																								ConfigKeys.EXPERIMENT_DURATION,
@@ -152,12 +152,23 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 																							null)));
 
 		// optional properties
-		jMeterConfig.setPathToSamplingFile(properties.getProperty(JMeterConfigKeys.SAMPLING_FILE));
+		boolean sampleInFile = Boolean.parseBoolean(properties.getProperty(JMeterConfigKeys.SAMPLING_FLAG));
 
-		jMeterConfig.setCreateLogFlag(Boolean.parseBoolean(properties.getProperty(JMeterConfigKeys.LOG_FILE_FLAG)));
+		if (sampleInFile) {
+			jMeterConfig.setSamplingFileFlag(true);
+			// fail when there is no property set for the sampling file
+			jMeterConfig.setPathToSamplingFile(LpeStringUtils.getPropertyOrFail(properties,
+																				JMeterConfigKeys.SAMPLING_FILE,
+																				null));
+		}
 
-		jMeterConfig.setLogFilePrefix(properties.getProperty(JMeterConfigKeys.LOG_FILE_PREFIX));
+		boolean createLogFile = Boolean.parseBoolean(properties.getProperty(JMeterConfigKeys.LOG_FILE_FLAG));
 		
+		if (createLogFile) {
+			jMeterConfig.setCreateLogFlag(true);
+			jMeterConfig.setLogFilePrefix(properties.getProperty(JMeterConfigKeys.LOG_FILE_PREFIX));
+		}
+
 		return jMeterConfig;
 	}
 

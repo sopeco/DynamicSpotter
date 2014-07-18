@@ -73,16 +73,27 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 	}
 
 	private ConfigParameterDescription createJMeterSamplingFileParameter() {
-		ConfigParameterDescription jMeterSamplingFileParameter = new ConfigParameterDescription(	JMeterConfigKeys.SAMPLING_FILE,
+		ConfigParameterDescription jMeterSamplingFileParameter = new ConfigParameterDescription(JMeterConfigKeys.SAMPLING_FILE,
 																								LpeSupportedTypes.String);
 		jMeterSamplingFileParameter.setFile(true);
 		jMeterSamplingFileParameter.setMandatory(false);
 		jMeterSamplingFileParameter.setDefaultValue("");
 		jMeterSamplingFileParameter.setDefaultFileName(FILE_RESULTS_DEFAULT);
 		jMeterSamplingFileParameter.setFileExtensions(FILE_RESULTS_EXTENSIONS);
-		jMeterSamplingFileParameter.setDescription("The file where JMeter should store the sampling values.");
+		jMeterSamplingFileParameter.setDescription("The file where JMeter should store the sampling values. The sampling must be enabled "
+													+ "explicity with the corresponding property key.");
 
 		return jMeterSamplingFileParameter;
+	}
+
+	private ConfigParameterDescription createJMeterSamplingFileFlagParameter() {
+		ConfigParameterDescription jMeterSamplingFileFlag = new ConfigParameterDescription(	JMeterConfigKeys.SAMPLING_FLAG,
+																							LpeSupportedTypes.Boolean);
+		jMeterSamplingFileFlag.setMandatory(false);
+		jMeterSamplingFileFlag.setDefaultValue(String.valueOf(false));
+		jMeterSamplingFileFlag.setDescription("Flag, if JMeter should create a result file. If this is true, you must define a sampling file!");
+
+		return jMeterSamplingFileFlag;
 	}
 
 	private ConfigParameterDescription createJMeterThinkTimeMinParameter() {
@@ -106,7 +117,7 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		return jMeterLogFilePrefixParameter;
 	}
 
-	private ConfigParameterDescription createJMeterLogFileFlag() {
+	private ConfigParameterDescription createJMeterLogFileFlagParameter() {
 		ConfigParameterDescription jMeterLogFileFlag = new ConfigParameterDescription(	JMeterConfigKeys.LOG_FILE_FLAG,
 																						LpeSupportedTypes.Boolean);
 		jMeterLogFileFlag.setMandatory(false);
@@ -133,8 +144,9 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		addConfigParameter(createJMeterSamplingFileParameter());
 		addConfigParameter(createJMeterThinkTimeMinParameter());
 		addConfigParameter(createJMeterThinkTimeMaxParameter());
-		addConfigParameter(createJMeterLogFileFlag());
+		addConfigParameter(createJMeterLogFileFlagParameter());
 		addConfigParameter(createJMeterLogFilePrefixParameter());
+		addConfigParameter(createJMeterSamplingFileFlagParameter());
 		addConfigParameter(ConfigParameterDescription.createExtensionDescription(EXTENSION_DESCRIPTION));
 	}
 
