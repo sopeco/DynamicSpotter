@@ -81,7 +81,7 @@ public class JMeterWorkloadExtension extends AbstractWorkloadExtension {
 		ConfigParameterDescription jMeterResultFileParameter = new ConfigParameterDescription(
 				JMeterConfigKeys.RESULT_FILE, LpeSupportedTypes.String);
 		jMeterResultFileParameter.setFile(true);
-		jMeterResultFileParameter.setMandatory(true);
+		jMeterResultFileParameter.setMandatory(false);
 		jMeterResultFileParameter.setDefaultValue("");
 		jMeterResultFileParameter.setDefaultFileName(FILE_RESULTS_DEFAULT);
 		jMeterResultFileParameter.setFileExtensions(FILE_RESULTS_EXTENSIONS);
