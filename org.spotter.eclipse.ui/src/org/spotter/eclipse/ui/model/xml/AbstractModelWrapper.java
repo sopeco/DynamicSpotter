@@ -87,22 +87,17 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 	 */
 	private boolean testMandatoryFileDirectory() {
 		for (ConfigParameterDescription param : getExtensionConfigParams()) {
-			
 			if (param.isMandatory()) {
-				
 				if (param.isDirectory() || param.isFile()) {
 					
 					// the value of mandatories files and directories must not be empty
 					String paramValue = SpotterUtils.extractConfigValue(getConfig(), param.getName());
 				
-					if (paramValue.isEmpty() || paramValue.equals("")) {
+					if (paramValue == null || paramValue.isEmpty()) {
 						return false;
 					}
-					
 				}
-			
-			}
-			
+			}			
 		}
 		
 		return true;
@@ -115,7 +110,7 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 	 */
 	private boolean testRemoteConnection(String host, String port) {
 		ServiceClientWrapper client = Activator.getDefault().getClient(extension.getProjectName());
-		Boolean connection = client.testConnectionToSattelite(extensionName, host, port);
+		boolean connection = client.testConnectionToSattelite(extensionName, host, port);
 		
 		return connection;
 	}
