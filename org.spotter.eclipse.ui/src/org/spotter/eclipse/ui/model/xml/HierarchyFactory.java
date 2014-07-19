@@ -27,7 +27,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.hierarchy.model.ObjectFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
