@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -42,6 +41,8 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
  */
 public final class PropertiesEditingSupport extends EditingSupport {
 
+	private static final String[] BOOLEAN_VALUES = { Boolean.TRUE.toString(), Boolean.FALSE.toString() };
+
 	private AbstractSpotterEditor editor;
 	private PropertiesGroupViewer propertiesViewer;
 	// default text editor
@@ -49,7 +50,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 	// editor for numbers
 	private TextCellEditor cellNumberEditor;
 	// editor for booleans
-	private CheckboxCellEditor cellBooleanEditor;
+	private ComboBoxCellEditor cellBooleanEditor;
 	// editor for parameters that are no sets but have options available
 	private ComboBoxCellEditor cellComboBoxEditor;
 	// custom editor for special purposes like directories, files and sets
@@ -77,7 +78,9 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		ControlDecoration decor = new ControlDecoration(cellNumberEditor.getControl(), SWT.LEFT | SWT.TOP);
 		cellNumberEditor.addListener(new TextEditorErrorListener(cellNumberEditor, decor));
 
-		cellBooleanEditor = new CheckboxCellEditor(parent);
+		cellBooleanEditor = new ComboBoxCellEditor(parent, BOOLEAN_VALUES, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cellBooleanEditor.setActivationStyle(ComboBoxCellEditor.DROP_DOWN_ON_MOUSE_ACTIVATION
+				| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION);
 		cellComboBoxEditor = new ComboBoxCellEditor(parent, new String[0], SWT.DROP_DOWN | SWT.READ_ONLY);
 
 		cellCustomDialogEditor = new CustomDialogCellEditor(parent);
@@ -135,7 +138,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 			String value = tableItem.getValue();
 			ConfigParameterDescription desc = tableItem.getConfigParameterDescription();
 			if (desc.getType() == LpeSupportedTypes.Boolean) {
-				return Boolean.valueOf(value);
+				return BOOLEAN_VALUES[0].equals(value) ? 0 : 1;
 			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isAset() && desc.optionsAvailable()) {
 				return getOptionIndex(value, desc);
 			} else {
@@ -152,7 +155,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 			String newValue;
 			ConfigParameterDescription desc = tableItem.getConfigParameterDescription();
 			if (desc.getType() == LpeSupportedTypes.Boolean) {
-				newValue = Boolean.toString(value == null ? false : (Boolean) value);
+				newValue = (String) BOOLEAN_VALUES[(Integer) value];
 			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isAset() && desc.optionsAvailable()) {
 				newValue = (String) desc.getOptions().toArray()[(Integer) value];
 			} else {
