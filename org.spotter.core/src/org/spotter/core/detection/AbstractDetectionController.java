@@ -281,9 +281,18 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			double dMaxUsers = maxUsers;
 			double dStep = (dMaxUsers - dMinUsers) / (double) (numExperimentSteps - 1);
 
-			for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSELON); dUsers += dStep) {
-				int numUsers = new Double(dUsers).intValue();
-				runExperiment(detectionControllerClass, numUsers);
+			// if we have the same number of maximum and minimum users, then we have only one experimetn run
+			if (dStep <= 0.0 + 0.0001) {
+				
+				runExperiment(detectionControllerClass, MIN_NUM_USERS);
+				
+			} else {
+				
+				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSELON); dUsers += dStep) {
+					int numUsers = new Double(dUsers).intValue();
+					runExperiment(detectionControllerClass, numUsers);
+				}
+				
 			}
 		}
 
@@ -538,11 +547,17 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		long maxUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
 		double dMaxUsers = maxUsers;
 		double dStep = (dMaxUsers - dMinUsers) / (double) (numExperimentSteps - 1);
-
 		long duration = 0L;
-		for (double dUsers = dMinUsers; dUsers <= dMaxUsers; dUsers += dStep) {
-			int numUsers = new Double(dUsers).intValue();
-			duration += calculateExperimentDuration(numUsers);
+		
+		if (dStep <= 0.0 + 0.0001) {
+			duration += calculateExperimentDuration(new Double(dMinUsers).intValue());
+		} else {
+			
+			for (double dUsers = dMinUsers; dUsers <= dMaxUsers; dUsers += dStep) {
+				int numUsers = new Double(dUsers).intValue();
+				duration += calculateExperimentDuration(numUsers);
+			}
+			
 		}
 
 		estimatedDuration = duration;

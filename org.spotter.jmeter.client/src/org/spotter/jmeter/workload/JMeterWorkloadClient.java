@@ -1,17 +1,14 @@
 /**
  * Copyright 2014 SAP AG
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.spotter.jmeter.workload;
 
@@ -36,8 +33,7 @@ import org.spotter.shared.configuration.ConfigKeys;
  */
 public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(JMeterWorkloadClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JMeterWorkloadClient.class);
 
 	private static final int POLLING_INTERVAL = 500;
 
@@ -54,8 +50,7 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 	/**
 	 * Constructor.
 	 * 
-	 * @param provider
-	 *            extension provider
+	 * @param provider extension provider
 	 */
 	public JMeterWorkloadClient(IExtension<?> provider) {
 		super(provider);
@@ -75,12 +70,11 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 		JMeterWorkloadConfig jMeterConfig = createJMeterConfig(propsToUse);
 
 		LOGGER.info("Triggered load with {} users ...",
-				jMeterConfig.getNumUsers());
+					jMeterConfig.getNumUsers());
 		experimentStartTime = System.currentTimeMillis();
 		rampUpDuration = calculateActualRampUpDuration(jMeterConfig);
-		experimentDuration = jMeterConfig.getDurationSeconds()
-				* MILLIS_IN_SECOND;
-		
+		experimentDuration = jMeterConfig.getExperimentDuration() * MILLIS_IN_SECOND;
+
 		try {
 			jmClient.startLoadTest(jMeterConfig);
 		} catch (IOException e) {
@@ -88,9 +82,19 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 		}
 	}
 
+	/**
+	 * Calculaters the estimated time for the ramp up phase for JMeter.
+	 * 
+	 * @param jMeterConfig the {@link JMeterWorkloadConfig}
+	 * @return the time
+	 */
 	private long calculateActualRampUpDuration(JMeterWorkloadConfig jMeterConfig) {
-		return Math.round(jMeterConfig.getRampUpTimeSecondsPerUser()
-				* jMeterConfig.getNumUsers());
+		int rampUpInterval = (int) jMeterConfig.getRampUpInterval();
+		int rampUpUsersPerInterval = (int) jMeterConfig.getRampUpNumUsersPerInterval();
+		int numUsers = jMeterConfig.getNumUsers();
+
+		return ((numUsers / rampUpUsersPerInterval) - ((numUsers % rampUpUsersPerInterval == 0) ? 1 : 0))
+				* rampUpInterval;
 	}
 
 	@Override
@@ -106,48 +110,71 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 	private JMeterWorkloadConfig createJMeterConfig(Properties properties) {
 		JMeterWorkloadConfig jMeterConfig = new JMeterWorkloadConfig();
 
-		jMeterConfig.setCreateLogFlag(false);
-		jMeterConfig.setDurationSeconds(Integer.parseInt(LpeStringUtils
-				.getPropertyOrFail(properties, ConfigKeys.EXPERIMENT_DURATION,
-						null)));
-		jMeterConfig.setNumUsers(Integer.parseInt(LpeStringUtils
-				.getPropertyOrFail(properties,
-						IWorkloadAdapter.NUMBER_CURRENT_USERS, null)));
-		jMeterConfig.setPathToJMeterBinFolder(LpeStringUtils.getPropertyOrFail(
-				properties, JMeterConfigKeys.JMETER_HOME, null));
-		jMeterConfig.setPathToScript(LpeStringUtils.getPropertyOrFail(
-				properties, JMeterConfigKeys.SCENARIO_FILE, null));
+		// required properties
+		jMeterConfig.setExperimentDuration(Integer.parseInt(LpeStringUtils.getPropertyOrFail(	properties,
+																								ConfigKeys.EXPERIMENT_DURATION,
+																								null)));
 
-		jMeterConfig.setRampUpTimeSecondsPerUser(Double
-				.parseDouble(LpeStringUtils.getPropertyOrFail(properties,
-						ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, null))
-				/ Double.parseDouble(LpeStringUtils.getPropertyOrFail(
-						properties,
-						ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL,
-						null)));
+		jMeterConfig.setNumUsers(Integer.parseInt(LpeStringUtils.getPropertyOrFail(	properties,
+																					IWorkloadAdapter.NUMBER_CURRENT_USERS,
+																					null)));
 
-		jMeterConfig.setCoolDownTimeSecondsPerUser(Double
-				.parseDouble(LpeStringUtils.getPropertyOrFail(properties,
-						ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, null))
-				/ Double.parseDouble(LpeStringUtils.getPropertyOrFail(
-						properties,
-						ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL,
-						null)));
+		jMeterConfig.setPathToJMeterBinFolder(LpeStringUtils.getPropertyOrFail(	properties,
+																				JMeterConfigKeys.JMETER_HOME,
+																				null));
 
-		jMeterConfig.setThinkTimeMaximumMS(Integer.parseInt(LpeStringUtils
-				.getPropertyOrFail(properties, JMeterConfigKeys.THINK_TIME_MIN,
-						null)));
-		jMeterConfig.setThinkTimeMinimumMS(Integer.parseInt(LpeStringUtils
-				.getPropertyOrFail(properties, JMeterConfigKeys.THINK_TIME_MAX,
-						null)));
+		jMeterConfig.setPathToScript(LpeStringUtils.getPropertyOrFail(	properties,
+																		JMeterConfigKeys.SCENARIO_FILE,
+																		null));
+
+		jMeterConfig.setRampUpInterval(Double.parseDouble(LpeStringUtils.getPropertyOrFail(	properties,
+																							ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH,
+																							null)));
+
+		jMeterConfig.setRampUpNumUsersPerInterval(Double.parseDouble(LpeStringUtils.getPropertyOrFail(	properties,
+																										ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL,
+																										null)));
+
+		jMeterConfig.setCoolDownInterval(Double.parseDouble(LpeStringUtils.getPropertyOrFail(	properties,
+																								ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH,
+																								null)));
+
+		jMeterConfig.setCoolDownNumUsersPerInterval(Double.parseDouble(LpeStringUtils.getPropertyOrFail(properties,
+																										ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL,
+																										null)));
+
+		jMeterConfig.setThinkTimeMaximum(Integer.parseInt(LpeStringUtils.getPropertyOrFail(	properties,
+																							JMeterConfigKeys.THINK_TIME_MIN,
+																							null)));
+
+		jMeterConfig.setThinkTimeMinimum(Integer.parseInt(LpeStringUtils.getPropertyOrFail(	properties,
+																							JMeterConfigKeys.THINK_TIME_MAX,
+																							null)));
+
+		// optional properties
+		boolean sampleInFile = Boolean.parseBoolean(properties.getProperty(JMeterConfigKeys.SAMPLING_FLAG));
+
+		if (sampleInFile) {
+			jMeterConfig.setSamplingFileFlag(true);
+			// fail when there is no property set for the sampling file
+			jMeterConfig.setPathToSamplingFile(LpeStringUtils.getPropertyOrFail(properties,
+																				JMeterConfigKeys.SAMPLING_FILE,
+																				null));
+		}
+
+		boolean createLogFile = Boolean.parseBoolean(properties.getProperty(JMeterConfigKeys.LOG_FILE_FLAG));
+		
+		if (createLogFile) {
+			jMeterConfig.setCreateLogFlag(true);
+			jMeterConfig.setLogFilePrefix(properties.getProperty(JMeterConfigKeys.LOG_FILE_PREFIX));
+		}
+
 		return jMeterConfig;
-
 	}
 
 	@Override
 	public void waitForWarmupPhaseTermination() throws WorkloadException {
-		while (System.currentTimeMillis() < experimentStartTime
-				+ rampUpDuration) {
+		while (System.currentTimeMillis() < experimentStartTime + rampUpDuration) {
 			try {
 				Thread.sleep(POLLING_INTERVAL);
 			} catch (InterruptedException e) {
@@ -159,8 +186,7 @@ public class JMeterWorkloadClient extends AbstractWorkloadAdapter {
 
 	@Override
 	public void waitForExperimentPhaseTermination() throws WorkloadException {
-		while (System.currentTimeMillis() < experimentStartTime
-				+ rampUpDuration + experimentDuration) {
+		while (System.currentTimeMillis() < experimentStartTime + rampUpDuration + experimentDuration) {
 			try {
 				Thread.sleep(POLLING_INTERVAL);
 			} catch (InterruptedException e) {
