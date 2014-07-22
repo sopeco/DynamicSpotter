@@ -34,17 +34,12 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.dialogs.ConfigParamSetEditingDialog;
 
 /**
-<<<<<<< HEAD
- * A custom dialog cell editor used by <code>PropertiesEditingSupport</code>. No SWT control is used
- * by this editor to open the dialog, editing starts directly when the cell editor gets activated.
-=======
  * A custom dialog cell editor used by <code>PropertiesEditingSupport</code>. No
  * SWT control is used by this editor to open the dialog, editing starts
  * directly when the cell editor gets activated.
  * 
  * @author Denis Knoepfle
  * 
->>>>>>> sopeco/master
  */
 public class CustomDialogCellEditor extends CellEditor {
 
@@ -81,14 +76,9 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Creates a new custom dialog cell editor parented under the given control. The cell editor
-	 * value is <code>null</code> initially, and has no validator.
-=======
 	 * Creates a new custom dialog cell editor parented under the given control.
 	 * The cell editor value is <code>null</code> initially, and has no
 	 * validator.
->>>>>>> sopeco/master
 	 * 
 	 * @param parent
 	 *            the parent control
@@ -98,14 +88,9 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Creates a new custom dialog cell editor parented under the given control. The cell editor
-	 * value is <code>null</code> initially, and has no validator.
-=======
 	 * Creates a new custom dialog cell editor parented under the given control.
 	 * The cell editor value is <code>null</code> initially, and has no
 	 * validator.
->>>>>>> sopeco/master
 	 * 
 	 * @param parent
 	 *            the parent control
@@ -127,16 +112,10 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-<<<<<<< HEAD
-	 * This will directly start editing the cell. Needs to be executed as async Runnable because of
-	 * the structure of the framework and <code>activate()</code> must return first before
-	 * <code>editValue()</code> can be called.
-=======
 	 * This will directly start editing the cell. Needs to be executed as async
 	 * Runnable because of the structure of the framework and
 	 * <code>activate()</code> must return first before <code>editValue()</code>
 	 * can be called.
->>>>>>> sopeco/master
 	 */
 	@Override
 	public void activate() {
@@ -175,12 +154,6 @@ public class CustomDialogCellEditor extends CellEditor {
 		editor.setBackground(bg);
 		editor.setLayout(new FillLayout());
 
-		// editor.addFocusListener(new FocusAdapter() {
-		// public void focusLost(FocusEvent e) {
-		// CustomDialogCellEditor.this.focusLost();
-		// }
-		// });
-
 		createContents(editor);
 		updateContents(value);
 
@@ -197,12 +170,8 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/*
-<<<<<<< HEAD
-	 * (non-Javadoc) Method declared on CellEditor. The focus is set to the cell editor's text.
-=======
 	 * (non-Javadoc) Method declared on CellEditor. The focus is set to the cell
 	 * editor's text.
->>>>>>> sopeco/master
 	 */
 	protected void doSetFocus() {
 		defaultLabel.setFocus();
@@ -217,16 +186,6 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Opens a dialog box under the given parent control and returns the dialog's value when it
-	 * closes, or <code>null</code> if the dialog was canceled or no selection was made in the
-	 * dialog.
-	 * 
-	 * @param cellEditorWindow
-	 *            the parent control cell editor's window
-	 * @return the selected value, or <code>null</code> if the dialog was canceled or no selection
-	 *         was made in the dialog
-=======
 	 * Opens a dialog box under the given parent control and returns the
 	 * dialog's value when it closes, or <code>null</code> if the dialog was
 	 * canceled or no selection was made in the dialog.
@@ -235,30 +194,22 @@ public class CustomDialogCellEditor extends CellEditor {
 	 *            the parent control cell editor's window
 	 * @return the selected value, or <code>null</code> if the dialog was
 	 *         canceled or no selection was made in the dialog
->>>>>>> sopeco/master
 	 */
 	private Object openDialogBox(Control cellEditorWindow) {
 		if (configParamDesc == null) {
 			return null;
 		}
+
 		String result = null;
 		String oldValue = (String) value;
 		boolean needCharConversion = false;
 		Shell shell = new Shell(Display.getDefault());
+
 		if (configParamDesc.isDirectory()) {
-			DirectoryDialog dialog = new DirectoryDialog(shell);
-			dialog.setFilterPath(oldValue);
-			dialog.setText("Edit " + configParamDesc.getName());
-			dialog.setMessage("Choose a directory for '" + configParamDesc.getName() + "':");
-			result = dialog.open();
+			result = openDirectoryDialog(shell, oldValue);
 			needCharConversion = result != null;
 		} else if (configParamDesc.isFile()) {
-			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-			dialog.setFileName(oldValue);
-			dialog.setText("Edit " + configParamDesc.getName());
-			dialog.setFilterExtensions(configParamDesc.getFileExtensions());
-			dialog.setFileName(configParamDesc.getDefaultFileName());
-			result = dialog.open();
+			result = openFileDialog(shell, oldValue);
 			needCharConversion = result != null;
 		} else if (configParamDesc.isAset()) {
 			ConfigParamSetEditingDialog dialog = new ConfigParamSetEditingDialog(shell, configParamDesc,
@@ -268,6 +219,29 @@ public class CustomDialogCellEditor extends CellEditor {
 			}
 		}
 		return needCharConversion ? ((String) result).replace('\\', '/') : result;
+	}
+
+	private String openDirectoryDialog(Shell shell, String oldValue) {
+		DirectoryDialog dialog = new DirectoryDialog(shell);
+		dialog.setFilterPath(oldValue);
+		dialog.setText("Edit " + configParamDesc.getName());
+		dialog.setMessage("Choose a directory for '" + configParamDesc.getName() + "':");
+
+		return dialog.open();
+	}
+
+	private String openFileDialog(Shell shell, String oldValue) {
+		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+
+		String defaultFileName = configParamDesc.getDefaultFileName();
+		boolean useOldValue = oldValue != null && !oldValue.isEmpty();
+
+		dialog.setFileName(useOldValue ? oldValue : defaultFileName);
+
+		dialog.setText("Edit " + configParamDesc.getName());
+		dialog.setFilterExtensions(configParamDesc.getFileExtensions());
+
+		return dialog.open();
 	}
 
 	/**
@@ -292,8 +266,6 @@ public class CustomDialogCellEditor extends CellEditor {
 		} else {
 			fireCancelEditor();
 		}
-		// focusLost();
-		// defaultLabel.setFocus();
 	}
 
 	/**
