@@ -6,7 +6,12 @@ import org.lpe.common.extension.IExtension;
 import org.spotter.core.workload.AbstractWorkloadAdapter;
 import org.spotter.exceptions.WorkloadException;
 
-public class DummyWorkload extends AbstractWorkloadAdapter{
+public class DummyWorkload extends AbstractWorkloadAdapter {
+
+	public boolean initialized = false;
+	public boolean loadStarted = false;
+	public boolean warmUpTerminated = false;
+	public boolean experimentTerminated = false;
 
 	public DummyWorkload(IExtension<?> provider) {
 		super(provider);
@@ -14,27 +19,27 @@ public class DummyWorkload extends AbstractWorkloadAdapter{
 
 	@Override
 	public void initialize() throws WorkloadException {
-		
+		initialized = true;
 	}
 
 	@Override
 	public void startLoad(Properties config) throws WorkloadException {
-		
+		loadStarted = true;
 	}
 
 	@Override
 	public void waitForWarmupPhaseTermination() throws WorkloadException {
-		
+		warmUpTerminated = true;
 	}
 
 	@Override
 	public void waitForExperimentPhaseTermination() throws WorkloadException {
-		
+		experimentTerminated = true;
 	}
 
 	@Override
 	public void waitForFinishedLoad() throws WorkloadException {
-		
+		loadStarted = false;
 	}
 
 }

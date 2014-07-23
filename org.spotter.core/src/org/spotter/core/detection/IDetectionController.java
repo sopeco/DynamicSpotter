@@ -66,19 +66,14 @@ public interface IDetectionController extends IExtensionArtifact {
 	void addExperimentReuser(IExperimentReuser reuser);
 
 	/**
-	 * @param readDataFrom
-	 *            the directory where the parent heuristic holds its data
-	 */
-	void setParentDataDir(String readDataFrom);
-
-	/**
-	 * 
-	 * @return the path where this heuristic stores the measurement data
-	 */
-	String getDataPath();
-
-	/**
 	 * Loads properties from hierarchy description.
 	 */
 	void loadProperties();
+
+	/**
+	 * Returns the result manager for this detection controller.
+	 * 
+	 * @return result manager
+	 */
+	DetectionResultManager getResultManager();
 }

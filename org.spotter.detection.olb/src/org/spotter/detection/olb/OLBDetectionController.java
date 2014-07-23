@@ -152,7 +152,7 @@ public class OLBDetectionController extends AbstractDetectionController {
 			boolean cpuUtilized = cpuUtilized(cpuUtilDataset, cpuMeans);
 
 			Chart utilChart = OLBImageExporter.createCpuUtilChart(cpuMeans, cpuThreshold);
-			storeImageChartResource(utilChart, "CPUUtilization", result);
+			getResultManager().storeImageChartResource(utilChart, "CPUUtilization", result);
 
 			if (cpuUtilized) {
 				result.addMessage("CPU Utilization is quite high. The CPU is probably a bottleneck!");
@@ -187,7 +187,7 @@ public class OLBDetectionController extends AbstractDetectionController {
 				result.addMessage("OLB detected in operation: " + operation);
 
 				Chart rtChart = OLBImageExporter.createOperationRTChart(operation, rtMeans, rtStDevs);
-				storeImageChartResource(rtChart, "RT-" + operation.replace("\\.", "_"), result);
+				getResultManager().storeImageChartResource(rtChart, "RT-" + operation.replace("\\.", "_"), result);
 			}
 		}
 
@@ -201,8 +201,8 @@ public class OLBDetectionController extends AbstractDetectionController {
 		ParameterSelection parSelection = new ParameterSelection();
 		parSelection.select(CPUUtilizationRecord.PAR_CPU_ID, CPUUtilizationRecord.RES_CPU_AGGREGATED);
 
-		for (Integer numUsers : wDataset.getValueSet(NUMBER_OF_USERS, Integer.class)) {
-			parSelection.select(NUMBER_OF_USERS, numUsers);
+		for (Integer numUsers : wDataset.getValueSet(NUMBER_OF_USERS_KEY, Integer.class)) {
+			parSelection.select(NUMBER_OF_USERS_KEY, numUsers);
 			Dataset selectedDataSet = parSelection.applyTo(wDataset);
 
 			double meanCpuUtil = LpeNumericUtils.average(selectedDataSet.getValues(
@@ -221,7 +221,7 @@ public class OLBDetectionController extends AbstractDetectionController {
 		int prevNumUsers = -1;
 		int firstSignificantNumUsers = -1;
 		int significantSteps = 0;
-		List<Integer> sortedNumUsersList = new ArrayList<Integer>(dataset.getValueSet(NUMBER_OF_USERS, Integer.class));
+		List<Integer> sortedNumUsersList = new ArrayList<Integer>(dataset.getValueSet(NUMBER_OF_USERS_KEY, Integer.class));
 		Collections.sort(sortedNumUsersList);
 		double currentMean = -1;
 		double prevMean = -1;
@@ -229,9 +229,9 @@ public class OLBDetectionController extends AbstractDetectionController {
 		double prevStDev = -1;
 		for (Integer numUsers : sortedNumUsersList) {
 			if (prevNumUsers > 0) {
-				ParameterSelection selectionCurrent = new ParameterSelection().select(NUMBER_OF_USERS, numUsers)
+				ParameterSelection selectionCurrent = new ParameterSelection().select(NUMBER_OF_USERS_KEY, numUsers)
 						.select(ResponseTimeRecord.PAR_OPERATION, operation);
-				ParameterSelection selectionPrev = new ParameterSelection().select(NUMBER_OF_USERS, prevNumUsers)
+				ParameterSelection selectionPrev = new ParameterSelection().select(NUMBER_OF_USERS_KEY, prevNumUsers)
 						.select(ResponseTimeRecord.PAR_OPERATION, operation);
 
 				List<Long> currentValues = selectionCurrent.applyTo(dataset).getValues(
@@ -278,7 +278,7 @@ public class OLBDetectionController extends AbstractDetectionController {
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return experimentSteps;
 	}
 

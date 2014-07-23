@@ -24,11 +24,11 @@ import javax.xml.bind.Unmarshaller;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.detection.IDetectionExtension;
+import org.spotter.core.detection.IExperimentReuser;
 import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.hierarchy.model.ObjectFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.model.ResultsContainer;
-
 
 /**
  * Singleton Factory for creating a hierarchy object from an XML hierarchy file.
@@ -72,6 +72,7 @@ public final class HierarchyFactory {
 		PerformanceProblem rootProblem = parsePPHFile(fileName, resultsContainer);
 
 		for (PerformanceProblem problem : rootProblem.getAllDEscendingProblems()) {
+
 			if (problem.isDetectable()) {
 				IDetectionController controller = ExtensionRegistry.getSingleton().getExtensionArtifact(
 						IDetectionExtension.class, problem.getProblemName());
@@ -85,7 +86,27 @@ public final class HierarchyFactory {
 			}
 
 		}
+		
+		
+		initializeExperimentReuser(rootProblem);
+
 		return rootProblem;
+	}
+
+	/**
+	 * Adapts data paths for detection controllers which reuse the experiments of its parent
+	 */
+	private void initializeExperimentReuser(PerformanceProblem rootProblem) {
+		for (PerformanceProblem problem : rootProblem.getAllDEscendingProblems()) {
+			IDetectionController controller = problem.getDetectionController();
+			for (PerformanceProblem child : problem.getChildren()) {
+				IDetectionController childController = child.getDetectionController();
+				if (childController instanceof IExperimentReuser) {
+					controller.addExperimentReuser((IExperimentReuser) childController);
+					childController.getResultManager().setParentDataDir(controller.getResultManager().getDataPath());
+				}
+			}
+		}
 	}
 
 	/**

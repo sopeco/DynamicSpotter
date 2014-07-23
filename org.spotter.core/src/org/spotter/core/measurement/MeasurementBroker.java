@@ -31,6 +31,7 @@ import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.AbstractRecord;
 import org.aim.api.measurement.MeasurementData;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.system.LpeSystemUtils;
 
 /**
  * A wrapper (or delegator) class around, a set of measurement controller which
@@ -84,7 +85,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 	@Override
 	public IExtension<?> getProvider() {
-		throw new UnsupportedOperationException("This operation is not supported!");
+		return null;
 	}
 
 	@Override
@@ -124,8 +125,7 @@ public final class MeasurementBroker implements IMeasurementController {
 			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
 			for (IMeasurementController mController : controllers) {
-
-				new Thread(new PipeDataTask(semaphore, mController, records)).start();
+				LpeSystemUtils.submitTask(new PipeDataTask(semaphore, mController, records));
 			}
 			MeasurementData result = new MeasurementData();
 			while (!(records.isEmpty() && semaphore.availablePermits() == controllers.size())) {
@@ -164,7 +164,7 @@ public final class MeasurementBroker implements IMeasurementController {
 			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
 			for (IMeasurementController mController : controllers) {
-				new Thread(new PipeDataTask(semaphore, mController, records)).start();
+				LpeSystemUtils.submitTask(new PipeDataTask(semaphore, mController, records));
 			}
 
 			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(oStream));

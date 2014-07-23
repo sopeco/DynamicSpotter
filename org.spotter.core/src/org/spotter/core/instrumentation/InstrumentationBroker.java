@@ -24,6 +24,7 @@ import java.util.concurrent.Semaphore;
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.instrumentation.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.system.LpeSystemUtils;
 
 /**
  * The instrumentation broker manages the distribution of instrumentation
@@ -78,7 +79,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
 				semaphore.acquire();
-				new Thread(new InitializeTask(semaphore, instController)).start();
+				LpeSystemUtils.submitTask(new InitializeTask(semaphore, instController));
 			}
 
 			// wait for termination of all instrumentation tasks
@@ -92,11 +93,14 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	@Override
 	public void instrument(InstrumentationDescription description) throws InstrumentationException {
 		try {
+			if (description == null) {
+				throw new InstrumentationException("Instrumentation description must not be null!");
+			}
 			final Semaphore semaphore = new Semaphore(instrumentationControllers.size(), true);
 
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
 				semaphore.acquire();
-				new Thread(new InstrumentTask(semaphore, instController, description)).start();
+				LpeSystemUtils.submitTask(new InstrumentTask(semaphore, instController, description));
 			}
 
 			// wait for termination of all instrumentation tasks
@@ -114,7 +118,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
 				semaphore.acquire();
-				new Thread(new UninstrumentTask(semaphore, instController)).start();
+				LpeSystemUtils.submitTask(new UninstrumentTask(semaphore, instController));
 			}
 
 			// wait for termination of all instrumentation tasks
@@ -265,7 +269,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 		List<T> result = new ArrayList<>();
 
 		for (ISpotterInstrumentation controller : instrumentationControllers) {
-			if (controller.getClass().equals(type)) {
+			if (type.isAssignableFrom(controller.getClass())) {
 				result.add((T) controller);
 			}
 		}

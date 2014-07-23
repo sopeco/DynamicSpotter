@@ -50,6 +50,12 @@ public class ResultBlackboard {
 	private final List<PerformanceProblem> knownProblems = new ArrayList<PerformanceProblem>();
 
 	/**
+	 * Private constructor for Singleton.
+	 */
+	private ResultBlackboard() {
+	}
+	
+	/**
 	 * Returns the results as a mapping of performance problems to the
 	 * corresponding spotter result.
 	 * 

@@ -34,66 +34,7 @@ public class SpotterProgress {
 		problemProgressMapping = new HashMap<>();
 	}
 
-	/**
-	 * Updates progress data.
-	 * @param problemName problem name specifying the corresponding diagnosis step
-	 * @param status progress status
-	 * @param estimatedProgress estimated progress in percent
-	 * @param estimatedRemainingDuration estimated remaining duration in seconds
-	 * @param currentProgressMessage progress message
-	 */
-	public void updateProgress(String problemName, DiagnosisStatus status, double estimatedProgress,
-			long estimatedRemainingDuration, String currentProgressMessage) {
-		if (problemProgressMapping.containsKey(problemName)) {
-			problemProgressMapping.get(problemName).setCurrentProgressMessage(currentProgressMessage);
-			problemProgressMapping.get(problemName).setEstimatedProgress(estimatedProgress);
-			problemProgressMapping.get(problemName).setEstimatedRemainingDuration(estimatedRemainingDuration);
-			problemProgressMapping.get(problemName).setStatus(status);
-		} else {
-			DiagnosisProgress progress = new DiagnosisProgress(status, estimatedProgress, estimatedRemainingDuration,
-					currentProgressMessage);
-			problemProgressMapping.put(problemName, progress);
-		}
 
-	}
-
-	/**
-	 * Update progress message.
-	 * @param problemName problem name specifying the corresponding diagnosis step
-	 * @param currentProgressMessage new progress message
-	 */
-	public void updateProgressMessage(String problemName, String currentProgressMessage) {
-		if (problemProgressMapping.containsKey(problemName)) {
-			problemProgressMapping.get(problemName).setCurrentProgressMessage(currentProgressMessage);
-		}
-	}
-
-	/**
-	 * Updates the progress.
-	 * @param problemName problem name specifying the corresponding diagnosis step
-	 * @param estimatedProgress estimated progress in percent
-	 * @param estimatedRemainingDuration estimated remaining duration in seconds
-	 */
-	public void updateProgress(String problemName, double estimatedProgress, long estimatedRemainingDuration) {
-		if (problemProgressMapping.containsKey(problemName)) {
-			problemProgressMapping.get(problemName).setEstimatedProgress(estimatedProgress);
-			problemProgressMapping.get(problemName).setEstimatedRemainingDuration(estimatedRemainingDuration);
-		}
-	}
-
-	/**
-	 * Updates the progress status.
-	 * @param problemName problem name specifying the corresponding diagnosis step
-	 * @param status new status
-	 */
-	public void updateProgressStatus(String problemName, DiagnosisStatus status) {
-		if (problemProgressMapping.containsKey(problemName)) {
-			problemProgressMapping.get(problemName).setStatus(status);
-		} else {
-			DiagnosisProgress progress = new DiagnosisProgress(status, 0.0, 0L, "");
-			problemProgressMapping.put(problemName, progress);
-		}
-	}
 
 	/**
 	 * Returns the current diagnosis progress.

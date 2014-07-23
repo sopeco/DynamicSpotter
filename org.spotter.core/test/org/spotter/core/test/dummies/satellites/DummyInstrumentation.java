@@ -7,25 +7,28 @@ import org.spotter.core.instrumentation.AbstractSpotterInstrumentation;
 
 public class DummyInstrumentation extends AbstractSpotterInstrumentation {
 
+	public boolean initialized = false;
+	public boolean instrumented = false;
+	
 	public DummyInstrumentation(IExtension<?> provider) {
 		super(provider);
 	}
 
 	@Override
 	public void initialize() throws InstrumentationException {
-		// TODO Auto-generated method stub
+		initialized = true;
 
 	}
 
 	@Override
 	public void instrument(InstrumentationDescription description) throws InstrumentationException {
-		// TODO Auto-generated method stub
+		instrumented = true;
 
 	}
 
 	@Override
 	public void uninstrument() throws InstrumentationException {
-		// TODO Auto-generated method stub
+		instrumented = false;
 
 	}
 

@@ -19,6 +19,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
@@ -37,6 +39,7 @@ import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.measurement.AbstractMeasurementController;
@@ -56,7 +59,7 @@ public class JmsServerMeasurement extends AbstractMeasurementController implemen
 	public static final String COLLECTOR_TYPE_KEY = "org.spotter.sampling.jmsserver.collectorType";
 
 	private AbstractDataSource dataSource;
-	private Thread thread;
+	private Future<?> measurementTask;
 
 	private List<QueueViewMBean> queueMbeans;
 
@@ -78,17 +81,16 @@ public class JmsServerMeasurement extends AbstractMeasurementController implemen
 	@Override
 	public void enableMonitoring() throws MeasurementException {
 		resetActiveMQStatistics();
-		thread = new Thread(this);
-		thread.start();
+		measurementTask = LpeSystemUtils.submitTask(this);
 	}
 
 	@Override
 	public void disableMonitoring() throws MeasurementException {
 		try {
 			running = false;
-			thread.join(0);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			measurementTask.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new MeasurementException(e);
 		}
 	}
 

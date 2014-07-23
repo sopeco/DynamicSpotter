@@ -108,5 +108,7 @@ public class SpotterResult implements Serializable {
 	public List<CallTree<StackTraceElement>> getCallTrees() {
 		return callTrees;
 	}
+	
+	
 
 }

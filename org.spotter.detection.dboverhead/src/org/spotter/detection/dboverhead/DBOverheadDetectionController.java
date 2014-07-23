@@ -89,7 +89,7 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 	private void calculateDBLocks(DatasetCollection data, SpotterResult result) {
 		Dataset dbDataset = data.getDataSet(DBStatisticsRecrod.class);
 		Dataset rtDataset = data.getDataSet(ResponseTimeRecord.class);
-		List<Integer> keys = new ArrayList<Integer>(dbDataset.getValueSet(NUMBER_OF_USERS, Integer.class));
+		List<Integer> keys = new ArrayList<Integer>(dbDataset.getValueSet(NUMBER_OF_USERS_KEY, Integer.class));
 		Collections.sort(keys);
 
 		for (String node : dbDataset.getValueSet(DBStatisticsRecrod.PAR_PROCESS_ID, String.class)) {
@@ -97,7 +97,7 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 			List<Double> lockWaitsValues = new ArrayList<>();
 			for (Integer numUsers : keys) {
 
-				List<Long> utils = ParameterSelection.newSelection().select(NUMBER_OF_USERS, numUsers)
+				List<Long> utils = ParameterSelection.newSelection().select(NUMBER_OF_USERS_KEY, numUsers)
 						.select(DBStatisticsRecrod.PAR_PROCESS_ID, node).applyTo(dbDataset)
 						.getValues(DBStatisticsRecrod.PAR_NUM_LOCK_WAITS, Long.class);
 				double cpuUtilMean = LpeNumericUtils.average(utils);
@@ -109,15 +109,15 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 			List<Double> lockTimesValues = new ArrayList<>();
 			for (Integer numUsers : keys) {
 
-				Integer numRequests = ParameterSelection.newSelection().select(NUMBER_OF_USERS, numUsers)
+				Integer numRequests = ParameterSelection.newSelection().select(NUMBER_OF_USERS_KEY, numUsers)
 						.unequal(ResponseTimeRecord.PAR_OPERATION, "Action_Transaction")
 						.unequal(ResponseTimeRecord.PAR_OPERATION, "vuser_init_Transaction")
 						.unequal(ResponseTimeRecord.PAR_OPERATION, "vuser_end_Transaction").applyTo(rtDataset).size();
 
-				List<Long> lockTimes = ParameterSelection.newSelection().select(NUMBER_OF_USERS, numUsers)
+				List<Long> lockTimes = ParameterSelection.newSelection().select(NUMBER_OF_USERS_KEY, numUsers)
 						.select(DBStatisticsRecrod.PAR_PROCESS_ID, node).applyTo(dbDataset)
 						.getValues(DBStatisticsRecrod.PAR_LOCK_TIME, Long.class);
-				List<Long> lockWaits = ParameterSelection.newSelection().select(NUMBER_OF_USERS, numUsers)
+				List<Long> lockWaits = ParameterSelection.newSelection().select(NUMBER_OF_USERS_KEY, numUsers)
 						.select(DBStatisticsRecrod.PAR_PROCESS_ID, node).applyTo(dbDataset)
 						.getValues(DBStatisticsRecrod.PAR_NUM_LOCK_WAITS, Long.class);
 
@@ -153,7 +153,7 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 		try {
 			outStream = new PipedOutputStream();
 			inStream = new PipedInputStream(outStream);
-			storeTextResource(fileName, result, inStream);
+			getResultManager().storeTextResource(fileName, result, inStream);
 			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(outStream));
 			bWriter.write("NumUsers;LockWaits");
 			bWriter.newLine();
@@ -175,7 +175,7 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 		try {
 			outStream = new PipedOutputStream();
 			inStream = new PipedInputStream(outStream);
-			storeTextResource(fileName, result, inStream);
+			getResultManager().storeTextResource(fileName, result, inStream);
 			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(outStream));
 			bWriter.write("NumUsers;LockTime");
 			bWriter.newLine();
@@ -364,7 +364,7 @@ public class DBOverheadDetectionController extends AbstractDetectionController {
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return NUM_EXPERIMENTS;
 	}
 
