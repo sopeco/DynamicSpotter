@@ -33,12 +33,12 @@ public abstract class AbstractSpotterSatelliteExtension {
 	/**
 	 * property key for host.
 	 */
-	public static final String HOST_KEY = ConfigKeys.SATELLITE_ADAPTER_HOST_KEY;
+	public static final String HOST_KEY = ConfigKeys.SATELLITE_HOST_KEY;
 	
 	/**
 	 * property key for port.
 	 */
-	public static final String PORT_KEY = ConfigKeys.SATELLITE_ADAPTER_PORT_KEY;
+	public static final String PORT_KEY = ConfigKeys.SATELLITE_PORT_KEY;
 	
 	/**
 	 * property key for name.
@@ -97,7 +97,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 		hostParameter.setMandatory(true);
 		hostParameter.setAset(false);
 		hostParameter.setDefaultValue("localhost");
-		hostParameter.setDescription("The host/ip where this satellite adapter should connect to.");
+		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. This satellite adapter connects to the satellite on this host/ip.");
 
 		return hostParameter;
 	}
@@ -108,7 +108,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 		portParameter.setAset(false);
 		portParameter.setRange("0", "65535");
 		portParameter.setDefaultValue("8080");
-		portParameter.setDescription("The port the satellite adapter should connect to.");
+		portParameter.setDescription("The port the corresponding satellite is listening on. This satellite adapter connects to the satellite on this port.");
 
 		return portParameter;
 	}
