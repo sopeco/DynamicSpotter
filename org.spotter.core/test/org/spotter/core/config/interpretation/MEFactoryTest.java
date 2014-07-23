@@ -14,6 +14,7 @@ import org.lpe.common.config.GlobalConfiguration;
 import org.spotter.core.instrumentation.ISpotterInstrumentation;
 import org.spotter.core.measurement.IMeasurementController;
 import org.spotter.core.workload.IWorkloadAdapter;
+import org.spotter.shared.configuration.ConfigKeys;
 
 public class MEFactoryTest {
 	@BeforeClass
@@ -46,7 +47,7 @@ public class MEFactoryTest {
 		for (ConfigParameterDescription cpd : instrumentations.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 			Assert.assertTrue(cpDesription.getName().equals("test.instrumentation.parameter")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name"));
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY));
 		}
 
 		// *****************************
@@ -65,9 +66,9 @@ public class MEFactoryTest {
 			cpDesription = cpd;
 
 			Assert.assertTrue(cpDesription.getName().equals("test.measurement.parameter")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.host")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.port"));
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY)
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_HOST_KEY)
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_PORT_KEY));
 		}
 
 		// *****************************

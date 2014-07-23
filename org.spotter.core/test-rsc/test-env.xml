@@ -2,8 +2,8 @@
 <measurementEnvironment xmlns="org.spotter.shared.environment.model">
     <instrumentationController>
         <extensionName>DummyInstrumentation</extensionName>
-        <config key="org.spotter.satellite.adapter.port" value="0"/>
-        <config key="org.spotter.satellite.adapter.host" value="X"/>
+        <config key="org.spotter.satellite.port" value="0"/>
+        <config key="org.spotter.satellite.host" value="X"/>
         <config key="org.spotter.satellite.adapter.name" value="Y"/>
     </instrumentationController>
     <measurementController>

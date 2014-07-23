@@ -123,12 +123,12 @@ public final class ConfigKeys {
 	/**
 	 * The host the satellite adapter is connecting to.
 	 */
-	public static final String SATELLITE_ADAPTER_HOST_KEY = "org.spotter.satellite.adapter.host";
+	public static final String SATELLITE_HOST_KEY = "org.spotter.satellite.host";
 	
 	/**
 	 * The port the satellite adapter is connecting to.
 	 */
-	public static final String SATELLITE_ADAPTER_PORT_KEY = "org.spotter.satellite.adapter.port";
+	public static final String SATELLITE_PORT_KEY = "org.spotter.satellite.port";
 	
 	/**
 	 * The name for a satellite adapter.

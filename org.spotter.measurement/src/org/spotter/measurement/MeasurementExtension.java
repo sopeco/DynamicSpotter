@@ -36,12 +36,12 @@ public class MeasurementExtension extends AbstractMeasurmentExtension {
 
 	@Override
 	public String getName() {
-		return "measurement.satellite.adapter.default";
+		return "measurement.satellite.adapter.instrumentation";
 	}
 	
 	@Override
 	protected String getDefaultSatelleiteExtensionName() {
-		return "Default Measurement Satellite Adapter";
+		return "Instrumentation Measurement Satellite Adapter";
 	}
 
 	@Override
