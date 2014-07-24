@@ -34,7 +34,7 @@ public class SpotterTest {
 		GlobalConfiguration.initialize(new Properties());
 		String baseDir = creeateTempDir();
 		configFile = baseDir + System.getProperty("file.separator") + "test-spotter.conf";
-		URL hierarchyUrl = HierarchyTest.class.getResource("/small-hierarchy.xml");
+		URL hierarchyUrl = SpotterTest.class.getResource("/small-hierarchy.xml");
 		String hierarchyFile = hierarchyUrl.toURI().getPath();
 		URL envUrl = HierarchyTest.class.getResource("/test-env.xml");
 		String envFile = envUrl.toURI().getPath();
@@ -44,7 +44,7 @@ public class SpotterTest {
 
 	@AfterClass
 	public static void cleanUp() throws IOException {
-		// LpeFileUtils.removeDir(tempDir.getAbsolutePath());
+		 LpeFileUtils.removeDir(tempDir.getAbsolutePath());
 	}
 
 	private static String creeateTempDir() throws IOException {
