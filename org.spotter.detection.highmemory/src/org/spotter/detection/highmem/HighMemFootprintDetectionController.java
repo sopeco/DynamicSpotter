@@ -181,7 +181,7 @@ public class HighMemFootprintDetectionController extends AbstractDetectionContro
 		try {
 			outStream = new PipedOutputStream();
 			inStream = new PipedInputStream(outStream);
-			storeTextResource(fileName, result, inStream);
+			getResultManager().storeTextResource(fileName, result, inStream);
 			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(outStream));
 			for (Object trace : traces) {
 				bWriter.write(trace.toString());
@@ -297,7 +297,7 @@ public class HighMemFootprintDetectionController extends AbstractDetectionContro
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return NUM_EXPERIMENTS;
 	}
 }

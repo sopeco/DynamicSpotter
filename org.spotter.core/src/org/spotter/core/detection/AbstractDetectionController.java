@@ -15,15 +15,6 @@
  */
 package org.spotter.core.detection;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -36,17 +27,13 @@ import org.aim.api.instrumentation.description.InstrumentationDescription;
 import org.aim.api.instrumentation.description.InstrumentationDescriptionBuilder;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.aim.api.measurement.dataset.Parameter;
-import org.aim.api.measurement.utils.RecordCSVReader;
-import org.aim.api.measurement.utils.RecordCSVWriter;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.AbstractExtensionArtifact;
 import org.lpe.common.extension.IExtension;
-import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.LpeStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.Spotter;
-import org.spotter.core.config.interpretation.MeasurementEnvironmentFactory;
 import org.spotter.core.instrumentation.ISpotterInstrumentation;
 import org.spotter.core.instrumentation.InstrumentationBroker;
 import org.spotter.core.measurement.IMeasurementController;
@@ -55,12 +42,8 @@ import org.spotter.core.workload.IWorkloadAdapter;
 import org.spotter.core.workload.WorkloadAdapterBroker;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.configuration.ConfigKeys;
-import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.SpotterResult;
 import org.spotter.shared.status.DiagnosisStatus;
-
-import com.xeiam.xchart.BitmapEncoder;
-import com.xeiam.xchart.Chart;
 
 /**
  * The {@link AbstractDetectionController} comprises common functionality of all
@@ -77,30 +60,24 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	/**
 	 * property key for detection name.
 	 */
-	public static final long KILO = 1000L;
+	public static final long SECOND = 1000L;
 	public static final String DETECTABLE_KEY = "org.spotter.detection.detectable";
-	private static final int SUT_WARMPUP_DURATION = GlobalConfiguration.getInstance().getPropertyAsInteger(ConfigKeys.PREWARUMUP_DURATION, 180);
+	private static final int SUT_WARMPUP_DURATION = GlobalConfiguration.getInstance().getPropertyAsInteger(
+			ConfigKeys.PREWARUMUP_DURATION, 180);
 	private static final int MIN_NUM_USERS = 1;
-	protected static final String NUMBER_OF_USERS = "numUsers";
+	protected static final String NUMBER_OF_USERS_KEY = "numUsers";
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
-	private static final int DPI = 300;
 
 	private ISpotterInstrumentation instrumentationController;
 	protected IMeasurementController measurementController;
 	protected IWorkloadAdapter workloadAdapter;
+	private final DetectionResultManager resultManager;
+
 	protected boolean instrumented = false;
 	private boolean sutWarmedUp = false;
 	private Properties problemDetectionConfiguration = new Properties();
-	private int experimentCount = 0;
-	private String dataPath;
-	private String resourcePath;
 
 	private List<IExperimentReuser> experimentReuser;
-	private String parentDataDir;
-
-	protected long measurementRampUpTime;
-	private long estimatedDuration = 0L;
-	protected long additionalDuration = 0L;
 
 	/**
 	 * Constructor.
@@ -110,26 +87,29 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	public AbstractDetectionController(IExtension<IDetectionController> provider) {
 		super(provider);
+		resultManager = new DetectionResultManager(provider.getName());
 		experimentReuser = new ArrayList<>();
+		instrumentationController = InstrumentationBroker.getInstance();
+		measurementController = MeasurementBroker.getInstance();
+		workloadAdapter = WorkloadAdapterBroker.getInstance();
 	}
 
 	@Override
 	public SpotterResult analyzeProblem() throws InstrumentationException, MeasurementException, WorkloadException {
 		try {
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
-				additionalDuration += SUT_WARMPUP_DURATION;
+
+				Spotter.getInstance().getProgressUpdater().addAdditionalDuration(SUT_WARMPUP_DURATION);
 			}
-			calculateInitialEstimatedDuration();
-			Spotter.getInstance().getProgress()
+			Spotter.getInstance().getProgressUpdater()
 					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.INITIALIZING);
 
 			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
-				overwriteDataPath(GlobalConfiguration.getInstance().getProperty(ConfigKeys.DUMMY_EXPERIMENT_DATA));
+				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
+						ConfigKeys.DUMMY_EXPERIMENT_DATA));
 			} else if (this instanceof IExperimentReuser) {
-				overwriteDataPath(parentDataDir);
+				resultManager.useParentDataDir();
 			} else {
-
-				initialize();
 				if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
 					warmUpSUT();
 				}
@@ -137,9 +117,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				executeExperiments();
 			}
 
-			Spotter.getInstance().getProgress()
+			Spotter.getInstance().getProgressUpdater()
 					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.ANALYSING);
-			return analyze(loadData());
+			return analyze(getResultManager().loadData());
 		} catch (Exception e) {
 			if (e instanceof InstrumentationException) {
 				throw (InstrumentationException) e;
@@ -163,30 +143,6 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	}
 
 	/**
-	 * Updates the current progress of this controller.
-	 */
-	public void updateEstimatedProgress() {
-		long elapsedTime = (System.currentTimeMillis() - GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.PPD_RUN_TIMESTAMP, 0L))
-				/ KILO;
-
-		long currentEstimatedOverallDuration = getEstimatedOverallDuration();
-
-		// as the estimated overall duration might not have been calculated yet
-		// and return default
-
-		// value 0, it must be checked to be greater 0
-		if (currentEstimatedOverallDuration > 0) {
-			Spotter.getInstance()
-					.getProgress()
-					.updateProgress(getProvider().getName(), (double) (elapsedTime / getEstimatedOverallDuration()),
-							getEstimatedOverallDuration() - elapsedTime);
-		}
-
-	
-	}
-
-	/**
 	 * This method triggers the load generators to put low load on the system
 	 * under test in order to warm it up. E.g. all required classes of the SUT
 	 * should be loaded.
@@ -195,7 +151,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	private void warmUpSUT() throws WorkloadException {
 		if (!sutWarmedUp) {
-			Spotter.getInstance().getProgress().updateProgressStatus(getProvider().getName(), DiagnosisStatus.WARM_UP);
+			Spotter.getInstance().getProgressUpdater()
+					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.WARM_UP);
 			Properties wlProperties = new Properties();
 			wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, String.valueOf(1));
@@ -210,60 +167,6 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		}
 	}
 
-	private void initialize() throws MeasurementException, InstrumentationException, WorkloadException {
-		Spotter.getInstance().getProgress()
-				.updateProgressMessage(getProvider().getName(), "Initializing measurement environment...");
-		long startInitialization = System.currentTimeMillis();
-		initInstrumentationController();
-
-		initMeasurementController();
-
-		initWorkloadAdapter();
-
-		additionalDuration += (System.currentTimeMillis() - startInitialization) / KILO;
-	}
-
-	private void initWorkloadAdapter() throws WorkloadException {
-		String measurementEnvironmentFile = GlobalConfiguration.getInstance().getProperty(
-				ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE);
-		if (measurementEnvironmentFile == null) {
-			throw new WorkloadException("Measurement Environment File has not been specified!");
-		}
-		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(
-				measurementEnvironmentFile);
-		workloadAdapter = WorkloadAdapterBroker.getInstance();
-		((WorkloadAdapterBroker) workloadAdapter).setControllers(wlAdapters);
-		workloadAdapter.initialize();
-	}
-
-	private void initMeasurementController() throws InstrumentationException, MeasurementException {
-		String measurementEnvironmentFile = GlobalConfiguration.getInstance().getProperty(
-				ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE);
-		if (measurementEnvironmentFile == null) {
-			throw new InstrumentationException("Measurement Environment File has not been specified!");
-		}
-		List<IMeasurementController> controllers = MeasurementEnvironmentFactory.getInstance()
-				.createMeasurementControllers(measurementEnvironmentFile);
-		measurementController = MeasurementBroker.getInstance();
-		((MeasurementBroker) measurementController).setControllers(controllers);
-		measurementController.initialize();
-
-	}
-
-	private void initInstrumentationController() throws InstrumentationException {
-
-		String measurementEnvironmentFile = GlobalConfiguration.getInstance().getProperty(
-				ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE);
-		if (measurementEnvironmentFile == null) {
-			throw new InstrumentationException("Measurement Environment File has not been specified!");
-		}
-		List<ISpotterInstrumentation> instrumentations = MeasurementEnvironmentFactory.getInstance()
-				.createInstrumentationControllers(measurementEnvironmentFile);
-		instrumentationController = InstrumentationBroker.getInstance();
-		((InstrumentationBroker) instrumentationController).setControllers(instrumentations);
-		instrumentationController.initialize();
-	}
-
 	protected void executeDefaultExperimentSeries(Class<? extends IDetectionController> detectionControllerClass,
 			int numExperimentSteps, InstrumentationDescription instDescription) throws InstrumentationException,
 			MeasurementException, WorkloadException {
@@ -276,23 +179,21 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		if (numExperimentSteps <= 1) {
 			runExperiment(detectionControllerClass, maxUsers);
 		} else {
-			improveEstimatedDuration(numExperimentSteps);
 			double dMinUsers = MIN_NUM_USERS;
 			double dMaxUsers = maxUsers;
 			double dStep = (dMaxUsers - dMinUsers) / (double) (numExperimentSteps - 1);
 
-			// if we have the same number of maximum and minimum users, then we have only one experimetn run
-			if (dStep <= 0.0 + 0.0001) {
-				
+			// if we have the same number of maximum and minimum users, then we
+			// have only one experiment run
+			if (dStep <= 0.0 + EPSELON) {
 				runExperiment(detectionControllerClass, MIN_NUM_USERS);
-				
 			} else {
-				
+
 				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSELON); dUsers += dStep) {
 					int numUsers = new Double(dUsers).intValue();
 					runExperiment(detectionControllerClass, numUsers);
 				}
-				
+
 			}
 		}
 
@@ -301,7 +202,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	}
 
 	protected void instrumentApplication(InstrumentationDescription instDescription) throws InstrumentationException {
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.INSTRUMENTING);
 		long instrumentationStart = System.currentTimeMillis();
 
@@ -313,16 +214,19 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		}
 		instrumentationController.instrument(descriptionBuilder.build());
 		instrumented = true;
-		additionalDuration += (System.currentTimeMillis() - instrumentationStart) / KILO;
+		Spotter.getInstance().getProgressUpdater()
+				.addAdditionalDuration((System.currentTimeMillis() - instrumentationStart) / SECOND);
+
 	}
 
 	protected void uninstrumentApplication() throws InstrumentationException {
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.UNINSTRUMENTING);
 		long uninstrumentationStart = System.currentTimeMillis();
 		instrumentationController.uninstrument();
 		instrumented = false;
-		additionalDuration += (System.currentTimeMillis() - uninstrumentationStart) / KILO;
+		Spotter.getInstance().getProgressUpdater()
+				.addAdditionalDuration((System.currentTimeMillis() - uninstrumentationStart) / SECOND);
 	}
 
 	protected void runExperiment(Class<? extends IDetectionController> detectionControllerClass, int numUsers)
@@ -332,236 +236,47 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		Properties wlProperties = new Properties();
 		wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(numUsers));
 
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
 		workloadAdapter.startLoad(wlProperties);
 
 		workloadAdapter.waitForWarmupPhaseTermination();
 
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
 		measurementController.enableMonitoring();
 
 		workloadAdapter.waitForExperimentPhaseTermination();
 
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
 		measurementController.disableMonitoring();
 
 		workloadAdapter.waitForFinishedLoad();
 
-		Spotter.getInstance().getProgress()
+		Spotter.getInstance().getProgressUpdater()
 				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.COLLECTING_DATA);
 		LOGGER.info("Storing data ...");
 		long dataCollectionStart = System.currentTimeMillis();
-		Parameter numOfUsersParameter = new Parameter(NUMBER_OF_USERS, numUsers);
+		Parameter numOfUsersParameter = new Parameter(NUMBER_OF_USERS_KEY, numUsers);
 		Set<Parameter> parameters = new TreeSet<>();
 		parameters.add(numOfUsersParameter);
-		storeResults(parameters);
-		additionalDuration += (System.currentTimeMillis() - dataCollectionStart) / KILO;
+		getResultManager().storeResults(parameters, measurementController);
+		Spotter.getInstance().getProgressUpdater()
+				.addAdditionalDuration((System.currentTimeMillis() - dataCollectionStart) / SECOND);
 		LOGGER.info("Data stored!");
-	}
-
-	protected void overwriteDataPath(String dataDirectory) {
-		dataPath = dataDirectory;
-	}
-
-	protected void storeImageChartResource(Chart chart, String fileName, SpotterResult spotterResult) {
-		String resourceName = fileName + ".png";
-		String filePath = getAdditionalResourcesPath() + resourceName;
-		try {
-			BitmapEncoder.savePNGWithDPI(chart, filePath, DPI);
-		} catch (IOException e) {
-			// just ignore
-			return;
-		}
-		spotterResult.addResourceFile(resourceName);
-	}
-
-	protected void storeTextResource(final String fileName, final SpotterResult spotterResult,
-			final InputStream inStream) {
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				String filePath = getAdditionalResourcesPath() + fileName + ".txt";
-				BufferedWriter bWriter = null;
-				BufferedReader bReader = null;
-				try {
-
-					FileWriter fWriter = new FileWriter(filePath);
-					bWriter = new BufferedWriter(fWriter);
-					bReader = new BufferedReader(new InputStreamReader(inStream));
-					String line = bReader.readLine();
-					while (line != null) {
-						bWriter.write(line);
-						bWriter.newLine();
-						line = bReader.readLine();
-					}
-
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} finally {
-
-					try {
-						if (bWriter != null) {
-							bWriter.close();
-						}
-						if (bReader != null) {
-							bReader.close();
-						}
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-
-				}
-				spotterResult.addResourceFile(filePath);
-			}
-		}).start();
-
-	}
-
-	protected void storeResults(Set<Parameter> parameters) throws MeasurementException {
-		try {
-			experimentCount++;
-			final String path = getExperimentPath(experimentCount);
-			final PipedOutputStream outStream = new PipedOutputStream();
-			final PipedInputStream inStream = new PipedInputStream(outStream);
-
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						measurementController.pipeToOutputStream(outStream);
-					} catch (MeasurementException e) {
-						throw new RuntimeException("Failed Storing data!");
-					}
-				}
-			}).start();
-
-			RecordCSVWriter.getInstance().pipeDataToDatasetFiles(inStream, path, parameters);
-
-			measurementController.storeReport(path);
-		} catch (IOException e) {
-			throw new RuntimeException("Failed Storing data!");
-		}
-	}
-
-	private String getExperimentPath(int experimentCount) {
-		StringBuilder pathBuilder = new StringBuilder(getDataPath());
-
-		pathBuilder.append(String.valueOf(experimentCount));
-		pathBuilder.append(System.getProperty("file.separator"));
-		return pathBuilder.toString();
-	}
-
-	@Override
-	public String getDataPath() {
-		StringBuilder pathBuilder = new StringBuilder();
-		if (dataPath == null) {
-			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
-			pathBuilder.append(getProvider().getName());
-			pathBuilder.append(System.getProperty("file.separator"));
-
-			pathBuilder.append(ResultsLocationConstants.CSV_SUB_DIR);
-			pathBuilder.append(System.getProperty("file.separator"));
-
-			dataPath = pathBuilder.toString();
-		} else {
-			pathBuilder.append(dataPath);
-		}
-		return pathBuilder.toString();
-	}
-
-	protected String getAdditionalResourcesPath() {
-		StringBuilder pathBuilder = new StringBuilder();
-		if (resourcePath == null) {
-			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
-			pathBuilder.append(getProvider().getName());
-			pathBuilder.append(System.getProperty("file.separator"));
-
-			pathBuilder.append(ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR);
-			pathBuilder.append(System.getProperty("file.separator"));
-
-			resourcePath = pathBuilder.toString();
-			File file = new File(resourcePath);
-			if (!file.exists()) {
-				LpeFileUtils.createDir(resourcePath);
-			}
-		} else {
-			pathBuilder.append(resourcePath);
-		}
-
-		return pathBuilder.toString();
-	}
-
-	protected DatasetCollection loadData() {
-		return RecordCSVReader.getInstance().readDatasetCollectionFromDirectory(dataPath);
 	}
 
 	protected abstract void executeExperiments() throws InstrumentationException, MeasurementException,
 			WorkloadException;
 
-	protected abstract int getNumOfExperiments();
+	/**
+	 * Returns the number of experiments this detection controller is going to execute.
+	 * @return number of experiments
+	 */
+	public abstract int getNumOfExperiments();
 
 	protected abstract SpotterResult analyze(DatasetCollection data);
-
-	private void calculateInitialEstimatedDuration() {
-
-		int numExperiments = getNumOfExperiments();
-		long numUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
-		estimatedDuration = calculateExperimentDuration(numUsers) * numExperiments;
-	}
-
-	private long calculateExperimentDuration(long numUsers) {
-		long rampUpUsersPerInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL, 0L);
-
-		long coolDownUsersPerInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, 0L);
-
-		long rampUpInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, 0L);
-
-		long coolDownInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, 0L);
-
-		long stablePhase = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L);
-
-		long rampUp = 0;
-		if (rampUpUsersPerInterval != 0) {
-			rampUp = (numUsers / rampUpUsersPerInterval) * rampUpInterval;
-		}
-
-		long coolDown = 0;
-		if (coolDownUsersPerInterval != 0) {
-			coolDown = (numUsers / coolDownUsersPerInterval) * coolDownInterval;
-		}
-
-		return rampUp + stablePhase + coolDown;
-
-	}
-
-	private void improveEstimatedDuration(int numExperimentSteps) {
-		double dMinUsers = MIN_NUM_USERS;
-		long maxUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
-		double dMaxUsers = maxUsers;
-		double dStep = (dMaxUsers - dMinUsers) / (double) (numExperimentSteps - 1);
-		long duration = 0L;
-		
-		if (dStep <= 0.0 + 0.0001) {
-			duration += calculateExperimentDuration(new Double(dMinUsers).intValue());
-		} else {
-			
-			for (double dUsers = dMinUsers; dUsers <= dMaxUsers; dUsers += dStep) {
-				int numUsers = new Double(dUsers).intValue();
-				duration += calculateExperimentDuration(numUsers);
-			}
-			
-		}
-
-		estimatedDuration = duration;
-	}
 
 	/**
 	 * @return the problem detection configuration
@@ -586,15 +301,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	}
 
 	@Override
-	public void setParentDataDir(String readDataFrom) {
-		this.parentDataDir = readDataFrom;
-	}
-
-	/**
-	 * @return the estimatedOverallDuration
-	 */
-	public long getEstimatedOverallDuration() {
-		return estimatedDuration + additionalDuration;
+	public DetectionResultManager getResultManager() {
+		return resultManager;
 	}
 
 }

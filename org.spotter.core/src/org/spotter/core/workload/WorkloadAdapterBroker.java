@@ -119,12 +119,12 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 
 	@Override
 	public IExtension<?> getProvider() {
-		throw new UnsupportedOperationException("This operation is not supported!");
+		return null;
 	}
 
 	@Override
 	public String getName() {
-		return "Measurement Broker";
+		return "Workload Adapter Broker";
 	}
 
 	@Override

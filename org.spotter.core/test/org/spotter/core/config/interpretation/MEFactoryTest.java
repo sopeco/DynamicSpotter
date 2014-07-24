@@ -181,9 +181,10 @@ public class MEFactoryTest {
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getName());
 	}
-
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidNameWorkload() throws URISyntaxException {
+	
 		URL url = HierarchyTest.class.getResource("/test-env.xml");
 		String envFile = url.toURI().getPath();
 		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);

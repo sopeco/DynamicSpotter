@@ -20,11 +20,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.AbstractRecord;
+import org.lpe.common.util.system.LpeSystemUtils;
 
 /**
  * Pipes measurement data from a measurement controller to a blocking queue.
@@ -83,9 +85,10 @@ public class PipeDataTask implements Runnable {
 			final PipedInputStream dataToReturn = new PipedInputStream();
 			PipedOutputStream dataFromController = new PipedOutputStream(dataToReturn);
 
-			writeRecordsToQueue(dataToReturn);
+			Future<?> queueWriterTask = writeRecordsToQueue(dataToReturn);
 
 			mController.pipeToOutputStream(dataFromController);
+			queueWriterTask.get();
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -99,8 +102,8 @@ public class PipeDataTask implements Runnable {
 	 * @param dataToReturn
 	 *            data to pipe
 	 */
-	void writeRecordsToQueue(final PipedInputStream dataToReturn) {
-		new Thread(new Runnable() {
+	Future<?> writeRecordsToQueue(final PipedInputStream dataToReturn) {
+		Future<?> future = LpeSystemUtils.submitTask(new Runnable() {
 
 			@Override
 			public void run() {
@@ -134,6 +137,8 @@ public class PipeDataTask implements Runnable {
 				}
 
 			}
-		}).start();
+		});
+
+		return future;
 	}
 }

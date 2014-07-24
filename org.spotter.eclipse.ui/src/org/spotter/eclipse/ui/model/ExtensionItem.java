@@ -26,6 +26,7 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.util.system.LpeSystemUtils;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.listeners.IItemChangedListener;
 import org.spotter.eclipse.ui.listeners.IItemPropertiesChangedListener;
@@ -255,7 +256,7 @@ public class ExtensionItem {
 		errorMsg = null;
 
 		fireItemAppearanceChanged();
-		new Thread(new Runnable() {
+		LpeSystemUtils.submitTask(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -267,7 +268,7 @@ public class ExtensionItem {
 				isPending = false;
 				fireItemAppearanceChangedOnUIThread();
 			}
-		}).start();
+		});
 	}
 
 	/**

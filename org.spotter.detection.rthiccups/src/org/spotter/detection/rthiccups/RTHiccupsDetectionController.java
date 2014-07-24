@@ -142,11 +142,11 @@ public class RTHiccupsDetectionController extends AbstractDetectionController {
 					hiccupDetectionValues.getThreshold());
 			appendHiccupData(operation, i, hiccups);
 
-			LpeNumericUtils.exportAsCSV(preprocessedDataSeries, getAdditionalResourcesPath() + "noiseReduced-" + i
+			LpeNumericUtils.exportAsCSV(preprocessedDataSeries, getResultManager().getAdditionalResourcesPath() + "noiseReduced-" + i
 					+ ".csv", "timestamp", "responsetime");
-			LpeNumericUtils.exportAsCSV(responseTimeSeries, getAdditionalResourcesPath() + "ResponseTimeSeries-" + i
+			LpeNumericUtils.exportAsCSV(responseTimeSeries, getResultManager().getAdditionalResourcesPath() + "ResponseTimeSeries-" + i
 					+ ".csv", "timestamp", "responsetime");
-			LpeNumericUtils.exportAsCSV(detectionTimeSeries, getAdditionalResourcesPath() + "detection-" + i + ".csv",
+			LpeNumericUtils.exportAsCSV(detectionTimeSeries, getResultManager().getAdditionalResourcesPath() + "detection-" + i + ".csv",
 					"timestamp", "responsetime");
 
 			// Chart preprocessedChart =
@@ -200,7 +200,7 @@ public class RTHiccupsDetectionController extends AbstractDetectionController {
 
 	private void appendOperationMetaInfo(String operation, int number) {
 		try {
-			FileWriter writer = new FileWriter(getAdditionalResourcesPath() + "operation.info", true);
+			FileWriter writer = new FileWriter(getResultManager().getAdditionalResourcesPath() + "operation.info", true);
 			writer.append(String.valueOf(number) + " - " + operation);
 			writer.close();
 		} catch (IOException e) {
@@ -210,7 +210,7 @@ public class RTHiccupsDetectionController extends AbstractDetectionController {
 
 	private void appendCalculatedThresholdsMetaInfo(String operation, int number, double mean, double threshold) {
 		try {
-			FileWriter writer = new FileWriter(getAdditionalResourcesPath() + "thresholds_" + number + ".csv", true);
+			FileWriter writer = new FileWriter(getResultManager().getAdditionalResourcesPath() + "thresholds_" + number + ".csv", true);
 			writer.append("mean;threshold");
 			writer.append("\n");
 			writer.append(String.valueOf(mean) + ";" + String.valueOf(threshold));
@@ -222,7 +222,7 @@ public class RTHiccupsDetectionController extends AbstractDetectionController {
 
 	private void appendHiccupData(String operation, int number, List<Hiccup> hiccups) {
 		try {
-			FileWriter writer = new FileWriter(getAdditionalResourcesPath() + "hiccups_" + number + ".csv", true);
+			FileWriter writer = new FileWriter(getResultManager().getAdditionalResourcesPath() + "hiccups_" + number + ".csv", true);
 			writer.append("\"starttime\";\"endtime\";\"maxHeight\";\"avgHeight\";\"maxPreproccedHeight\";\"avgPreproccedHeight\"");
 			writer.append("\n");
 			for (Hiccup hiccup : hiccups) {
@@ -279,7 +279,7 @@ public class RTHiccupsDetectionController extends AbstractDetectionController {
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return NUM_EXPERIMENTS;
 	}
 

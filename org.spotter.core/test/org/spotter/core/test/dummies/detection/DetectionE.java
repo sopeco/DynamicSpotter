@@ -42,7 +42,7 @@ public class DetectionE extends AbstractDetectionController {
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return 1;
 	}
 

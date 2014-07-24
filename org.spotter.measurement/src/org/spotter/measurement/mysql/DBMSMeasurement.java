@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.Future;
 
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.MeasurementData;
@@ -31,6 +32,7 @@ import org.aim.artifacts.measurement.collector.FileDataSource;
 import org.aim.artifacts.records.DBStatisticsRecrod;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.measurement.AbstractMeasurementController;
@@ -50,7 +52,7 @@ public class DBMSMeasurement extends AbstractMeasurementController implements Ru
 	public static final String COLLECTOR_TYPE_KEY = "org.spotter.sampling.mysql.collectorType";
 	public static Integer instanceId = 1;
 	private AbstractDataSource dataSource;
-	private Thread thread;
+	private Future<?> measurementTask;
 
 	private Connection jdbcConnection;
 	private PreparedStatement sqlStatement;
@@ -87,15 +89,15 @@ public class DBMSMeasurement extends AbstractMeasurementController implements Ru
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		thread = new Thread(this);
-		thread.start();
+		measurementTask = LpeSystemUtils.submitTask(this);
+
 	}
 
 	@Override
 	public void disableMonitoring() throws MeasurementException {
 		try {
 			running = false;
-			thread.join(0);
+			measurementTask.get();
 			if (sqlStatement != null) {
 				sqlStatement.close();
 			}
@@ -104,7 +106,7 @@ public class DBMSMeasurement extends AbstractMeasurementController implements Ru
 			}
 
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new MeasurementException(e);
 		}
 	}
 

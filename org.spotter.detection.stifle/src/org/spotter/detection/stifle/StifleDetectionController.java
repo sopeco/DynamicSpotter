@@ -323,7 +323,7 @@ public class StifleDetectionController extends AbstractDetectionController {
 	}
 
 	@Override
-	protected int getNumOfExperiments() {
+	public int getNumOfExperiments() {
 		return NUM_EXPERIMENTS;
 	}
 

@@ -18,6 +18,12 @@ import org.spotter.core.measurement.AbstractMeasurementController;
 
 public class DummyMeasurement extends AbstractMeasurementController{
 
+	public static final int NUM_RECORDS = 60;
+	
+	public boolean initialized = false;
+	public boolean enabled = false;
+	public boolean reportStored = false;
+	
 	public DummyMeasurement(IExtension<?> provider) {
 		super(provider);
 	}
@@ -25,12 +31,13 @@ public class DummyMeasurement extends AbstractMeasurementController{
 
 	@Override
 	public void enableMonitoring() throws MeasurementException {
-
+		reportStored=false;
+		enabled=true;
 	}
 
 	@Override
 	public void disableMonitoring() throws MeasurementException {
-
+		enabled=false;
 	}
 
 	@Override
@@ -38,7 +45,7 @@ public class DummyMeasurement extends AbstractMeasurementController{
 		List<AbstractRecord> records = new ArrayList<>();
 		Random rand = new Random();
 
-		for (long i = 0; i < 100; i++) {
+		for (long i = 0; i < NUM_RECORDS/3; i++) {
 			ResponseTimeRecord rtRecord = new ResponseTimeRecord(System.currentTimeMillis() + i * 10L, "operation-"
 					+ (i % 5), (long) (rand.nextDouble() * 100L));
 			CPUUtilizationRecord cpuRecord = new CPUUtilizationRecord(System.currentTimeMillis() + i * 10L, "CPU-"
@@ -86,7 +93,7 @@ public class DummyMeasurement extends AbstractMeasurementController{
 
 	@Override
 	public void initialize() throws MeasurementException {
-
+		initialized = true;
 	}
 
 	@Override
@@ -96,7 +103,7 @@ public class DummyMeasurement extends AbstractMeasurementController{
 
 	@Override
 	public void storeReport(String path) throws MeasurementException {
-
+		reportStored=true;
 	}
 
 }

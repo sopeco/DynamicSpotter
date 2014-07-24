@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.workload.AbstractWorkloadAdapter;
@@ -100,7 +101,7 @@ public class SimpleWorkloadDriver extends AbstractWorkloadAdapter {
 		experimentPhaseFinished = false;
 		numActiveUsers = 0;
 
-		new Thread(new Runnable() {
+		Runnable task = new Runnable() {
 
 			@Override
 			public void run() {
@@ -180,7 +181,9 @@ public class SimpleWorkloadDriver extends AbstractWorkloadAdapter {
 					experimentMonitor.notifyAll();
 				}
 			}
-		}).start();
+		};
+
+		LpeSystemUtils.submitTask(task);
 
 	}
 
@@ -200,7 +203,7 @@ public class SimpleWorkloadDriver extends AbstractWorkloadAdapter {
 	 * @param coolDownDelay
 	 */
 	private void startVUser(final Class<?> vUserClass, final long coolDownDelay) {
-		new Thread(new Runnable() {
+		LpeSystemUtils.submitTask(new Runnable() {
 			public void run() {
 				ISimpleVUser vUser;
 				try {
@@ -221,7 +224,7 @@ public class SimpleWorkloadDriver extends AbstractWorkloadAdapter {
 				decreaseNumActiveUsers();
 
 			}
-		}).start();
+		});
 	}
 
 	private Class<?> loadVUserScript(File userScriptFile, String userScriptClassNAme) throws WorkloadException {
