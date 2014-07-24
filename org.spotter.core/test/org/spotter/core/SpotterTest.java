@@ -44,7 +44,7 @@ public class SpotterTest {
 
 	@AfterClass
 	public static void cleanUp() throws IOException {
-		 LpeFileUtils.removeDir(tempDir.getAbsolutePath());
+		LpeFileUtils.removeDir(tempDir.getAbsolutePath());
 	}
 
 	private static String creeateTempDir() throws IOException {
@@ -80,7 +80,7 @@ public class SpotterTest {
 	private static String cleanPath(String toClean) {
 		toClean = toClean.replace(System.getProperty("file.separator"), "/");
 		toClean = toClean.replace("\\:", ":");
-		if (toClean.startsWith("/")) {
+		if (toClean.startsWith("/") && System.getProperty("file.separator").equals("\\")) {
 			toClean = toClean.substring(1);
 		}
 		return toClean;
@@ -102,18 +102,17 @@ public class SpotterTest {
 		File resultFile = new File(cleanPath(dataPath + System.getProperty("file.separator") + "SpotterReport.txt"));
 		Assert.assertTrue(resultFile.isFile());
 		Assert.assertTrue(resultFile.exists());
-		
-		
+
 		FileReader fReader = new FileReader(resultFile);
 		BufferedReader reader = new BufferedReader(fReader);
 		StringBuilder sBuilder = new StringBuilder();
 		String line = reader.readLine();
-		while(line != null){
+		while (line != null) {
 			sBuilder.append(line);
 			line = reader.readLine();
 		}
 		reader.close();
-		
+
 		Assert.assertTrue(sBuilder.toString().contains("DETECTED"));
 
 	}
