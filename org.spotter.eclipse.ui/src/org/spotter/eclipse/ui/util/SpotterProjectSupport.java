@@ -81,7 +81,6 @@ public class SpotterProjectSupport {
 	private static final String ERR_WRITE_SPOTTER_CONF = "Error occured while writing to DynamicSpotter configuration file";
 
 	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
-
 	private static final String KEY_ENVIRONMENT_FILE_DESC = "path to the XML file describing all measurement satellites and their configurations";
 
 	private static final String KEY_RESULTS_DIR_DESC = "path to the directory containing the results";

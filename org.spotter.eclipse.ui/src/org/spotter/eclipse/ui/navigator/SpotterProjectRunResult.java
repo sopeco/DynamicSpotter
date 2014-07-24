@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
@@ -133,6 +134,10 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	@Override
 	public void delete() {
 		try {
+			if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
+				resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+			}
+
 			ResultsView.reset(resultFolder);
 			resultFolder.delete(true, null);
 			// update navigator viewer
