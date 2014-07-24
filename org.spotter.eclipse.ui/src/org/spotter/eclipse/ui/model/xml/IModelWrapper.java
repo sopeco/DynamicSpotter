@@ -33,12 +33,12 @@ public interface IModelWrapper {
 	/**
 	 * The host configuration key.
 	 */
-	String HOST_KEY = ConfigKeys.SATELLITE_HOST_KEY;
+	String HOST_KEY = ConfigKeys.SATELLITE_ADAPTER_HOST_KEY;
 	
 	/**
 	 * The port configuration key.
 	 */
-	String PORT_KEY = ConfigKeys.SATELLITE_PORT_KEY;
+	String PORT_KEY = ConfigKeys.SATELLITE_ADAPTER_PORT_KEY;
 	
 	/**
 	 * The name configuration key.
