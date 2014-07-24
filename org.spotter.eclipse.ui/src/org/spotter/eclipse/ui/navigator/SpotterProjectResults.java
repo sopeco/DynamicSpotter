@@ -21,7 +21,11 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
@@ -34,6 +38,8 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 public class SpotterProjectResults implements ISpotterProjectElement {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectResults.class);
 
 	private static final String ELEMENT_NAME = "Results";
 	private static final String EMPTY_SUFFIX = " (empty)";
@@ -116,11 +122,22 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	}
 
 	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
-		ISpotterProjectElement[] children = SpotterProjectParent.NO_CHILDREN;
 		String defaultResultsDir = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME;
 		IFolder resDir = iProject.getFolder(defaultResultsDir);
+
+		if (!resDir.isSynchronized(IResource.DEPTH_INFINITE)) {
+			try {
+				resDir.refreshLocal(IResource.DEPTH_INFINITE, null);
+			} catch (CoreException e) {
+				LOGGER.warn("Failed to refresh results directory");
+				return SpotterProjectParent.NO_CHILDREN;
+			}
+		}
+		
 		File res = new File(resDir.getLocation().toString());
 		List<File> runFolders = new ArrayList<>();
+		ISpotterProjectElement[] elements = SpotterProjectParent.NO_CHILDREN;
+
 		if (res.exists() && res.isDirectory()) {
 			File[] files = res.listFiles();
 			for (File file : files) {
@@ -129,16 +146,15 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 				}
 			}
 
-			children = new ISpotterProjectElement[runFolders.size()];
+			elements = new ISpotterProjectElement[runFolders.size()];
 			int i = 0;
 			for (File runFolder : runFolders) {
-				IFolder runResultFolder = iProject.getFolder(defaultResultsDir + File.separatorChar
-						+ runFolder.getName());
-				children[i++] = new SpotterProjectRunResult(this, runFolder.getName(), runResultFolder);
+				IFolder runResultFolder = iProject.getFolder(defaultResultsDir + File.separator + runFolder.getName());
+				elements[i++] = new SpotterProjectRunResult(this, runFolder.getName(), runResultFolder);
 			}
 		}
 
-		return children;
+		return elements;
 	}
 
 }
