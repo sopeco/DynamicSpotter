@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -118,14 +115,23 @@ public class ServiceClientWrapper {
 		this.client = new SpotterServiceClient(host, port);
 	}
 
+	/**
+	 * @return The name of the project this client is associated with.
+	 */
 	public String getProjectName() {
 		return this.projectName;
 	}
 
+	/**
+	 * @return The host of this client.
+	 */
 	public String getHost() {
 		return this.host;
 	}
 
+	/**
+	 * @return The port of this client.
+	 */
 	public String getPort() {
 		return this.port;
 	}
@@ -182,12 +188,19 @@ public class ServiceClientWrapper {
 			prefs.put(KEY_SERVICE_HOST, oldHost);
 			prefs.put(KEY_SERVICE_PORT, oldPort);
 
-			Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-			MessageDialog.openError(shell, DIALOG_TITLE, MSG_FAIL_SAFE);
+			DialogUtils.openError(DIALOG_TITLE, MSG_FAIL_SAFE);
 		}
 		return false;
 	}
 
+	/**
+	 * Starts the diagnosis using the given configuration file. Returns the
+	 * retrieved job id or <code>null</code> on failure.
+	 * 
+	 * @param configurationFile
+	 *            The configuration file to use.
+	 * @return The retrieved job id or <code>null</code> on failure.
+	 */
 	public Long startDiagnosis(final String configurationFile) {
 		try {
 			return client.startDiagnosis(configurationFile);
@@ -202,9 +215,6 @@ public class ServiceClientWrapper {
 			return client.isRunning();
 		} catch (Exception e) {
 			handleException("isRunning", MSG_NO_STATUS, e, true);
-			// Shell shell =
-			// PlatformUI.getWorkbench().getDisplay().getActiveShell();
-			// MessageDialog.openWarning(shell, DIALOG_TITLE, MSG_NO_STATUS);
 		}
 		return false;
 	}
