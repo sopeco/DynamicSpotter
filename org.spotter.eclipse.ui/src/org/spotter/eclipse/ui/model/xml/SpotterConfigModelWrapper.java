@@ -16,6 +16,7 @@
 package org.spotter.eclipse.ui.model.xml;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -41,10 +42,21 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 	/**
 	 * Creates an instance of this class using the given properties.
 	 * 
-	 * @param properties
-	 *            the properties of the model
+	 * @param projectName	the project name
+	 * @param properties	the properties of the model
 	 */
 	public SpotterConfigModelWrapper(String projectName, Properties properties) {
+		this(projectName, properties, false);
+	}
+	
+	/**
+	 * Creates an instance of this class using the given properties.
+	 * 
+	 * @param projectName	the project name
+	 * @param properties	the properties of the model
+	 * @param sortAscending true, to sort the configuration keys (alphabetically) ascending
+	 */
+	public SpotterConfigModelWrapper(String projectName, Properties properties, boolean sortAscending) {
 		this.projectName = projectName;
 		this.xmConfigList = new ArrayList<XMConfiguration>();
 		for (Entry<Object, Object> entry : properties.entrySet()) {
@@ -53,8 +65,12 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 			xmConfig.setValue((String) entry.getValue());
 			xmConfigList.add(xmConfig);
 		}
+		
+		if (sortAscending) {
+			Collections.sort(xmConfigList);
+		}
 	}
-
+	
 	@Override
 	public String getExtensionName() {
 		return null;

@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Configuration")
-public class XMConfiguration implements Serializable {
+public class XMConfiguration implements Serializable, Comparable<XMConfiguration> {
 
 	private static final long serialVersionUID = 2095252249149161297L;
 	@XmlAttribute(name = "key", required = true)
@@ -72,5 +72,25 @@ public class XMConfiguration implements Serializable {
 	 */
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	@Override
+	public int compareTo(XMConfiguration other) {
+		final int BEFORE = -1;
+	    final int AFTER = 1;
+		
+		if (this.getKey().compareTo(other.getKey()) < 0) {
+
+			return BEFORE;
+			
+		} else if (this.getKey().compareTo(other.getKey()) > 0) {
+			
+			return AFTER;
+			
+		} else {
+			
+			return this.getValue().compareTo(other.getValue());
+			
+		}
 	}
 }

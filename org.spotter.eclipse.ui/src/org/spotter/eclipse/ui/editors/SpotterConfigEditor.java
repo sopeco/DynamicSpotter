@@ -128,7 +128,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 			return null;
 		}
 
-		wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties);
+		SpotterConfigModelWrapper wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties, true);
 		ExtensionItem inputModel = new ExtensionItem(wrapper);
 		inputModel.setIgnoreConnection(true);
 
