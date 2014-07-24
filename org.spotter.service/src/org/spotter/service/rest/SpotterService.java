@@ -80,7 +80,22 @@ public class SpotterService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public SpotterServiceResponse<Boolean> isRunning() {
 		try {
-			Boolean isRunning = SpotterServiceWrapper.getInstance().isRunning();
+			Boolean isRunning = false;
+			switch (SpotterServiceWrapper.getInstance().getState()) {
+			case CANCELLED:
+				SpotterServiceWrapper.getInstance().checkForConcurrentExecutionException();
+				break;
+			case FINISHED:
+				isRunning = false;
+				break;
+			case RUNNING:
+				isRunning = true;
+				break;
+			default:
+				isRunning = false;
+				break;
+			}
+
 			return new SpotterServiceResponse<Boolean>(isRunning, ResponseStatus.OK);
 		} catch (Exception e) {
 			return createErrorResponse(e);

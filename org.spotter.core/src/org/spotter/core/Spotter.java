@@ -26,7 +26,6 @@ import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeNumericUtils;
-import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.config.interpretation.HierarchyFactory;
@@ -74,9 +73,6 @@ public final class Spotter {
 		return instance;
 	}
 
-	private SpotterProgress progress;
-	private ProgressUpdater progressUpdater;
-
 	/**
 	 * Constructor.
 	 */
@@ -89,8 +85,12 @@ public final class Spotter {
 	 * 
 	 * @param configurationFile
 	 *            path to the configuration file
+	 * @throws WorkloadException
+	 * @throws MeasurementException
+	 * @throws InstrumentationException
 	 */
-	public void startDiagnosis(String configurationFile) {
+	public void startDiagnosis(String configurationFile) throws InstrumentationException, MeasurementException,
+			WorkloadException {
 		long startTime = System.currentTimeMillis();
 
 		startDiagnosis(configurationFile, startTime);
@@ -103,15 +103,19 @@ public final class Spotter {
 	 *            path to the configuration file
 	 * @param timestamp
 	 *            timestamp of that run
+	 * @throws WorkloadException
+	 *             if workload generation fails
+	 * @throws MeasurementException
+	 *             if retrieving measurement data fails
+	 * @throws InstrumentationException
+	 *             if instrumentation fails
 	 */
-	public synchronized void startDiagnosis(String configurationFile, long timestamp) {
+	public synchronized void startDiagnosis(String configurationFile, long timestamp) throws InstrumentationException,
+			MeasurementException, WorkloadException {
 
 		GlobalConfiguration.reinitialize(configurationFile);
-		setProgress(new SpotterProgress());
-		progressUpdater = new ProgressUpdater();
 		ResultsContainer resultsContainer = new ResultsContainer();
 		try {
-
 			GlobalConfiguration.getInstance().putProperty(ConfigKeys.PPD_RUN_TIMESTAMP, String.valueOf(timestamp));
 			ConfigCheck.checkConfiguration();
 			initializeMeasurementEnvironment();
@@ -119,27 +123,24 @@ public final class Spotter {
 			HierarchyModelInterpreter hierarchyModelInterpreter = new HierarchyModelInterpreter(problem);
 			problem = hierarchyModelInterpreter.next();
 
-			LpeSystemUtils.submitTask(progressUpdater);
+			ProgressManager.getInstance().start();
 
 			while (problem != null) {
 				IDetectionController detectionController = problem.getDetectionController();
-				progressUpdater.setController((AbstractDetectionController) detectionController);
+				ProgressManager.getInstance().setController((AbstractDetectionController) detectionController);
 				SpotterResult result = detectionController.analyzeProblem();
 				if (result.isDetected()) {
-					progressUpdater.updateProgressStatus(problem.getProblemName(), DiagnosisStatus.DETECTED);
+					ProgressManager.getInstance().updateProgressStatus(problem.getUniqueId(), DiagnosisStatus.DETECTED);
 				} else {
-					progressUpdater.updateProgressStatus(problem.getProblemName(), DiagnosisStatus.NOT_DETECTED);
+					ProgressManager.getInstance().updateProgressStatus(problem.getUniqueId(),
+							DiagnosisStatus.NOT_DETECTED);
 				}
 
 				ResultBlackboard.getInstance().putResult(problem, result);
 				problem = hierarchyModelInterpreter.next();
 			}
-
-		} catch (Exception e) {
-			LOGGER.error("Error during Performance Problem Diagnostics. Cause: {}", e);
-			e.printStackTrace();
 		} finally {
-			progressUpdater.stop();
+			ProgressManager.getInstance().stop();
 			long durationMillis = ((System.currentTimeMillis() - timestamp));
 
 			resultsContainer.setResultsMap(ResultBlackboard.getInstance().getResults());
@@ -227,15 +228,7 @@ public final class Spotter {
 	 * @return the progress
 	 */
 	public SpotterProgress getProgress() {
-		return progress;
-	}
-
-	/**
-	 * @param progress
-	 *            the progress to set
-	 */
-	public void setProgress(SpotterProgress progress) {
-		this.progress = progress;
+		return ProgressManager.getInstance().getSpotterProgress();
 	}
 
 	/**
@@ -290,14 +283,6 @@ public final class Spotter {
 		InstrumentationBroker instrumentationController = InstrumentationBroker.getInstance();
 		instrumentationController.setControllers(instrumentations);
 		instrumentationController.initialize();
-	}
-
-	public ProgressUpdater getProgressUpdater() {
-		return progressUpdater;
-	}
-
-	public void setProgressUpdater(ProgressUpdater progressUpdater) {
-		this.progressUpdater = progressUpdater;
 	}
 
 }

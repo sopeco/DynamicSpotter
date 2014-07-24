@@ -41,6 +41,7 @@ public class DetectionResultManager {
 	private String resourcePath;
 	private String parentDataDir;
 	private String controllerName;
+	private String problemId;
 	private int resultCount = 0;
 
 	/**
@@ -73,6 +74,8 @@ public class DetectionResultManager {
 		if (dataPath == null) {
 			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
 			pathBuilder.append(controllerName);
+			pathBuilder.append("-");
+			pathBuilder.append(getProblemId().hashCode());
 			pathBuilder.append(System.getProperty("file.separator"));
 
 			pathBuilder.append(ResultsLocationConstants.CSV_SUB_DIR);
@@ -95,6 +98,8 @@ public class DetectionResultManager {
 		if (resourcePath == null) {
 			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
 			pathBuilder.append(controllerName);
+			pathBuilder.append("-");
+			pathBuilder.append(getProblemId().hashCode());
 			pathBuilder.append(System.getProperty("file.separator"));
 
 			pathBuilder.append(ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR);
@@ -151,10 +156,11 @@ public class DetectionResultManager {
 		String resourceName = fileName + ".png";
 		String filePath = getAdditionalResourcesPath() + resourceName;
 		try {
-			BitmapEncoder.savePNGWithDPI(chart, filePath, DPI);
+			// using savePNGWithDPI method results in the problem, that the file
+			// is not released (is blocked)
+			BitmapEncoder.savePNG(chart, filePath);
 		} catch (IOException e) {
-			// just ignore
-			return;
+			throw new RuntimeException();
 		}
 		spotterResult.addResourceFile(resourceName);
 	}
@@ -264,6 +270,24 @@ public class DetectionResultManager {
 	 * @return a collection of data sets
 	 */
 	public DatasetCollection loadData() {
-		return RecordCSVReader.getInstance().readDatasetCollectionFromDirectory(dataPath);
+		File dir = new File(getDataPath());
+		if (!dir.exists()) {
+			throw new RuntimeException("Failed loading measurement data: Data path does not exist!");
+		}
+		return RecordCSVReader.getInstance().readDatasetCollectionFromDirectory(getDataPath());
+	}
+
+	/**
+	 * @return the problemId
+	 */
+	public String getProblemId() {
+		return problemId;
+	}
+
+	/**
+	 * @param problemId the problemId to set
+	 */
+	public void setProblemId(String problemId) {
+		this.problemId = problemId;
 	}
 }

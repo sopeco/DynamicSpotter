@@ -37,7 +37,7 @@ import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.LpeNumericUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spotter.core.Spotter;
+import org.spotter.core.ProgressManager;
 import org.spotter.core.detection.AbstractDetectionController;
 import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.workload.IWorkloadAdapter;
@@ -110,33 +110,30 @@ public class RampDetectionController extends AbstractDetectionController {
 		Properties wlProperties = new Properties();
 		wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(numUsers));
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
 		workloadAdapter.startLoad(wlProperties);
 
 		workloadAdapter.waitForWarmupPhaseTermination();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
 		measurementController.enableMonitoring();
 
 		workloadAdapter.waitForExperimentPhaseTermination();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
 		measurementController.disableMonitoring();
 
 		workloadAdapter.waitForFinishedLoad();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.COLLECTING_DATA);
+		ProgressManager.getInstance().updateProgressStatus(getProvider().getName(), DiagnosisStatus.COLLECTING_DATA);
 		LOGGER.info("Storing data ...");
 		long dataCollectionStart = System.currentTimeMillis();
 		Parameter numOfUsersParameter = new Parameter(STEP, stepNumber);
 		Set<Parameter> parameters = new TreeSet<>();
 		parameters.add(numOfUsersParameter);
 		getResultManager().storeResults(parameters, measurementController);
-		Spotter.getInstance().getProgressUpdater().addAdditionalDuration((System.currentTimeMillis() - dataCollectionStart) / SECOND);
+		ProgressManager.getInstance()
+				.addAdditionalDuration((System.currentTimeMillis() - dataCollectionStart) / SECOND);
 		LOGGER.info("Data stored!");
 	}
 

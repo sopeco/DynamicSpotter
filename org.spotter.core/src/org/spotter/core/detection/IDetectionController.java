@@ -76,4 +76,23 @@ public interface IDetectionController extends IExtensionArtifact {
 	 * @return result manager
 	 */
 	DetectionResultManager getResultManager();
+
+	/**
+	 * @return the problemId
+	 */
+	String getProblemId();
+
+	/**
+	 * @param problemId
+	 *            the problemId to set
+	 */
+	void setProblemId(String problemId);
+
+	/**
+	 * Returns the number of experiments this detection controller is going to
+	 * execute.
+	 * 
+	 * @return number of experiments
+	 */
+	int getNumOfExperiments();
 }

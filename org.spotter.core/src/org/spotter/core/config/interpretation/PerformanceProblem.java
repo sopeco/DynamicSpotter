@@ -78,6 +78,7 @@ public class PerformanceProblem {
 	 */
 	public void setDetectionController(IDetectionController detectionController) {
 		this.detectionController = detectionController;
+		this.detectionController.setProblemId(this.getUniqueId());
 	}
 
 	/**
@@ -148,8 +149,6 @@ public class PerformanceProblem {
 		this.configuration = configuration;
 	}
 
-
-
 	/**
 	 * @return the problemName
 	 */
@@ -194,9 +193,5 @@ public class PerformanceProblem {
 		}
 		return true;
 	}
-
-
-	
-	
 
 }

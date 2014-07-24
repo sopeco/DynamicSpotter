@@ -15,11 +15,16 @@
  */
 package org.spotter.core;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.lpe.common.config.GlobalConfiguration;
-import org.spotter.core.detection.AbstractDetectionController;
+import org.lpe.common.util.system.LpeSystemUtils;
+import org.spotter.core.detection.IDetectionController;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.status.DiagnosisProgress;
 import org.spotter.shared.status.DiagnosisStatus;
+import org.spotter.shared.status.SpotterProgress;
 
 /**
  * The ProgressUpdater periodically updates the progress of the detection
@@ -28,26 +33,53 @@ import org.spotter.shared.status.DiagnosisStatus;
  * @author Alexander Wert
  * 
  */
-public class ProgressUpdater implements Runnable {
+public final class ProgressManager implements Runnable {
 
 	private static final int SECOND = 1000;
+
+	private static ProgressManager instance;
+
+	/**
+	 * Get singleton instance.
+	 * 
+	 * @return singleton instance
+	 */
+	public static ProgressManager getInstance() {
+		if (instance == null) {
+			instance = new ProgressManager();
+		}
+
+		return instance;
+	}
+
 	private volatile boolean run = false;
-	private AbstractDetectionController controller;
+	private IDetectionController controller;
 	private long estimatedDuration = 0;
 	private long additionalDuration = 0;
+	private int samplingDelay = SECOND; // in [ms]
+	private Future<?> managingTask;
+	private SpotterProgress spotterProgress;
+	private boolean initialEstimateConducted = false;
+
+	private ProgressManager() {
+		spotterProgress = new SpotterProgress();
+	}
 
 	@Override
 	public void run() {
 		run = true;
-		calculateInitialEstimatedDuration();
+
 		while (run) {
 			synchronized (this) {
 				if (controller != null) {
+					if (!initialEstimateConducted) {
+						calculateInitialEstimatedDuration();
+					}
 					updateEstimatedProgress();
 				}
 			}
 			try {
-				Thread.sleep(SECOND);
+				Thread.sleep(samplingDelay);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
@@ -57,8 +89,22 @@ public class ProgressUpdater implements Runnable {
 	/**
 	 * Stops execution of the updater.
 	 */
+	public synchronized void start() {
+		managingTask = LpeSystemUtils.submitTask(this);
+	}
+
+	/**
+	 * Stops execution of the updater.
+	 */
 	public synchronized void stop() {
 		run = false;
+		if (managingTask != null) {
+			try {
+				managingTask.get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	/**
@@ -67,7 +113,7 @@ public class ProgressUpdater implements Runnable {
 	 * @param controller
 	 *            controller in action
 	 */
-	public synchronized void setController(AbstractDetectionController controller) {
+	public synchronized void setController(IDetectionController controller) {
 		this.controller = controller;
 
 	}
@@ -93,6 +139,7 @@ public class ProgressUpdater implements Runnable {
 		int numExperiments = controller.getNumOfExperiments();
 		long numUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
 		estimatedDuration = calculateExperimentDuration(numUsers) * numExperiments;
+		initialEstimateConducted = true;
 	}
 
 	private long calculateExperimentDuration(long numUsers) {
@@ -139,74 +186,26 @@ public class ProgressUpdater implements Runnable {
 
 		// value 0, it must be checked to be greater 0
 		if (currentEstimatedOverallDuration > 0) {
-			updateProgress(controller.getProvider().getName(), (double) (elapsedTime / getEstimatedOverallDuration()),
+			updateProgress(controller.getProblemId(), (double) elapsedTime / (double) getEstimatedOverallDuration(),
 					getEstimatedOverallDuration() - elapsedTime);
 		}
 
 	}
 
 	/**
-	 * Updates progress data.
-	 * 
-	 * @param problemName
-	 *            problem name specifying the corresponding diagnosis step
-	 * @param status
-	 *            progress status
-	 * @param estimatedProgress
-	 *            estimated progress in percent
-	 * @param estimatedRemainingDuration
-	 *            estimated remaining duration in seconds
-	 * @param currentProgressMessage
-	 *            progress message
-	 */
-	public void updateProgress(String problemName, DiagnosisStatus status, double estimatedProgress,
-			long estimatedRemainingDuration, String currentProgressMessage) {
-		if (Spotter.getInstance().getProgress().getProblemProgressMapping().containsKey(problemName)) {
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
-					.setCurrentProgressMessage(currentProgressMessage);
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
-					.setEstimatedProgress(estimatedProgress);
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
-					.setEstimatedRemainingDuration(estimatedRemainingDuration);
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName).setStatus(status);
-		} else {
-			DiagnosisProgress progress = new DiagnosisProgress(status, estimatedProgress, estimatedRemainingDuration,
-					currentProgressMessage);
-			Spotter.getInstance().getProgress().getProblemProgressMapping().put(problemName, progress);
-		}
-
-	}
-
-	/**
-	 * Update progress message.
-	 * 
-	 * @param problemName
-	 *            problem name specifying the corresponding diagnosis step
-	 * @param currentProgressMessage
-	 *            new progress message
-	 */
-	public void updateProgressMessage(String problemName, String currentProgressMessage) {
-		if (Spotter.getInstance().getProgress().getProblemProgressMapping().containsKey(problemName)) {
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
-					.setCurrentProgressMessage(currentProgressMessage);
-		}
-	}
-
-	/**
 	 * Updates the progress.
 	 * 
-	 * @param problemName
-	 *            problem name specifying the corresponding diagnosis step
+	 * @param problemId
+	 *            problem unique id specifying the corresponding diagnosis step
 	 * @param estimatedProgress
 	 *            estimated progress in percent
 	 * @param estimatedRemainingDuration
 	 *            estimated remaining duration in seconds
 	 */
-	public void updateProgress(String problemName, double estimatedProgress, long estimatedRemainingDuration) {
-		if (Spotter.getInstance().getProgress().getProblemProgressMapping().containsKey(problemName)) {
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
-					.setEstimatedProgress(estimatedProgress);
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName)
+	private void updateProgress(String problemId, double estimatedProgress, long estimatedRemainingDuration) {
+		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
+			getSpotterProgress().getProblemProgressMapping().get(problemId).setEstimatedProgress(estimatedProgress);
+			getSpotterProgress().getProblemProgressMapping().get(problemId)
 					.setEstimatedRemainingDuration(estimatedRemainingDuration);
 		}
 	}
@@ -214,18 +213,87 @@ public class ProgressUpdater implements Runnable {
 	/**
 	 * Updates the progress status.
 	 * 
-	 * @param problemName
-	 *            problem name specifying the corresponding diagnosis step
+	 * @param problemId
+	 *            problem unique id specifying the corresponding diagnosis step
 	 * @param status
 	 *            new status
 	 */
-	public void updateProgressStatus(String problemName, DiagnosisStatus status) {
-		if (Spotter.getInstance().getProgress().getProblemProgressMapping().containsKey(problemName)) {
-			Spotter.getInstance().getProgress().getProblemProgressMapping().get(problemName).setStatus(status);
+	public void updateProgressStatus(String problemId, DiagnosisStatus status) {
+		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
+			getSpotterProgress().getProblemProgressMapping().get(problemId).setStatus(status);
 		} else {
 			DiagnosisProgress progress = new DiagnosisProgress(status, 0.0, 0L, "");
-			Spotter.getInstance().getProgress().getProblemProgressMapping().put(problemName, progress);
+			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
 		}
+	}
+
+	/**
+	 * Update progress message.
+	 * 
+	 * @param problemId
+	 *            problem unique id specifying the corresponding diagnosis step
+	 * @param currentProgressMessage
+	 *            new progress message
+	 */
+	public void updateProgressMessage(String problemId, String currentProgressMessage) {
+		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
+			getSpotterProgress().getProblemProgressMapping().get(problemId)
+					.setCurrentProgressMessage(currentProgressMessage);
+		}
+	}
+
+	/**
+	 * Updates the progress status.
+	 * 
+	 * @param problemId
+	 *            problem unique id specifying the corresponding diagnosis step
+	 * @param currentProgressMessage
+	 *            new progress message
+	 * @param status
+	 *            new status
+	 */
+	public void updateProgressStatus(String problemId, DiagnosisStatus status, String currentProgressMessage) {
+		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
+			DiagnosisProgress progress = getSpotterProgress().getProblemProgressMapping().get(problemId);
+			progress.setStatus(status);
+			progress.setCurrentProgressMessage(currentProgressMessage);
+		} else {
+			DiagnosisProgress progress = new DiagnosisProgress(status, 0.0, 0L, currentProgressMessage);
+			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
+		}
+	}
+
+	/**
+	 * Returns the spotter job progress.
+	 * 
+	 * @return SpotterProgress
+	 */
+	public SpotterProgress getSpotterProgress() {
+		return spotterProgress;
+	}
+
+	/**
+	 * @param samplingDelay
+	 *            the samplingDelay to set in [ms]
+	 */
+	public void setSamplingDelay(int samplingDelay) {
+		this.samplingDelay = samplingDelay;
+	}
+
+	/**
+	 * Resets all properties of the progress manager. If the progress manager is
+	 * running, this methods stops the manager.
+	 */
+	public void reset() {
+		if (run) {
+			stop();
+		}
+		run = false;
+		setController(null);
+		estimatedDuration = 0;
+		additionalDuration = 0;
+		initialEstimateConducted = false;
+		spotterProgress = new SpotterProgress();
 	}
 
 }

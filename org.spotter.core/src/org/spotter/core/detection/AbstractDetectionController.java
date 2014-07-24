@@ -33,7 +33,7 @@ import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.LpeStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spotter.core.Spotter;
+import org.spotter.core.ProgressManager;
 import org.spotter.core.instrumentation.ISpotterInstrumentation;
 import org.spotter.core.instrumentation.InstrumentationBroker;
 import org.spotter.core.measurement.IMeasurementController;
@@ -69,6 +69,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
 
 	private ISpotterInstrumentation instrumentationController;
+	private String problemId;
+
 	protected IMeasurementController measurementController;
 	protected IWorkloadAdapter workloadAdapter;
 	private final DetectionResultManager resultManager;
@@ -99,10 +101,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		try {
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
 
-				Spotter.getInstance().getProgressUpdater().addAdditionalDuration(SUT_WARMPUP_DURATION);
+				ProgressManager.getInstance().addAdditionalDuration(SUT_WARMPUP_DURATION);
 			}
-			Spotter.getInstance().getProgressUpdater()
-					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.INITIALIZING);
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
 
 			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
 				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
@@ -117,8 +118,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				executeExperiments();
 			}
 
-			Spotter.getInstance().getProgressUpdater()
-					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.ANALYSING);
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
 			return analyze(getResultManager().loadData());
 		} catch (Exception e) {
 			if (e instanceof InstrumentationException) {
@@ -151,8 +151,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 */
 	private void warmUpSUT() throws WorkloadException {
 		if (!sutWarmedUp) {
-			Spotter.getInstance().getProgressUpdater()
-					.updateProgressStatus(getProvider().getName(), DiagnosisStatus.WARM_UP);
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.WARM_UP);
 			Properties wlProperties = new Properties();
 			wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(1));
 			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, String.valueOf(1));
@@ -202,8 +201,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	}
 
 	protected void instrumentApplication(InstrumentationDescription instDescription) throws InstrumentationException {
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.INSTRUMENTING);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INSTRUMENTING);
 		long instrumentationStart = System.currentTimeMillis();
 
 		InstrumentationDescriptionBuilder descriptionBuilder = new InstrumentationDescriptionBuilder();
@@ -214,19 +212,18 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		}
 		instrumentationController.instrument(descriptionBuilder.build());
 		instrumented = true;
-		Spotter.getInstance().getProgressUpdater()
-				.addAdditionalDuration((System.currentTimeMillis() - instrumentationStart) / SECOND);
+		ProgressManager.getInstance().addAdditionalDuration(
+				(System.currentTimeMillis() - instrumentationStart) / SECOND);
 
 	}
 
 	protected void uninstrumentApplication() throws InstrumentationException {
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.UNINSTRUMENTING);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.UNINSTRUMENTING);
 		long uninstrumentationStart = System.currentTimeMillis();
 		instrumentationController.uninstrument();
 		instrumented = false;
-		Spotter.getInstance().getProgressUpdater()
-				.addAdditionalDuration((System.currentTimeMillis() - uninstrumentationStart) / SECOND);
+		ProgressManager.getInstance().addAdditionalDuration(
+				(System.currentTimeMillis() - uninstrumentationStart) / SECOND);
 	}
 
 	protected void runExperiment(Class<? extends IDetectionController> detectionControllerClass, int numUsers)
@@ -236,47 +233,35 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		Properties wlProperties = new Properties();
 		wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(numUsers));
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
+				DiagnosisStatus.EXPERIMENTING_RAMP_UP);
 		workloadAdapter.startLoad(wlProperties);
 
 		workloadAdapter.waitForWarmupPhaseTermination();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
+				DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
 		measurementController.enableMonitoring();
 
 		workloadAdapter.waitForExperimentPhaseTermination();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
+				DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
 		measurementController.disableMonitoring();
 
 		workloadAdapter.waitForFinishedLoad();
 
-		Spotter.getInstance().getProgressUpdater()
-				.updateProgressStatus(getProvider().getName(), DiagnosisStatus.COLLECTING_DATA);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.COLLECTING_DATA);
 		LOGGER.info("Storing data ...");
 		long dataCollectionStart = System.currentTimeMillis();
 		Parameter numOfUsersParameter = new Parameter(NUMBER_OF_USERS_KEY, numUsers);
 		Set<Parameter> parameters = new TreeSet<>();
 		parameters.add(numOfUsersParameter);
 		getResultManager().storeResults(parameters, measurementController);
-		Spotter.getInstance().getProgressUpdater()
+		ProgressManager.getInstance()
 				.addAdditionalDuration((System.currentTimeMillis() - dataCollectionStart) / SECOND);
 		LOGGER.info("Data stored!");
 	}
-
-	protected abstract void executeExperiments() throws InstrumentationException, MeasurementException,
-			WorkloadException;
-
-	/**
-	 * Returns the number of experiments this detection controller is going to execute.
-	 * @return number of experiments
-	 */
-	public abstract int getNumOfExperiments();
-
-	protected abstract SpotterResult analyze(DatasetCollection data);
 
 	/**
 	 * @return the problem detection configuration
@@ -304,5 +289,29 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	public DetectionResultManager getResultManager() {
 		return resultManager;
 	}
+
+	@Override
+	public String getProblemId() {
+		return problemId;
+	}
+
+	@Override
+	public void setProblemId(String problemId) {
+		this.problemId = problemId;
+		resultManager.setProblemId(problemId);
+	}
+
+	protected abstract void executeExperiments() throws InstrumentationException, MeasurementException,
+			WorkloadException;
+
+	/**
+	 * Analyzes the given measurement data.
+	 * 
+	 * @param data
+	 *            experiment data to analyze
+	 * @return detection result for the given performance problem under
+	 *         investigation
+	 */
+	protected abstract SpotterResult analyze(DatasetCollection data);
 
 }
