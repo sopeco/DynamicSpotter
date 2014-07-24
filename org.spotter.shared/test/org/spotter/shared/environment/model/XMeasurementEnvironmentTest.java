@@ -73,11 +73,11 @@ public class XMeasurementEnvironmentTest {
 		if (parsedEnv == null) {
 			Assert.fail("Failed to parse measurement environment");
 		} else if (parsedEnv.getInstrumentationController() == null) {
-			Assert.fail("Failed to parse instrumentation controllers");
+			Assert.fail("Failed to parse instrumentation satellite adapter");
 		} else if (parsedEnv.getMeasurementController() == null) {
-			Assert.fail("Failed to parse measurement controllers");
+			Assert.fail("Failed to parse measurement satellite adapter");
 		} else if (parsedEnv.getWorkloadAdapter() == null) {
-			Assert.fail("Failed to parse workload adapters");
+			Assert.fail("Failed to parse workload satellite adapter");
 		}
 		XMeasurementEnvObject instrController = parsedEnv.getInstrumentationController().get(0);
 		Assert.assertTrue(compareMeasurementObjects(instrController, INSTR_CONTROLLER));
