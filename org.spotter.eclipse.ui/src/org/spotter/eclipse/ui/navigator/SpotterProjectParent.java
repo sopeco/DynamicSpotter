@@ -93,7 +93,13 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 		}
 		// else we have already initialized them
 
-		return children;
+		// TODO quick fix
+		// return only a list where the hierarchy is not in
+		ISpotterProjectElement[] reducedChildren = new ISpotterProjectElement[2];
+		reducedChildren[0] = children[0]; // take the SpotterPorjectConfig
+		reducedChildren[1] = children[2]; // take the Results
+		
+		return reducedChildren;
 	}
 
 	@Override
