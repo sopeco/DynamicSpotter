@@ -34,7 +34,7 @@ public class SpotterProjectConfigMeasurement implements IOpenableProjectElement 
 
 	public static final String IMAGE_PATH = "icons/measurement.png"; //$NON-NLS-1$
 
-	private static final String ELEMENT_NAME = "Measurement Controllers";
+	private static final String ELEMENT_NAME = "Measurement Satellite Adapter";
 
 	private ISpotterProjectElement parent;
 	private Image image;

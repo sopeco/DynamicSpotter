@@ -36,7 +36,7 @@ public class InstrumentationEditor extends AbstractEnvironmentEditor {
 	 */
 	public static final String ID = "org.spotter.eclipse.ui.editors.instrumentation";
 
-	private static final String EDITOR_NAME = "Instrumentation";
+	private static final String EDITOR_NAME = "Instrumentation Satellite Adapter";
 	private static final SpotterExtensionType EXTENSION_TYPE = SpotterExtensionType.INSTRUMENTATION_EXTENSION;
 
 	private List<XMeasurementEnvObject> instrumentationControllers;
