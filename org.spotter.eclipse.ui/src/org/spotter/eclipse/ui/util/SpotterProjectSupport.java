@@ -54,6 +54,7 @@ import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.view.ResultsView;
+import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
@@ -87,10 +88,10 @@ public class SpotterProjectSupport {
 	private static final String DEFAULT_PLUGIN_DIR_NAME = "plugins";
 
 	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
-	private static final String KEY_HIERARCHY_FILE = "org.spotter.conf.problemHierarchyFile";
+	private static final String KEY_HIERARCHY_FILE = ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE;
 
 	private static final String KEY_ENVIRONMENT_FILE_DESC = "path to the XML file describing all measurement satellites and their configurations";
-	private static final String KEY_ENVIRONMENT_FILE = "org.spotter.measurement.environmentDescriptionFile";
+	private static final String KEY_ENVIRONMENT_FILE = ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE;
 
 	private static final String KEY_RESULTS_DIR_DESC = "path to the directory containing the results";
 	private static final String KEY_RESULTS_DIR = "org.spotter.resultDir";
