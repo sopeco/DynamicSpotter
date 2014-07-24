@@ -54,6 +54,7 @@ import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.view.ResultsView;
+import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
@@ -79,27 +80,17 @@ public class SpotterProjectSupport {
 	private static final String ERR_WRITE_HIERARCHY_XML = "Error occured while writing to hierarchy XML file";
 	private static final String ERR_WRITE_SPOTTER_CONF = "Error occured while writing to Spotter configuration file";
 
-	private static final String KEY_APP_ROOT_DIR_DESC = "path to the root of the application";
-	private static final String KEY_APP_ROOT_DIR = "org.spotter.conf.appRootDir";
-
-	private static final String KEY_PLUGIN_DIR_NAMES_DESC = "name of the directory containing the extensions.info file and all additional plugin-jars";
-	private static final String KEY_PLUGIN_DIR_NAMES = "org.spotter.conf.pluginDirNames";
-	private static final String DEFAULT_PLUGIN_DIR_NAME = "plugins";
-
 	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
-	private static final String KEY_HIERARCHY_FILE = "org.spotter.conf.problemHierarchyFile";
 
 	private static final String KEY_ENVIRONMENT_FILE_DESC = "path to the XML file describing all measurement satellites and their configurations";
-	private static final String KEY_ENVIRONMENT_FILE = "org.spotter.measurement.environmentDescriptionFile";
 
 	private static final String KEY_RESULTS_DIR_DESC = "path to the directory containing the results";
-	private static final String KEY_RESULTS_DIR = "org.spotter.resultDir";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectSupport.class);
 
 	// contains all project specific constant parameters
-	private static final String[] ALL_KEYS = { KEY_APP_ROOT_DIR, KEY_PLUGIN_DIR_NAMES, KEY_HIERARCHY_FILE,
-			KEY_ENVIRONMENT_FILE, KEY_RESULTS_DIR };
+	private static final String[] ALL_KEYS = { ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE,
+			ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, ConfigKeys.RESULT_DIR };
 
 	/**
 	 * Create a new Spotter project.
@@ -147,7 +138,7 @@ public class SpotterProjectSupport {
 			for (IWorkbenchPage page : window.getPages()) {
 				// reset results view for the deleted project
 				ResultsView.reset(project);
-				
+
 				// close spotter editors
 				List<IEditorReference> closeEditors = new ArrayList<IEditorReference>();
 				for (IEditorReference ref : page.getEditorReferences()) {
@@ -328,11 +319,11 @@ public class SpotterProjectSupport {
 		IPath projectPath = project.getLocation();
 		Properties properties = new Properties();
 
-		properties.setProperty(KEY_APP_ROOT_DIR, projectPath.toString());
-		properties.setProperty(KEY_PLUGIN_DIR_NAMES, DEFAULT_PLUGIN_DIR_NAME);
-		properties.setProperty(KEY_HIERARCHY_FILE, projectPath.append(HIERARCHY_FILENAME).toString());
-		properties.setProperty(KEY_ENVIRONMENT_FILE, projectPath.append(ENVIRONMENT_FILENAME).toString());
-		properties.setProperty(KEY_RESULTS_DIR, projectPath.append(DEFAULT_RESULTS_DIR_NAME).toString());
+		properties.setProperty(ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE, projectPath.append(HIERARCHY_FILENAME)
+				.toString());
+		properties.setProperty(ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, projectPath.append(ENVIRONMENT_FILENAME)
+				.toString());
+		properties.setProperty(ConfigKeys.RESULT_DIR, projectPath.append(DEFAULT_RESULTS_DIR_NAME).toString());
 
 		return properties;
 	}
@@ -485,11 +476,9 @@ public class SpotterProjectSupport {
 	private static String createSpotterConfigFileString(String projectName, Properties general, Properties properties) {
 		StringBuilder sb = new StringBuilder();
 		writeHeading(sb, "GENERAL");
-		writeKeyValuePair(sb, general, KEY_APP_ROOT_DIR, KEY_APP_ROOT_DIR_DESC);
-		writeKeyValuePair(sb, general, KEY_PLUGIN_DIR_NAMES, KEY_PLUGIN_DIR_NAMES_DESC);
-		writeKeyValuePair(sb, general, KEY_HIERARCHY_FILE, KEY_HIERARCHY_FILE_DESC);
-		writeKeyValuePair(sb, general, KEY_ENVIRONMENT_FILE, KEY_ENVIRONMENT_FILE_DESC);
-		writeKeyValuePair(sb, general, KEY_RESULTS_DIR, KEY_RESULTS_DIR_DESC);
+		writeKeyValuePair(sb, general, ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE, KEY_HIERARCHY_FILE_DESC);
+		writeKeyValuePair(sb, general, ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, KEY_ENVIRONMENT_FILE_DESC);
+		writeKeyValuePair(sb, general, ConfigKeys.RESULT_DIR, KEY_RESULTS_DIR_DESC);
 		sb.append("\r\n\r\n");
 		writeHeading(sb, "SPECIFIED SETTINGS");
 

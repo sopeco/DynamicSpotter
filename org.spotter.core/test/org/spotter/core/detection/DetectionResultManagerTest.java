@@ -37,10 +37,10 @@ public class DetectionResultManagerTest {
 	private static final String CONTROLLER_NAME = "testController";
 	private String baseDir = "";
 	private static final String PARENT_DIR = System.getProperty("file.separator") + "parent";
-	private static final String DATA_DIR = System.getProperty("file.separator") + CONTROLLER_NAME
+	private static final String DATA_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-" + CONTROLLER_NAME.hashCode()
 			+ System.getProperty("file.separator") + ResultsLocationConstants.CSV_SUB_DIR
 			+ System.getProperty("file.separator");
-	private static final String RESOURCES_DIR = System.getProperty("file.separator") + CONTROLLER_NAME
+	private static final String RESOURCES_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-" + CONTROLLER_NAME.hashCode()
 			+ System.getProperty("file.separator") + ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR
 			+ System.getProperty("file.separator");
 	private File tempDir;
@@ -72,6 +72,7 @@ public class DetectionResultManagerTest {
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.RESULT_DIR,
 				baseDir + System.getProperty("file.separator"));
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
+		drManager.setProblemId(CONTROLLER_NAME);
 		drManager.setParentDataDir(baseDir + PARENT_DIR);
 		Assert.assertEquals(baseDir + DATA_DIR, drManager.getDataPath());
 		Assert.assertEquals(baseDir + DATA_DIR, drManager.getDataPath());
@@ -90,10 +91,12 @@ public class DetectionResultManagerTest {
 	@Test
 	public void testDataStorage() throws IOException, MeasurementException {
 		DummyMeasurement dMeasurement = new DummyMeasurement(null);
+
 		MeasurementData mData = dMeasurement.getMeasurementData();
 		Assert.assertEquals(dMeasurement.NUM_RECORDS, mData.getRecords().size());
 
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
+		drManager.setProblemId(CONTROLLER_NAME);
 		Set<Parameter> parameters = new HashSet<>();
 		parameters.add(new Parameter("NumUsers", 1));
 		drManager.storeResults(parameters, dMeasurement);
@@ -120,6 +123,7 @@ public class DetectionResultManagerTest {
 		double[] y = { 1.0, 2.0, 3.0 };
 		chart.addSeries("Test Series", x, y);
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
+		drManager.setProblemId(CONTROLLER_NAME);
 		String fileName = "chart";
 		SpotterResult result = new SpotterResult();
 		result.setDetected(true);
@@ -137,6 +141,7 @@ public class DetectionResultManagerTest {
 	public void testTextStorage() throws IOException {
 
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
+		drManager.setProblemId(CONTROLLER_NAME);
 		String fileName = "textFile";
 		SpotterResult result = new SpotterResult();
 		result.setDetected(true);

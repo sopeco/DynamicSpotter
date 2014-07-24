@@ -15,10 +15,15 @@
  */
 package org.spotter.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.util.web.WebServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ServerLauncher {
 	private static final int DEFAULT_PORT = 8080;
+	private static final String DEFAULT_PLUGINS_FOLDER = "plugins";
 	private static final String PORT_KEY = "port=";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncher.class);
 
@@ -44,26 +50,40 @@ public final class ServerLauncher {
 	}
 
 	/**
-	 * Opens up a server on the localhost IP address and the default port 8080 of the
-	 * underlying system.
+	 * Opens up a server on the localhost IP address and the default port 8080
+	 * of the underlying system.
 	 * 
 	 * @param args
 	 *            should contain at least one parameter indicating whether to
 	 *            start or stop
 	 */
 	public static void main(String[] args) {
-		if (args == null || args.length < 2) {
-			LOGGER.error("LoadRunner Service Launcher requires exactly two arguments:");
+		Properties coreProperties = null;
+		if (args == null || args.length < 1) {
+			LOGGER.error("LoadRunner Service Launcher requires at least one argument:");
 			LOGGER.error("1st argument: start / shutdown");
-			LOGGER.error("2nd argument: path to the configuration file");
+			LOGGER.error("2nd argument [optional]: path to the configuration file");
+			System.exit(0);
+		} else if (args.length < 2) {
+			String currentDir = System.getProperty("user.dir");
+			coreProperties = new Properties();
+
+			coreProperties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, currentDir);
+			coreProperties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, DEFAULT_PLUGINS_FOLDER);
+
+		} else {
+			String configFile = args[1];
+			coreProperties = getPropertiesFromFile(configFile);
+		}
+		if (coreProperties == null) {
+			LOGGER.error("Invalid vonfig file!");
 			System.exit(0);
 		}
-
 		parseArgs(args);
 
 		if (args[0].equalsIgnoreCase("start")) {
-			String configFile = args[1];
-			GlobalConfiguration.initialize(configFile);
+
+			GlobalConfiguration.initialize(coreProperties);
 			List<String> servicePackages = new ArrayList<>();
 			servicePackages.add("org.spotter.service.rest");
 			WebServer.getInstance().start(port, "", servicePackages);
@@ -90,6 +110,32 @@ public final class ServerLauncher {
 				port = Integer.parseInt(arg.substring(PORT_KEY.length()));
 			}
 		}
+	}
+
+	private static Properties getPropertiesFromFile(String configFile) {
+		try {
+			File propertiesFile = new File(configFile);
+			if (!propertiesFile.exists()) {
+				throw new IllegalStateException("Specified configuration file does not exist!");
+			}
+
+			Properties properties = new Properties();
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(propertiesFile);
+				properties.load(fis);
+			} catch (IOException e) {
+				throw new RuntimeException("Failed loading configuration!", e);
+			} finally {
+				if (fis != null) {
+					fis.close();
+				}
+			}
+			return properties;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed loading configuration!", e);
+		}
+
 	}
 
 }

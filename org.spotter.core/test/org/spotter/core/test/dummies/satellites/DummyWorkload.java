@@ -7,7 +7,7 @@ import org.spotter.core.workload.AbstractWorkloadAdapter;
 import org.spotter.exceptions.WorkloadException;
 
 public class DummyWorkload extends AbstractWorkloadAdapter {
-
+	public static int numExperiments = 0;
 	public boolean initialized = false;
 	public boolean loadStarted = false;
 	public boolean warmUpTerminated = false;
@@ -20,11 +20,13 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	@Override
 	public void initialize() throws WorkloadException {
 		initialized = true;
+		numExperiments = 0;
 	}
 
 	@Override
 	public void startLoad(Properties config) throws WorkloadException {
 		loadStarted = true;
+		numExperiments++;
 	}
 
 	@Override

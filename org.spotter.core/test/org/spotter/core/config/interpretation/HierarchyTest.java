@@ -49,11 +49,12 @@ public class HierarchyTest {
 
 	@BeforeClass
 	public static void initializeGlobalConfig() {
+		GlobalConfiguration.initialize(new Properties());
 		String dir = System.getProperty("user.dir");
 		Properties properties = new Properties();
 		properties.setProperty("org.lpe.common.extension.appRootDir", dir);
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
-		GlobalConfiguration.initialize(properties);
+		GlobalConfiguration.reinitialize(properties);
 	}
 
 	@Test

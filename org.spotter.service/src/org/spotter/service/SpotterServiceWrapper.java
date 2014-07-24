@@ -18,10 +18,13 @@ package org.spotter.service;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.aim.api.exceptions.InstrumentationException;
+import org.aim.api.exceptions.MeasurementException;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.Extensions;
@@ -33,6 +36,7 @@ import org.spotter.core.detection.AbstractDetectionExtension;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
 import org.spotter.core.workload.AbstractWorkloadExtension;
+import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
@@ -73,7 +77,7 @@ public class SpotterServiceWrapper {
 	 *         job is already running
 	 */
 	public synchronized long startDiagnosis(final String configurationFile) {
-		if (running()) {
+		if (getState().equals(JobState.RUNNING)) {
 			return 0;
 		}
 		final long tempJobId = System.currentTimeMillis();
@@ -82,7 +86,11 @@ public class SpotterServiceWrapper {
 
 			@Override
 			public void run() {
-				Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
+				try {
+					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
+				} catch (InstrumentationException | MeasurementException | WorkloadException e) {
+					throw new RuntimeException(e);
+				}
 
 			}
 		});
@@ -92,14 +100,21 @@ public class SpotterServiceWrapper {
 	/**
 	 * @return true if Spotter Diagnostics is currently running
 	 */
-	public synchronized boolean isRunning() {
-		return running();
+	public synchronized JobState getState() {
+		if (futureObject == null || futureObject.isDone()) {
+			return JobState.FINISHED;
+		} else if (futureObject.isCancelled()) {
+			return JobState.CANCELLED;
+		} else {
+			return JobState.RUNNING;
+		}
 	}
-
-	private boolean running() {
-		boolean isDone = futureObject == null || futureObject.isDone();
-		return !isDone;
+	
+	public void checkForConcurrentExecutionException() throws InterruptedException, ExecutionException{
+		futureObject.get();
 	}
+	
+	
 
 	/**
 	 * Returns a report on the progress of the current job.

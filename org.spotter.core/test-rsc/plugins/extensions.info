@@ -4,6 +4,8 @@ org.spotter.core.test.dummies.detection.DetectionCExtension
 org.spotter.core.test.dummies.detection.DetectionDExtension
 org.spotter.core.test.dummies.detection.DetectionEExtension
 org.spotter.core.test.dummies.detection.DetectionFExtension
+org.spotter.core.test.dummies.detection.MockDetectionExtension
 org.spotter.core.test.dummies.satellites.DummyInstrumentationExtension
 org.spotter.core.test.dummies.satellites.DummyMeasurementExtension
 org.spotter.core.test.dummies.satellites.DummyWorkloadExtension
+
