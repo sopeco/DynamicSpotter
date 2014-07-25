@@ -62,7 +62,7 @@ public final class ConfigCheck {
 			GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_EXPERIMENTS, "true");
 			String dummyData = GlobalConfiguration.getInstance().getProperty(ConfigKeys.DUMMY_EXPERIMENT_DATA);
 			if (dummyData == null) {
-				throw new IllegalStateException("The Spotter configuration is specified to omit experiments. "
+				throw new IllegalStateException("The DynamicSpotter configuration is specified to omit experiments. "
 						+ "In this case a valid directory with dummy data has to be specified, "
 						+ "which is not the case!");
 			} else {

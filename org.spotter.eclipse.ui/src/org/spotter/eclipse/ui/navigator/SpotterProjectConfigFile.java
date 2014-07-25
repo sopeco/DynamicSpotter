@@ -34,7 +34,7 @@ public class SpotterProjectConfigFile implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/spotter-conf.gif"; //$NON-NLS-1$
 
-	private static final String ELEMENT_NAME = "Spotter Config";
+	private static final String ELEMENT_NAME = "DynamicSpotter Config";
 
 	private ISpotterProjectElement parent;
 	private Image image;

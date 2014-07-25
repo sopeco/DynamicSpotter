@@ -72,13 +72,13 @@ public class SpotterProjectSupport {
 	public static final String HIERARCHY_FILENAME = "hierarchy.xml";
 
 	private static final String TITLE_ERR_DIALOG = "Spotter Project";
-	private static final String ERR_GET_SPOTTER_CONFIG_PARAMS = "Error occured while getting Spotter configuration parameters";
+	private static final String ERR_GET_SPOTTER_CONFIG_PARAMS = "Error occured while getting DynamicSpotter configuration parameters";
 	private static final String ERR_CLOSE_STREAM = "Error occured while closing a stream";
 	private static final String ERR_CREATE_PROJECT = "Error occured while creating a new project";
 	private static final String ERR_LOAD_PROPERTIES = "Error occured while loading properties from file";
 	private static final String ERR_WRITE_ENV_XML = "Error occured while writing to environment XML file";
 	private static final String ERR_WRITE_HIERARCHY_XML = "Error occured while writing to hierarchy XML file";
-	private static final String ERR_WRITE_SPOTTER_CONF = "Error occured while writing to Spotter configuration file";
+	private static final String ERR_WRITE_SPOTTER_CONF = "Error occured while writing to DynamicSpotter configuration file";
 
 	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
 
