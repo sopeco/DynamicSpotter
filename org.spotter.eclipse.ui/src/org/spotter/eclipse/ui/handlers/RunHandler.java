@@ -30,8 +30,8 @@ import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
- * A run handler for the Spotter run command which starts the Spotter diagnosis
- * if it is not already running.
+ * A run handler for the DynamicSpotter run command which starts the
+ * DynamicSpotter diagnosis if it is not already running.
  * 
  * @author Denis Knoepfle
  * 
@@ -49,7 +49,7 @@ public class RunHandler extends AbstractHandler {
 	private static final String MSG_MISS_CONFIG = "DynamicSpotter Configuration '%s' is missing!";
 	private static final String MSG_ALREADY_RUNNING = "DynamicSpotter is already running";
 	private static final String MSG_RUNTIME_ERROR = "Error occured during diagnosis: %s";
-	private static final String MSG_SPOTTER_STARTED = "Going to start Spotter diagnosis for project '%s' now. Continue?";
+	private static final String MSG_SPOTTER_STARTED = "Going to start DynamicSpotter diagnosis for project '%s' now. Continue?";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
