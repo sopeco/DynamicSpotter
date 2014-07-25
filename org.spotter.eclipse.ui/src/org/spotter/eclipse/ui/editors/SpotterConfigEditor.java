@@ -48,7 +48,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 	 */
 	public static final String ID = "org.spotter.eclipse.ui.editors.spotterconfig";
 
-	private static final String EDITOR_NAME = "Spotter Config";
+	private static final String EDITOR_NAME = "DynamicSpotter Config";
 
 	private IModelWrapper wrapper;
 	private PropertiesGroupViewer propertiesGroupViewer;
@@ -128,7 +128,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 			return null;
 		}
 
-		SpotterConfigModelWrapper wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties, true);
+		wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties, true);
 		ExtensionItem inputModel = new ExtensionItem(wrapper);
 		inputModel.setIgnoreConnection(true);
 

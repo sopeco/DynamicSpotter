@@ -26,7 +26,7 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectConfigFile;
  */
 public class SpotterConfigEditorInput extends AbstractSpotterEditorInput {
 
-	private static final String NAME = "Spotter Config";
+	private static final String NAME = "DynamicSpotter Config";
 	private static final String IMAGE_PATH = SpotterProjectConfigFile.IMAGE_PATH;
 
 	/**
