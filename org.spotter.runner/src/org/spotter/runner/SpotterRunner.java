@@ -17,7 +17,6 @@ package org.spotter.runner;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
-import org.apache.log4j.BasicConfigurator;
 import org.spotter.core.Spotter;
 import org.spotter.exceptions.WorkloadException;
 
@@ -41,16 +40,14 @@ public final class SpotterRunner {
 	 * @param args
 	 *            program arguments should contain the path to the configuration
 	 *            file!
-	 * @throws WorkloadException 
-	 * @throws MeasurementException 
-	 * @throws InstrumentationException 
+	 * @throws WorkloadException
+	 * @throws MeasurementException
+	 * @throws InstrumentationException
 	 */
 	public static void main(String[] args) throws InstrumentationException, MeasurementException, WorkloadException {
 		if (args.length < 1 || args[0].isEmpty()) {
 			throw new IllegalArgumentException("Please provide a configuration file as program argument!");
 		}
-
-		BasicConfigurator.configure();
 
 		String configFile = args[0];
 		Spotter.getInstance().startDiagnosis(configFile);

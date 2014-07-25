@@ -14,26 +14,9 @@
 	<modules>
 		<module>../org.spotter.shared</module>
 		<module>../org.spotter.core</module>
-		<module>../org.spotter.measurement</module>
-		<module>../org.spotter.instrumentation</module>
-		<module>../org.spotter.jmeter.client</module>
-		<module>../org.spotter.loadrunner.client</module>
-		<module>../org.spotter.detection.gcoverloading</module>
-		<module>../org.spotter.detection.godclass</module>
-		<module>../org.spotter.detection.highmemory</module>
-		<module>../org.spotter.detection.olb</module>
-		<module>../org.spotter.detection.osj</module>
-		<module>../org.spotter.detection.ramp</module>
-		<module>../org.spotter.detection.rthiccups</module>
-		<module>../org.spotter.detection.dboverhead</module>
-		<module>../org.spotter.detection.emptysemitrucks</module>
-		<module>../org.spotter.detection.stifle</module>
-		<module>../org.spotter.dummy</module>
 		<module>../org.spotter.runner</module>
-		<module>../org.spotter.workload</module>
 		<module>../org.spotter.service</module>
 		<module>../org.spotter.client</module>
-		<module>../org.spotter.demo</module>
 		<module>../org.spotter.eclipse.ui</module>
 
 

@@ -15,9 +15,6 @@
  */
 package org.spotter.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -37,10 +34,14 @@ import org.slf4j.LoggerFactory;
 public final class ServerLauncher {
 	private static final int DEFAULT_PORT = 8080;
 	private static final String DEFAULT_PLUGINS_FOLDER = "plugins";
+	private static final String SPOTTER_ROOT_DIR_KEY = "rootDir=";
 	private static final String PORT_KEY = "port=";
+	private static final String HELP_KEY = "-h";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncher.class);
 
 	private static Integer port = DEFAULT_PORT;
+	private static String rootDir = System.getProperty("user.dir");;
+	private static boolean help = false;
 
 	/**
 	 * Private constructor due to singleton class.
@@ -58,41 +59,45 @@ public final class ServerLauncher {
 	 *            start or stop
 	 */
 	public static void main(String[] args) {
-		Properties coreProperties = null;
-		if (args == null || args.length < 1) {
-			LOGGER.error("LoadRunner Service Launcher requires at least one argument:");
-			LOGGER.error("1st argument: start / shutdown");
-			LOGGER.error("2nd argument [optional]: path to the configuration file");
-			System.exit(0);
-		} else if (args.length < 2) {
-			String currentDir = System.getProperty("user.dir");
-			coreProperties = new Properties();
 
-			coreProperties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, currentDir);
-			coreProperties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, DEFAULT_PLUGINS_FOLDER);
+		if (args != null) {
+			parseArgs(args);
+
+			if (args.length < 1 || help) {
+				printHelpAndExit();
+			} else {
+				Properties coreProperties = new Properties();
+				coreProperties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, rootDir);
+				coreProperties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, DEFAULT_PLUGINS_FOLDER);
+
+				if (args[0].equalsIgnoreCase("start")) {
+					GlobalConfiguration.initialize(coreProperties);
+					List<String> servicePackages = new ArrayList<>();
+					servicePackages.add("org.spotter.service.rest");
+					WebServer.getInstance().start(port, "", servicePackages);
+				} else if (args[0].equalsIgnoreCase("shutdown")) {
+					WebServer.triggerServerShutdown(port, "");
+				} else {
+					LOGGER.error("Invalid value for 1st argument! Valid values are: start / shutdown");
+				}
+
+			}
 
 		} else {
-			String configFile = args[1];
-			coreProperties = getPropertiesFromFile(configFile);
-		}
-		if (coreProperties == null) {
-			LOGGER.error("Invalid vonfig file!");
-			System.exit(0);
-		}
-		parseArgs(args);
-
-		if (args[0].equalsIgnoreCase("start")) {
-
-			GlobalConfiguration.initialize(coreProperties);
-			List<String> servicePackages = new ArrayList<>();
-			servicePackages.add("org.spotter.service.rest");
-			WebServer.getInstance().start(port, "", servicePackages);
-		} else if (args[0].equalsIgnoreCase("shutdown")) {
-			WebServer.triggerServerShutdown(port, "");
-		} else {
-			LOGGER.error("Invalid value for 1st argument! Valid values are: start / shutdown");
+			printHelpAndExit();
 		}
 
+	}
+
+	private static void printHelpAndExit() {
+		LOGGER.info("LoadRunner Service Launcher requires at least one argument:");
+		LOGGER.info("Usage: java -jar <SPOTTER_SERVER_JAR> {start | shutdown} [options]");
+		LOGGER.info("the options are:");
+		LOGGER.info(HELP_KEY + ": show this help text");
+		LOGGER.info(PORT_KEY + "=<PORT>: port to bind the server to, default: 8080");
+		LOGGER.info(SPOTTER_ROOT_DIR_KEY
+				+ "=<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. Specifies where the location of the plugins folder for Dynamic Spotter. Default root is the current directory.");
+		System.exit(0);
 	}
 
 	/**
@@ -109,33 +114,14 @@ public final class ServerLauncher {
 			if (arg.startsWith(PORT_KEY)) {
 				port = Integer.parseInt(arg.substring(PORT_KEY.length()));
 			}
-		}
-	}
-
-	private static Properties getPropertiesFromFile(String configFile) {
-		try {
-			File propertiesFile = new File(configFile);
-			if (!propertiesFile.exists()) {
-				throw new IllegalStateException("Specified configuration file does not exist!");
+			if (arg.startsWith(SPOTTER_ROOT_DIR_KEY)) {
+				rootDir = arg.substring(SPOTTER_ROOT_DIR_KEY.length());
+			}
+			if (arg.startsWith(HELP_KEY)) {
+				help = true;
 			}
 
-			Properties properties = new Properties();
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(propertiesFile);
-				properties.load(fis);
-			} catch (IOException e) {
-				throw new RuntimeException("Failed loading configuration!", e);
-			} finally {
-				if (fis != null) {
-					fis.close();
-				}
-			}
-			return properties;
-		} catch (IOException e) {
-			throw new RuntimeException("Failed loading configuration!", e);
 		}
-
 	}
 
 }
