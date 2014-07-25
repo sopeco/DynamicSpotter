@@ -42,7 +42,7 @@ import org.spotter.shared.status.SpotterProgress;
 /**
  * A job to run a DynamicSpotter Diagnosis which can be scheduled by the job
  * manager. This job updates the progress monitor according to the progress of
- * the Spotter run that is performed.
+ * the DynamicSpotter run that is performed.
  * 
  * @author Denis Knoepfle
  * 
@@ -53,14 +53,13 @@ public class SpotterRunJob extends Job {
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
 
-	private static final String MSG_SPOTTER_FINISHED = "Finished the Spotter diagnosis!";
-	private static final String MSG_LOST_CONNECTION = "Lost connection to Spotter Service!";
+	private static final String MSG_SPOTTER_FINISHED = "Finished the DynamicSpotter diagnosis!";
+	private static final String MSG_LOST_CONNECTION = "Lost connection to DS Service!";
 	private static final String MSG_CANCELLED = "You cancelled the progress report and will not be informed when the run is finished. DynamicSpotter will continue to run on the server though (cancellation of a running diagnosis is not implemented yet).";
 
 	private final IProject project;
 	private final long jobId;
 	private final Set<String> processedProblems;
-	// TODO: replace this by problems unique id when implemented in Spotter core
 	private Map.Entry<String, DiagnosisProgress> currentProblem;
 
 	public SpotterRunJob(IProject project, long jobId) {
