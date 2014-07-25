@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.progress.IProgressConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.handlers.RunHandler;
@@ -51,10 +49,7 @@ import org.spotter.shared.status.SpotterProgress;
  */
 public class SpotterRunJob extends Job {
 
-	// TODO: exchange this for a Spotter Diagnosis icon later
-	private static final String ICON_PATH = "icons/spotter-conf.gif"; //$NON-NLS-1$
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterRunJob.class);
+	private static final String ICON_PATH = "icons/diagnosis.png"; //$NON-NLS-1$
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
 
@@ -65,6 +60,8 @@ public class SpotterRunJob extends Job {
 	private final IProject project;
 	private final long jobId;
 	private final Set<String> processedProblems;
+	// TODO: replace this by problems unique id when implemented in Spotter core
+	private Map.Entry<String, DiagnosisProgress> currentProblem;
 
 	public SpotterRunJob(IProject project, long jobId) {
 		super("DynamicSpotter Diagnosis '" + project.getName() + "'");
@@ -75,14 +72,12 @@ public class SpotterRunJob extends Job {
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
-		// IAction gotoAction = new Action("Results") {
-		// public void run() {
-		// // TODO: goto / show results in ResultsView
-		// LOGGER.info("Goto ResultsView not yet implemented " +
-		// System.currentTimeMillis());
-		// }
-		// };
-		// setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+//		IAction gotoAction = new Action("Results") {
+//			public void run() {
+//				// TODO: show results in ResultsView
+//			}
+//		};
+//		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
 		setPriority(LONG);
 		setUser(true);
 	}
@@ -90,6 +85,7 @@ public class SpotterRunJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		processedProblems.clear();
+		currentProblem = null;
 		monitor.beginTask("DynamicSpotter Diagnosis", 100);
 		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
 
@@ -117,10 +113,11 @@ public class SpotterRunJob extends Job {
 		}
 
 		monitor.worked(100);
+		monitor.done();
 		onFinishedJob();
 
-		// keep the finished job in the progress view only if it is not running
-		// in the progress dialog
+		// keep the finished job in the progress view only if
+		// it is not running in the progress dialog
 		Boolean inDialog = (Boolean) getProperty(IProgressConstants.PROPERTY_IN_DIALOG);
 		if (inDialog != null && !inDialog.booleanValue()) {
 			setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
@@ -129,37 +126,35 @@ public class SpotterRunJob extends Job {
 	}
 
 	private void updateCurrentRun(ServiceClientWrapper client, IProgressMonitor monitor) {
-		// TODO: implement correct progress view (needs more accurate data from
-		// the server)
+		// TODO: implement correct progress view (needs more data from service)
 		SpotterProgress spotterProgress = client.getCurrentProgressReport();
 		if (spotterProgress == null || spotterProgress.getProblemProgressMapping() == null) {
 			return;
 		}
 
 		Map<String, DiagnosisProgress> progressAll = spotterProgress.getProblemProgressMapping();
-		LOGGER.debug("progress mapping size: " + progressAll.size());
 		if (progressAll.isEmpty()) {
 			return;
 		}
 
-		double estimatedProgress = 0;
-		long estimatedRemainingDuration = 0;
 		for (Map.Entry<String, DiagnosisProgress> progressEntry : progressAll.entrySet()) {
-			if (processedProblems.contains(progressEntry.getKey())) {
-				continue;
+			String key = progressEntry.getKey();
+			if (processedProblems.contains(key)) {
+				if (currentProblem.getKey().equals(key)) {
+					currentProblem = progressEntry;
+				}
+			} else {
+				currentProblem = progressEntry;
+				processedProblems.add(currentProblem.getKey());
 			}
-			DiagnosisProgress progress = progressEntry.getValue();
-			estimatedProgress += progress.getEstimatedProgress();
-			estimatedRemainingDuration += progress.getEstimatedRemainingDuration();
-			monitor.subTask(progress.getCurrentProgressMessage() + " - " + progress.getStatus());
-			// currently this is just a fake representation of work completed
-			monitor.worked(10);
 		}
-		estimatedProgress /= progressAll.size();
-		// monitor.worked((int) Math.round(estimatedProgress * 100));
-		String status = "estimated progress: " + estimatedProgress * 100 + " %, remaining duration: "
-				+ estimatedRemainingDuration;
-		LOGGER.debug("update status: " + status);
+		if (currentProblem != null) {
+			DiagnosisProgress progress = currentProblem.getValue();
+			monitor.subTask("ProblemId: \"" + currentProblem.getKey() + "\" - " + progress.getCurrentProgressMessage()
+					+ " - " + progress.getStatus());
+			// currently this is just a fake representation of work completed
+			monitor.worked(5);
+		}
 	}
 
 	private void onFinishedJob() {
