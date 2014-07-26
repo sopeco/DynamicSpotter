@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>org.spotter.eclipse.ui</artifactId>
-	<name>Spotter Eclipse UI</name>
+	<name>DynamicSpotter Eclipse UI</name>
 
 	<packaging>eclipse-plugin</packaging>
 

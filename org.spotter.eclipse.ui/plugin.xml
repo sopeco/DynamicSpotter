@@ -239,13 +239,13 @@
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.DeleteHandler"
-            description="Delete the selected project(s)"
+            description="Delete the selected elements"
             id="org.spotter.eclipse.ui.commands.delete"
             name="Delete">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.DuplicateHandler"
-            description="Duplicate the selected project"
+            description="Duplicate the selected element"
             id="org.spotter.eclipse.ui.commands.duplicate"
             name="Duplicate">
       </command>
@@ -335,14 +335,14 @@
                icon="icons/delete_16x16.png"
                label="Delete"
                style="push"
-               tooltip="Delete the selected project(s)">
+               tooltip="Delete the selected elements">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.duplicate"
                icon="icons/copy_16x16.png"
                label="Duplicate"
                style="push"
-               tooltip="Duplicate the selected project">
+               tooltip="Duplicate the selected element">
          </command>
          <separator
                name="org.spotter.eclipse.ui.navigator.separator3"
