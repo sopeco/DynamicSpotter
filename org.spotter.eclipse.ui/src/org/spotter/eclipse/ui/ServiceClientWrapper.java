@@ -252,12 +252,13 @@ public class ServiceClientWrapper {
 	}
 
 	/**
-	 * Returns an array of extension meta objects for the given extension type.
+	 * Returns an array of extension meta objects for the given extension type
+	 * or <code>null</code> on failure.
 	 * 
 	 * @param extType
 	 *            extension type of interest
 	 * @return array of extension meta objects for the given extension type. In
-	 *         the case of an error an empty array is returned.
+	 *         the case of an error <code>null</code> is returned.
 	 */
 	public ExtensionMetaobject[] getAvailableExtensions(SpotterExtensionType extType) {
 		ExtensionMetaobject[] metaobjects = cachedExtensionMetaobjects.get(extType);
@@ -266,7 +267,7 @@ public class ServiceClientWrapper {
 		}
 		Set<String> extNames = getAvailableExtensionNames(extType);
 		if (extNames == null) {
-			return new ExtensionMetaobject[0];
+			return null;
 		}
 
 		List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();
