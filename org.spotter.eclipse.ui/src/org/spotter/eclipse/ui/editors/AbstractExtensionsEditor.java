@@ -57,7 +57,8 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	 * Returns extensions that suit this editor type wrapped in description
 	 * objects containing their name and configuration parameters.
 	 * 
-	 * @return the extensions that suit this editor type
+	 * @return the extensions that suit this editor type or <code>null</code>
+	 *         when there was an error retrieving them
 	 */
 	public abstract ExtensionMetaobject[] getAvailableExtensions();
 
