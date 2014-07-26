@@ -39,6 +39,7 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
 
 	private static final String DELETE_DLG_TITLE = "Delete Resources";
+	private static final String ELEMENT_TYPE_NAME = "Result Item";
 
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
@@ -148,6 +149,11 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
 			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));
 		}
+	}
+
+	@Override
+	public String getElementTypeName() {
+		return ELEMENT_TYPE_NAME;
 	}
 
 }

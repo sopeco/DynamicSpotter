@@ -15,13 +15,18 @@
  */
 package org.spotter.eclipse.ui.handlers;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.ui.commands.IElementUpdater;
+import org.eclipse.ui.menus.UIElement;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IDeletable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
@@ -33,23 +38,25 @@ import org.spotter.eclipse.ui.util.SpotterUtils;
  * @author Denis Knoepfle
  * 
  */
-public class DeleteHandler extends AbstractHandler {
+public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 	/**
 	 * The id of the corresponding delete command.
 	 */
 	public static final String DELETE_COMMAND_ID = "org.spotter.eclipse.ui.commands.delete";
 
+	/**
+	 * The default label used for the command in the popup menu
+	 */
+	private static final String DEFAULT_LABEL = "Delete";
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Activator activator = Activator.getDefault();
-		TreeViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
+		Iterator<?> iter = getSelectionIterator();
+		if (iter == null) {
 			return null;
 		}
 
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		Iterator<?> iter = selection.iterator();
 		while (iter.hasNext()) {
 			SpotterUtils.deleteNavigatorElement(iter.next());
 		}
@@ -62,25 +69,73 @@ public class DeleteHandler extends AbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
+		return !getSelectedDeletables().isEmpty();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void updateElement(UIElement element, Map parameters) {
+		List<IDeletable> deletables = getSelectedDeletables();
+
+		String label = getLabelForDeletables(deletables);
+		element.setText(label);
+	}
+
+	private String getLabelForDeletables(List<IDeletable> deletables) {
+		IDeletable deletable = deletables.isEmpty() ? null : deletables.get(0);
+		if (deletable == null) {
+			return DEFAULT_LABEL;
+		}
+
+		String pluralLetter = deletables.size() > 1 ? "s" : "";
+		String label = "Delete " + deletable.getElementTypeName() + pluralLetter;
+
+		return label;
+	}
+
+	private List<IDeletable> getSelectedDeletables() {
+		List<IDeletable> deletables = new ArrayList<>();
+
+		Iterator<?> iter = getSelectionIterator();
+		if (iter == null) {
+			return deletables;
+		}
+
+		Class<?> firstDeletableClazz = null;
+
+		while (iter.hasNext()) {
+			Object selectedElement = iter.next();
+			if (selectedElement instanceof IDeletable) {
+				Class<?> clazz = selectedElement.getClass();
+				if (firstDeletableClazz == null) {
+					firstDeletableClazz = clazz;
+					deletables.add((IDeletable) selectedElement);
+				} else if (!firstDeletableClazz.equals(clazz)) {
+					// only allow same types in one delete
+					deletables.clear();
+					return deletables;
+				} else {
+					// just add the element so it can be counted afterwards
+					deletables.add((IDeletable) selectedElement);
+				}
+			} else {
+				// if any element not deletable return empty list
+				deletables.clear();
+				return deletables;
+			}
+		}
+		return deletables;
+	}
+
+	private Iterator<?> getSelectionIterator() {
 		Activator activator = Activator.getDefault();
 		TreeViewer viewer = activator.getNavigatorViewer();
 		if (viewer == null) {
-			return false;
+			return null;
 		}
 
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		if (selection.isEmpty()) {
-			return false;
-		}
-		Iterator<?> iter = selection.iterator();
-
-		while (iter.hasNext()) {
-			if (!(iter.next() instanceof IDeletable)) {
-				return false;
-			}
-		}
-
-		return true;
+		return selection.isEmpty() ? null : selection.iterator();
 	}
 
 }
