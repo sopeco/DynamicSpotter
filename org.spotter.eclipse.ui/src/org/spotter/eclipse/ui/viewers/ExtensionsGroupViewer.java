@@ -60,6 +60,7 @@ import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsContentProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 
@@ -87,6 +88,7 @@ public class ExtensionsGroupViewer {
 			| SWT.V_SCROLL;
 
 	private static final String NO_SERVICE_CONNECTION = "No connection to Spotter Service";
+	private static final String NO_EXTENSIONS = "No exension in the category was found. Ensure that you have placed the extension jar in the configuration directory PATH/TO/CONFIGURATION/DIRECTORY.";
 
 	private final AbstractExtensionsEditor editor;
 	private final boolean isHierarchical;
@@ -271,7 +273,10 @@ public class ExtensionsGroupViewer {
 	private void showAndHandleAddDialog(ExtensionItem parentItem) {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ExtensionMetaobject[] extensions = editor.getAvailableExtensions();
-		if (extensions.length == 0) {
+		if (extensions == null) {
+			return;
+		} else if (extensions.length == 0) {
+			DialogUtils.openInformation(NO_EXTENSIONS);
 			return;
 		}
 
