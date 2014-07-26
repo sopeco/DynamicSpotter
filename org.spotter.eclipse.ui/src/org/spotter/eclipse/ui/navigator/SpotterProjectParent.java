@@ -53,6 +53,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 	public static final String IMAGE_PATH = "icons/project.gif"; //$NON-NLS-1$
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectParent.class);
+	private static final String ELEMENT_TYPE_NAME = "Project";
 	private static final String DUPLICATE_DLG_TITLE = "Duplicate Project";
 	private static final String DELETE_DLG_TITLE = "Delete Resources";
 	private static final String MSG_SINGLE = "Are you sure you want to remove project '%s' from the workspace?\n\nWarning: Contents will be deleted from disk!";
@@ -211,6 +212,11 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			String errorMessage = createErrorMessage(projectsDeletionFailed, deletionErrorMessages);
 			DialogUtils.openError(DELETE_DLG_TITLE, errorMessage);
 		}
+	}
+
+	@Override
+	public String getElementTypeName() {
+		return ELEMENT_TYPE_NAME;
 	}
 
 	private String createErrorMessage(List<IProject> projects, List<String> detailErrorMessages) {
