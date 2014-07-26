@@ -262,6 +262,12 @@
             name="Run">
       </command>
       <command
+            defaultHandler="org.spotter.eclipse.ui.handlers.ClearCacheHandler"
+            description="Clear cache containing data retrieved from DS Service"
+            id="org.spotter.eclipse.ui.commands.clearCache"
+            name="Clear Cache">
+      </command>
+      <command
             defaultHandler="org.spotter.eclipse.ui.handlers.ServiceClientSettingsHandler"
             description="Open DynamicSpotter Service Client Settings"
             id="org.spotter.eclipse.ui.commands.serviceClientSettings"
@@ -361,6 +367,13 @@
                label="Run DynamicSpotter"
                style="push"
                tooltip="Run selected DynamicSpotter Project">
+         </command>
+         <command
+               commandId="org.spotter.eclipse.ui.commands.clearCache"
+               icon="icons/clear-cache.png"
+               label="Clear Cache"
+               style="push"
+               tooltip="Clear cache containing data retrieved from DS Service">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.serviceClientSettings"
