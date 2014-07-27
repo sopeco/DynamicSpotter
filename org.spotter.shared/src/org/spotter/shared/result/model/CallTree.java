@@ -23,6 +23,9 @@ import java.util.List;
  * Represents a tree storing objects of generic type T. The number of children
  * that a particular node may have is not restricted. This tree can be
  * serialized.
+ * 
+ * @param <T>
+ *            node types of the tree
  */
 public class CallTree<T extends Serializable> implements Serializable {
 
@@ -39,6 +42,7 @@ public class CallTree<T extends Serializable> implements Serializable {
 
 	/**
 	 * Create a new tree with a root node containing the given data.
+	 * @param data node data
 	 */
 	public CallTree(T data) {
 		this.root = new CallNode<>(data);
