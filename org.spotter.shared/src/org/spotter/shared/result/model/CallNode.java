@@ -21,6 +21,9 @@ import java.util.List;
 
 /**
  * Represents a node of the CallTree<T> class. It can store any data of type T.
+ * 
+ * @param <T>
+ *            Node type
  */
 public class CallNode<T extends Serializable> implements Serializable {
 
@@ -104,11 +107,8 @@ public class CallNode<T extends Serializable> implements Serializable {
 	 *            the position to insert at.
 	 * @param child
 	 *            the CallNode<T> object to insert.
-	 * @throws IndexOutOfBoundsException
-	 *             if the index does not exist.
 	 */
-	public void insertChildAt(int index, CallNode<T> child)
-			throws IndexOutOfBoundsException {
+	public void insertChildAt(int index, CallNode<T> child) {
 		if (index == getNumberOfChildren()) {
 			// this is an append
 			addChild(child);
@@ -127,10 +127,8 @@ public class CallNode<T extends Serializable> implements Serializable {
 	 * 
 	 * @param index
 	 *            the index of the element to delete.
-	 * @throws IndexOutOfBoundsException
-	 *             if element does not exist
 	 */
-	public void removeChildAt(int index) throws IndexOutOfBoundsException {
+	public void removeChildAt(int index) {
 		children.remove(index);
 	}
 

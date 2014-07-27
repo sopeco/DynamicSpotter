@@ -30,10 +30,6 @@ import org.spotter.core.detection.IDetectionController;
  * 
  */
 public class PerformanceProblem {
-	private static final int _1237 = 1237;
-
-	private static final int _1231 = 1231;
-
 	private List<PerformanceProblem> children;
 
 	private Properties configuration;

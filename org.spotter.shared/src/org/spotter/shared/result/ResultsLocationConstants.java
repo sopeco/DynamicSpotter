@@ -15,7 +15,20 @@
  */
 package org.spotter.shared.result;
 
-public class ResultsLocationConstants {
+/**
+ * Constants for Result Locations.
+ * 
+ * @author Alexander Wert
+ * 
+ */
+public final class ResultsLocationConstants {
+
+	/**
+	 * private constructor because of utility class.
+	 */
+	private ResultsLocationConstants() {
+
+	}
 
 	public static final String TXT_REPORT_FILE_NAME = "SpotterReport.txt";
 	public static final String RESULTS_SERIALIZATION_FILE_NAME = "results.ser";

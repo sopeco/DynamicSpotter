@@ -36,7 +36,6 @@ import com.xeiam.xchart.Chart;
  * 
  */
 public class DetectionResultManager {
-	private static final int DPI = 300;
 	private String dataPath;
 	private String resourcePath;
 	private String parentDataDir;
