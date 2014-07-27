@@ -55,7 +55,7 @@ public class SpotterServiceClient {
 		client = LpeWebUtils.getWebClient();
 		webResource = client.resource(url);
 	}
-	
+
 	/**
 	 * Updates the URL and creates a new web resource.
 	 * 
@@ -77,12 +77,10 @@ public class SpotterServiceClient {
 	 * @return job id for the started diagnosis task,
 	 */
 	public long startDiagnosis(String configurationFile) {
-		SpotterServiceResponse<Long> response = webResource
-				.path(ConfigKeys.SPOTTER_REST_BASE)
-				.path(ConfigKeys.SPOTTER_REST_START_DIAG)
-				.type(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)
-				.post(new GenericType<SpotterServiceResponse<Long>>() {}, configurationFile);
+		SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_START_DIAG).type(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).post(new GenericType<SpotterServiceResponse<Long>>() {
+				}, configurationFile);
 
 		switch (response.getStatus()) {
 		case INVALID_STATE:

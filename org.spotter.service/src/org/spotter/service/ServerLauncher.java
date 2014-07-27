@@ -96,7 +96,8 @@ public final class ServerLauncher {
 		LOGGER.info(HELP_KEY + ": show this help text");
 		LOGGER.info(PORT_KEY + "=<PORT>: port to bind the server to, default: 8080");
 		LOGGER.info(SPOTTER_ROOT_DIR_KEY
-				+ "=<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. Specifies where the location of the plugins folder for Dynamic Spotter. Default root is the current directory.");
+				+ "=<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. "
+				+ "Specifies where the location of the plugins folder for Dynamic Spotter. Default root is the current directory.");
 		System.exit(0);
 	}
 

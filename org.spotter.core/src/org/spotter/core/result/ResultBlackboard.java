@@ -29,7 +29,7 @@ import org.spotter.shared.result.model.SpotterResult;
  * @author Alexander Wert
  * 
  */
-public class ResultBlackboard {
+public final class ResultBlackboard {
 
 	private static ResultBlackboard instance;
 

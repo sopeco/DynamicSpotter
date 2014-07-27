@@ -41,8 +41,11 @@ public final class SpotterRunner {
 	 *            program arguments should contain the path to the configuration
 	 *            file!
 	 * @throws WorkloadException
+	 *             thrown if a problem with workload generation occurs
 	 * @throws MeasurementException
+	 *             thrown if a problem with measurement data retrieval occurs
 	 * @throws InstrumentationException
+	 *             thrown if a problem with instrumentation occurs
 	 */
 	public static void main(String[] args) throws InstrumentationException, MeasurementException, WorkloadException {
 		if (args.length < 1 || args[0].isEmpty()) {

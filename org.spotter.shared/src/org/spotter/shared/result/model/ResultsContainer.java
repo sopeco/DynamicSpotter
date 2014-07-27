@@ -20,28 +20,53 @@ import java.util.Map;
 
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
+/**
+ * Container for analysis result of dynamic spotter.
+ * 
+ * @author Alexander Wert
+ * 
+ */
 public class ResultsContainer implements Serializable {
 
 	private static final long serialVersionUID = 3192866585664021357L;
-	
+
 	private Map<String, SpotterResult> resultsMap;
 	private XPerformanceProblem rootProblem;
-	
+
+	/**
+	 * Returns a map from problemIds to spotter results.
+	 * 
+	 * @return Returns a map from problemIds to spotter results.
+	 */
 	public Map<String, SpotterResult> getResultsMap() {
 		return resultsMap;
 	}
-	
+
+	/**
+	 * Set a results map.
+	 * 
+	 * @param resultsMap
+	 *            map of results.
+	 */
 	public void setResultsMap(Map<String, SpotterResult> resultsMap) {
 		this.resultsMap = resultsMap;
 	}
-	
+
+	/**
+	 * 
+	 * @return returns the root problem.
+	 */
 	public XPerformanceProblem getRootProblem() {
 		return rootProblem;
 	}
-	
+
+	/**
+	 * 
+	 * @param rootProblem
+	 *            the root problem to set
+	 */
 	public void setRootProblem(XPerformanceProblem rootProblem) {
 		this.rootProblem = rootProblem;
 	}
-	
-	
+
 }
