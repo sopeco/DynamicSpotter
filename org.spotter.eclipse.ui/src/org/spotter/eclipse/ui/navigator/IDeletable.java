@@ -29,4 +29,12 @@ public interface IDeletable {
 	 */
 	public void delete();
 
+	/**
+	 * Returns the name of this element type that should be used within the
+	 * label for the delete command.
+	 * 
+	 * @return The name of this element type
+	 */
+	public String getElementTypeName();
+
 }

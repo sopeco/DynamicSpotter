@@ -17,11 +17,13 @@ package org.spotter.eclipse.ui.util;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 /**
  * An utility class for showing different kinds of message dialogs in the
- * Spotter UI.
+ * DynamicSpotter UI.
  * <p>
  * The methods to display dialogs are thread-access safe regarding the problem
  * that only the UI thread is allowed to access and manipulate SWT components.
@@ -32,7 +34,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class DialogUtils {
 
-	public static final String DEFAULT_DLG_TITLE = "Spotter";
+	public static final String DEFAULT_DLG_TITLE = "DynamicSpotter";
 
 	private DialogUtils() {
 	}
@@ -72,42 +74,130 @@ public final class DialogUtils {
 		return message.concat(formattedCause);
 	}
 
-	public static void openWarning(final String title, final String message) {
-		final Display display = PlatformUI.getWorkbench().getDisplay();
+	/**
+	 * Returns the display of the workbench. Can be called from any thread.
+	 * 
+	 * @return The display of the workbench.
+	 */
+	public static Display getDisplay() {
+		return PlatformUI.getWorkbench().getDisplay();
+	}
+
+	/**
+	 * Returns the shell of the active window in the workbench. Must be called
+	 * from the UI thread, otherwise returns <code>null</code>.
+	 * 
+	 * @return The active shell or <code>null</code> if none available.
+	 */
+	public static Shell getShell() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		return window != null ? window.getShell() : null;
+	}
+
+	/**
+	 * Opens an information dialog with the given title and message. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openInformation(final String title, final String message) {
+		Display display = getDisplay();
 		// check if operating on UI thread
 		if (Thread.currentThread() == display.getThread()) {
 			// already executing on the UI thread
-			MessageDialog.openWarning(display.getActiveShell(), title, message);
+			MessageDialog.openInformation(getShell(), title, message);
 		} else {
 			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					MessageDialog.openWarning(display.getActiveShell(), title, message);
+					MessageDialog.openInformation(getShell(), title, message);
 				}
 			});
 		}
 	}
 
+	/**
+	 * Opens an information dialog with the given message and a default title.
+	 * It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openInformation(final String message) {
+		openInformation(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
+	 * Opens a warning dialog with the given title and message. It is ensured
+	 * that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openWarning(final String title, final String message) {
+		Display display = getDisplay();
+		// check if operating on UI thread
+		if (Thread.currentThread() == display.getThread()) {
+			// already executing on the UI thread
+			MessageDialog.openWarning(getShell(), title, message);
+		} else {
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getShell(), title, message);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Opens a warning dialog with the given message and a default title. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
 	public static void openWarning(final String message) {
 		openWarning(DEFAULT_DLG_TITLE, message);
 	}
 
+	/**
+	 * Opens an error dialog with the given title and message. It is ensured
+	 * that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 */
 	public static void openError(final String title, final String message) {
-		final Display display = PlatformUI.getWorkbench().getDisplay();
+		Display display = getDisplay();
 		// check if operating on UI thread
 		if (Thread.currentThread() == display.getThread()) {
 			// already executing on the UI thread
-			MessageDialog.openError(display.getActiveShell(), title, message);
+			MessageDialog.openError(getShell(), title, message);
 		} else {
 			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					MessageDialog.openError(display.getActiveShell(), title, message);
+					MessageDialog.openError(getShell(), title, message);
 				}
 			});
 		}
 	}
 
+	/**
+	 * Opens an error dialog with the given message and a default title. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
 	public static void openError(final String message) {
 		openError(DEFAULT_DLG_TITLE, message);
 	}

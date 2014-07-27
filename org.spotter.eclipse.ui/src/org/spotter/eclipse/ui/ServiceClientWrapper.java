@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -119,14 +116,23 @@ public class ServiceClientWrapper {
 		this.client = new SpotterServiceClient(host, port);
 	}
 
+	/**
+	 * @return The name of the project this client is associated with.
+	 */
 	public String getProjectName() {
 		return this.projectName;
 	}
 
+	/**
+	 * @return The host of this client.
+	 */
 	public String getHost() {
 		return this.host;
 	}
 
+	/**
+	 * @return The port of this client.
+	 */
 	public String getPort() {
 		return this.port;
 	}
@@ -183,12 +189,19 @@ public class ServiceClientWrapper {
 			prefs.put(KEY_SERVICE_HOST, oldHost);
 			prefs.put(KEY_SERVICE_PORT, oldPort);
 
-			Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-			MessageDialog.openError(shell, DIALOG_TITLE, MSG_FAIL_SAFE);
+			DialogUtils.openError(DIALOG_TITLE, MSG_FAIL_SAFE);
 		}
 		return false;
 	}
 
+	/**
+	 * Starts the diagnosis using the given configuration file. Returns the
+	 * retrieved job id or <code>null</code> on failure.
+	 * 
+	 * @param configurationFile
+	 *            The configuration file to use.
+	 * @return The retrieved job id or <code>null</code> on failure.
+	 */
 	public Long startDiagnosis(final String configurationFile) {
 		try {
 			return client.startDiagnosis(configurationFile);
@@ -203,9 +216,6 @@ public class ServiceClientWrapper {
 			return client.isRunning();
 		} catch (Exception e) {
 			handleException("isRunning", MSG_NO_STATUS, e, true);
-			// Shell shell =
-			// PlatformUI.getWorkbench().getDisplay().getActiveShell();
-			// MessageDialog.openWarning(shell, DIALOG_TITLE, MSG_NO_STATUS);
 		}
 		return false;
 	}
@@ -242,12 +252,13 @@ public class ServiceClientWrapper {
 	}
 
 	/**
-	 * Returns an array of extension meta objects for the given extension type.
+	 * Returns an array of extension meta objects for the given extension type
+	 * or <code>null</code> on failure.
 	 * 
 	 * @param extType
 	 *            extension type of interest
 	 * @return array of extension meta objects for the given extension type. In
-	 *         the case of an error an empty array is returned.
+	 *         the case of an error <code>null</code> is returned.
 	 */
 	public ExtensionMetaobject[] getAvailableExtensions(SpotterExtensionType extType) {
 		ExtensionMetaobject[] metaobjects = cachedExtensionMetaobjects.get(extType);
@@ -256,7 +267,7 @@ public class ServiceClientWrapper {
 		}
 		Set<String> extNames = getAvailableExtensionNames(extType);
 		if (extNames == null) {
-			return new ExtensionMetaobject[0];
+			return null;
 		}
 
 		List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();

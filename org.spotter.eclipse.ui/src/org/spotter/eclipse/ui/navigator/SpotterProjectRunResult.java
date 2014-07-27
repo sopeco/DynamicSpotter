@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
@@ -38,6 +39,7 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
 
 	private static final String DELETE_DLG_TITLE = "Delete Resources";
+	private static final String ELEMENT_TYPE_NAME = "Result Item";
 
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
@@ -133,6 +135,10 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	@Override
 	public void delete() {
 		try {
+			if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
+				resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+			}
+
 			ResultsView.reset(resultFolder);
 			resultFolder.delete(true, null);
 			// update navigator viewer
@@ -143,6 +149,11 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
 			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));
 		}
+	}
+
+	@Override
+	public String getElementTypeName() {
+		return ELEMENT_TYPE_NAME;
 	}
 
 }
