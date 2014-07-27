@@ -32,7 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 
 /**
- * The activator class controls the plug-in life cycle
+ * The activator class controls the plug-in life cycle.
  * 
  * @author Denis Knoepfle
  * 
@@ -56,7 +56,7 @@ public class Activator extends AbstractUIPlugin {
 	private Set<IProject> selectedProjects = new HashSet<IProject>();
 
 	/**
-	 * The constructor
+	 * The constructor.
 	 */
 	public Activator() {
 	}
@@ -90,7 +90,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the shared instance
+	 * Returns the shared instance.
 	 * 
 	 * @return the shared instance
 	 */

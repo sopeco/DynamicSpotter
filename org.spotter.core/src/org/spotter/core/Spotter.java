@@ -86,8 +86,11 @@ public final class Spotter {
 	 * @param configurationFile
 	 *            path to the configuration file
 	 * @throws WorkloadException
+	 *             thrown if a problem with workload generation occurs
 	 * @throws MeasurementException
+	 *             thrown if a problem with measurement data retrieval occurs
 	 * @throws InstrumentationException
+	 *             thrown if a problem with instrumentation occurs
 	 */
 	public void startDiagnosis(String configurationFile) throws InstrumentationException, MeasurementException,
 			WorkloadException {

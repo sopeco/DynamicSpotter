@@ -43,8 +43,16 @@ public class XMeasurementEnvironmentTest {
 	private static final XMeasurementEnvObject INSTR_CONTROLLER = createInstrumentationController();
 	private static final XMeasurementEnvObject MEASUREMENT_CONTROLLER = createMeasurementController();
 	private static final XMeasurementEnvObject WORKLOAD_ADAPTER = createWorkloadAdapter();
-
+private static  ObjectFactory objectFactory;
 	private static final Logger LOGGER = LoggerFactory.getLogger(XMeasurementEnvironmentTest.class);
+	
+	
+	private static ObjectFactory getFactory(){
+		if(objectFactory == null){
+			objectFactory = new ObjectFactory();
+		}
+		return objectFactory;
+	}
 
 	@Test
 	public void testXmlParsing() {
@@ -123,7 +131,7 @@ public class XMeasurementEnvironmentTest {
 	}
 
 	private XMeasurementEnvironment createMeasurementEnvironment() {
-		XMeasurementEnvironment env = new XMeasurementEnvironment();
+		XMeasurementEnvironment env = getFactory().createMeasurementEnvironment();
 
 		List<XMeasurementEnvObject> instrumentationControllers = new LinkedList<>();
 		instrumentationControllers.add(createInstrumentationController());
@@ -142,18 +150,18 @@ public class XMeasurementEnvironmentTest {
 	}
 
 	private static XMeasurementEnvObject createInstrumentationController() {
-		XMeasurementEnvObject controller = new XMeasurementEnvObject();
+		XMeasurementEnvObject controller = getFactory().createInstrumentationController();
 		controller.setExtensionName("instrumentation.dynamic.client");
 		List<XMConfiguration> configList = new ArrayList<>();
-		XMConfiguration name = new XMConfiguration();
+		XMConfiguration name = getFactory().createConfiguration();
 		name.setKey("org.spotter.satellite.name");
 		name.setValue("Spotter Satellite Extension");
 
-		XMConfiguration host = new XMConfiguration();
+		XMConfiguration host = getFactory().createConfiguration();
 		host.setKey("org.spotter.satellite.host");
 		host.setValue("localhost");
 
-		XMConfiguration port = new XMConfiguration();
+		XMConfiguration port =getFactory().createConfiguration();
 		port.setKey("org.spotter.satellite.port");
 		port.setValue("8080");
 
@@ -165,17 +173,17 @@ public class XMeasurementEnvironmentTest {
 	}
 
 	private static XMeasurementEnvObject createMeasurementController() {
-		XMeasurementEnvObject controller = new XMeasurementEnvObject();
+		XMeasurementEnvObject controller = getFactory().createMeasurementController();
 		controller.setExtensionName("measurement.sampler.jmsserver");
 		List<XMConfiguration> configList = new ArrayList<>();
-		XMConfiguration name = new XMConfiguration();
+		XMConfiguration name = getFactory().createConfiguration();
 		name.setKey("org.spotter.satellite.name");
 		name.setValue("Spotter Satellite Extension");
 
-		XMConfiguration active = new XMConfiguration();
+		XMConfiguration active = getFactory().createConfiguration();
 		active.setKey("org.spotter.measurement.jmsserver.ActiveMQJMXUrl");
 
-		XMConfiguration collectorType = new XMConfiguration();
+		XMConfiguration collectorType = getFactory().createConfiguration();
 		collectorType.setKey("org.spotter.sampling.jmsserver.collectorType");
 
 		configList.add(name);
@@ -186,18 +194,18 @@ public class XMeasurementEnvironmentTest {
 	}
 
 	private static XMeasurementEnvObject createWorkloadAdapter() {
-		XMeasurementEnvObject controller = new XMeasurementEnvObject();
+		XMeasurementEnvObject controller = getFactory().createWorkloadAdapter();
 		controller.setExtensionName("workload.adapter.simple");
 		List<XMConfiguration> configList = new ArrayList<>();
-		XMConfiguration name = new XMConfiguration();
+		XMConfiguration name = getFactory().createConfiguration();
 		name.setKey("org.spotter.satellite.name");
 		name.setValue("Spotter Satellite Extension");
 
-		XMConfiguration userScript = new XMConfiguration();
+		XMConfiguration userScript = getFactory().createConfiguration();
 		userScript.setKey("org.spotter.workload.simple.userScriptClassName");
 		userScript.setValue("");
 
-		XMConfiguration scriptPath = new XMConfiguration();
+		XMConfiguration scriptPath = getFactory().createConfiguration();
 		scriptPath.setKey("org.spotter.workload.simple.userScriptPath");
 		scriptPath.setValue("");
 

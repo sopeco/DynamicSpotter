@@ -29,27 +29,27 @@ import org.spotter.shared.configuration.ConfigKeys;
  * 
  */
 public abstract class AbstractSpotterSatelliteExtension {
-	
+
 	/**
 	 * property key for host.
 	 */
 	public static final String HOST_KEY = ConfigKeys.SATELLITE_HOST_KEY;
-	
+
 	/**
 	 * property key for port.
 	 */
 	public static final String PORT_KEY = ConfigKeys.SATELLITE_PORT_KEY;
-	
+
 	/**
 	 * property key for name.
 	 */
 	public static final String NAME_KEY = ConfigKeys.SATELLITE_ADAPTER_NAME_KEY;
-	
+
 	/**
 	 * The set contains all the configuration for this extension.
 	 */
 	protected final Set<ConfigParameterDescription> configParameters;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -64,7 +64,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	}
 
 	protected abstract void initializeConfigurationParameters();
-	
+
 	/**
 	 * Returns the default name for the satellite adapter.
 	 * 
@@ -97,7 +97,8 @@ public abstract class AbstractSpotterSatelliteExtension {
 		hostParameter.setMandatory(true);
 		hostParameter.setAset(false);
 		hostParameter.setDefaultValue("localhost");
-		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. This satellite adapter connects to the satellite on this host/ip.");
+		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. "
+				+ "This satellite adapter connects to the satellite on this host/ip.");
 
 		return hostParameter;
 	}
@@ -108,7 +109,8 @@ public abstract class AbstractSpotterSatelliteExtension {
 		portParameter.setAset(false);
 		portParameter.setRange("0", "65535");
 		portParameter.setDefaultValue("8080");
-		portParameter.setDescription("The port the corresponding satellite is listening on. This satellite adapter connects to the satellite on this port.");
+		portParameter.setDescription("The port the corresponding satellite is listening on. "
+				+ "This satellite adapter connects to the satellite on this port.");
 
 		return portParameter;
 	}

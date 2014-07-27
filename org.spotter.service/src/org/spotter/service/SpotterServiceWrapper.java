@@ -109,12 +109,19 @@ public class SpotterServiceWrapper {
 			return JobState.RUNNING;
 		}
 	}
-	
-	public void checkForConcurrentExecutionException() throws InterruptedException, ExecutionException{
+
+	/**
+	 * Checks whether a concurrent execution exception has been thrown. If this
+	 * is the case, this method throws a ExecutionException.
+	 * 
+	 * @throws InterruptedException
+	 *             if job has been interrupted
+	 * @throws ExecutionException
+	 *             if concurrent exception occured
+	 */
+	public void checkForConcurrentExecutionException() throws InterruptedException, ExecutionException {
 		futureObject.get();
 	}
-	
-	
 
 	/**
 	 * Returns a report on the progress of the current job.

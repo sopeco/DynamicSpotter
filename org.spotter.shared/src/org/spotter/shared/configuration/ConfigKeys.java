@@ -38,13 +38,12 @@ public final class ConfigKeys {
 	public static final String CONF_PROBLEM_HIERARCHY_FILE = "org.spotter.conf.problemHierarchyFile";
 
 	/**
-	 * Specifies the directoy for the results.
-	 * Required configuration key.
+	 * Specifies the directoy for the results. Required configuration key.
 	 */
 	public static final String RESULT_DIR = "org.spotter.resultDir";
-	
+
 	public static final String REPORT_FOR_NEGATIVE_RESULTS = "org.spotter.reportForNotDetected";
-	
+
 	/**
 	 * <b>Required configuration key.</b>
 	 */
@@ -57,30 +56,32 @@ public final class ConfigKeys {
 	public static final String WORKLOAD_MAXUSERS = "org.spotter.workload.maxusers";
 
 	public static final String PPD_RUN_TIMESTAMP = "org.spotter.run.timestamp";
-	
+
 	/**
-	 * Defines how many users per interval ({@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are
-	 * put into the system. The ramp up phase is finished, when the {@link #WORKLOAD_MAXUSERS}
-	 * value is reached.<br />
+	 * Defines how many users per interval (
+	 * {@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are put into the system. The
+	 * ramp up phase is finished, when the {@link #WORKLOAD_MAXUSERS} value is
+	 * reached.<br />
 	 * <b>Required configuration key.</b>
 	 */
 	public static final String EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL = "org.spotter.workload.experiment.rampup.numUsersPerInterval";
-	
+
 	/**
 	 * Defines the interval length in seconds for the ramp up phase.<br />
 	 * <b>Required configuration key.</b>
 	 */
 	public static final String EXPERIMENT_RAMP_UP_INTERVAL_LENGTH = "org.spotter.workload.experiment.rampup.intervalLength"; // [seconds]
-	
+
 	/**
-	 * Defines how many users per interval ({@link #EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH}) are
-	 * put out of the system. The cool down phase is finished, when the minimum user count of the system
-	 * is reached. The minimum user count is defined in the corresponding DetectionController, which is
-	 * most times 1.<br />
+	 * Defines how many users per interval (
+	 * {@link #EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH}) are put out of the system.
+	 * The cool down phase is finished, when the minimum user count of the
+	 * system is reached. The minimum user count is defined in the corresponding
+	 * DetectionController, which is most times 1.<br />
 	 * <b>Required configuration key.</b>
 	 */
 	public static final String EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL = "org.spotter.workload.experiment.cooldown.numUsersPerInterval";
-	
+
 	/**
 	 * Defines the interval length in seconds for the cool down phase.<br />
 	 * <b>Required configuration key.</b>
@@ -88,48 +89,50 @@ public final class ConfigKeys {
 	public static final String EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH = "org.spotter.workload.experiment.cooldown.intervalLength"; // [seconds]
 
 	/**
-	 * The experiment duration time in seconds.
-	 * <b>Required configuration key (default 10).</b>
+	 * The experiment duration time in seconds. <b>Required configuration key
+	 * (default 10).</b>
 	 */
 	public static final String EXPERIMENT_DURATION = "org.spotter.workload.experiment.duration"; // [seconds]
-	
+
 	/**
-	 * True, if the experiment running is omitted and already available results are used instead.
-	 * If the experiment should be omitted, the path to the dummy data ({@link #DUMMY_EXPERIMENT_DATA})
-	 * must be set.<br />
+	 * True, if the experiment running is omitted and already available results
+	 * are used instead. If the experiment should be omitted, the path to the
+	 * dummy data ({@link #DUMMY_EXPERIMENT_DATA}) must be set.<br />
 	 * <b>Required configuration key.</b>
 	 */
 	public static final String OMIT_EXPERIMENTS = "org.spotter.omitExperiments";
 
 	public static final String OMIT_WARMUP = "org.spotter.omitWarmup";
-	
+
 	/**
-	 * Duration in seconds the pre-warmup phase should be running. The pre-warmup phase is the phase
-	 * the SUT is visited to load the required classes for the experiment into the JVM. The JVM does
-	 * only load a class when it is required. We need to ensure that all the classes for the experiment
-	 * are already loaded when the the real experiment is started. Thus, we need to run a pre-warmup
-	 * phase where the workload is already executed and necessary classes are loaded.<br />
+	 * Duration in seconds the pre-warmup phase should be running. The
+	 * pre-warmup phase is the phase the SUT is visited to load the required
+	 * classes for the experiment into the JVM. The JVM does only load a class
+	 * when it is required. We need to ensure that all the classes for the
+	 * experiment are already loaded when the the real experiment is started.
+	 * Thus, we need to run a pre-warmup phase where the workload is already
+	 * executed and necessary classes are loaded.<br />
 	 * <b>Optional configuration key.</b>
 	 */
 	public static final String PREWARUMUP_DURATION = "org.spotter.prewarmup.duration"; // [seconds]
-	
+
 	/**
 	 * Required configuration key, when the experiments are omitted.
 	 */
 	public static final String DUMMY_EXPERIMENT_DATA = "org.spotter.dummyData";
-	
+
 	public static final String SPOTTER_RUN_NAME = "org.spotter.runName";
-	
+
 	/**
 	 * The host the satellite adapter is connecting to.
 	 */
 	public static final String SATELLITE_HOST_KEY = "org.spotter.satellite.host";
-	
+
 	/**
 	 * The port the satellite adapter is connecting to.
 	 */
 	public static final String SATELLITE_PORT_KEY = "org.spotter.satellite.port";
-	
+
 	/**
 	 * The name for a satellite adapter.
 	 */
@@ -227,20 +230,24 @@ public final class ConfigKeys {
 		parameter.setDirectory(true);
 		parameter.setDefaultValue("");
 		parameter.setDescription("If experiments should be omitted, this parameter specified "
-				+ "the path to the experiment data which should be used for analysis instead. The path must point to the root folder which contains the SpotterReport.txt file.");
+				+ "the path to the experiment data which should be used for analysis instead. "
+				+ "The path must point to the root folder which contains the SpotterReport.txt file.");
 		return parameter;
 	}
 
 	private static ConfigParameterDescription getPreWarumupDuration() {
-		ConfigParameterDescription parameter = new ConfigParameterDescription(PREWARUMUP_DURATION, LpeSupportedTypes.Integer);
+		ConfigParameterDescription parameter = new ConfigParameterDescription(PREWARUMUP_DURATION,
+				LpeSupportedTypes.Integer);
 		parameter.setMandatory(false);
 		parameter.setDefaultValue(String.valueOf(_180));
-		parameter.setDescription("Specifies the duration the pre-warmup phase should be running. In the pre-warmup phase workload is started "
-				+ "to force the JVM to load classes which are used in the real experiment. Then, in the real experiment theses classes can be instrumented "
-				+ "directly. (Instrumentation of an unloaded class would fail.)");
+		parameter
+				.setDescription("Specifies the duration the pre-warmup phase should be running. In the pre-warmup phase workload is started "
+						+ "to force the JVM to load classes which are used in the real experiment. "
+						+ "Then, in the real experiment theses classes can be instrumented "
+						+ "directly. (Instrumentation of an unloaded class would fail.)");
 		return parameter;
 	}
-	
+
 	/**
 	 * 
 	 * @return returns a set of configuration parameters of Dynamic Spotter.

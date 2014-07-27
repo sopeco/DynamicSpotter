@@ -32,7 +32,7 @@ public class ObjectFactory {
 	/**
 	 * Qname.
 	 */
-	public static final QName HIERARCHY_QNAME = new QName("org.spotter.shared.environment.model",
+	public static final QName ENVIRONMENT_QNAME = new QName("org.spotter.shared.environment.model",
 			"measurementEnvironment");
 
 	/**
@@ -88,7 +88,7 @@ public class ObjectFactory {
 	 * @return JAXB
 	 */
 	@XmlElementDecl(namespace = "org.spotter.shared.environment.model", name = "measurementEnvironment")
-	public JAXBElement<XMeasurementEnvironment> createProblem(XMeasurementEnvironment value) {
-		return new JAXBElement<XMeasurementEnvironment>(HIERARCHY_QNAME, XMeasurementEnvironment.class, null, value);
+	public JAXBElement<XMeasurementEnvironment> createEnvironment(XMeasurementEnvironment value) {
+		return new JAXBElement<XMeasurementEnvironment>(ENVIRONMENT_QNAME, XMeasurementEnvironment.class, null, value);
 	}
 }
