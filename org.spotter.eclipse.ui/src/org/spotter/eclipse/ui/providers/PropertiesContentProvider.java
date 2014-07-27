@@ -16,6 +16,7 @@
 package org.spotter.eclipse.ui.providers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.viewers.AbstractTableViewer;
@@ -77,6 +78,8 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 		List<AbstractPropertyItem> nonMandatoryConfigItems = new ArrayList<AbstractPropertyItem>();
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
 
+		Collections.sort(xmConfigList);
+		
 		int size = xmConfigList == null ? 0 : xmConfigList.size();
 		Object[] result = new Object[size];
 

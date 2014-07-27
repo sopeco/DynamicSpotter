@@ -32,7 +32,7 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
  */
 public class WorkloadEditorInput extends AbstractSpotterEditorInput {
 
-	private static final String NAME = "Workload";
+	private static final String NAME = "Workload Satellite Adapter";
 	private static final String IMAGE_PATH = SpotterProjectConfigWorkload.IMAGE_PATH;
 	
 	private List<XMeasurementEnvObject> workloadAdapters;

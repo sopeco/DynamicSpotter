@@ -32,7 +32,7 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
  */
 public class InstrumentationEditorInput extends AbstractSpotterEditorInput {
 
-	private static final String NAME = "Instrumentation";
+	private static final String NAME = "Instrumentation Satellite Adapter";
 	private static final String IMAGE_PATH = SpotterProjectConfigInstrumentation.IMAGE_PATH;
 
 	private List<XMeasurementEnvObject> instrumentationControllers;

@@ -34,7 +34,7 @@ public class SpotterProjectConfigInstrumentation implements IOpenableProjectElem
 
 	public static final String IMAGE_PATH = "icons/instrumentation.gif"; //$NON-NLS-1$
 
-	private static final String ELEMENT_NAME = "Instrumentation Controllers";
+	private static final String ELEMENT_NAME = "Instrumentation Satellite Adapter";
 
 	private ISpotterProjectElement parent;
 	private Image image;

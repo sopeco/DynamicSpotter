@@ -34,7 +34,7 @@ public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/workload-adapter.png"; //$NON-NLS-1$
 
-	private static final String ELEMENT_NAME = "Workload Adapters";
+	private static final String ELEMENT_NAME = "Workload Satellite Adapter";
 
 	private ISpotterProjectElement parent;
 	private Image image;

@@ -36,7 +36,7 @@ public class MeasurementEditor extends AbstractEnvironmentEditor {
 	 */
 	public static final String ID = "org.spotter.eclipse.ui.editors.measurement";
 
-	private static final String EDITOR_NAME = "Measurement";
+	private static final String EDITOR_NAME = "Measurement Satellite Adapter";
 	private static final SpotterExtensionType EXTENSION_TYPE = SpotterExtensionType.MEASUREMENT_EXTENSION;
 
 	private List<XMeasurementEnvObject> measurementControllers;

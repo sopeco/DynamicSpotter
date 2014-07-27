@@ -46,13 +46,13 @@ public class RunHandler extends AbstractHandler {
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
 
-	private static final String DIALOG_TITLE = "Spotter Diagnosis";
+	private static final String DIALOG_TITLE = "DynamicSpotter Diagnosis";
 	private static final String MSG_MULTI_SELECTION = "More than one project has been selected.";
-	private static final String MSG_MISS_CONFIG = "Spotter Configuration '%s' is missing!";
-	private static final String MSG_ALREADY_RUNNING = "Spotter is already running";
+	private static final String MSG_MISS_CONFIG = "DynamicSpotter Configuration '%s' is missing!";
+	private static final String MSG_ALREADY_RUNNING = "DynamicSpotter is already running";
 	private static final String MSG_RUNTIME_ERROR = "Error occured during diagnosis: %s";
-	private static final String MSG_SPOTTER_STARTED = "Going to start Spotter diagnosis for project '%s' now. Continue?";
-	private static final String MSG_SPOTTER_FINISHED = "Finished the Spotter diagnosis!";
+	private static final String MSG_SPOTTER_STARTED = "Going to start DynamicSpotter diagnosis for project '%s' now. Continue?";
+	private static final String MSG_SPOTTER_FINISHED = "Finished the DynamicSpotter diagnosis!";
 
 	private boolean startConfirm;
 	private String runningProject;

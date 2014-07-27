@@ -36,7 +36,7 @@ public class WorkloadEditor extends AbstractEnvironmentEditor {
 	 */
 	public static final String ID = "org.spotter.eclipse.ui.editors.workload";
 
-	private static final String EDITOR_NAME = "Workload";
+	private static final String EDITOR_NAME = "Workload Satellite Adapter";
 	private static final SpotterExtensionType EXTENSION_TYPE = SpotterExtensionType.WORKLOAD_EXTENSION;
 
 	private List<XMeasurementEnvObject> workloadAdapters;
