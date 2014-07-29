@@ -121,7 +121,9 @@ public final class Spotter {
 		try {
 			GlobalConfiguration.getInstance().putProperty(ConfigKeys.PPD_RUN_TIMESTAMP, String.valueOf(timestamp));
 			ConfigCheck.checkConfiguration();
-			initializeMeasurementEnvironment();
+			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
+				initializeMeasurementEnvironment();
+			}
 			PerformanceProblem problem = retrieveRootPerformanceProblem(resultsContainer);
 			HierarchyModelInterpreter hierarchyModelInterpreter = new HierarchyModelInterpreter(problem);
 			problem = hierarchyModelInterpreter.next();
