@@ -86,15 +86,15 @@ public final class HierarchyFactory {
 			}
 
 		}
-		
-		
+
 		initializeExperimentReuser(rootProblem);
 
 		return rootProblem;
 	}
 
 	/**
-	 * Adapts data paths for detection controllers which reuse the experiments of its parent
+	 * Adapts data paths for detection controllers which reuse the experiments
+	 * of its parent
 	 */
 	private void initializeExperimentReuser(PerformanceProblem rootProblem) {
 		for (PerformanceProblem problem : rootProblem.getAllDEscendingProblems()) {
@@ -145,6 +145,10 @@ public final class HierarchyFactory {
 	 * @return a {@link PerformanceProblem} instance
 	 */
 	private PerformanceProblem visitProblem(XPerformanceProblem xProblem) {
+		if (xProblem.getUniqueId() == null || xProblem.getUniqueId().isEmpty()) {
+			throw new IllegalArgumentException(
+					"Invalid Performance Problem Hierarchy XML: uniqueId is missing for a performance problem");
+		}
 		PerformanceProblem problem = new PerformanceProblem(xProblem.getUniqueId());
 		problem.setProblemName(xProblem.getExtensionName());
 		if (xProblem.getProblem() != null) {
