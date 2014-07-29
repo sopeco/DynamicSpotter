@@ -48,6 +48,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.progress.UIJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ProjectNature;
 import org.spotter.eclipse.ui.handlers.DeleteHandler;
@@ -60,13 +62,15 @@ import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
- * Content provider for items of Spotter Project Navigator. This provider is
- * used by the Spotter Project Navigator.
+ * Content provider for items of DynamicSpotter Project Navigator. This provider
+ * is used by the DynamicSpotter Project Navigator.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NavigatorContentProvider.class);
 
 	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command!";
 	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command!";
@@ -75,8 +79,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	private final Map<String, Object> wrapperCache = new HashMap<String, Object>();
 	private TreeViewer viewer;
 	private boolean listenersRegistered;
-	private IDoubleClickListener dblClickListener;
-	private ISelectionChangedListener selectionListener;
+	private IDoubleClickListener dblClickOpenListener;
+	private ISelectionChangedListener projectSelectionListener;
 	private KeyListener keyListener;
 
 	/**
@@ -92,8 +96,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 		if (listenersRegistered) {
-			viewer.removeDoubleClickListener(dblClickListener);
-			viewer.removePostSelectionChangedListener(selectionListener);
+			viewer.removeDoubleClickListener(dblClickOpenListener);
+			viewer.removeSelectionChangedListener(projectSelectionListener);
 			viewer.getTree().removeKeyListener(keyListener);
 		}
 	}
@@ -110,29 +114,42 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	}
 
 	private void registerListeners() {
-		dblClickListener = new IDoubleClickListener() {
+		dblClickOpenListener = new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 				SpotterUtils.openNavigatorElement(sel.getFirstElement());
 			}
 		};
-		selectionListener = new ISelectionChangedListener() {
+
+		projectSelectionListener = new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				if (sel.isEmpty()) {
-					return;
-				}
 				Set<IProject> selectedProjects = new HashSet<IProject>();
-				for (Object element : sel.toArray()) {
-					if (element instanceof ISpotterProjectElement) {
-						selectedProjects.add(((ISpotterProjectElement) element).getProject());
+
+				if (!sel.isEmpty()) {
+					for (Object obj : sel.toArray()) {
+						if (obj instanceof ISpotterProjectElement) {
+							ISpotterProjectElement element = (ISpotterProjectElement) obj;
+							selectedProjects.add(element.getProject());
+
+							if (!(obj instanceof SpotterProjectParent) && selectedProjects.size() >= 2) {
+
+								// already another project selected and mixed
+								// element types are not allowed
+
+								selectedProjects.clear();
+								break;
+							}
+						}
 					}
 				}
+
 				Activator.getDefault().setSelectedProjects(selectedProjects);
 			}
 		};
+
 		keyListener = new KeyAdapter() {
 			private IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
 					IHandlerService.class);
@@ -162,9 +179,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				}
 			}
 		};
+
 		viewer.getTree().addKeyListener(keyListener);
-		viewer.addDoubleClickListener(dblClickListener);
-		viewer.addPostSelectionChangedListener(selectionListener);
+		viewer.addDoubleClickListener(dblClickOpenListener);
+		viewer.addSelectionChangedListener(projectSelectionListener);
 		listenersRegistered = true;
 	}
 
@@ -179,7 +197,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		if (parentElement instanceof IWorkspaceRoot) {
 			IProject[] projects = ((IWorkspaceRoot) parentElement).getProjects();
 			children = createSpotterProjectParents(projects);
-			// parentElements = children;
 		} else if (parentElement instanceof ISpotterProjectElement) {
 			children = ((ISpotterProjectElement) parentElement).getChildren();
 		} else {
@@ -227,7 +244,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				result = new SpotterProjectParent(parentElement);
 			}
 		} catch (CoreException e) {
-			// Go to the next IProject
+			LOGGER.warn("Unable to resolve nature for project " + parentElement.getName() + ". Cause: {}",
+					e.getMessage());
+			// Ignore and go to the next IProject
 		}
 
 		return result;
@@ -267,7 +286,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	 */
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		new UIJob("refresh Spotter Project Navigator") { //$NON-NLS-1$
+		UIJob uiJob = new UIJob("refresh Project Navigator") { //$NON-NLS-1$
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (viewer != null && !viewer.getControl().isDisposed()) {
 					TreePath[] treePaths = viewer.getExpandedTreePaths();
@@ -276,7 +295,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				}
 				return Status.OK_STATUS;
 			}
-		}.schedule();
+		};
+		uiJob.schedule();
 	}
 
 }
