@@ -36,6 +36,12 @@ public class ResultExtensionsImageProvider extends SpotterExtensionsImageProvide
 
 	private ResultsContainer resultsContainer;
 
+	/**
+	 * Set the results container.
+	 * 
+	 * @param resultsContainer
+	 *            The results container to set
+	 */
 	public void setResultsContainer(ResultsContainer resultsContainer) {
 		this.resultsContainer = resultsContainer;
 	}

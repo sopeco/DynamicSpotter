@@ -59,7 +59,9 @@ public class DuplicateHandler extends AbstractHandler {
 	}
 
 	/**
-	 * Only allow duplication if single element is selected.
+	 * Returns <code>true</code> when exactly one duplicatable is selected.
+	 * 
+	 * @return <code>true</code> when exactly one duplicatable is selected
 	 */
 	@Override
 	public boolean isEnabled() {

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.navigator.SpotterProjectConfigInstrumentation;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
@@ -50,7 +51,7 @@ public class InstrumentationEditorInput extends AbstractSpotterEditorInput {
 
 		try {
 			measurementEnv = factory.parseXMLFile(getPath().toString());
-		} catch (IllegalArgumentException e) {
+		} catch (UICoreException e) {
 			measurementEnv = null;
 		}
 

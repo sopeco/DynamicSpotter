@@ -25,7 +25,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
-import org.spotter.eclipse.ui.jobs.SpotterRunJob;
+import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
@@ -92,7 +92,7 @@ public class RunHandler extends AbstractHandler {
 	private void startSpotterRun(IProject project, ServiceClientWrapper client, String spotterConfigPath) {
 		Long jobId = client.startDiagnosis(spotterConfigPath);
 		if (jobId != null) {
-			SpotterRunJob job = new SpotterRunJob(project, jobId);
+			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId);
 			job.schedule();
 		} else {
 			String msg = String.format(MSG_RUNTIME_ERROR, "Could not retrieve a valid job id!");

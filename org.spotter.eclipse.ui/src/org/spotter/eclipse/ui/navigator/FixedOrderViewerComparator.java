@@ -83,7 +83,7 @@ public class FixedOrderViewerComparator extends ViewerComparator {
 			}
 		}
 		if (name1 == null) {
-			name1 = "";//$NON-NLS-1$
+			name1 = ""; //$NON-NLS-1$
 		}
 		return name1;
 	}

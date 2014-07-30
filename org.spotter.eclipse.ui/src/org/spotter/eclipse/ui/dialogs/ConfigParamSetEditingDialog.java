@@ -69,6 +69,11 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	 * Create the dialog.
 	 * 
 	 * @param parentShell
+	 *            The parent of this shell
+	 * @param desc
+	 *            The configuration parameter description to get the data from
+	 * @param csvString
+	 *            The comma separated values for the set in a string
 	 */
 	public ConfigParamSetEditingDialog(Shell parentShell, ConfigParameterDescription desc, String csvString) {
 		super(parentShell);

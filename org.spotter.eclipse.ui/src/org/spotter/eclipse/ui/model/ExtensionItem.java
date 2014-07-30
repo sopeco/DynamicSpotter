@@ -79,6 +79,7 @@ public class ExtensionItem {
 	 * added to another extension item as a child.
 	 * 
 	 * @param modelWrapper
+	 *            the model wrapper
 	 */
 	public ExtensionItem(IModelWrapper modelWrapper) {
 		this(null, modelWrapper);
@@ -197,6 +198,9 @@ public class ExtensionItem {
 	 * This method should be called whenever one of this item's properties has
 	 * been modified from outside this class, so that this item can reflect
 	 * changes properly and may notify its listeners if necessary.
+	 * 
+	 * @param propertyItem
+	 *            the affected property item
 	 */
 	public void propertyDirty(Object propertyItem) {
 		fireItemPropertyChanged(propertyItem);
@@ -550,10 +554,11 @@ public class ExtensionItem {
 	private Map<String, ConfigParameterDescription> computeConfigurableExtensionConfigParams() {
 		Map<String, ConfigParameterDescription> configurable = new HashMap<String, ConfigParameterDescription>();
 		Set<String> usedKeysSet = createConfigParamKeysSet();
-		if (modelWrapper.getExtensionConfigParams() == null) {
+		Set<ConfigParameterDescription> extensionConfigParams = modelWrapper.getExtensionConfigParams();
+		if (extensionConfigParams == null) {
 			return configurable;
 		}
-		for (ConfigParameterDescription desc : modelWrapper.getExtensionConfigParams()) {
+		for (ConfigParameterDescription desc : extensionConfigParams) {
 			if (desc.isEditable() && !desc.isMandatory() && !usedKeysSet.contains(desc.getName())) {
 				configurable.put(desc.getName(), desc);
 			}

@@ -36,7 +36,7 @@ import org.eclipse.ui.navigator.WizardActionGroup;
  */
 public class CustomNewActionProvider extends CommonActionProvider {
 
-	private static final String NEW_MENU_NAME = "common.new.menu";//$NON-NLS-1$
+	private static final String NEW_MENU_NAME = "common.new.menu"; //$NON-NLS-1$
 
 	private ActionFactory.IWorkbenchAction showDlgAction;
 

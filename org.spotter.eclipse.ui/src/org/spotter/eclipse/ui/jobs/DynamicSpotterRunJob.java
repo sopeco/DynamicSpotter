@@ -40,29 +40,41 @@ import org.spotter.shared.status.DiagnosisProgress;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
- * A job to run a DynamicSpotter Diagnosis which can be scheduled by the job
+ * A job to run a DynamicSpotter diagnosis which can be scheduled by the job
  * manager. This job updates the progress monitor according to the progress of
  * the DynamicSpotter run that is performed.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class SpotterRunJob extends Job {
+public class DynamicSpotterRunJob extends Job {
 
 	private static final String ICON_PATH = "icons/diagnosis.png"; //$NON-NLS-1$
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
+	private static final int HUNDRED_PERCENT = 100;
+	private static final int FIVE_PERCENT = 5;
 
 	private static final String MSG_SPOTTER_FINISHED = "Finished the DynamicSpotter diagnosis!";
 	private static final String MSG_LOST_CONNECTION = "Lost connection to DS Service!";
-	private static final String MSG_CANCELLED = "You cancelled the progress report and will not be informed when the run is finished. DynamicSpotter will continue to run on the server though (cancellation of a running diagnosis is not implemented yet).";
+	private static final String MSG_CANCELLED = "The progress report has been cancelled and you will "
+			+ "not be informed when the run is finished. DynamicSpotter will continue to run on the "
+			+ "server though (cancellation of a running diagnosis is not implemented yet).";
 
 	private final IProject project;
 	private final long jobId;
 	private final Set<String> processedProblems;
 	private Map.Entry<String, DiagnosisProgress> currentProblem;
 
-	public SpotterRunJob(IProject project, long jobId) {
+	/**
+	 * Create a new job for the given project and job id.
+	 * 
+	 * @param project
+	 *            The project the job is for
+	 * @param jobId
+	 *            The job id of the new job
+	 */
+	public DynamicSpotterRunJob(IProject project, long jobId) {
 		super("DynamicSpotter Diagnosis '" + project.getName() + "'");
 
 		this.project = project;
@@ -71,12 +83,12 @@ public class SpotterRunJob extends Job {
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
-//		IAction gotoAction = new Action("Results") {
-//			public void run() {
-//				// TODO: show results in ResultsView
-//			}
-//		};
-//		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+		// IAction gotoAction = new Action("Results") {
+		// public void run() {
+		// // TODO: show results in ResultsView
+		// }
+		// };
+		// setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
 		setPriority(LONG);
 		setUser(true);
 	}
@@ -85,7 +97,7 @@ public class SpotterRunJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		processedProblems.clear();
 		currentProblem = null;
-		monitor.beginTask("DynamicSpotter Diagnosis", 100);
+		monitor.beginTask("DynamicSpotter Diagnosis", HUNDRED_PERCENT);
 		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
 
 		while (client.isRunning()) {
@@ -100,7 +112,8 @@ public class SpotterRunJob extends Job {
 				try {
 					Thread.sleep(SLEEP_TIME_MILLIS);
 				} catch (InterruptedException e) {
-					return Status.CANCEL_STATUS;
+					DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
+					return new Status(Status.CANCEL, Activator.PLUGIN_ID, Status.OK, MSG_CANCELLED, null);
 				}
 			} else {
 				break;
@@ -111,7 +124,6 @@ public class SpotterRunJob extends Job {
 			return new Status(Status.WARNING, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
 		}
 
-		monitor.worked(100);
 		monitor.done();
 		onFinishedJob();
 
@@ -152,7 +164,7 @@ public class SpotterRunJob extends Job {
 			monitor.subTask("ProblemId: \"" + currentProblem.getKey() + "\" - " + progress.getCurrentProgressMessage()
 					+ " - " + progress.getStatus());
 			// currently this is just a fake representation of work completed
-			monitor.worked(5);
+			monitor.worked(FIVE_PERCENT);
 		}
 	}
 
