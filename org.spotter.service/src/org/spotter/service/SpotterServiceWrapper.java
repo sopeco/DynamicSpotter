@@ -54,7 +54,7 @@ public class SpotterServiceWrapper {
 	 * 
 	 * @return singleton instance
 	 */
-	public static SpotterServiceWrapper getInstance() {
+	public static synchronized SpotterServiceWrapper getInstance() {
 		if (instance == null) {
 			instance = new SpotterServiceWrapper();
 		}
