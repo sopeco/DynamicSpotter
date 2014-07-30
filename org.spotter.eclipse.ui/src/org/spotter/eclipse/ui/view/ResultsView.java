@@ -90,7 +90,7 @@ import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
 
 /**
- * A view to display results of a Spotter run.
+ * A view to display results of a DynamicSpotter run.
  * 
  * @author Denis Knoepfle
  * 
@@ -105,7 +105,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final String DLG_RESOURCE_TITLE = "Resource '%s' (%s)";
 	private static final int DLG_RESOURCE_TOP_MARGIN = 40;
 
-	private static final String RESULTS_CONTENT_DESC_TEMPLATE = "Spotter Run '%s' of project '%s'";
+	private static final String RESULTS_CONTENT_DESC_TEMPLATE = "DynamicSpotter Run '%s' of project '%s'";
 	private static final String RESULTS_EMPTY_CONTENT_DESC = "None selected.";
 	private static final String EMPTY_RESULTS = "No results selected.";
 	private static final String ERR_MSG_IO_ERROR = "An I/O error occured while reading the file '%s'.";
@@ -142,6 +142,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private ResultsContainer resultsContainer;
 	private XPerformanceProblem currentSelectedProblem;
 
+	/**
+	 * The constructor.
+	 */
 	public ResultsView() {
 		this.client = null;
 		this.runResultItem = null;
@@ -397,9 +400,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 				int width = Math.min(canvasWidth, resourceImageData.width);
 				int height = Math.min(canvasHeight, resourceImageData.height);
 				resourceImage = new Image(canvasRes.getDisplay(), resourceImageData.scaledTo(width, height));
-			} else {
+			} // else {
 				// TODO: draw "not available image" picture using GC
-			}
+			// }
 			canvasRes.setBackgroundImage(resourceImage);
 		}
 	}

@@ -29,8 +29,15 @@ import org.spotter.eclipse.ui.model.ExtensionItem;
  */
 public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 
+	private static final int TOOLTIP_DISPLAY_TIME = 3000;
+	private static final int TOOLTIP_DISPLAY_DELAY_TIME = 500;
+
 	private SpotterExtensionsImageProvider imageProvider;
 
+	/**
+	 * Create a label provider that uses SpotterExtensionsImageProvider for
+	 * images.
+	 */
 	public SpotterExtensionsLabelProvider() {
 		this.imageProvider = new SpotterExtensionsImageProvider();
 	}
@@ -64,12 +71,12 @@ public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 
 	@Override
 	public int getToolTipTimeDisplayed(Object object) {
-		return 3000;
+		return TOOLTIP_DISPLAY_TIME;
 	}
 
 	@Override
 	public int getToolTipDisplayDelayTime(Object object) {
-		return 500;
+		return TOOLTIP_DISPLAY_DELAY_TIME;
 	}
 
 	@Override

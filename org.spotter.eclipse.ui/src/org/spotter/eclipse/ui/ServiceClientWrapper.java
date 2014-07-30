@@ -45,7 +45,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
  * <p>
  * This wrapper class also caches requested information from the server for
  * future use. Whenever the client settings change, the cache will also be
- * cleared automatically.
+ * cleared automatically or it can be cleared on demand.
  * </p>
  * 
  * @author Denis Knoepfle
@@ -59,6 +59,7 @@ public class ServiceClientWrapper {
 	public static final String KEY_SERVICE_PORT = "spotter.service.port";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceClientWrapper.class);
+
 	private static final String DIALOG_TITLE = "DynamicSpotter Service Client";
 	private static final String ERR_MSG_CONN = "Connection to '%s' at port %s could not be established!";
 	private static final String MSG_FAIL_SAFE = "Error while storing preferences. Please try again.";
@@ -75,7 +76,7 @@ public class ServiceClientWrapper {
 	private String host;
 	private String port;
 
-	// caching
+	// used for caching
 	private Set<ConfigParameterDescription> cachedSpotterConfParameters;
 	private Map<String, ConfigParameterDescription> cachedSpotterConfParamsMap;
 	private Map<SpotterExtensionType, Set<String>> cachedExtensionNames = new HashMap<>();
@@ -211,6 +212,10 @@ public class ServiceClientWrapper {
 		return null;
 	}
 
+	/**
+	 * @return <code>true</code> if DynamicSpotter diagnostics is currently
+	 *         running
+	 */
 	public boolean isRunning() {
 		try {
 			return client.isRunning();
@@ -221,7 +226,7 @@ public class ServiceClientWrapper {
 	}
 
 	/**
-	 * @return set of configuration parameter descriptions for Spotter
+	 * @return set of configuration parameter descriptions for DynamicSpotter
 	 *         configuration.
 	 */
 	public Set<ConfigParameterDescription> getConfigurationParameters() {
@@ -245,8 +250,11 @@ public class ServiceClientWrapper {
 	 * @return the matching description object or <code>null</code> if not found
 	 */
 	public ConfigParameterDescription getSpotterConfigParam(String name) {
-		if (cachedSpotterConfParamsMap == null && (cachedSpotterConfParamsMap = initSpotterConfParamsMap()) == null) {
-			return null;
+		if (cachedSpotterConfParamsMap == null) {
+			cachedSpotterConfParamsMap = initSpotterConfParamsMap();
+			if (cachedSpotterConfParamsMap == null) {
+				return null;
+			}
 		}
 		return cachedSpotterConfParamsMap.get(name);
 	}
@@ -305,6 +313,13 @@ public class ServiceClientWrapper {
 		return extNames;
 	}
 
+	/**
+	 * Returns the extension configuration parameters for the given extension.
+	 * 
+	 * @param extName
+	 *            The name of the extension
+	 * @return the extension configuration parameters for the extension
+	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
 		Set<ConfigParameterDescription> confParams = cachedExtensionConfParamters.get(extName);
 		if (confParams != null) {
@@ -323,6 +338,13 @@ public class ServiceClientWrapper {
 		return confParams;
 	}
 
+	/**
+	 * Returns the textual description of the given extension.
+	 * 
+	 * @param extName
+	 *            The name of the extension
+	 * @return the textual description of the given extension
+	 */
 	public String getExtensionDescription(String extName) {
 		if (!cachedExtensionConfParamters.containsKey(extName)) {
 			// force caching of the extension description
@@ -331,6 +353,11 @@ public class ServiceClientWrapper {
 		return cachedExtensionDescriptions.get(extName);
 	}
 
+	/**
+	 * Returns a report on the progress of the current job.
+	 * 
+	 * @return a report on the progress of the current job
+	 */
 	public SpotterProgress getCurrentProgressReport() {
 		try {
 			return client.getCurrentProgressReport();
@@ -340,6 +367,11 @@ public class ServiceClientWrapper {
 		return null;
 	}
 
+	/**
+	 * Returns the id of the currently running job.
+	 * 
+	 * @return the id of the currently running job
+	 */
 	public Long getCurrentJobId() {
 		try {
 			return client.getCurrentJobId();
@@ -349,6 +381,20 @@ public class ServiceClientWrapper {
 		return null;
 	}
 
+	/**
+	 * Tests connection to the satellite specified by the given extension name,
+	 * host and port. If extension is not a satellite this method returns
+	 * <code>false</code>!
+	 * 
+	 * @param extName
+	 *            The name of the extension
+	 * @param host
+	 *            The host/ip to connect to
+	 * @param port
+	 *            The port to connect to
+	 * @return <code>true</code> if connection could have been established,
+	 *         otherwise <code>false</code>
+	 */
 	public boolean testConnectionToSattelite(String extName, String host, String port) {
 		try {
 			return client.testConnectionToSattelite(extName, host, port);
@@ -358,6 +404,15 @@ public class ServiceClientWrapper {
 		return false;
 	}
 
+	/**
+	 * Tests connection to the DS Service.
+	 * 
+	 * @param showErrorDialog
+	 *            <code>true</code> to show an error dialog on failure
+	 * 
+	 * @return <code>true</code> if connection could have been established,
+	 *         otherwise <code>false</code>
+	 */
 	public boolean testConnection(boolean showErrorDialog) {
 		boolean connection;
 		try {
@@ -394,7 +449,7 @@ public class ServiceClientWrapper {
 
 	/**
 	 * Shows a message on the screen explaining the connection problem. If cause
-	 * is not <code>null<code> it will be appended to the message.
+	 * is not <code>null</code> it will be appended to the message.
 	 * 
 	 * @param cause
 	 *            The cause of the problem
@@ -403,7 +458,7 @@ public class ServiceClientWrapper {
 	 * @param port
 	 *            The port used for the connection
 	 * @param warning
-	 *            <code>true</code> to only show a warning, otherwise an error
+	 *            <code>true</code> to show a warning only, otherwise an error
 	 *            is shown
 	 */
 	public static void showConnectionProblemMessage(String cause, String host, String port, boolean warning) {

@@ -34,6 +34,12 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 	protected final ExtensionMetaobject extension;
 	protected final String extensionName;
 
+	/**
+	 * Constructor sets extension and extension name.
+	 * 
+	 * @param extension
+	 *            the wrapped extension
+	 */
 	public AbstractModelWrapper(ExtensionMetaobject extension) {
 		this.extension = extension;
 		this.extensionName = extension == null ? null : extension.getExtensionName();
@@ -59,28 +65,28 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 
 	@Override
 	public Boolean testConnection() throws Exception {
-		
+
 		if (extension == null) {
 			return false;
 		}
-		
+
 		if (SpotterUtils.hasConfigParameter(getConfig(), HOST_KEY)
-			&& SpotterUtils.hasConfigParameter(getConfig(), PORT_KEY)) {
-			
+				&& SpotterUtils.hasConfigParameter(getConfig(), PORT_KEY)) {
+
 			return testRemoteConnection(SpotterUtils.extractConfigValue(getConfig(), HOST_KEY),
-										SpotterUtils.extractConfigValue(getConfig(), PORT_KEY));
-			
+					SpotterUtils.extractConfigValue(getConfig(), PORT_KEY));
+
 		}
-		
+
 		boolean mandatoryFileDirectory = testMandatoryFileDirectory();
-		
+
 		return mandatoryFileDirectory;
 	}
 
 	/**
-	 * Checks all the mandatory {@link ConfigParameterDescription}s in the configuration
-	 * with the types of files or directories. The values for each of theses entries
-	 * must be non-<code>null</code>.<br />
+	 * Checks all the mandatory {@link ConfigParameterDescription}s in the
+	 * configuration with the types of files or directories. The values for each
+	 * of theses entries must be non-<code>null</code>.<br />
 	 * This does not check the correctness of the values.
 	 * 
 	 * @return true, if all files and directories are filled with values
@@ -89,29 +95,31 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 		for (ConfigParameterDescription param : getExtensionConfigParams()) {
 			if (param.isMandatory()) {
 				if (param.isDirectory() || param.isFile()) {
-					
-					// the value of mandatories files and directories must not be empty
+
+					// the value of mandatories files and directories
+					// must not be empty
 					String paramValue = SpotterUtils.extractConfigValue(getConfig(), param.getName());
-				
+
 					if (paramValue == null || paramValue.isEmpty()) {
 						return false;
 					}
 				}
-			}			
+			}
 		}
-		
+
 		return true;
 	}
 
 	/**
-	 * Checks if a remote connection to the given host and port can be established.
+	 * Checks if a remote connection to the given host and port can be
+	 * established.
 	 * 
-	 * @return true, if a connection was successful established
+	 * @return <code>true</code>, if a connection was successful established
 	 */
 	private boolean testRemoteConnection(String host, String port) {
 		ServiceClientWrapper client = Activator.getDefault().getClient(extension.getProjectName());
 		boolean connection = client.testConnectionToSattelite(extensionName, host, port);
-		
+
 		return connection;
 	}
 }

@@ -51,6 +51,8 @@ public class AddConfigParamDialog extends TitleAreaDialog {
 	 * 
 	 * @param parentShell
 	 *            The parent shell of this dialog
+	 * @param configParams
+	 *            The configuration parameters to show
 	 */
 	public AddConfigParamDialog(Shell parentShell, ConfigParameterDescription[] configParams) {
 		super(parentShell);

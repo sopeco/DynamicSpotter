@@ -39,6 +39,20 @@ public class ConnectionParamModifyListener implements ModifyListener {
 	private final Label lblConnection;
 	private final Button btnTestConn;
 
+	/**
+	 * Create a new listener for the given connection composite.
+	 * 
+	 * @param connComposite
+	 *            the connection composite
+	 * @param textHost
+	 *            the text field of the host
+	 * @param textPort
+	 *            the text field of the port
+	 * @param lblConnection
+	 *            the connection label that should be updated
+	 * @param btnTestConn
+	 *            the test connection button that should be updated
+	 */
 	public ConnectionParamModifyListener(ConnectionTestComposite connComposite, Text textHost, Text textPort,
 			Label lblConnection, Button btnTestConn) {
 		this.connComposite = connComposite;

@@ -19,7 +19,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.graphics.Image;
 
 /**
- * An interface for spotter project elements of the Spotter Project Navigator.
+ * An interface for DynamicSpotter project elements of the DynamicSpotter
+ * Project Navigator.
  * 
  * @author Denis Knoepfle
  * 
@@ -29,31 +30,31 @@ public interface ISpotterProjectElement {
 	/**
 	 * @return the text of this element
 	 */
-	public String getText();
+	String getText();
 
 	/**
 	 * @return the image of this element
 	 */
-	public Image getImage();
+	Image getImage();
 
 	/**
 	 * @return the children elements of this element
 	 */
-	public Object[] getChildren();
+	Object[] getChildren();
 
 	/**
 	 * @return whether this element has children
 	 */
-	public boolean hasChildren();
+	boolean hasChildren();
 
 	/**
 	 * @return the parent of this element
 	 */
-	public Object getParent();
+	Object getParent();
 
 	/**
 	 * @return the associated project
 	 */
-	public IProject getProject();
+	IProject getProject();
 
 }

@@ -25,7 +25,7 @@ import org.spotter.eclipse.ui.editors.SpotterConfigEditorInput;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
- * An element that represents the Spotter configuration file node.
+ * An element that represents the DynamicSpotter configuration file node.
  * 
  * @author Denis Knoepfle
  * 
@@ -49,6 +49,7 @@ public class SpotterProjectConfigFile implements IOpenableProjectElement {
 		this.parent = parent;
 	}
 
+	@Override
 	public String getText() {
 		return ELEMENT_NAME;
 	}
