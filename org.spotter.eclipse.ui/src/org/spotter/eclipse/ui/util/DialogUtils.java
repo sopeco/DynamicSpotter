@@ -36,6 +36,28 @@ public final class DialogUtils {
 
 	public static final String DEFAULT_DLG_TITLE = "DynamicSpotter";
 
+	/**
+	 * Class used only privately to retrieve a confirmation return value from a
+	 * runnable which gets executed by a Display.syncExec().
+	 */
+	private static final class ConfirmationRunnable implements Runnable {
+
+		private boolean confirm;
+		private String title;
+		private String message;
+
+		private ConfirmationRunnable(String title, String message) {
+			this.title = title;
+			this.message = message;
+		}
+
+		@Override
+		public void run() {
+			confirm = MessageDialog.openConfirm(getShell(), title, message);
+		}
+
+	}
+
 	private DialogUtils() {
 	}
 
@@ -95,6 +117,40 @@ public final class DialogUtils {
 	}
 
 	/**
+	 * Opens a confirmation dialog with the given title and message. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 * @return <code>true</code> if the user presses the OK button,
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean openConfirm(final String title, final String message) {
+		if (isUIThread()) {
+			return MessageDialog.openConfirm(getShell(), title, message);
+		} else {
+			ConfirmationRunnable runnable = new ConfirmationRunnable(title, message);
+			getDisplay().syncExec(runnable);
+			return runnable.confirm;
+		}
+	}
+
+	/**
+	 * Opens a confirmation dialog with the given message and a default title.
+	 * It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 * @return <code>true</code> if the user presses the OK button,
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean openConfirm(final String message) {
+		return openConfirm(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
 	 * Opens an information dialog with the given title and message. It is
 	 * ensured that the dialog is opened on the UI thread.
 	 * 
@@ -104,13 +160,10 @@ public final class DialogUtils {
 	 *            The message of the dialog
 	 */
 	public static void openInformation(final String title, final String message) {
-		Display display = getDisplay();
-		// check if operating on UI thread
-		if (Thread.currentThread() == display.getThread()) {
-			// already executing on the UI thread
+		if (isUIThread()) {
 			MessageDialog.openInformation(getShell(), title, message);
 		} else {
-			display.syncExec(new Runnable() {
+			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openInformation(getShell(), title, message);
@@ -140,13 +193,10 @@ public final class DialogUtils {
 	 *            The message of the dialog
 	 */
 	public static void openWarning(final String title, final String message) {
-		Display display = getDisplay();
-		// check if operating on UI thread
-		if (Thread.currentThread() == display.getThread()) {
-			// already executing on the UI thread
+		if (isUIThread()) {
 			MessageDialog.openWarning(getShell(), title, message);
 		} else {
-			display.syncExec(new Runnable() {
+			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openWarning(getShell(), title, message);
@@ -176,13 +226,10 @@ public final class DialogUtils {
 	 *            The message of the dialog
 	 */
 	public static void openError(final String title, final String message) {
-		Display display = getDisplay();
-		// check if operating on UI thread
-		if (Thread.currentThread() == display.getThread()) {
-			// already executing on the UI thread
+		if (isUIThread()) {
 			MessageDialog.openError(getShell(), title, message);
 		} else {
-			display.syncExec(new Runnable() {
+			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					MessageDialog.openError(getShell(), title, message);
@@ -200,6 +247,15 @@ public final class DialogUtils {
 	 */
 	public static void openError(final String message) {
 		openError(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
+	 * Returns <code>true</code> if currently operating on the UI thread.
+	 * 
+	 * @return <code>true</code> if currently operating on the UI thread
+	 */
+	private static boolean isUIThread() {
+		return Thread.currentThread() == getDisplay().getThread();
 	}
 
 }
