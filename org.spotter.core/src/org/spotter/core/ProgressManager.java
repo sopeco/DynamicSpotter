@@ -44,7 +44,7 @@ public final class ProgressManager implements Runnable {
 	 * 
 	 * @return singleton instance
 	 */
-	public static ProgressManager getInstance() {
+	public static synchronized ProgressManager getInstance() {
 		if (instance == null) {
 			instance = new ProgressManager();
 		}
