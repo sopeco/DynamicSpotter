@@ -29,9 +29,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IDeletable;
 import org.spotter.eclipse.ui.navigator.IDuplicatable;
 import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
+import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
+import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
@@ -67,7 +70,9 @@ public final class SpotterUtils {
 	 * @param jaxbElement
 	 *            the JAXBElement to marshal
 	 * @throws JAXBException
+	 *             if an error with JAXB occurs
 	 * @throws CoreException
+	 *             if a resource error occurs
 	 */
 	public static void writeElementToFile(IFile file, Object jaxbElement) throws JAXBException, CoreException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(jaxbElement.getClass());
@@ -159,6 +164,25 @@ public final class SpotterUtils {
 			}
 			return config;
 		}
+	}
+
+	/**
+	 * Refreshes the project parent of the given project element in the
+	 * navigator. If no parent can be found nothing is changed.
+	 * 
+	 * @param projectElement
+	 *            a project element of the navigator
+	 */
+	public static void refreshProjectParent(ISpotterProjectElement projectElement) {
+		while (projectElement.getParent() != null) {
+			projectElement = (ISpotterProjectElement) projectElement.getParent();
+		}
+
+		if (projectElement instanceof SpotterProjectParent) {
+			((SpotterProjectParent) projectElement).refreshChildren();
+		}
+		
+		Activator.getDefault().getNavigatorViewer().refresh();
 	}
 
 	/**

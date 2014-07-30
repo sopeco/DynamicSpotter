@@ -57,7 +57,8 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 	private static final String DUPLICATE_DLG_TITLE = "Duplicate Project";
 	private static final String DELETE_DLG_TITLE = "Delete Resources";
 	private static final String MSG_SINGLE = "Are you sure you want to remove project '%s' from the workspace?\n\nWarning: Contents will be deleted from disk!";
-	private static final String MSG_MULTI = "Are you sure you want to remove the following projects from the workspace?\n\n%s\n\nWarning: Contents will be deleted from disk!";
+	private static final String MSG_MULTI = "Are you sure you want to remove the following projects from the workspace?\n\n%s\n\n"
+			+ "Warning: Contents will be deleted from disk!";
 
 	private IProject project;
 	private ISpotterProjectElement[] children;
@@ -94,13 +95,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 		}
 		// else we have already initialized them
 
-		// TODO quick fix
-		// return only a list where the hierarchy is not in
-		ISpotterProjectElement[] reducedChildren = new ISpotterProjectElement[2];
-		reducedChildren[0] = children[0]; // take the SpotterPorjectConfig
-		reducedChildren[1] = children[2]; // take the Results
-		
-		return reducedChildren;
+		return children;
 	}
 
 	@Override
@@ -135,11 +130,25 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 		return getProject().getName().hashCode();
 	}
 
-	private ISpotterProjectElement[] initializeChildren(IProject project) {
-		ISpotterProjectElement[] children = { new SpotterProjectConfig(this), new SpotterProjectHierarchy(this),
-				new SpotterProjectResults(this) };
+	/**
+	 * Recreates the children nodes.
+	 */
+	public void refreshChildren() {
+		children = initializeChildren(getProject());
+	}
 
-		return children;
+	private ISpotterProjectElement[] initializeChildren(IProject project) {
+		List<ISpotterProjectElement> children = new ArrayList<>();
+
+		children.add(new SpotterProjectConfig(this));
+
+		if (SpotterProjectSupport.isExpertViewEnabled(project.getName())) {
+			children.add(new SpotterProjectHierarchy(this));
+		}
+
+		children.add(new SpotterProjectResults(this));
+
+		return children.toArray(new ISpotterProjectElement[children.size()]);
 	}
 
 	@Override
@@ -164,8 +173,8 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			description.setName(duplicatedProjectName);
 			project.copy(description, true, null);
 
-			// update references in the Spotter configuration file for the new
-			// project
+			// update references in the DynamicSpotter configuration file for
+			// the new project
 			IProject duplicatedProject = project.getWorkspace().getRoot().getProject(duplicatedProjectName);
 			SpotterProjectSupport.updateSpotterConfig(duplicatedProject);
 		} catch (Exception e) {
