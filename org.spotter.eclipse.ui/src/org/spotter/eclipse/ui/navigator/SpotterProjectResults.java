@@ -117,6 +117,9 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		return getProject().getName().hashCode();
 	}
 
+	/**
+	 * Recreates the children nodes.
+	 */
 	public void refreshChildren() {
 		children = initializeChildren(getProject());
 	}
@@ -133,7 +136,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 				return SpotterProjectParent.NO_CHILDREN;
 			}
 		}
-		
+
 		File res = new File(resDir.getLocation().toString());
 		List<File> runFolders = new ArrayList<>();
 		ISpotterProjectElement[] elements = SpotterProjectParent.NO_CHILDREN;

@@ -38,7 +38,7 @@ import org.spotter.eclipse.ui.editors.WorkloadEditor;
 import org.spotter.eclipse.ui.editors.WorkloadEditorInput;
 
 /**
- * A element factory to restore Spotter editor inputs.
+ * A element factory to restore DynamicSpotter editor inputs.
  * 
  * @author Denis Knoepfle
  * 
@@ -83,7 +83,7 @@ public class ElementFactory implements IElementFactory {
 		EditorInputFactory factory = FACTORY_MAP.get(editorId);
 
 		IAdaptable element = null;
-		
+
 		if (factory != null) {
 			try {
 				element = factory.createInstance(file);
@@ -93,7 +93,7 @@ public class ElementFactory implements IElementFactory {
 				MessageDialog.openWarning(null, DLG_TITLE, ERR_RESTORE_INPUT);
 			}
 		}
-		
+
 		return element;
 	}
 
@@ -120,11 +120,11 @@ public class ElementFactory implements IElementFactory {
 	 *            the resource file
 	 * @return the created editor input
 	 */
-	public static AbstractSpotterEditorInput createEditorInput(String editorId, IFile file) { 
+	public static AbstractSpotterEditorInput createEditorInput(String editorId, IFile file) {
 		EditorInputFactory factory = FACTORY_MAP.get(editorId);
 		if (factory != null) {
-			return factory.createInstance(file); }
-		else {
+			return factory.createInstance(file);
+		} else {
 			return null;
 		}
 	}

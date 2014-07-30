@@ -21,9 +21,10 @@ import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 /**
  * Abstract base class to represent a property.
  * <p>
- * This container holds an underlying model and the <code>ConfigParameterDescription</code> that
- * provides information about how the property might be changed. Concrete property items must
- * implement the value access/modify methods.
+ * This container holds an underlying model and the
+ * <code>ConfigParameterDescription</code> that provides information about how
+ * the property might be changed. Concrete property items must implement the
+ * value access/modify methods.
  * </p>
  * 
  * @author Denis Knoepfle
@@ -59,6 +60,15 @@ public abstract class AbstractPropertyItem {
 		}
 		AbstractPropertyItem o = (AbstractPropertyItem) obj;
 		return modelWrapper == o.modelWrapper && confParamDesc == o.confParamDesc;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((confParamDesc == null) ? 0 : confParamDesc.hashCode());
+		result = prime * result + ((modelWrapper == null) ? 0 : modelWrapper.hashCode());
+		return result;
 	}
 
 	/**

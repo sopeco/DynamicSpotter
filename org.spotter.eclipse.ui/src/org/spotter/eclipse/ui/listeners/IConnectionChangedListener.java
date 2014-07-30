@@ -23,6 +23,13 @@ package org.spotter.eclipse.ui.listeners;
  */
 public interface IConnectionChangedListener {
 
-	public void connectionChanged(boolean connectionOk);
+	/**
+	 * Called when the connection changed.
+	 * 
+	 * @param connectionOk
+	 *            <code>true</code> when the connection is okay,
+	 *            <code>false</code> otherwise
+	 */
+	void connectionChanged(boolean connectionOk);
 
 }

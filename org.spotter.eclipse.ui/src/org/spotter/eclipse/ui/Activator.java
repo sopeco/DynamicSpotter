@@ -18,7 +18,6 @@ package org.spotter.eclipse.ui;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -27,19 +26,25 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.lpe.common.config.GlobalConfiguration;
 import org.osgi.framework.BundleContext;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 
 /**
- * The activator class controls the plug-in life cycle.
+ * The activator class controls the plug-in life cycle. It also offers easy
+ * access to the DynamicSpotter Project Navigator and some of its important
+ * content. Every time a new input is set by the workbench the reference to the
+ * viewer will be updated here by the NavigatorContentProvider.
+ * 
+ * @see org.spotter.eclipse.ui.providers.NavigatorContentProvider
  * 
  * @author Denis Knoepfle
  * 
  */
 public class Activator extends AbstractUIPlugin {
 
-	// The plug-in ID
+	/**
+	 * The plug-in ID.
+	 */
 	public static final String PLUGIN_ID = "org.spotter.eclipse.ui"; //$NON-NLS-1$
 
 	// The shared instance
@@ -68,13 +73,15 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 		imageRegistry = plugin.getImageRegistry();
-		Properties properties = new Properties();
-		properties.setProperty("org.lpe.common.extension.appRootDir", "none");
-		GlobalConfiguration.initialize(properties);
+		// Properties properties = new Properties();
+		// properties.setProperty("org.lpe.common.extension.appRootDir",
+		// "none");
+		// GlobalConfiguration.initialize(properties);
 	}
 
 	/*
@@ -84,8 +91,10 @@ public class Activator extends AbstractUIPlugin {
 	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
+		imageRegistry = null;
 		super.stop(context);
 	}
 
@@ -191,7 +200,7 @@ public class Activator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the image resource defined by the image path. All images will be
-	 * cached and disposed at the end of the plugin's life-cycle.
+	 * cached and disposed at the end of the plug-in's life-cycle.
 	 * 
 	 * @param imagePath
 	 *            Path to the image

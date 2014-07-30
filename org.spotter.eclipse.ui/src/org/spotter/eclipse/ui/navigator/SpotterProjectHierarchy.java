@@ -33,20 +33,28 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 public class SpotterProjectHierarchy implements IOpenableProjectElement {
 
 	public static final String IMAGE_PATH = "icons/hierarchy.gif"; //$NON-NLS-1$
-	
+
 	private static final String ELEMENT_NAME = "Hierarchy";
 
 	private ISpotterProjectElement parent;
 	private Image image;
 
+	/**
+	 * Create the hierarchy node.
+	 * 
+	 * @param parent
+	 *            The parent of this node
+	 */
 	public SpotterProjectHierarchy(ISpotterProjectElement parent) {
 		this.parent = parent;
 	}
 
+	@Override
 	public String getText() {
 		return ELEMENT_NAME;
 	}
 
+	@Override
 	public Image getImage() {
 		if (image == null) {
 			image = Activator.getImage(IMAGE_PATH);
@@ -55,6 +63,7 @@ public class SpotterProjectHierarchy implements IOpenableProjectElement {
 		return image;
 	}
 
+	@Override
 	public ISpotterProjectElement[] getChildren() {
 		return SpotterProjectParent.NO_CHILDREN;
 	}

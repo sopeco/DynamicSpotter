@@ -47,13 +47,13 @@ import org.spotter.shared.status.DiagnosisStatus;
 
 /**
  * The {@link AbstractDetectionController} comprises common functionality of all
- * detection controller classes, like initialization, result persistance, etc.
+ * detection controller classes, like initialization, result persistence, etc.
  * 
  * @author Alexander Wert
  * 
  */
 public abstract class AbstractDetectionController extends AbstractExtensionArtifact implements IDetectionController {
-	private static final double EPSELON = 0.5;
+	private static final double EPSILON = 0.5;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectionController.class);
 
@@ -184,11 +184,11 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 			// if we have the same number of maximum and minimum users, then we
 			// have only one experiment run
-			if (dStep <= 0.0 + EPSELON) {
+			if (dStep <= 0.0 + EPSILON) {
 				runExperiment(detectionControllerClass, MIN_NUM_USERS);
 			} else {
 
-				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSELON); dUsers += dStep) {
+				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSILON); dUsers += dStep) {
 					int numUsers = new Double(dUsers).intValue();
 					runExperiment(detectionControllerClass, numUsers);
 				}

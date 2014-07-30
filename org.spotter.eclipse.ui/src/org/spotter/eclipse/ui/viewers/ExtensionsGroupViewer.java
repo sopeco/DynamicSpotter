@@ -88,7 +88,8 @@ public class ExtensionsGroupViewer {
 			| SWT.V_SCROLL;
 
 	private static final String NO_SERVICE_CONNECTION = "No connection to Spotter Service";
-	private static final String NO_EXTENSIONS = "No exension in the category was found. Ensure that you have placed the extension jar in the configuration directory PATH/TO/CONFIGURATION/DIRECTORY.";
+	private static final String NO_EXTENSIONS = "No exension in the category was found. Ensure that "
+			+ "you have placed the extension jar in the correct directory PATH/TO/PLUGINS.";
 
 	private final AbstractExtensionsEditor editor;
 	private final boolean isHierarchical;
@@ -162,7 +163,28 @@ public class ExtensionsGroupViewer {
 		viewerControl.setFocus();
 	}
 
+	/**
+	 * Create a table viewer under the given parent. Initializes the viewer with
+	 * the given input. Uses SpotterExtensionsContentProvider as content
+	 * provider and SpotterExtensionsLabelProvider as label provider.
+	 * 
+	 * @param parent
+	 *            The parent composite. Must not be <code>null</code>.
+	 * @param input
+	 *            The input of the viewer. Must not be <code>null</code>.
+	 * 
+	 * @return the created table viewer
+	 * 
+	 * @see SpotterExtensionsContentProvider
+	 * @see SpotterExtensionsLabelProvider
+	 */
 	public static TableViewer createTableViewer(Composite parent, ExtensionItem input) {
+		if (parent == null) {
+			throw new IllegalArgumentException("parent must not be null");
+		}
+		if (input == null) {
+			throw new IllegalArgumentException("parent must not be null");
+		}
 		// configure table layout
 		Composite tblExtensionsComp = new Composite(parent, SWT.NONE);
 		tblExtensionsComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -184,7 +206,28 @@ public class ExtensionsGroupViewer {
 		return tableViewer;
 	}
 
+	/**
+	 * Create a tree viewer under the given parent. Initializes the viewer with
+	 * the given input. Uses SpotterExtensionsContentProvider as content
+	 * provider and SpotterExtensionsLabelProvider as label provider.
+	 * 
+	 * @param parent
+	 *            The parent composite. Must not be <code>null</code>.
+	 * @param input
+	 *            The input of the viewer. Must not be <code>null</code>.
+	 * 
+	 * @return the created table viewer
+	 * 
+	 * @see SpotterExtensionsContentProvider
+	 * @see SpotterExtensionsLabelProvider
+	 */
 	public static TreeViewer createTreeViewer(Composite parent, ExtensionItem input) {
+		if (parent == null) {
+			throw new IllegalArgumentException("parent must not be null");
+		}
+		if (input == null) {
+			throw new IllegalArgumentException("parent must not be null");
+		}
 		// configure tree layout
 		Composite treeExtensionsComp = new Composite(parent, SWT.NONE);
 		treeExtensionsComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -280,8 +323,8 @@ public class ExtensionsGroupViewer {
 			return;
 		}
 
-		// TODO: refactor AddExtensionsDialog later to reuse shared parts of
-		// AddConfigParamDialog and remove SimpleExtensionsRenderer
+		// TODO: refactor AddExtensionsDialog to reuse shared parts of
+		// AddConfigParamDialog
 		AddExtensionDialog dialog = new AddExtensionDialog(shell, extensions);
 
 		if (dialog.open() == Window.OK) {

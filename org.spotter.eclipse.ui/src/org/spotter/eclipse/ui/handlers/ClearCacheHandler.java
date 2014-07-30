@@ -44,10 +44,9 @@ public class ClearCacheHandler extends AbstractHandler {
 			activator.getClient(projectName).clearCache();
 		}
 
-		DialogUtils.openInformation("This feature is not fully implemented yet and only "
-				+ "clears the extensions cache without checking if any open "
-				+ "editors/views are still in a valid state in case the extensions have "
-				+ "changed on the server side.");
+		DialogUtils.openInformation("Cleared the data cache! Be aware that already "
+				+ "configured extensions may get into an invalid state in case the "
+				+ "extensions change on the server side.");
 
 		return null;
 	}

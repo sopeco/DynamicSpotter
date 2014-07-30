@@ -8,3 +8,4 @@
 /src/META-INF/MANIFEST.MF
 /target
 dependency-reduced-pom.xml
+/plugins

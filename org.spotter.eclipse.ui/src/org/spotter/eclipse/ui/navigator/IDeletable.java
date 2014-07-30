@@ -27,7 +27,7 @@ public interface IDeletable {
 	/**
 	 * Deletes this element.
 	 */
-	public void delete();
+	void delete();
 
 	/**
 	 * Returns the name of this element type that should be used within the
@@ -35,6 +35,6 @@ public interface IDeletable {
 	 * 
 	 * @return The name of this element type
 	 */
-	public String getElementTypeName();
+	String getElementTypeName();
 
 }

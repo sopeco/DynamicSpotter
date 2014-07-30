@@ -273,6 +273,16 @@
             id="org.spotter.eclipse.ui.commands.serviceClientSettings"
             name="Service Client Settings">
       </command>
+      <command
+            defaultHandler="org.spotter.eclipse.ui.handlers.ExpertViewHandler"
+            description="Enables or disables additional and enhanced features"
+            id="org.spotter.eclipse.ui.commands.expertView"
+            name="Expert View">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -381,6 +391,20 @@
                label="Service Client Settings"
                style="push"
                tooltip="Open DynamicSpotter Service Client Settings">
+         </command>
+         <separator
+               name="org.spotter.eclipse.ui.navigator.separator4"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.spotter.eclipse.ui.commands.expertView"
+               icon="icons/expert-view.png"
+               label="Expert View"
+               style="toggle"
+               tooltip="Enables or disables additional and enhanced features">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
          </command>
       </menuContribution>
    </extension>

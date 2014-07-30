@@ -24,10 +24,10 @@ package org.spotter.eclipse.ui.listeners;
 public interface IItemPropertiesChangedListener {
 
 	/**
-	 * Called when the properties have changed. This can mean that properties might have been
-	 * removed or changed or that new ones have been added.
+	 * Called when the properties have changed. This can mean that properties
+	 * might have been removed or changed or that new ones have been added.
 	 */
-	public void propertiesChanged();
+	void propertiesChanged();
 
 	/**
 	 * Called when a property item has been removed.
@@ -35,7 +35,7 @@ public interface IItemPropertiesChangedListener {
 	 * @param propertyItem
 	 *            the property item that has been removed
 	 */
-	public void itemPropertyRemoved(Object propertyItem);
+	void itemPropertyRemoved(Object propertyItem);
 
 	/**
 	 * Called when a property of an item has changed.
@@ -43,6 +43,6 @@ public interface IItemPropertiesChangedListener {
 	 * @param propertyItem
 	 *            the changed property item
 	 */
-	public void itemPropertyChanged(Object propertyItem);
+	void itemPropertyChanged(Object propertyItem);
 
 }

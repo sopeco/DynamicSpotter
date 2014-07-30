@@ -56,19 +56,24 @@ import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
- * This viewer is ready-to-use and views a properties group containing a table and some controls to
- * edit the properties.
+ * This viewer is ready-to-use and views a properties group containing a table
+ * and some controls to edit the properties.
  * <p>
- * The viewer looks best if placed within a composite with a <code>FillLayout</code> or similar in
- * order to use all the available space. The viewer's content provider expects input of type
- * {@link ExtensionItem}. The input model can be updated via
- * {@link #updateProperties(ExtensionItem)}.
+ * The viewer looks best if placed within a composite with a
+ * <code>FillLayout</code> or similar in order to use all the available space.
+ * The viewer's content provider expects input of type {@link ExtensionItem}.
+ * The input model can be updated via {@link #updateProperties(ExtensionItem)}.
  * </p>
  * 
  * @author Denis Knoepfle
  * 
  */
 public class PropertiesGroupViewer {
+
+	private static final int TABLE_COLUMN_NAME_WEIGHT = 40;
+	private static final int TABLE_COLUMN_VALUE_WEIGHT = 60;
+	private static final int GRP_PROPERTIES_COLUMNS = 3;
+	private static final int TABLE_COMPOSITE_HOR_SPAN = 4;
 
 	private final AbstractSpotterEditor editor;
 	private ExtensionItem inputModel;
@@ -142,11 +147,11 @@ public class PropertiesGroupViewer {
 	private void createPropertiesGroup(Composite container) {
 		Group grpProperties = new Group(container, SWT.NONE);
 		grpProperties.setText("properties");
-		grpProperties.setLayout(WidgetUtils.createGridLayout(3));
+		grpProperties.setLayout(WidgetUtils.createGridLayout(GRP_PROPERTIES_COLUMNS));
 
 		// configure table layout
 		Composite tblPropertiesComp = new Composite(grpProperties, SWT.NONE);
-		tblPropertiesComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
+		tblPropertiesComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, TABLE_COMPOSITE_HOR_SPAN, 1));
 		TableColumnLayout tableColLayout = new TableColumnLayout();
 		tblPropertiesComp.setLayout(tableColLayout);
 		// create table
@@ -159,10 +164,10 @@ public class PropertiesGroupViewer {
 		ColumnViewerToolTipSupport.enableFor(propertiesTblViewer, ToolTip.NO_RECREATE);
 		TableViewerColumn nameColumn = new TableViewerColumn(propertiesTblViewer, SWT.NONE);
 		nameColumn.getColumn().setText("name");
-		tableColLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(40));
+		tableColLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(TABLE_COLUMN_NAME_WEIGHT));
 		TableViewerColumn valueColumn = new TableViewerColumn(propertiesTblViewer, SWT.NONE);
 		valueColumn.getColumn().setText("value");
-		tableColLayout.setColumnData(valueColumn.getColumn(), new ColumnWeightData(60));
+		tableColLayout.setColumnData(valueColumn.getColumn(), new ColumnWeightData(TABLE_COLUMN_VALUE_WEIGHT));
 		editingSupport = new PropertiesEditingSupport(valueColumn.getViewer(), editor, this);
 		valueColumn.setEditingSupport(editingSupport);
 		propertiesTblViewer.setContentProvider(new PropertiesContentProvider());

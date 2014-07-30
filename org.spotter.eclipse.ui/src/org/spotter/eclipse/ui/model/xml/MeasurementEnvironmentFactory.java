@@ -27,6 +27,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.shared.environment.model.ObjectFactory;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
@@ -66,11 +67,11 @@ public final class MeasurementEnvironmentFactory {
 	 *            specifies the name of the XML file containing the measurement
 	 *            environment description
 	 * @return the <code>XMeasurementEnvironment</code> object
-	 * @throws IllegalArgumentException
+	 * @throws UICoreException
 	 *             when either file could not be found or when there was an
 	 *             error parsing the file
 	 */
-	public XMeasurementEnvironment parseXMLFile(String fileName) throws IllegalArgumentException {
+	public XMeasurementEnvironment parseXMLFile(String fileName) throws UICoreException {
 		try {
 			FileReader fileReader = new FileReader(fileName);
 			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
@@ -83,11 +84,11 @@ public final class MeasurementEnvironmentFactory {
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file '" + fileName + "'!";
 			LOGGER.error(msg + ", " + e.getMessage());
-			throw new IllegalArgumentException(msg, e);
+			throw new UICoreException(msg, e);
 		} catch (JAXBException e) {
 			String msg = "Failed parsing measurement environment description file '" + fileName + "'";
 			LOGGER.error(msg + ", " + e.getMessage());
-			throw new IllegalArgumentException(msg, e);
+			throw new UICoreException(msg, e);
 		}
 	}
 

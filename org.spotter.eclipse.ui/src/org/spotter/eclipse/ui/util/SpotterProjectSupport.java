@@ -59,17 +59,20 @@ import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
- * An utility class to support project management for Spotter projects.
+ * An utility class to support project management for DynamicSpotter projects.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectSupport {
+public final class SpotterProjectSupport {
 
 	public static final String DEFAULT_RESULTS_DIR_NAME = "results";
 	public static final String SPOTTER_CONFIG_FILENAME = "spotter.conf";
 	public static final String ENVIRONMENT_FILENAME = "mEnv.xml";
 	public static final String HIERARCHY_FILENAME = "hierarchy.xml";
+
+	private static final boolean DEFAULT_EXPERT_VIEW_ENABLED = false;
+	private static final String KEY_EXPERT_VIEW_ENABLED = "spotter.expertview.enabled";
 
 	private static final String TITLE_ERR_DIALOG = "Spotter Project";
 	private static final String ERR_GET_SPOTTER_CONFIG_PARAMS = "Error occured while getting DynamicSpotter configuration parameters";
@@ -90,6 +93,9 @@ public class SpotterProjectSupport {
 	// contains all project specific constant parameters
 	private static final String[] ALL_KEYS = { ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE,
 			ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, ConfigKeys.RESULT_DIR };
+
+	private SpotterProjectSupport() {
+	}
 
 	/**
 	 * Create a new Spotter project.
@@ -281,19 +287,19 @@ public class SpotterProjectSupport {
 	}
 
 	/**
-	 * Retrieves the Spotter configuration from file or creates default one. If
-	 * the file does not exist a default properties object will be used instead.
-	 * Removes general properties from the loaded properties. This method always
-	 * returns a well initialized <code>Properties</code> object.
+	 * Retrieves the DynamicSpotter configuration from file or creates default
+	 * one. If the file does not exist a default properties object will be used
+	 * instead. Removes general properties from the loaded properties. This
+	 * method always returns a well initialized <code>Properties</code> object.
 	 * 
 	 * @param file
 	 *            the source file
 	 * @return the filtered properties loaded from file or a new
-	 *         <code>Properties</code> object initialized with default Spotter
-	 *         properties on failure
+	 *         <code>Properties</code> object initialized with default
+	 *         DynamicSpotter properties on failure
 	 * @throws UICoreException
 	 *             when an error occurred during the lookup or creation of the
-	 *             Spotter Config
+	 *             DynamicSpotter Config
 	 */
 	public static Properties getSpotterConfig(IFile file) throws UICoreException {
 		Properties properties = loadPropertiesFile(file);
@@ -308,11 +314,11 @@ public class SpotterProjectSupport {
 	}
 
 	/**
-	 * Create general Spotter properties for the given project.
+	 * Create general DynamicSpotter properties for the given project.
 	 * 
 	 * @param project
 	 *            the project the properties should be set for
-	 * @return the general Spotter properties for the given project
+	 * @return the general DynamicSpotter properties for the given project
 	 */
 	public static Properties createGeneralSpotterProperties(IProject project) {
 		IPath projectPath = project.getLocation();
@@ -328,13 +334,13 @@ public class SpotterProjectSupport {
 	}
 
 	/**
-	 * Creates default Spotter properties.
+	 * Creates default DynyamicSpotter properties.
 	 * 
 	 * @param projectName
 	 *            The name of the project the properties are retrieved for
-	 * @return default Spotter properties
+	 * @return default DynamicSpotter properties
 	 * @throws UICoreException
-	 *             when default spotter properties could not be created
+	 *             when default DynamicSpotter properties could not be created
 	 */
 	public static Properties createDefaultSpotterProperties(String projectName) throws UICoreException {
 		Properties properties = new Properties();
@@ -381,6 +387,50 @@ public class SpotterProjectSupport {
 	public static Preferences getProjectPreferences(String projectName) {
 		IEclipsePreferences pluginPrefsRoot = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 		return pluginPrefsRoot.node(projectName);
+	}
+
+	/**
+	 * Returns <code>true</code> if for the given project the expert view is
+	 * currently enabled.
+	 * 
+	 * @param projectName
+	 *            The name of the project
+	 * @return <code>true</code> if enabled, otherwise <code>false</code>
+	 */
+	public static boolean isExpertViewEnabled(String projectName) {
+		Preferences prefs = getProjectPreferences(projectName);
+		boolean value = prefs.getBoolean(KEY_EXPERT_VIEW_ENABLED, DEFAULT_EXPERT_VIEW_ENABLED);
+
+		return value;
+	}
+
+	/**
+	 * Set the expert view enabled state for the given project and tries to save
+	 * the settings.
+	 * 
+	 * @param projectName
+	 *            The name of the project
+	 * @param enabled
+	 *            <code>true</code> for enabled, otherwise <code>false</code>
+	 * @return <code>true</code> on success, otherwise <code>false</code>
+	 */
+	public static boolean setExpertModeEnabled(String projectName, boolean enabled) {
+		Preferences prefs = getProjectPreferences(projectName);
+		boolean oldValue = isExpertViewEnabled(projectName);
+
+		prefs.putBoolean(KEY_EXPERT_VIEW_ENABLED, enabled);
+		// force save
+		try {
+			prefs.flush();
+			return true;
+		} catch (BackingStoreException e) {
+			LOGGER.error("Saving expert mode enabled state failed. Cause: {}", e);
+			// restore old value
+			prefs.putBoolean(KEY_EXPERT_VIEW_ENABLED, oldValue);
+
+			DialogUtils.openWarning("Could not change the expert mode due to an error!");
+			return false;
+		}
 	}
 
 	/**

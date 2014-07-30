@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.navigator.SpotterProjectHierarchy;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -49,7 +50,7 @@ public class HierarchyEditorInput extends AbstractSpotterEditorInput {
 
 		try {
 			rootProblem = factory.parseHierarchyFile(getPath().toString());
-		} catch (IllegalArgumentException e) {
+		} catch (UICoreException e) {
 			rootProblem = null;
 		}
 
