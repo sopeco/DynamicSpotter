@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * A project nature for Spotter projects.
+ * A project nature for DynamicSpotter projects.
  * 
  * @author Denis Knoepfle
  * 

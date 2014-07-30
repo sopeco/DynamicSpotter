@@ -16,8 +16,8 @@
 package org.spotter.eclipse.ui.navigator;
 
 /**
- * An extension interface for elements of the Spotter Project Navigator that can
- * be opened.
+ * An extension interface for elements of the DynamicSpotter Project Navigator
+ * that can be opened.
  * 
  * @author Denis Knoepfle
  * 
@@ -27,6 +27,6 @@ public interface IOpenableProjectElement extends ISpotterProjectElement {
 	/**
 	 * Opens this element in an appropriate view.
 	 */
-	public void open();
+	void open();
 
 }

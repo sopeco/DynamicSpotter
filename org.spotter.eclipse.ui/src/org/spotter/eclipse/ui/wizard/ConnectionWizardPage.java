@@ -35,6 +35,9 @@ public class ConnectionWizardPage extends WizardPage implements IConnectionChang
 
 	private ConnectionTestComposite connTestComposite;
 
+	/**
+	 * Create wizard page with a title and a description.
+	 */
 	public ConnectionWizardPage() {
 		super(TITLE);
 		setTitle(TITLE);
@@ -50,10 +53,20 @@ public class ConnectionWizardPage extends WizardPage implements IConnectionChang
 		setControl(connTestComposite.getControl());
 	}
 
+	/**
+	 * Returns the host.
+	 * 
+	 * @return The host
+	 */
 	public String getHost() {
 		return connTestComposite.getHost();
 	}
 
+	/**
+	 * Returns the port.
+	 * 
+	 * @return The port
+	 */
 	public String getPort() {
 		return connTestComposite.getPort();
 	}
@@ -64,6 +77,12 @@ public class ConnectionWizardPage extends WizardPage implements IConnectionChang
 		setPageComplete(connectionOk);
 	}
 
+	/**
+	 * Test the connection with the currently configured host and port. The test
+	 * will also force an update of the wizard buttons.
+	 * 
+	 * @return <code>true</code> on success, <code>false</code> otherwise
+	 */
 	public boolean testConnection() {
 		boolean connectionOk = connTestComposite.testConnection();
 

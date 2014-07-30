@@ -53,6 +53,8 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	 *            the parent element
 	 * @param elementName
 	 *            the name of the element
+	 * @param resultFolder
+	 *            the result folder that is represented by this node
 	 */
 	public SpotterProjectRunResult(ISpotterProjectElement parent, String elementName, IFolder resultFolder) {
 		this.parent = parent;

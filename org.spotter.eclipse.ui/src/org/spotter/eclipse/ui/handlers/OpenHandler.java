@@ -57,7 +57,10 @@ public class OpenHandler extends AbstractHandler {
 	}
 
 	/**
-	 * Only allow opening if just elements are selected that are openable.
+	 * Returns <code>true</code> if only elements are selected that are
+	 * openable.
+	 * 
+	 * @return <code>true</code> if only elements are selected that are openable
 	 */
 	@Override
 	public boolean isEnabled() {

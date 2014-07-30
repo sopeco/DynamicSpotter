@@ -27,6 +27,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.hierarchy.model.ObjectFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -70,11 +71,11 @@ public final class HierarchyFactory {
 	 *            specifies the name of the XML file containing the performance
 	 *            problem hierarchy
 	 * @return the <code>XPerformanceProblem</code> root object
-	 * @throws IllegalArgumentException
+	 * @throws UICoreException
 	 *             when either file could not be found or when there was an
 	 *             error parsing the file
 	 */
-	public XPerformanceProblem parseHierarchyFile(String fileName) throws IllegalArgumentException {
+	public XPerformanceProblem parseHierarchyFile(String fileName) throws UICoreException {
 		try {
 			FileReader fileReader = new FileReader(fileName);
 			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
@@ -88,11 +89,11 @@ public final class HierarchyFactory {
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file '" + fileName + "'!";
 			LOGGER.error(msg + ", " + e.getMessage());
-			throw new IllegalArgumentException(msg, e);
+			throw new UICoreException(msg, e);
 		} catch (JAXBException e) {
 			String msg = "Failed parsing performance problem hierarchy file '" + fileName + "'";
 			LOGGER.error(msg + ", " + e.getMessage());
-			throw new IllegalArgumentException(msg, e);
+			throw new UICoreException(msg, e);
 		}
 	}
 
@@ -111,7 +112,7 @@ public final class HierarchyFactory {
 		XPerformanceProblem root;
 		try {
 			root = parseHierarchyFile(DEFAULT_HIERARCHY_FILENAME);
-		} catch (IllegalArgumentException e) {
+		} catch (UICoreException e) {
 			String msg = "Could not load the default hierarchy file '" + file.getAbsolutePath()
 					+ "', using empty hierarchy instead! Cause: " + e.getMessage();
 			LOGGER.warn(msg);

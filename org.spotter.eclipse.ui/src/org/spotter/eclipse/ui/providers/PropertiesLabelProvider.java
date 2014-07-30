@@ -34,12 +34,21 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
  */
 public class PropertiesLabelProvider extends CellLabelProvider {
 
+	private static final int TOOLTIP_DISPLAY_TIME = 3000;
+	private static final int TOOLTIP_DISPLAY_DELAY_TIME = 500;
+
 	private static final FontRegistry FONT_REGISTRY = new FontRegistry();
 	private static final Font NORMAL_FONT = FONT_REGISTRY.get(JFaceResources.DEFAULT_FONT);
 	private static final Font ITALIC_FONT = FONT_REGISTRY.getItalic(JFaceResources.DEFAULT_FONT);
 
 	private final PropertiesGroupViewer propertiesGroupViewer;
 
+	/**
+	 * Create a new label provider for the given properties viewer.
+	 * 
+	 * @param propertiesGroupViewer
+	 *            The properties viewer
+	 */
 	public PropertiesLabelProvider(PropertiesGroupViewer propertiesGroupViewer) {
 		super();
 		this.propertiesGroupViewer = propertiesGroupViewer;
@@ -61,12 +70,12 @@ public class PropertiesLabelProvider extends CellLabelProvider {
 
 	@Override
 	public int getToolTipTimeDisplayed(Object object) {
-		return 3000;
+		return TOOLTIP_DISPLAY_TIME;
 	}
 
 	@Override
 	public int getToolTipDisplayDelayTime(Object object) {
-		return 500;
+		return TOOLTIP_DISPLAY_DELAY_TIME;
 	}
 
 	@Override

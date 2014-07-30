@@ -34,12 +34,12 @@ public interface IModelWrapper {
 	 * The host configuration key.
 	 */
 	String HOST_KEY = ConfigKeys.SATELLITE_HOST_KEY;
-	
+
 	/**
 	 * The port configuration key.
 	 */
 	String PORT_KEY = ConfigKeys.SATELLITE_PORT_KEY;
-	
+
 	/**
 	 * The name configuration key.
 	 */
@@ -61,7 +61,7 @@ public interface IModelWrapper {
 	List<XMConfiguration> getConfig();
 
 	/**
-	 * Sets the XMConfigList of the underlying XML model object
+	 * Sets the XMConfigList of the underlying XML model object.
 	 * 
 	 * @param config
 	 *            the XMConfigList

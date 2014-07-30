@@ -52,10 +52,8 @@ public class EditorInputFactory {
 	 * @param file
 	 *            the file resource
 	 * @return a new instance of this editor input
-	 * @throws IllegalArgumentException
-	 *             when input cannot be created from the given file
 	 */
-	public AbstractSpotterEditorInput createInstance(IFile file) throws IllegalArgumentException {
+	public AbstractSpotterEditorInput createInstance(IFile file) {
 		AbstractSpotterEditorInput input = null;
 
 		Constructor<?>[] allConstructors = editorInputClazz.getDeclaredConstructors();
@@ -65,7 +63,7 @@ public class EditorInputFactory {
 				try {
 					input = (AbstractSpotterEditorInput) constructor.newInstance(file);
 				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-					throw new IllegalArgumentException(ERR_CALL_CONSTRUCTOR, e);
+					throw new RuntimeException(ERR_CALL_CONSTRUCTOR, e);
 				}
 				break;
 			}

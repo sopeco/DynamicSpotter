@@ -66,6 +66,8 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 	/**
 	 * Only allow deletion if just elements are selected that are deletable.
+	 * 
+	 * @return <code>true</code> if only deletable elements are selected
 	 */
 	@Override
 	public boolean isEnabled() {
