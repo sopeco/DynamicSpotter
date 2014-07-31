@@ -218,4 +218,14 @@ public class SpotterServiceTest {
 		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
 		Assert.assertEquals(true, rb.getPayload().booleanValue());
 	}
+	
+	/**
+	 * Tests the {@link SpotterService#testConnectionToSattelite(String, String, String)} method.
+	 */
+	@Test
+	public void testTestConnectionToSattelite() {
+		SpotterServiceResponse<Boolean> rb = ss.testConnectionToSattelite("DummyWorkload", null, null);
+		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
+		Assert.assertEquals(true, rb.getPayload().booleanValue());
+	}
 }
