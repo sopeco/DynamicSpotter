@@ -52,22 +52,24 @@ import org.spotter.eclipse.ui.UICoreException;
 public abstract class AbstractSpotterEditor extends EditorPart {
 
 	/**
-	 * Title for general error dialogs
+	 * Title for general error dialogs.
 	 */
 	protected static final String TITLE_ERR_DIALOG = "Editor Error";
 	/**
-	 * Error message for failure when saving
+	 * Error message for failure when saving.
 	 */
 	protected static final String ERR_MSG_SAVE = "Could not save file!\n\nReason: ";
 	/**
-	 * Error message for failing to initialize editor
+	 * Error message for failing to initialize editor.
 	 */
 	protected static final String ERR_MSG_INIT = "Could not initialize editor with configuration data.";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSpotterEditor.class);
 	private static final String ERR_MSG_INPUT_INVALID = "Invalid input: The editor's input is corrupted or the linked file does not exist.";
 	private static final String MSG_CREATE_NEW = "The required file '%s' for project '%s' could not be found. Do you want to create a new file instead?";
-	private static final String MSG_REPAIR_CORRUPTED = "The file '%s' of project '%s' is corrupted or not applicable for this editor type. Do you want to create a new file instead?\n\nWarning: This may cause loss of data! You should manually backup any important data before you continue.";
+	private static final String MSG_REPAIR_CORRUPTED = "The file '%s' of project '%s' is corrupted or not applicable for "
+			+ "this editor type. Do you want to create a new file instead?\n\nWarning: This may cause "
+			+ "loss of data! You should manually backup any important data before you continue.";
 	private static final String ERR_MSG_MAKE_APPLICABLE_FAILED = "It was not possible to create an applicable editor input for this editor!";
 	private static final String TITLE_INPUT_INVALID = "Input invalid";
 
@@ -84,11 +86,11 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * @param project
 	 *            the resource file
 	 * @return an editor input for this editor
-	 * @throws IllegalArgumentException
+	 * @throws UICoreException
 	 *             when the editor input with the given file could not be
 	 *             created
 	 */
-	protected abstract AbstractSpotterEditorInput createEditorInput(IFile file) throws IllegalArgumentException;
+	protected abstract AbstractSpotterEditorInput createEditorInput(IFile file) throws UICoreException;
 
 	/**
 	 * Implementing editors should check whether the given input is readable and
@@ -121,7 +123,11 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 			spotterInput = (AbstractSpotterEditorInput) input;
 		} else if (input instanceof FileEditorInput) {
 			FileEditorInput fileInput = (FileEditorInput) input;
-			spotterInput = createEditorInput(fileInput.getFile());
+			try {
+				spotterInput = createEditorInput(fileInput.getFile());
+			} catch (UICoreException e) {
+				spotterInput = null;
+			}
 			input = spotterInput;
 		} else {
 			throw new PartInitException("Invalid input type: '" + input.getClass().getName() + "' not understood.");
@@ -131,7 +137,6 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 			throw new PartInitException(ERR_MSG_INPUT_INVALID);
 		}
 
-		spotterInput.getProject();
 		setSite(site);
 		setInput(input);
 	}
@@ -147,8 +152,12 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * This implementation resets the dirty flag including firing an according
 	 * property change event and calling the monitor's <code>done()</code>
 	 * method. Implementing editors should override this method to properly save
-	 * their input but may call the super method for convenience reasons.
+	 * their input but are advised to call this super method at the end to
+	 * properly reflect changes.
 	 * </p>
+	 * 
+	 * @param monitor
+	 *            the monitor used to give progress feedback
 	 */
 	@Override
 	public void doSave(IProgressMonitor monitor) {
