@@ -56,7 +56,7 @@ public class SpotterServiceTest {
 	@BeforeClass
 	public static void initialize() throws IOException {
 		ss = new SpotterService();
-		creeateTempDir();
+		createTempDir();
 		initGlobalConfigs(tempDir.getAbsolutePath());
 		testIsRunningBefore();
 	}
@@ -154,7 +154,7 @@ public class SpotterServiceTest {
 		}
 	}
 	
-	private static void creeateTempDir() throws IOException {
+	private static void createTempDir() throws IOException {
 		tempDir = new File("tempJUnit");
 		if (tempDir.exists()) {
 			LpeFileUtils.removeDir(tempDir.getAbsolutePath());
