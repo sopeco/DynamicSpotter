@@ -35,7 +35,7 @@ public class WorkloadEditorInput extends AbstractSpotterEditorInput {
 
 	private static final String NAME = "Workload Satellite Adapter";
 	private static final String IMAGE_PATH = SpotterProjectConfigWorkload.IMAGE_PATH;
-	
+
 	private List<XMeasurementEnvObject> workloadAdapters;
 
 	/**
@@ -43,10 +43,8 @@ public class WorkloadEditorInput extends AbstractSpotterEditorInput {
 	 * 
 	 * @param file
 	 *            the associated file.
-	 * @throws IllegalArgumentException
-	 *             when there's a problem creating the input from the given file
 	 */
-	public WorkloadEditorInput(IFile file) throws IllegalArgumentException {
+	public WorkloadEditorInput(IFile file) {
 		super(file);
 		MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
 		XMeasurementEnvironment measurementEnv;

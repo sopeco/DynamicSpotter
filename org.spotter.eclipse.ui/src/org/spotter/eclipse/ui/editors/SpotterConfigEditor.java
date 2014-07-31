@@ -31,12 +31,13 @@ import org.spotter.eclipse.ui.editors.factory.ElementFactory;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.model.xml.SpotterConfigModelWrapper;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
- * An editor to edit Spotter properties.
+ * An editor to edit DynamicSpotter configuration properties.
  * 
  * @author Denis Knoepfle
  * 
@@ -79,7 +80,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 
 			super.doSave(monitor);
 		} catch (Exception e) {
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
+			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
 		}
 	}
 
@@ -128,7 +129,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 			return null;
 		}
 
-		wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties, true);
+		wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties);
 		ExtensionItem inputModel = new ExtensionItem(wrapper);
 		inputModel.setIgnoreConnection(true);
 

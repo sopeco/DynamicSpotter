@@ -24,6 +24,8 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -31,6 +33,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -74,6 +77,46 @@ public class PropertiesGroupViewer {
 	private static final int TABLE_COLUMN_VALUE_WEIGHT = 60;
 	private static final int GRP_PROPERTIES_COLUMNS = 3;
 	private static final int TABLE_COMPOSITE_HOR_SPAN = 4;
+
+	private static class PropertiesComparator extends ViewerComparator {
+
+		private boolean mandatoriesFirst = false;
+
+		/**
+		 * Toggles the sort mode. This either enables or disables prioritizing
+		 * of mandatory-flagged properties.
+		 */
+		public void toggleSortMode() {
+			mandatoriesFirst = !mandatoriesFirst;
+		}
+
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			AbstractPropertyItem i1 = (AbstractPropertyItem) e1;
+			AbstractPropertyItem i2 = (AbstractPropertyItem) e2;
+
+			return mandatoriesFirst ? doCompare(i1, i2) : doCompareIgnoreMandatory(i1, i2);
+		}
+
+		private int doCompare(AbstractPropertyItem e1, AbstractPropertyItem e2) {
+			int mandatory1 = e1.getConfigParameterDescription().isMandatory() ? 0 : 1;
+			int mandatory2 = e2.getConfigParameterDescription().isMandatory() ? 0 : 1;
+
+			// places mandatory items before non-mandatory items
+			int diff = mandatory1 - mandatory2;
+
+			if (diff != 0) {
+				return diff;
+			} else {
+				return doCompareIgnoreMandatory(e1, e2);
+			}
+		}
+
+		private int doCompareIgnoreMandatory(AbstractPropertyItem e1, AbstractPropertyItem e2) {
+			return e1.getName().compareToIgnoreCase(e2.getName());
+		}
+
+	}
 
 	private final AbstractSpotterEditor editor;
 	private ExtensionItem inputModel;
@@ -165,6 +208,7 @@ public class PropertiesGroupViewer {
 		TableViewerColumn nameColumn = new TableViewerColumn(propertiesTblViewer, SWT.NONE);
 		nameColumn.getColumn().setText("name");
 		tableColLayout.setColumnData(nameColumn.getColumn(), new ColumnWeightData(TABLE_COLUMN_NAME_WEIGHT));
+
 		TableViewerColumn valueColumn = new TableViewerColumn(propertiesTblViewer, SWT.NONE);
 		valueColumn.getColumn().setText("value");
 		tableColLayout.setColumnData(valueColumn.getColumn(), new ColumnWeightData(TABLE_COLUMN_VALUE_WEIGHT));
@@ -172,6 +216,10 @@ public class PropertiesGroupViewer {
 		valueColumn.setEditingSupport(editingSupport);
 		propertiesTblViewer.setContentProvider(new PropertiesContentProvider());
 		propertiesTblViewer.setLabelProvider(new PropertiesLabelProvider(this));
+
+		PropertiesComparator comparator = new PropertiesComparator();
+		nameColumn.getColumn().addSelectionListener(createColumnSelectionAdapter(comparator));
+		propertiesTblViewer.setComparator(comparator);
 
 		Label lblDisplayName = new Label(grpProperties, SWT.LEFT);
 		lblDisplayName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
@@ -213,6 +261,17 @@ public class PropertiesGroupViewer {
 		btnAddProperty.setText("Add...");
 		btnAddProperty.setToolTipText("Opens a dialog to add more properties");
 		btnAddProperty.setEnabled(false);
+	}
+
+	private SelectionListener createColumnSelectionAdapter(final PropertiesComparator comparator) {
+		SelectionListener listener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				comparator.toggleSortMode();
+				propertiesTblViewer.refresh();
+			}
+		};
+		return listener;
 	}
 
 	private void addButtonListeners() {

@@ -44,7 +44,7 @@ public class InstrumentationEditorInput extends AbstractSpotterEditorInput {
 	 * @param file
 	 *            the associated file.
 	 */
-	public InstrumentationEditorInput(IFile file) throws IllegalArgumentException {
+	public InstrumentationEditorInput(IFile file) {
 		super(file);
 		MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
 		XMeasurementEnvironment measurementEnv;
