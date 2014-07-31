@@ -69,7 +69,7 @@ public class CustomDialogCellEditor extends CellEditor {
 	private static final int defaultStyle = SWT.NONE;
 
 	/**
-	 * Creates a new dialog cell editor with no control
+	 * Creates a new dialog cell editor with no control.
 	 */
 	public CustomDialogCellEditor() {
 		setStyle(defaultStyle);
@@ -102,7 +102,7 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Sets the corresponding configuration parameter description
+	 * Sets the corresponding configuration parameter description.
 	 * 
 	 * @param configParamDesc
 	 *            The configuration parameter description.
@@ -279,7 +279,7 @@ public class CustomDialogCellEditor extends CellEditor {
 			return;
 		}
 
-		String text = "";//$NON-NLS-1$
+		String text = ""; //$NON-NLS-1$
 		if (value != null) {
 			text = value.toString();
 		}

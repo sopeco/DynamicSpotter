@@ -16,7 +16,6 @@
 package org.spotter.eclipse.ui.providers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.viewers.AbstractTableViewer;
@@ -74,11 +73,8 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 		}
 		ExtensionItem tableItem = (ExtensionItem) inputElement;
 		IModelWrapper modelWrapper = tableItem.getModelWrapper();
-		List<AbstractPropertyItem> mandatoryConfigItems = new ArrayList<AbstractPropertyItem>();
-		List<AbstractPropertyItem> nonMandatoryConfigItems = new ArrayList<AbstractPropertyItem>();
+		List<AbstractPropertyItem> configItems = new ArrayList<>();
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
-
-		Collections.sort(xmConfigList);
 		
 		int size = xmConfigList == null ? 0 : xmConfigList.size();
 		Object[] result = new Object[size];
@@ -86,22 +82,12 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 		if (xmConfigList != null) {
 			for (XMConfiguration xmConfig : xmConfigList) {
 				ConfigParameterDescription desc = tableItem.getExtensionConfigParam(xmConfig.getKey());
-				AbstractPropertyItem configParam = new ConfigParamPropertyItem(modelWrapper, desc, xmConfig);
-				if (desc.isMandatory()) {
-					mandatoryConfigItems.add(configParam);
-				} else {
-					nonMandatoryConfigItems.add(configParam);
+				if (desc != null) {
+					configItems.add(new ConfigParamPropertyItem(modelWrapper, desc, xmConfig));
 				}
 			}
 
-			int index = 0;
-			Object[] configItems = mandatoryConfigItems.toArray();
-			System.arraycopy(configItems, 0, result, index, configItems.length);
-			index += configItems.length;
-
-			configItems = nonMandatoryConfigItems.toArray();
-			System.arraycopy(configItems, 0, result, index, configItems.length);
-			index += configItems.length;
+			result = configItems.toArray(result);
 		}
 
 		return result;
