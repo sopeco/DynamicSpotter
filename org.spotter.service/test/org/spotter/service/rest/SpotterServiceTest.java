@@ -15,14 +15,23 @@
  */
 package org.spotter.service.rest;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.extension.ExtensionRegistry;
+import org.lpe.common.extension.IExtension;
+import org.lpe.common.util.LpeFileUtils;
+import org.spotter.service.rest.dummy.DummyWorkloadExtension;
+import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.service.ResponseStatus;
 import org.spotter.shared.service.SpotterServiceResponse;
@@ -36,15 +45,30 @@ import org.spotter.shared.status.SpotterProgress;
 public class SpotterServiceTest {
 
 	private static SpotterService ss;
+
+	private static File tempDir;
 	
 	/**
 	 * Initializes the {@link SpotterService} and fetches the status at startup.
+	 * 
+	 * @throws IOException when creating temp dir fails
 	 */
 	@BeforeClass
-	public static void initialize() {
+	public static void initialize() throws IOException {
 		ss = new SpotterService();
-		
+		creeateTempDir();
+		initGlobalConfigs(tempDir.getAbsolutePath());
 		testIsRunningBefore();
+	}
+	
+	/**
+	 * Removes the temp dir.
+	 * 
+	 * @throws IOException removal of temp dir fails
+	 */
+	@AfterClass
+	public static void cleanUp() throws IOException {
+		LpeFileUtils.removeDir(tempDir.getAbsolutePath());
 	}
 	
 	/**
@@ -101,24 +125,70 @@ public class SpotterServiceTest {
 	
 	/**
 	 * Tests the {@link SpotterService#getAvailableExtensions(String)} method.
+	 * 
+	 * @throws IOException when temporar dir could not be created
 	 */
 	@Test
-	public void testGetAvailableExtensions() {
+	public void testGetAvailableExtensions() throws IOException {
+		registerExtension();
+		
+		SpotterServiceResponse<Set<String>> rss = ss.getAvailableExtensions("myextension");
+		Assert.assertEquals(ResponseStatus.SERVER_ERROR, rss.getStatus());
+		
 		for (SpotterExtensionType set : SpotterExtensionType.values()) {
-			SpotterServiceResponse<Set<String>> rss = ss.getAvailableExtensions(set.toString());
-			// no extension loaded when testing
-			Assert.assertEquals(ResponseStatus.SERVER_ERROR, rss.getStatus());
+			rss = ss.getAvailableExtensions(set.toString());
+			
+			// we have loaded a workload extension
+			if (set.equals(SpotterExtensionType.WORKLOAD_EXTENSION)) {
+				
+				Assert.assertEquals(ResponseStatus.OK, rss.getStatus());
+				Assert.assertEquals(1, rss.getPayload().size());
+				
+			} else {
+			
+				Assert.assertEquals(ResponseStatus.OK, rss.getStatus());
+				Assert.assertEquals(0, rss.getPayload().size());
+				
+			}
+			
 		}
 	}
 	
+	private static void creeateTempDir() throws IOException {
+		tempDir = new File("tempJUnit");
+		if (tempDir.exists()) {
+			LpeFileUtils.removeDir(tempDir.getAbsolutePath());
+		}
+		LpeFileUtils.createDir(tempDir.getAbsolutePath());
+	}
+	
+	private static void initGlobalConfigs(String baseDir) {
+		Properties properties = new Properties();
+		properties.setProperty("org.lpe.common.extension.appRootDir", "C:\\Users\\D061465\\git\\DynamicSpotter\\org.spotter.service");
+		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
+		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
+		properties.setProperty(ConfigKeys.EXPERIMENT_DURATION, "1");
+		properties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, "1");
+		properties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, "1");
+		properties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, "1");
+		properties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL, "1");
+		properties.setProperty(ConfigKeys.WORKLOAD_MAXUSERS, "10");
+		GlobalConfiguration.initialize(properties);
+	}
+	
+	private void registerExtension() {
+		IExtension<?> ext = new DummyWorkloadExtension();
+		ExtensionRegistry.getSingleton().addExtension(ext);
+	}
+
 	/**
 	 * Tests the {@link SpotterService#getExtensionConfigParamters(String)} method.
 	 */
 	@Test
 	public void testGetExtensionConfigParamters() {
-		SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("");
+		SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("DummyWorkload");
 		// not extension with the name loaded when testing
-		Assert.assertEquals(ResponseStatus.SERVER_ERROR, rscpd.getStatus());
+		Assert.assertEquals(ResponseStatus.OK, rscpd.getStatus());
 	}
 	
 	/**
