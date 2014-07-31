@@ -85,7 +85,8 @@ public class NumberValidator implements ICellEditorValidator {
 					break;
 				}
 			}
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
+			errorMsg += " Unable to parse the input.";
 		}
 		if (errorMsg != null && errorMsgBoundAppend != null) {
 			errorMsg = errorMsg + errorMsgBoundAppend;

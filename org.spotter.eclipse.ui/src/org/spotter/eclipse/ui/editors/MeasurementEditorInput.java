@@ -43,10 +43,8 @@ public class MeasurementEditorInput extends AbstractSpotterEditorInput {
 	 * 
 	 * @param file
 	 *            the associated file.
-	 * @throws IllegalArgumentException
-	 *             when there's a problem creating the input from the given file
 	 */
-	public MeasurementEditorInput(IFile file) throws IllegalArgumentException {
+	public MeasurementEditorInput(IFile file) {
 		super(file);
 		MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
 		XMeasurementEnvironment measurementEnv;
