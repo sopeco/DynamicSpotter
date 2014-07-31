@@ -25,6 +25,14 @@
 			<artifactId>org.spotter.shared</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.spotter</groupId>
+			<artifactId>org.spotter.service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 	
 	<build>
