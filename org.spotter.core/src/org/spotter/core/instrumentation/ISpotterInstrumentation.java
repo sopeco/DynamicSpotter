@@ -18,7 +18,7 @@ package org.spotter.core.instrumentation;
 import java.util.Properties;
 
 import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.instrumentation.description.InstrumentationDescription;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtensionArtifact;
 
 /**
