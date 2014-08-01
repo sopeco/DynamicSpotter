@@ -28,6 +28,7 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 import org.spotter.shared.hierarchy.model.ObjectFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -123,17 +124,20 @@ public final class HierarchyFactory {
 	}
 
 	/**
-	 * Creates an empty hierarchy.
+	 * Creates an empty hierarchy. The root node is set to be non-detectable.
 	 * 
-	 * @return The root of an empty hierarchy.
+	 * @return the root of an empty hierarchy
 	 */
 	private XPerformanceProblem createEmptyHierarchy() {
 		XPerformanceProblem problem = new XPerformanceProblem();
+		problem.setUniqueId(SpotterUtils.generateUniqueId());
 		problem.setConfig(new ArrayList<XMConfiguration>());
+
 		XMConfiguration xmConfig = new XMConfiguration();
 		xmConfig.setKey("org.spotter.detection.detectable");
 		xmConfig.setValue(Boolean.toString(false));
 		problem.getConfig().add(xmConfig);
+
 		return problem;
 	}
 
