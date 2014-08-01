@@ -85,7 +85,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	private ConfigParameterDescription createNameParameter() {
 		ConfigParameterDescription nameParameter = new ConfigParameterDescription(NAME_KEY, LpeSupportedTypes.String);
 		nameParameter.setMandatory(true);
-		nameParameter.setAset(false);
+		nameParameter.setIsASet(false);
 		nameParameter.setDefaultValue(getDefaultSatelleiteExtensionName());
 		nameParameter.setDescription("The name of this satellite adapter.");
 
@@ -95,7 +95,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	private ConfigParameterDescription createHostParameter() {
 		ConfigParameterDescription hostParameter = new ConfigParameterDescription(HOST_KEY, LpeSupportedTypes.String);
 		hostParameter.setMandatory(true);
-		hostParameter.setAset(false);
+		hostParameter.setIsASet(false);
 		hostParameter.setDefaultValue("localhost");
 		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. "
 				+ "This satellite adapter connects to the satellite on this host/ip.");
@@ -106,7 +106,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	private ConfigParameterDescription createPortParameter() {
 		ConfigParameterDescription portParameter = new ConfigParameterDescription(PORT_KEY, LpeSupportedTypes.Integer);
 		portParameter.setMandatory(true);
-		portParameter.setAset(false);
+		portParameter.setIsASet(false);
 		portParameter.setRange("0", "65535");
 		portParameter.setDefaultValue("8080");
 		portParameter.setDescription("The port the corresponding satellite is listening on. "
