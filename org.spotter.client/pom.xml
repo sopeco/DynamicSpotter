@@ -38,19 +38,47 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly/uber-jar.xml</descriptor>
-					</descriptors>
-				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.1</version>
 				<executions>
 					<execution>
-						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<outputFile>${project.build.directory}/${project.build.finalName}-shaded.jar</outputFile>
+							<filters></filters>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>org.spotter.runner.SpotterRunner</Main-Class>
+										<Build-Number>1</Build-Number>
+									</manifestEntries>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>plugins/extensions.info</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+								</transformer>
+							</transformers>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -64,7 +92,7 @@
                         <phase>install</phase>
                         <configuration>
                             <target name="copy and rename file">
-                                <copy file="${project.build.directory}/${project.build.finalName}-uberjar.jar" tofile="${basedir}/../org.spotter.eclipse.ui/lib/org.spotter.client.assembly.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}-shaded.jar" tofile="${basedir}/../org.spotter.eclipse.ui/lib/org.spotter.client.assembly.jar" />
                             </target>
                         </configuration>
                         <goals>

@@ -227,7 +227,7 @@ public final class ConfigKeys {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(DUMMY_EXPERIMENT_DATA,
 				LpeSupportedTypes.String);
 		parameter.setMandatory(false);
-		parameter.setDirectory(true);
+		parameter.setADirectory(true);
 		parameter.setDefaultValue("");
 		parameter.setDescription("If experiments should be omitted, this parameter specified "
 				+ "the path to the experiment data which should be used for analysis instead. "

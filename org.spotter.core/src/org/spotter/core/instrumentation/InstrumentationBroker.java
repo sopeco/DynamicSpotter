@@ -22,7 +22,7 @@ import java.util.Properties;
 import java.util.concurrent.Semaphore;
 
 import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.instrumentation.description.InstrumentationDescription;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.system.LpeSystemUtils;
 
@@ -187,7 +187,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 			if (csListIncludes != null) {
 				String[] includesArr = csListIncludes.split(",");
 				for (String inc : includesArr) {
-					description.getGlobalRestrictions().getInclusions().add(inc);
+					description.getGlobalRestriction().getPackageIncludes().add(inc);
 				}
 			}
 			String csListExcludes = instController.getProperties().getProperty(
@@ -197,7 +197,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 			if (csListExcludes != null) {
 				String[] excludesArr = csListExcludes.split(",");
 				for (String exc : excludesArr) {
-					description.getGlobalRestrictions().getExclusions().add(exc);
+					description.getGlobalRestriction().getPackageExcludes().add(exc);
 				}
 			}
 			instController.instrument(description);

@@ -205,13 +205,13 @@ public class CustomDialogCellEditor extends CellEditor {
 		boolean needCharConversion = false;
 		Shell shell = new Shell(Display.getDefault());
 
-		if (configParamDesc.isDirectory()) {
+		if (configParamDesc.isADirectory()) {
 			result = openDirectoryDialog(shell, oldValue);
 			needCharConversion = result != null;
-		} else if (configParamDesc.isFile()) {
+		} else if (configParamDesc.isAFile()) {
 			result = openFileDialog(shell, oldValue);
 			needCharConversion = result != null;
-		} else if (configParamDesc.isAset()) {
+		} else if (configParamDesc.isASet()) {
 			ConfigParamSetEditingDialog dialog = new ConfigParamSetEditingDialog(shell, configParamDesc,
 					defaultLabel.getText());
 			if (dialog.open() == Window.OK) {
