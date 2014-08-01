@@ -17,7 +17,6 @@ package org.spotter.eclipse.ui.editors;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,12 +26,13 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
-import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.HierarchyModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
@@ -108,7 +108,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		XPerformanceProblem container = (XPerformanceProblem) parent;
 		XPerformanceProblem problem = new XPerformanceProblem();
 		problem.setExtensionName(extensionComponent.getExtensionName());
-		problem.setUniqueId(UUID.randomUUID().toString());
+		problem.setUniqueId(SpotterUtils.generateUniqueId());
 		if (container.getProblem() == null) {
 			container.setProblem(new ArrayList<XPerformanceProblem>());
 		}
