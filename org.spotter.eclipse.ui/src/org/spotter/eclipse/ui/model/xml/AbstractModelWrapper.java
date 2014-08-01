@@ -94,7 +94,7 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 	private boolean testMandatoryFileDirectory() {
 		for (ConfigParameterDescription param : getExtensionConfigParams()) {
 			if (param.isMandatory()) {
-				if (param.isDirectory() || param.isFile()) {
+				if (param.isDirectory() || param.isAFile()) {
 
 					// the value of mandatories files and directories
 					// must not be empty
