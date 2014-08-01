@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -181,7 +182,7 @@ public final class SpotterUtils {
 		if (projectElement instanceof SpotterProjectParent) {
 			((SpotterProjectParent) projectElement).refreshChildren();
 		}
-		
+
 		Activator.getDefault().getNavigatorViewer().refresh();
 	}
 
@@ -243,6 +244,15 @@ public final class SpotterUtils {
 				DialogUtils.openError(DialogUtils.appendCause(msg, e.getMessage()));
 			}
 		}
+	}
+
+	/**
+	 * Generates a unique 128-bit id using UUID.
+	 * 
+	 * @return the generated id
+	 */
+	public static String generateUniqueId() {
+		return UUID.randomUUID().toString();
 	}
 
 }
