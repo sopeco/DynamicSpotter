@@ -205,7 +205,7 @@ public class CustomDialogCellEditor extends CellEditor {
 		boolean needCharConversion = false;
 		Shell shell = new Shell(Display.getDefault());
 
-		if (configParamDesc.isDirectory()) {
+		if (configParamDesc.isADirectory()) {
 			result = openDirectoryDialog(shell, oldValue);
 			needCharConversion = result != null;
 		} else if (configParamDesc.isAFile()) {
