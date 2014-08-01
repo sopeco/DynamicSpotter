@@ -107,7 +107,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 				cellEditor = cellBooleanEditor;
 				break;
 			case String:
-				if (desc.isAset() || desc.isDirectory() || desc.isFile()) {
+				if (desc.isASet() || desc.isDirectory() || desc.isAFile()) {
 					cellCustomDialogEditor.setConfigParameterDescription(desc);
 					cellEditor = cellCustomDialogEditor;
 				} else if (desc.optionsAvailable()) {
@@ -139,7 +139,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 			ConfigParameterDescription desc = tableItem.getConfigParameterDescription();
 			if (desc.getType() == LpeSupportedTypes.Boolean) {
 				return BOOLEAN_VALUES[0].equals(value) ? 0 : 1;
-			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isAset() && desc.optionsAvailable()) {
+			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isASet() && desc.optionsAvailable()) {
 				return getOptionIndex(value, desc);
 			} else {
 				return value;
@@ -156,7 +156,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 			ConfigParameterDescription desc = tableItem.getConfigParameterDescription();
 			if (desc.getType() == LpeSupportedTypes.Boolean) {
 				newValue = (String) BOOLEAN_VALUES[(Integer) value];
-			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isAset() && desc.optionsAvailable()) {
+			} else if (desc.getType() == LpeSupportedTypes.String && !desc.isASet() && desc.optionsAvailable()) {
 				newValue = (String) desc.getOptions().toArray()[(Integer) value];
 			} else {
 				newValue = (String) value;

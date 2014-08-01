@@ -23,10 +23,10 @@ import java.util.TreeSet;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.instrumentation.description.InstrumentationDescription;
-import org.aim.api.instrumentation.description.InstrumentationDescriptionBuilder;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.aim.api.measurement.dataset.Parameter;
+import org.aim.description.InstrumentationDescription;
+import org.aim.description.builder.InstrumentationDescriptionBuilder;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.AbstractExtensionArtifact;
 import org.lpe.common.extension.IExtension;
