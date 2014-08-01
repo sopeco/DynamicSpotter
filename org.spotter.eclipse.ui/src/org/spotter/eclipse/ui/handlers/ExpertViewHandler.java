@@ -83,9 +83,6 @@ public class ExpertViewHandler extends AbstractHandler implements IElementUpdate
 			HandlerUtil.toggleCommandState(command);
 
 			SpotterUtils.refreshProjectParent(projectElement);
-
-			String message = (oldValue ? "Disabled" : "Enabled") + " Expert View!";
-			DialogUtils.openInformation(message);
 		}
 
 		return null;
