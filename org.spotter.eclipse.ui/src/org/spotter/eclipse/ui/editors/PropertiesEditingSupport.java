@@ -107,7 +107,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 				cellEditor = cellBooleanEditor;
 				break;
 			case String:
-				if (desc.isASet() || desc.isDirectory() || desc.isAFile()) {
+				if (desc.isASet() || desc.isADirectory() || desc.isAFile()) {
 					cellCustomDialogEditor.setConfigParameterDescription(desc);
 					cellEditor = cellCustomDialogEditor;
 				} else if (desc.optionsAvailable()) {

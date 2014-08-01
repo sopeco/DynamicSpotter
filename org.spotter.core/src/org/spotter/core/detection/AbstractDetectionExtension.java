@@ -75,7 +75,7 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 		ConfigParameterDescription nameParameter = new ConfigParameterDescription(
 				AbstractDetectionController.DETECTABLE_KEY, LpeSupportedTypes.Boolean);
 		nameParameter.setMandatory(true);
-		nameParameter.setIsASet(false);
+		nameParameter.setASet(false);
 		nameParameter.setDefaultValue("true");
 		nameParameter
 				.setDescription("Specifies if this problem node is detectable!");
