@@ -65,7 +65,6 @@ public class SpotterServiceResponse<T> {
 	 *            error message (for the case that a error occured)
 	 */
 	public SpotterServiceResponse(T payload, ResponseStatus status, String errorMessage) {
-		super();
 		this.payload = payload;
 		this.status = status;
 		this.errorMessage = errorMessage;
