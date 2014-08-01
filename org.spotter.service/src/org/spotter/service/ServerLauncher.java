@@ -26,28 +26,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Server Launcher for the Loadrunner Services.
+ * Server launcher for the DynamicSpotter service.
  * 
- * @author Alexander Wert
- * 
+ * @author Peter Merkert
  */
 public final class ServerLauncher {
+
 	private static final int DEFAULT_PORT = 8080;
+
 	private static final String DEFAULT_PLUGINS_FOLDER = "plugins";
+
 	private static final String SPOTTER_ROOT_DIR_KEY = "rootDir=";
+
 	private static final String PORT_KEY = "port=";
+
 	private static final String HELP_KEY = "-h";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncher.class);
 
 	private static Integer port = DEFAULT_PORT;
-	private static String rootDir = System.getProperty("user.dir");;
+
+	private static String rootDir = System.getProperty("user.dir");
+
 	private static boolean help = false;
 
 	/**
 	 * Private constructor due to singleton class.
 	 */
 	private ServerLauncher() {
-		// test
 	}
 
 	/**
@@ -64,7 +70,7 @@ public final class ServerLauncher {
 			parseArgs(args);
 
 			if (args.length < 1 || help) {
-				printHelpAndExit();
+				printHelp();
 			} else {
 				Properties coreProperties = new Properties();
 				coreProperties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, rootDir);
@@ -84,21 +90,20 @@ public final class ServerLauncher {
 			}
 
 		} else {
-			printHelpAndExit();
+			printHelp();
 		}
 
 	}
 
-	private static void printHelpAndExit() {
-		LOGGER.info("LoadRunner Service Launcher requires at least one argument:");
+	private static void printHelp() {
+		LOGGER.info("DynamicSpotter Service Launcher requires at least one argument:");
 		LOGGER.info("Usage: java -jar <SPOTTER_SERVER_JAR> {start | shutdown} [options]");
 		LOGGER.info("the options are:");
 		LOGGER.info(HELP_KEY + ": show this help text");
 		LOGGER.info(PORT_KEY + "=<PORT>: port to bind the server to, default: 8080");
 		LOGGER.info(SPOTTER_ROOT_DIR_KEY
 				+ "=<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. "
-				+ "Specifies where the location of the plugins folder for Dynamic Spotter. Default root is the current directory.");
-		System.exit(0);
+				+ "Specifies where the location of the plugins folder for DynamicSpotter. Default root is the current directory.");
 	}
 
 	/**
@@ -108,9 +113,7 @@ public final class ServerLauncher {
 	 *            arguments as string
 	 */
 	private static void parseArgs(String[] agentArgs) {
-		if (agentArgs == null) {
-			return;
-		}
+
 		for (String arg : agentArgs) {
 			if (arg.startsWith(PORT_KEY)) {
 				port = Integer.parseInt(arg.substring(PORT_KEY.length()));
