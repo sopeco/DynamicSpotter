@@ -73,13 +73,12 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 		}
 		ExtensionItem tableItem = (ExtensionItem) inputElement;
 		IModelWrapper modelWrapper = tableItem.getModelWrapper();
-		List<AbstractPropertyItem> configItems = new ArrayList<>();
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
 		
-		int size = xmConfigList == null ? 0 : xmConfigList.size();
-		Object[] result = new Object[size];
+		Object[] result = new Object[0];
 
 		if (xmConfigList != null) {
+			List<AbstractPropertyItem> configItems = new ArrayList<>();
 			for (XMConfiguration xmConfig : xmConfigList) {
 				ConfigParameterDescription desc = tableItem.getExtensionConfigParam(xmConfig.getKey());
 				if (desc != null) {
@@ -87,7 +86,7 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 				}
 			}
 
-			result = configItems.toArray(result);
+			result = configItems.toArray(new Object[configItems.size()]);
 		}
 
 		return result;
