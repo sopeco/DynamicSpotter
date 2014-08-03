@@ -258,7 +258,7 @@ public class CustomDialogCellEditor extends CellEditor {
 		Control previousFocusControl = Display.getCurrent().getFocusControl();
 		Object newValue = openDialogBox(editor);
 		if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
-			previousFocusControl.setFocus();
+			previousFocusControl.forceFocus();
 		}
 
 		if (newValue != null) {
