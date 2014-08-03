@@ -185,7 +185,9 @@ public class PropertiesGroupViewer {
 	 * Asks this viewer to take focus.
 	 */
 	public void setFocus() {
-		tblProperties.setFocus();
+		if (tblProperties != null) {
+			tblProperties.setFocus();
+		}
 	}
 
 	private void createPropertiesGroup(Composite container) {
@@ -298,7 +300,7 @@ public class PropertiesGroupViewer {
 				}
 
 				if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
-					previousFocusControl.setFocus();
+					previousFocusControl.forceFocus();
 				}
 			}
 		});
