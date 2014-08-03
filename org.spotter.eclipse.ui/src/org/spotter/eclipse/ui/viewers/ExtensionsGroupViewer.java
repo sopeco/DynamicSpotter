@@ -348,7 +348,7 @@ public class ExtensionsGroupViewer {
 		}
 		
 		if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
-			previousFocusControl.setFocus();
+			previousFocusControl.forceFocus();
 		}
 	}
 
