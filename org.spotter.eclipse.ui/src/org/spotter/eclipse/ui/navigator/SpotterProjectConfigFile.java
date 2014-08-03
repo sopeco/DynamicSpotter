@@ -32,7 +32,7 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
  */
 public class SpotterProjectConfigFile implements IOpenableProjectElement {
 
-	public static final String IMAGE_PATH = "icons/spotter-conf.gif"; //$NON-NLS-1$
+	public static final String IMAGE_PATH = "icons/project.gif"; //$NON-NLS-1$
 
 	private static final String ELEMENT_NAME = "DynamicSpotter Config";
 
