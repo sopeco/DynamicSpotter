@@ -39,6 +39,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -283,6 +284,8 @@ public class PropertiesGroupViewer {
 						.getConfigurableExtensionConfigParams();
 				ConfigParameterDescription[] descriptions = new ConfigParameterDescription[remainingDescs.size()];
 				AddConfigParamDialog dialog = new AddConfigParamDialog(shell, remainingDescs.toArray(descriptions));
+				Control previousFocusControl = Display.getCurrent().getFocusControl();
+
 				if (dialog.open() == Window.OK) {
 					for (Object selectedDesc : dialog.getResult()) {
 						inputModel.addConfigParamUsingDescription((ConfigParameterDescription) selectedDesc);
@@ -292,6 +295,10 @@ public class PropertiesGroupViewer {
 						btnAddProperty.setEnabled(false);
 					}
 					editor.markDirty();
+				}
+
+				if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
+					previousFocusControl.setFocus();
 				}
 			}
 		});

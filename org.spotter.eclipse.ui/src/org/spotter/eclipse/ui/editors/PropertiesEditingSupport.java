@@ -42,6 +42,8 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
 public final class PropertiesEditingSupport extends EditingSupport {
 
 	private static final String[] BOOLEAN_VALUES = { Boolean.TRUE.toString(), Boolean.FALSE.toString() };
+	private static final int COMBO_ACTIVATION_STYLE = ComboBoxCellEditor.DROP_DOWN_ON_MOUSE_ACTIVATION
+			| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION;
 
 	private AbstractSpotterEditor editor;
 	private PropertiesGroupViewer propertiesViewer;
@@ -79,9 +81,9 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		cellNumberEditor.addListener(new TextEditorErrorListener(cellNumberEditor, decor));
 
 		cellBooleanEditor = new ComboBoxCellEditor(parent, BOOLEAN_VALUES, SWT.DROP_DOWN | SWT.READ_ONLY);
-		cellBooleanEditor.setActivationStyle(ComboBoxCellEditor.DROP_DOWN_ON_MOUSE_ACTIVATION
-				| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION);
+		cellBooleanEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
 		cellComboBoxEditor = new ComboBoxCellEditor(parent, new String[0], SWT.DROP_DOWN | SWT.READ_ONLY);
+		cellComboBoxEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
 
 		cellCustomDialogEditor = new CustomDialogCellEditor(parent);
 	}
