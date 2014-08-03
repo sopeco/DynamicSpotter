@@ -15,20 +15,9 @@
  */
 package org.spotter.eclipse.ui.dialogs;
 
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.lpe.common.config.ConfigParameterDescription;
 
 /**
@@ -37,128 +26,36 @@ import org.lpe.common.config.ConfigParameterDescription;
  * @author Denis Knoepfle
  * 
  */
-public class AddConfigParamDialog extends TitleAreaDialog {
-
-	private static final String MSG_MULTI_SELECT = "Selected %d config parameters.";
-
-	private final ConfigParameterDescription[] configParams;
-	private ConfigParameterDescription[] result;
-	private List listConfigParams;
-	private Text textDescription;
+public class AddConfigParamDialog extends AbstractAddDialog {
 
 	/**
-	 * Create the dialog.
+	 * Creates a new dialog to add configuration parameters.
 	 * 
 	 * @param parentShell
-	 *            The parent shell of this dialog
+	 *            the parent shell of this dialog
 	 * @param configParams
-	 *            The configuration parameters to show
+	 *            the configuration parameters as input
 	 */
 	public AddConfigParamDialog(Shell parentShell, ConfigParameterDescription[] configParams) {
-		super(parentShell);
-		this.configParams = configParams;
-		this.result = null;
-		setHelpAvailable(false);
+		super(parentShell, configParams);
 	}
 
-	/**
-	 * Create contents of the dialog.
-	 * 
-	 * @param parent
-	 *            The parent composite the content is placed in
-	 */
+	@Override
+	protected String getElementName(Object element) {
+		return ((ConfigParameterDescription) element).getName();
+	}
+
+	@Override
+	protected String getElementDescription(Object element) {
+		return ((ConfigParameterDescription) element).getDescription();
+	}
+
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		setMessage("Choose which non-mandatory config parameters you want to add.");
 		setTitle("Add Config Parameters");
-		Composite area = (Composite) super.createDialogArea(parent);
-		Composite container = new Composite(area, SWT.NONE);
-		container.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		listConfigParams = new List(container, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		listConfigParams.setItems(createListItems());
-		listConfigParams.setBounds(10, 10, 309, 183);
-		createListListener();
-
-		textDescription = new Text(container, SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
-		textDescription.setBounds(325, 10, 209, 183);
-		textDescription.setText(configParams[0].getDescription());
-
-		return area;
-	}
-
-	private void createListListener() {
-		listConfigParams.setSelection(0);
-		listConfigParams.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int selectionCount = listConfigParams.getSelectionCount();
-				if (selectionCount == 1) {
-					int index = listConfigParams.getSelectionIndex();
-					textDescription.setText(configParams[index].getDescription());
-				} else if (selectionCount > 1) {
-					textDescription.setText(String.format(MSG_MULTI_SELECT, selectionCount));
-				}
-			}
-		});
-		listConfigParams.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				int itemCount = listConfigParams.getItemCount();
-				int itemHeight = listConfigParams.getItemHeight();
-				if (e.y <= itemCount * itemHeight) {
-					okPressed();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create contents of the button bar.
-	 * 
-	 * @param parent
-	 */
-	@Override
-	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
-		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-	}
-
-	/**
-	 * Return the initial size of the dialog.
-	 */
-	@Override
-	protected Point getInitialSize() {
-		return new Point(550, 350);
-	}
-
-	private String[] createListItems() {
-		String[] items = new String[configParams.length];
-		for (int i = 0; i < configParams.length; ++i) {
-			items[i] = configParams[i].getName();
-		}
-		return items;
-	}
-
-	@Override
-	protected void okPressed() {
-		int selectionCount = listConfigParams.getSelectionCount();
-		if (selectionCount != 0) {
-			result = new ConfigParameterDescription[selectionCount];
-			int[] indices = listConfigParams.getSelectionIndices();
-			for (int i = 0; i < selectionCount; ++i) {
-				result[i] = configParams[indices[i]];
-			}
-		}
-		super.okPressed();
-	}
-
-	/**
-	 * @return the previously selected configuration parameter descriptions if
-	 *         any or 'null'
-	 */
-	public ConfigParameterDescription[] getResult() {
-		return result;
+		return super.createDialogArea(parent);
 	}
 
 }

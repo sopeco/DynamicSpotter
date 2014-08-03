@@ -15,10 +15,11 @@
  */
 package org.spotter.eclipse.ui.util;
 
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 
 /**
- * An utility class for widgets and layouts in the Spotter UI.
+ * An utility class for widgets and layouts in the DynamicSpotter Eclipse UI.
  * 
  * @author Denis Knoepfle
  * 
@@ -48,7 +49,8 @@ public final class WidgetUtils {
 
 	/**
 	 * Creates a GridLayout with default settings for margin width, margin
-	 * height, vertical spacing and horizontal spacing for the Spotter UI.
+	 * height, vertical spacing and horizontal spacing for the DynamicSpotter
+	 * Eclipse UI.
 	 * 
 	 * @param columns
 	 *            the number of columns
@@ -65,6 +67,24 @@ public final class WidgetUtils {
 		gridLayout.horizontalSpacing = DEFAULT_HORIZONTAL_SPACING;
 
 		return gridLayout;
+	}
+
+	/**
+	 * Creates a FillLayout with default settings for margin and spacing for the
+	 * DynamicSpotter Eclipse UI.
+	 * 
+	 * @param type
+	 *            the type of the layout. May be <code>SWT.HORIZONTAL</code> or
+	 *            <code>SWT.VERTICAL</code>.
+	 * @return the fill layout
+	 */
+	public static FillLayout createFillLayout(int type) {
+		FillLayout fillLayout = new FillLayout(type);
+		fillLayout.marginWidth = DEFAULT_MARGIN_WIDTH;
+		fillLayout.marginHeight = DEFAULT_MARGIN_HEIGHT;
+		fillLayout.spacing = DEFAULT_VERTICAL_SPACING;
+
+		return fillLayout;
 	}
 
 }

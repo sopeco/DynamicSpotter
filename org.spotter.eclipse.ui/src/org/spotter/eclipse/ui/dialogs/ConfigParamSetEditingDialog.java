@@ -20,8 +20,12 @@ import java.util.Set;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -32,16 +36,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.eclipse.ui.util.WidgetUtils;
 
 /**
  * A dialog to edit a configuration parameter set.
@@ -51,11 +56,13 @@ import org.lpe.common.config.ConfigParameterDescription;
  */
 public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 
+	private static final int ITEM_LIST_HEIGHT_HINT = 150;
+	private static final int DESCRIPTION_WIDTH_HINT = 150;
+
 	private String result;
 	private final ConfigParameterDescription desc;
 	private final Set<String> configuredElements;
 	private List listConfiguredElements;
-	private Label lblDescription;
 	private Text textNewItem;
 	private Button btnOk;
 	private Button btnAdd;
@@ -63,7 +70,6 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	private Button btnSelectAll;
 	private Button btnSelectNone;
 	private CheckboxTableViewer checkConfElemsTblViewer;
-	private Table tblConfiguredElements;
 
 	/**
 	 * Create the dialog.
@@ -101,13 +107,13 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	protected Control createDialogArea(Composite parent) {
 		setMessage("Add or remove elements to or from the set.");
 		setTitle("Edit Config Parameter Set");
+
 		Composite area = (Composite) super.createDialogArea(parent);
 		Composite container = new Composite(area, SWT.NONE);
-		container.setLayoutData(new GridData(GridData.FILL_BOTH));
+		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		lblDescription = new Label(container, SWT.WRAP);
-		lblDescription.setBounds(325, 10, 209, 183);
-		lblDescription.setText(desc.getDescription());
+		final int columnsCount = 3;
+		container.setLayout(WidgetUtils.createGridLayout(columnsCount));
 
 		if (desc.optionsAvailable()) {
 			createAreaWithPredefinedOptions(container);
@@ -115,29 +121,42 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 			createAreaWithoutPredefinedOptions(container);
 		}
 
+		Text textDescription = new Text(container, SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
+		textDescription.setText(desc.getDescription());
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, false, true);
+		gridData.widthHint = DESCRIPTION_WIDTH_HINT;
+		textDescription.setLayoutData(gridData);
+
 		return area;
 	}
 
 	private void createAreaWithoutPredefinedOptions(Composite container) {
 		listConfiguredElements = new List(container, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		listConfiguredElements.setItems(configuredElementsToArray());
-		listConfiguredElements.setBounds(10, 10, 150, 183);
+		GridData listGridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		listGridData.heightHint = ITEM_LIST_HEIGHT_HINT;
+		listConfiguredElements.setLayoutData(listGridData);
 
-		textNewItem = new Text(container, SWT.BORDER);
-		textNewItem.setBounds(170, 10, 145, 21);
+		Composite controlComp = new Composite(container, SWT.NONE);
+		controlComp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+		controlComp.setLayout(new GridLayout(2, true));
+
+		textNewItem = new Text(controlComp, SWT.BORDER);
 		textNewItem.setFocus();
+		GridData textGridData = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
+		textNewItem.setLayoutData(textGridData);
 
-		btnAdd = new Button(container, SWT.NONE);
-		btnAdd.setToolTipText("Add the new item to the list.");
-		btnAdd.setBounds(245, 37, 70, 25);
-		btnAdd.setText("Add");
-		btnAdd.setEnabled(false);
-
-		btnRemove = new Button(container, SWT.NONE);
+		btnRemove = new Button(controlComp, SWT.NONE);
 		btnRemove.setToolTipText("Remove the selected item from the list.");
-		btnRemove.setBounds(170, 37, 70, 25);
 		btnRemove.setText("Remove");
 		btnRemove.setEnabled(false);
+		btnRemove.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+
+		btnAdd = new Button(controlComp, SWT.NONE);
+		btnAdd.setToolTipText("Add the new item to the list.");
+		btnAdd.setText("Add");
+		btnAdd.setEnabled(false);
+		btnAdd.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 
 		createButtonActionsWithoutPredefinedOptions();
 		createListListener();
@@ -145,23 +164,37 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	}
 
 	private void createAreaWithPredefinedOptions(Composite container) {
-		checkConfElemsTblViewer = CheckboxTableViewer.newCheckList(container, SWT.BORDER | SWT.FULL_SELECTION
+		Composite tableComp = new Composite(container, SWT.NONE);
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gridData.heightHint = ITEM_LIST_HEIGHT_HINT;
+		tableComp.setLayoutData(gridData);
+		TableColumnLayout tableColLayout = new TableColumnLayout();
+		tableComp.setLayout(tableColLayout);
+
+		checkConfElemsTblViewer = CheckboxTableViewer.newCheckList(tableComp, SWT.BORDER | SWT.FULL_SELECTION
 				| SWT.H_SCROLL | SWT.V_SCROLL);
+
+		TableViewerColumn tableColumn = new TableViewerColumn(checkConfElemsTblViewer, SWT.NONE);
+		tableColLayout.setColumnData(tableColumn.getColumn(), new ColumnWeightData(1));
+		
 		checkConfElemsTblViewer.setContentProvider(new ArrayContentProvider());
-		tblConfiguredElements = checkConfElemsTblViewer.getTable();
-		tblConfiguredElements.setBounds(10, 10, 225, 183);
+		checkConfElemsTblViewer.setLabelProvider(new LabelProvider());
 		checkConfElemsTblViewer.setInput(desc.getOptions().toArray(new String[desc.getOptions().size()]));
 		checkConfElemsTblViewer.setCheckedElements(configuredElementsToArray());
 
-		btnSelectAll = new Button(container, SWT.NONE);
+		Composite controlComp = new Composite(container, SWT.NONE);
+		controlComp.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		controlComp.setLayout(new GridLayout());
+		
+		btnSelectAll = new Button(controlComp, SWT.NONE);
 		btnSelectAll.setToolTipText("Select all items.");
-		btnSelectAll.setBounds(240, 40, 75, 25);
 		btnSelectAll.setText("Select All");
+		btnSelectAll.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
-		btnSelectNone = new Button(container, SWT.NONE);
+		btnSelectNone = new Button(controlComp, SWT.NONE);
 		btnSelectNone.setToolTipText("Deselect all items.");
-		btnSelectNone.setBounds(240, 70, 75, 25);
 		btnSelectNone.setText("Select None");
+		btnSelectNone.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
 		createButtonActionsWithPredefinedOptions();
 		createTableListener();
@@ -228,6 +261,7 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	}
 
 	private void createTableListener() {
+		final Table tblConfiguredElements = checkConfElemsTblViewer.getTable();
 		tblConfiguredElements.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
@@ -287,14 +321,6 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		btnOk = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-	}
-
-	/**
-	 * Return the initial size of the dialog.
-	 */
-	@Override
-	protected Point getInitialSize() {
-		return new Point(550, 350);
 	}
 
 	/**
