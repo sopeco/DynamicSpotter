@@ -102,7 +102,7 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 
 	@Override
 	public Boolean testConnection() throws Exception {
-		return null;
+		return false;
 	}
 
 	@Override

@@ -132,7 +132,7 @@ public class ExtensionsGroupViewer {
 		this.editor = editor;
 		this.isHierarchical = hierarchical;
 		this.extensionsInput = editor.getInitialExtensionsInput();
-		this.ignoreConnection = extensionsInput.isConnectionIgnored();
+		this.ignoreConnection = extensionsInput == null ? true : extensionsInput.isConnectionIgnored();
 
 		createExtensionsGroup(parent);
 		addButtonListeners();
@@ -183,7 +183,7 @@ public class ExtensionsGroupViewer {
 			throw new IllegalArgumentException("parent must not be null");
 		}
 		if (input == null) {
-			throw new IllegalArgumentException("parent must not be null");
+			throw new IllegalArgumentException("input must not be null");
 		}
 		// configure table layout
 		Composite tblExtensionsComp = new Composite(parent, SWT.NONE);
@@ -323,17 +323,16 @@ public class ExtensionsGroupViewer {
 			return;
 		}
 
-		// TODO: refactor AddExtensionsDialog to reuse shared parts of
-		// AddConfigParamDialog
 		AddExtensionDialog dialog = new AddExtensionDialog(shell, extensions);
 
 		if (dialog.open() == Window.OK) {
-			ExtensionMetaobject[] result = dialog.getResult();
+			Object[] result = dialog.getResult();
 			IModelWrapper parentWrapper = parentItem.getModelWrapper();
 			Object xmlParent = parentWrapper == null ? null : parentWrapper.getXMLModel();
 			ExtensionItem lastAdded = null;
-			for (ExtensionMetaobject component : result) {
-				ExtensionItem item = processAddedComponent(xmlParent, component);
+			for (Object component : result) {
+				ExtensionMetaobject metaobject = (ExtensionMetaobject) component;
+				ExtensionItem item = processAddedComponent(xmlParent, metaobject);
 				parentItem.addItem(item);
 				item.updateConnectionStatus();
 				lastAdded = item;
