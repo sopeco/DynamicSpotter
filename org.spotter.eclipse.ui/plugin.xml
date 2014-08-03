@@ -72,7 +72,7 @@
             category="org.spotter.eclipse.ui.category.SpotterTools"
             class="org.spotter.eclipse.ui.wizard.NewProjectWizard"
             finalPerspective="org.spotter.eclipse.ui.Perspective"
-            icon="icons/perspective.png"
+            icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.wizard.NewProjectWizard"
             name="DynamicSpotter Project">
       </wizard>
@@ -82,7 +82,7 @@
       <view
             category="org.spotter.eclipse.ui.navigator.category"
             class="org.eclipse.ui.navigator.CommonNavigator"
-            icon="icons/navigator.gif"
+            icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.navigator"
             name="DynamicSpotter Project Navigator">
       </view>
@@ -103,7 +103,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.spotter.eclipse.ui.perspectives.Perspective"
-            icon="icons/perspective.png"
+            icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.Perspective"
             name="DynamicSpotter Project">
       </perspective>
@@ -210,7 +210,7 @@
       <editor
             class="org.spotter.eclipse.ui.editors.SpotterConfigEditor"
             default="false"
-            icon="icons/spotter-conf.gif"
+            icon="icons/project.gif"
             id="org.spotter.eclipse.ui.editors.spotterconfig"
             name="DynamicSpotter Config Editor">
       </editor>
@@ -348,14 +348,14 @@
          </separator>
          <command
                commandId="org.spotter.eclipse.ui.commands.delete"
-               icon="icons/delete_16x16.png"
+               icon="icons/delete.png"
                label="Delete"
                style="push"
                tooltip="Delete the selected elements">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.duplicate"
-               icon="icons/copy_16x16.png"
+               icon="icons/copy.png"
                label="Duplicate"
                style="push"
                tooltip="Duplicate the selected element">
@@ -366,6 +366,7 @@
          </separator>
          <command
                commandId="org.spotter.eclipse.ui.commands.refresh"
+               disabledIcon="icons/refresh_nav_disabled.gif"
                icon="icons/refresh_nav_enabled.gif"
                label="Refresh"
                style="push"

@@ -56,4 +56,15 @@ public class RefreshHandler extends AbstractHandler {
 		return null;
 	}
 
+	/**
+	 * Only enable refresh if at least one project is the current selected
+	 * project.
+	 * 
+	 * @return <code>true</code> when at least one project is selected
+	 */
+	@Override
+	public boolean isEnabled() {
+		return !Activator.getDefault().getSelectedProjects().isEmpty();
+	}
+
 }
