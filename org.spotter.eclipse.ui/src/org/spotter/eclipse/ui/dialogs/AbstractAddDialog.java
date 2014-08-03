@@ -15,6 +15,9 @@
  */
 package org.spotter.eclipse.ui.dialogs;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -25,8 +28,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -79,7 +80,8 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 
 	/**
 	 * Creates the dialog under the given parent shell. Turns available help
-	 * off.
+	 * off. The given input is sorted alphabetically using the names of the
+	 * elements.
 	 * 
 	 * @param parentShell
 	 *            The parent shell of this dialog
@@ -93,6 +95,7 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 			this.viewerInput = new Object[0];
 		} else {
 			this.viewerInput = viewerInput;
+			Arrays.sort(this.viewerInput, createInputComparator());
 		}
 		this.result = null;
 		setHelpAvailable(false);
@@ -144,7 +147,6 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setLabelProvider(new ElementLabelProvider());
 		viewer.setInput(viewerInput);
-		viewer.setComparator(createViewerComparator());
 
 		createTableListeners();
 
@@ -159,13 +161,13 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 		return area;
 	}
 
-	private ViewerComparator createViewerComparator() {
-		ViewerComparator comparator = new ViewerComparator() {
+	private Comparator<Object> createInputComparator() {
+		Comparator<Object> comparator = new Comparator<Object>() {
 
 			@Override
-			public int compare(Viewer viewer, Object e1, Object e2) {
-				String name1 = getElementName(e1);
-				String name2 = getElementName(e2);
+			public int compare(Object o1, Object o2) {
+				String name1 = getElementName(o1);
+				String name2 = getElementName(o2);
 
 				return name1.compareTo(name2);
 			}
