@@ -255,11 +255,12 @@ public class CustomDialogCellEditor extends CellEditor {
 	 * Lets the user edit the value via a custom dialog.
 	 */
 	private void editValue() {
-		Control oldControl = Display.getCurrent().getFocusControl();
+		Control previousFocusControl = Display.getCurrent().getFocusControl();
 		Object newValue = openDialogBox(editor);
-		if (oldControl != null) {
-			oldControl.setFocus();
+		if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
+			previousFocusControl.setFocus();
 		}
+
 		if (newValue != null) {
 			boolean newValidState = isCorrect(newValue);
 			if (newValidState) {
