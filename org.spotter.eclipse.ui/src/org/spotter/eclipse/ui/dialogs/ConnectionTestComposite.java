@@ -39,16 +39,19 @@ import org.spotter.eclipse.ui.listeners.IConnectionChangedListener;
 
 /**
  * A composite which offers functionality to test a connection to the Spotter
- * Service with configurable host and port.
+ * Service with configurable host and port. This is NOT a SWT Composite but
+ * serves semantically as one and can be placed inside a parent composite like
+ * any other widget.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class ConnectionTestComposite {
 
-	private static final String[] LABEL_EXPLANATION = {
-			"To create a new project it is necessary to retrieve some data from the Spotter Service.",
-			"Therefore a valid connection is required." };
+	private static final String LABEL_EXPLANATION = "To create a new project it is necessary to retrieve some data from the Spotter Service. "
+			+ "Therefore a valid connection is required.";
+	private static final int LABEL_WIDTH_HINT = 500;
+
 	private static final String LABEL_HOST = "Host";
 	private static final String LABEL_PORT = "Port";
 	private static final String LABEL_CONN_OK = "Connection OK!";
@@ -64,6 +67,17 @@ public class ConnectionTestComposite {
 	private String errorMessage;
 	private ModifyListener modifyListener;
 
+	/**
+	 * Creates a new ConnectionTestComposite under the given parent.
+	 * 
+	 * @param parent
+	 *            the parent composite
+	 * @param showExplanation
+	 *            <code>true</code> to create an additional explanation label
+	 *            above the text fields
+	 * @param client
+	 *            the client used to test the connection
+	 */
 	public ConnectionTestComposite(Composite parent, boolean showExplanation, ServiceClientWrapper client) {
 		this.client = client;
 		this.connectionListeners = new LinkedList<>();
@@ -71,40 +85,91 @@ public class ConnectionTestComposite {
 		createControl(parent, showExplanation);
 	}
 
+	/**
+	 * Returns the current error message.
+	 * 
+	 * @return the current error message
+	 */
 	public String getErrorMessage() {
 		return errorMessage;
 	}
 
+	/**
+	 * Sets the error message that is displayed.
+	 * 
+	 * @param errorMessage
+	 *            the error message to set
+	 */
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
 
+	/**
+	 * Fires a connection changed event to listeners.
+	 * 
+	 * @param connectionOk
+	 *            <code>true</code> to signal that the connection was okay,
+	 *            <code>false</code> otherwise
+	 */
 	public void fireConnectionChangedEvent(boolean connectionOk) {
 		for (IConnectionChangedListener listener : connectionListeners) {
 			listener.connectionChanged(connectionOk);
 		}
 	}
 
+	/**
+	 * Adds a listener to the list of notified listeners.
+	 * 
+	 * @param listener
+	 *            the listener to add
+	 */
 	public void addConnectionChangedListener(IConnectionChangedListener listener) {
 		connectionListeners.add(listener);
 	}
 
+	/**
+	 * Removes the listener from the list of notified listeners.
+	 * 
+	 * @param listener
+	 *            the listener to remove
+	 */
 	public void removeConnectionChangedListener(IConnectionChangedListener listener) {
 		connectionListeners.remove(listener);
 	}
 
+	/**
+	 * Returns the control of this composite.
+	 * 
+	 * @return the control of this composite
+	 */
 	public Composite getControl() {
 		return container;
 	}
 
+	/**
+	 * Returns the host in the host text field.
+	 * 
+	 * @return the host
+	 */
 	public String getHost() {
 		return textHost.getText();
 	}
 
+	/**
+	 * Returns the port in the port text field.
+	 * 
+	 * @return the port
+	 */
 	public String getPort() {
 		return textPort.getText();
 	}
 
+	/**
+	 * Tests the connection.
+	 * 
+	 * @return <code>true</code> if the connection was successful,
+	 *         <code>false</code> otherwise
+	 */
 	public boolean testConnection() {
 		client.updateUrl(textHost.getText(), textPort.getText());
 
@@ -123,46 +188,26 @@ public class ConnectionTestComposite {
 
 	private void createControl(Composite parent, boolean showExplanation) {
 		container = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		container.setLayout(layout);
+		container.setLayout(new GridLayout(2, true));
 
 		if (showExplanation) {
-			Label lblExplanationBegin = new Label(container, SWT.NONE);
-			lblExplanationBegin.setText(LABEL_EXPLANATION[0]);
-			Label lblExplanationEnd = new Label(container, SWT.NONE);
-			lblExplanationEnd.setText(LABEL_EXPLANATION[1]);
-			Label separator = new Label(container, SWT.NONE);
-			separator.setText(" ");
-
-			GridData gdExplanation = new GridData();
-			gdExplanation.horizontalSpan = 2;
-			gdExplanation.horizontalAlignment = SWT.LEFT;
-			gdExplanation.verticalAlignment = SWT.TOP;
-			lblExplanationBegin.setLayoutData(gdExplanation);
-			gdExplanation = new GridData();
-			gdExplanation.horizontalSpan = 2;
-			gdExplanation.horizontalAlignment = SWT.LEFT;
-			gdExplanation.verticalAlignment = SWT.TOP;
-			lblExplanationEnd.setLayoutData(gdExplanation);
-
-			GridData gdSeparator = new GridData(GridData.FILL_HORIZONTAL);
-			gdSeparator.horizontalSpan = 2;
-			gdSeparator.grabExcessHorizontalSpace = true;
-			separator.setLayoutData(gdSeparator);
+			addExplanationLabel();
 		}
 
 		Label labelHost = new Label(container, SWT.NONE);
 		labelHost.setText(LABEL_HOST);
+		labelHost.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 		Label labelPort = new Label(container, SWT.NONE);
 		labelPort.setText(LABEL_PORT);
+		labelPort.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
 		textHost = new Text(container, SWT.BORDER | SWT.SINGLE);
 		textHost.setText(client.getHost());
-		textHost.setSize(150, 21);
+		textHost.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+
 		textPort = new Text(container, SWT.BORDER | SWT.SINGLE);
 		textPort.setText(client.getPort());
-		textPort.setSize(150, 21);
+		textPort.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
 		Composite cmpConn = new Composite(container, SWT.NONE);
 		cmpConn.setLayout(new RowLayout());
@@ -171,16 +216,7 @@ public class ConnectionTestComposite {
 		labelConnection = new Label(cmpConn, SWT.NONE);
 		labelConnection.setText("");
 
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.grabExcessHorizontalSpace = true;
-		textHost.setLayoutData(gd);
-		textPort.setLayoutData(gd);
-
-		GridData gdCmp = new GridData(GridData.FILL_BOTH);
-		gdCmp.horizontalSpan = 2;
-		gdCmp.grabExcessVerticalSpace = true;
-		gdCmp.grabExcessHorizontalSpace = true;
-		cmpConn.setLayoutData(gdCmp);
+		cmpConn.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
 
 		modifyListener = new ConnectionParamModifyListener(this, textHost, textPort, labelConnection, btnTestConn);
 		textHost.addModifyListener(modifyListener);
@@ -191,6 +227,17 @@ public class ConnectionTestComposite {
 				testConnection();
 			}
 		});
+	}
+
+	private void addExplanationLabel() {
+		Label lblExplanation = new Label(container, SWT.WRAP);
+		lblExplanation.setText(LABEL_EXPLANATION);
+		GridData gridData = new GridData(SWT.LEFT, SWT.TOP, false, false, 2, 1);
+		gridData.widthHint = LABEL_WIDTH_HINT;
+		lblExplanation.setLayoutData(gridData);
+
+		Label separator = new Label(container, SWT.NONE);
+		separator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 	}
 
 }
