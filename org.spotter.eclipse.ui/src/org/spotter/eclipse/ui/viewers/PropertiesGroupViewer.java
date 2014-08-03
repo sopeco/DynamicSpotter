@@ -284,8 +284,8 @@ public class PropertiesGroupViewer {
 				ConfigParameterDescription[] descriptions = new ConfigParameterDescription[remainingDescs.size()];
 				AddConfigParamDialog dialog = new AddConfigParamDialog(shell, remainingDescs.toArray(descriptions));
 				if (dialog.open() == Window.OK) {
-					for (ConfigParameterDescription selectedDesc : dialog.getResult()) {
-						inputModel.addConfigParamUsingDescription(selectedDesc);
+					for (Object selectedDesc : dialog.getResult()) {
+						inputModel.addConfigParamUsingDescription((ConfigParameterDescription) selectedDesc);
 					}
 					btnClearAllProperties.setEnabled(true);
 					if (!inputModel.hasConfigurableExtensionConfigParams()) {

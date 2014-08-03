@@ -44,6 +44,11 @@ import org.spotter.eclipse.ui.dialogs.ConfigParamSetEditingDialog;
 public class CustomDialogCellEditor extends CellEditor {
 
 	/**
+	 * Default CustomDialogCellEditor style
+	 */
+	private static final int defaultStyle = SWT.NONE;
+
+	/**
 	 * The corresponding configuration parameter description.
 	 */
 	private ConfigParameterDescription configParamDesc;
@@ -62,11 +67,6 @@ public class CustomDialogCellEditor extends CellEditor {
 	 * The value of this cell editor; initially <code>null</code>.
 	 */
 	private Object value = null;
-
-	/**
-	 * Default CustomDialogCellEditor style
-	 */
-	private static final int defaultStyle = SWT.NONE;
 
 	/**
 	 * Creates a new dialog cell editor with no control.
@@ -141,17 +141,18 @@ public class CustomDialogCellEditor extends CellEditor {
 		return defaultLabel;
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on CellEditor.
+	/**
+	 * Creates a composite as this cell editor's control.
+	 * 
+	 * @return the new control
 	 */
 	protected Control createControl(Composite parent) {
-
 		Font font = parent.getFont();
-		Color bg = parent.getBackground();
+		Color bgColor = parent.getBackground();
 
 		editor = new Composite(parent, getStyle());
 		editor.setFont(font);
-		editor.setBackground(bg);
+		editor.setBackground(bgColor);
 		editor.setLayout(new FillLayout());
 
 		createContents(editor);
@@ -162,23 +163,29 @@ public class CustomDialogCellEditor extends CellEditor {
 		return editor;
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on CellEditor.
+	/**
+	 * Returns this cell editor's value.
+	 * 
+	 * @return the value of this cell editor
 	 */
+	@Override
 	protected Object doGetValue() {
 		return value;
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on CellEditor. The focus is set to the cell
-	 * editor's text.
+	/**
+	 * Sets the focus to the cell editor's default label.
 	 */
+	@Override
 	protected void doSetFocus() {
 		defaultLabel.setFocus();
 	}
 
-	/*
-	 * (non-Javadoc) Method declared on CellEditor.
+	/**
+	 * Sets this cell editor's value and updates the contents.
+	 * 
+	 * @param value
+	 *            the value of this cell editor
 	 */
 	protected void doSetValue(Object value) {
 		this.value = value;
