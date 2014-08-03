@@ -25,6 +25,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -135,10 +137,14 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 
 		TableViewerColumn tableColumn = new TableViewerColumn(viewer, SWT.NONE);
 		tableColLayout.setColumnData(tableColumn.getColumn(), new ColumnWeightData(1));
+		tableColumn.getColumn().setResizable(false);
+		tableColumn.getColumn().setMoveable(false);
+		viewer.getTable().setLinesVisible(false);
 
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setLabelProvider(new ElementLabelProvider());
 		viewer.setInput(viewerInput);
+		viewer.setComparator(createViewerComparator());
 
 		createTableListeners();
 
@@ -151,6 +157,22 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 		sashContainer.setWeights(new int[] { TABLE_VIEWER_RATIO, DESCRIPTION_RATIO });
 
 		return area;
+	}
+
+	private ViewerComparator createViewerComparator() {
+		ViewerComparator comparator = new ViewerComparator() {
+
+			@Override
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				String name1 = getElementName(e1);
+				String name2 = getElementName(e2);
+
+				return name1.compareTo(name2);
+			}
+
+		};
+
+		return comparator;
 	}
 
 	private void updateDescriptionText(Object element) {
