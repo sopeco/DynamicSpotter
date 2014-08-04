@@ -31,15 +31,15 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
 /**
- * A wizard to create new Spotter projects.
+ * A wizard to create new DynamicSpotter projects.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class NewProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 
-	private static final String WIZARD_NAME = "New Spotter Project";
-	private static final String PAGE_TITLE = "Spotter Project";
+	private static final String WIZARD_NAME = "New DynamicSpotter Project";
+	private static final String PAGE_TITLE = "DynamicSpotter Project";
 	private static final String PAGE_DESCRIPTION = "Enter a project name.";
 
 	private IConfigurationElement configurationElement;
@@ -88,9 +88,10 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 			location = pageOne.getLocationURI();
 		} // else location == null
 
-		// make sure there are no preferences cached from an old project with the same name
+		// make sure there are no preferences cached from an old project with
+		// the same name
 		SpotterProjectSupport.deleteProjectPreferences(name);
-		
+
 		ServiceClientWrapper client = Activator.getDefault().getClient(name);
 		if (!client.saveServiceClientSettings(host, port)) {
 			return false;

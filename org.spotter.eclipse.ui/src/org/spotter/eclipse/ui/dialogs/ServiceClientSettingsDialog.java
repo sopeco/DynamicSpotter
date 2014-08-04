@@ -30,7 +30,7 @@ import org.spotter.eclipse.ui.listeners.IConnectionChangedListener;
 import org.spotter.eclipse.ui.wizard.ConnectionWizardPage;
 
 /**
- * A dialog to edit the service client settings of a Spotter project.
+ * A dialog to edit the service client settings of a DynamicSpotter project.
  * 
  * @author Denis Knoepfle
  * 

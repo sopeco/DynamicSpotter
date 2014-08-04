@@ -29,7 +29,7 @@ import org.spotter.eclipse.ui.util.SpotterUtils;
 /**
  * A duplicate handler for the duplicate command which duplicates the selected
  * element. The handler is only enabled when a single, duplicatable element is
- * selected in the Spotter Project Navigator.
+ * selected in the DynamicSpotter Project Navigator.
  * 
  * @author Denis Knoepfle
  * 

@@ -16,7 +16,7 @@
 package org.spotter.eclipse.ui.navigator;
 
 /**
- * An interface for elements of the Spotter Project Navigator that can be
+ * An interface for elements of the DynamicSpotter Project Navigator that can be
  * deleted.
  * 
  * @author Denis Knoepfle
