@@ -19,12 +19,17 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 /**
- * A perspective for Spotter projects.
+ * A perspective for DynamicSpotter projects.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class Perspective implements IPerspectiveFactory {
+
+	/**
+	 * The id of the perspective.
+	 */
+	public static final String PERSPECTIVE_ID = "org.spotter.eclipse.ui.Perspective";
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {

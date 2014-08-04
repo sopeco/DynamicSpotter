@@ -38,7 +38,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreePath;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -47,6 +46,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
 	private static final Object[] NO_CHILDREN = {};
 	private final Map<String, Object> wrapperCache = new HashMap<String, Object>();
-	private TreeViewer viewer;
+	private CommonViewer viewer;
 	private boolean listenersRegistered;
 	private IDoubleClickListener dblClickOpenListener;
 	private ISelectionChangedListener projectSelectionListener;
@@ -95,62 +95,52 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	@Override
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-		if (listenersRegistered) {
-			viewer.removeDoubleClickListener(dblClickOpenListener);
-			viewer.removeSelectionChangedListener(projectSelectionListener);
-			viewer.getTree().removeKeyListener(keyListener);
+		if (listenersRegistered && viewer != null) {
+			removeListeners();
 		}
 	}
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		this.viewer = (TreeViewer) viewer;
+		if (!(viewer instanceof CommonViewer)) {
+			throw new IllegalStateException("Illegal viewer type provided");
+		}
+
+		if (listenersRegistered && this.viewer != null) {
+			removeListeners();
+		}
+
+		this.viewer = (CommonViewer) viewer;
 		Activator.getDefault().setNavigatorViewer(this.viewer);
 		this.viewer.setComparator(new FixedOrderViewerComparator());
 
-		if (!listenersRegistered) {
-			registerListeners();
-		}
+		registerListeners();
+	}
+
+	private void removeListeners() {
+		viewer.removeDoubleClickListener(dblClickOpenListener);
+		viewer.removeSelectionChangedListener(projectSelectionListener);
+		viewer.getTree().removeKeyListener(keyListener);
+
+		dblClickOpenListener = null;
+		projectSelectionListener = null;
+		keyListener = null;
+		listenersRegistered = false;
 	}
 
 	private void registerListeners() {
-		dblClickOpenListener = new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				SpotterUtils.openNavigatorElement(sel.getFirstElement());
-			}
-		};
+		dblClickOpenListener = createDblClickOpenListener();
+		projectSelectionListener = createProjectSelectionListener();
+		keyListener = createKeyListener();
 
-		projectSelectionListener = new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				Set<IProject> selectedProjects = new HashSet<IProject>();
+		viewer.getTree().addKeyListener(keyListener);
+		viewer.addDoubleClickListener(dblClickOpenListener);
+		viewer.addSelectionChangedListener(projectSelectionListener);
+		listenersRegistered = true;
+	}
 
-				if (!sel.isEmpty()) {
-					for (Object obj : sel.toArray()) {
-						if (obj instanceof ISpotterProjectElement) {
-							ISpotterProjectElement element = (ISpotterProjectElement) obj;
-							selectedProjects.add(element.getProject());
-
-							if (!(obj instanceof SpotterProjectParent) && selectedProjects.size() >= 2) {
-
-								// already another project selected and mixed
-								// element types are not allowed
-
-								selectedProjects.clear();
-								break;
-							}
-						}
-					}
-				}
-
-				Activator.getDefault().setSelectedProjects(selectedProjects);
-			}
-		};
-
-		keyListener = new KeyAdapter() {
+	private KeyListener createKeyListener() {
+		KeyListener listener = new KeyAdapter() {
 			private IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
 					IHandlerService.class);
 			private ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(
@@ -180,10 +170,51 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 			}
 		};
 
-		viewer.getTree().addKeyListener(keyListener);
-		viewer.addDoubleClickListener(dblClickOpenListener);
-		viewer.addSelectionChangedListener(projectSelectionListener);
-		listenersRegistered = true;
+		return listener;
+	}
+
+	private IDoubleClickListener createDblClickOpenListener() {
+		IDoubleClickListener listener = new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				SpotterUtils.openNavigatorElement(sel.getFirstElement());
+			}
+		};
+
+		return listener;
+	}
+
+	private ISelectionChangedListener createProjectSelectionListener() {
+		ISelectionChangedListener listener = new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+				Set<IProject> selectedProjects = new HashSet<IProject>();
+
+				if (!sel.isEmpty()) {
+					for (Object obj : sel.toArray()) {
+						if (obj instanceof ISpotterProjectElement) {
+							ISpotterProjectElement element = (ISpotterProjectElement) obj;
+							selectedProjects.add(element.getProject());
+
+							if (!(obj instanceof SpotterProjectParent) && selectedProjects.size() >= 2) {
+
+								// already another project selected and mixed
+								// element types are not allowed
+
+								selectedProjects.clear();
+								break;
+							}
+						}
+					}
+				}
+
+				Activator.getDefault().setSelectedProjects(selectedProjects);
+			}
+		};
+
+		return listener;
 	}
 
 	@Override

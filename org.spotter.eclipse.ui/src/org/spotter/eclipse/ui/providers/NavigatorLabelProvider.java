@@ -15,36 +15,18 @@
  */
 package org.spotter.eclipse.ui.providers;
 
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 
 /**
- * Label provider for items of Spotter Project Navigator. This provider is used
- * by the Spotter Project Navigator.
+ * Label provider for items of DynamicSpotter Project Navigator. This provider
+ * is used by the DynamicSpotter Project Navigator.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class NavigatorLabelProvider implements ILabelProvider {
-
-	@Override
-	public void addListener(ILabelProviderListener listener) {
-	}
-
-	@Override
-	public void dispose() {
-	}
-
-	@Override
-	public boolean isLabelProperty(Object element, String property) {
-		return false;
-	}
-
-	@Override
-	public void removeListener(ILabelProviderListener listener) {
-	}
+public class NavigatorLabelProvider extends LabelProvider {
 
 	@Override
 	public Image getImage(Object element) {

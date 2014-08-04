@@ -65,33 +65,35 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            id="org.spotter.eclipse.ui.category.SpotterTools"
-            name="DynamicSpotter Tools">
+            id="org.spotter.eclipse.ui.category.dynamicSpotter"
+            name="DynamicSpotter">
       </category>
       <wizard
-            category="org.spotter.eclipse.ui.category.SpotterTools"
+            category="org.spotter.eclipse.ui.category.dynamicSpotter"
             class="org.spotter.eclipse.ui.wizard.NewProjectWizard"
             finalPerspective="org.spotter.eclipse.ui.Perspective"
             icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.wizard.NewProjectWizard"
-            name="DynamicSpotter Project">
+            name="DynamicSpotter Project"
+            project="true">
       </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.views">
+      <category
+            id="org.spotter.eclipse.ui.category.dynamicSpotter"
+            name="DynamicSpotter">
+      </category>
       <view
-            category="org.spotter.eclipse.ui.navigator.category"
+            category="org.spotter.eclipse.ui.category.dynamicSpotter"
             class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.navigator"
-            name="DynamicSpotter Project Navigator">
+            name="Project Navigator">
       </view>
-      <category
-            id="org.spotter.eclipse.ui.navigator.category"
-            name="DynamicSpotter Projects">
-      </category>
       <view
             allowMultiple="false"
+            category="org.spotter.eclipse.ui.category.dynamicSpotter"
             class="org.spotter.eclipse.ui.view.ResultsView"
             icon="icons/results.gif"
             id="org.spotter.eclipse.ui.view.resultsView"
@@ -105,7 +107,7 @@
             class="org.spotter.eclipse.ui.perspectives.Perspective"
             icon="icons/spotter.png"
             id="org.spotter.eclipse.ui.Perspective"
-            name="DynamicSpotter Project">
+            name="DynamicSpotter">
       </perspective>
    </extension>
    <extension
@@ -137,7 +139,7 @@
             viewerId="org.spotter.eclipse.ui.navigator">
          <includes>
             <actionExtension
-                  pattern="org.spotter.eclipse.ui.navigator.popup.actionprovider.CustomNewAction">
+                  pattern="org.spotter.eclipse.ui.navigator.actions.NewActions">
             </actionExtension>
          </includes>
       </viewerActionBinding>
@@ -146,9 +148,10 @@
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
             contentProvider="org.spotter.eclipse.ui.providers.NavigatorContentProvider"
+            icon="icons/project.gif"
             id="org.spotter.eclipse.ui.navigatorContent"
             labelProvider="org.spotter.eclipse.ui.providers.NavigatorLabelProvider"
-            name="DynamicSpotter Project Navigator Content"
+            name="DynamicSpotter Projects"
             priority="normal">
          <triggerPoints>
             <or>
@@ -159,8 +162,8 @@
          </triggerPoints>
       </navigatorContent>
       <actionProvider
-            class="org.spotter.eclipse.ui.navigator.popup.actionprovider.CustomNewActionProvider"
-            id="org.spotter.eclipse.ui.navigator.popup.actionprovider.CustomNewAction">
+            class="org.spotter.eclipse.ui.navigator.actions.CustomNewActionProvider"
+            id="org.spotter.eclipse.ui.navigator.actions.NewActions">
          <enablement>
             <or>
                <adapt

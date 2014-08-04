@@ -33,7 +33,7 @@ import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * A delete handler for the delete command which deletes selected elements in
- * the Spotter Project Navigator.
+ * the DynamicSpotter Project Navigator.
  * 
  * @author Denis Knoepfle
  * 
