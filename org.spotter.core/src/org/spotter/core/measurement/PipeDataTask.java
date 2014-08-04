@@ -22,7 +22,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.AbstractRecord;
@@ -38,32 +37,23 @@ import org.lpe.common.util.system.LpeSystemUtils;
 public class PipeDataTask implements Runnable {
 	private AbstractMeasurementController mController;
 	private LinkedBlockingQueue<AbstractRecord> records;
-	private Semaphore semaphore;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param semaphore
-	 *            semaphore to use to notify when piping has been completed
 	 * @param mController
 	 *            controller where to read data from
 	 * @param records
 	 *            blocking queue where to write records to
 	 */
-	public PipeDataTask(Semaphore semaphore, IMeasurementController mController,
-			LinkedBlockingQueue<AbstractRecord> records) {
+	public PipeDataTask(IMeasurementController mController, LinkedBlockingQueue<AbstractRecord> records) {
 		this.mController = (AbstractMeasurementController) mController;
 		this.records = records;
-		this.semaphore = semaphore;
 
-		if (mController == null || records == null || semaphore == null) {
+		if (mController == null || records == null) {
 			throw new IllegalArgumentException("At least one argument is null!");
 		}
-		try {
-			semaphore.acquire();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+
 	}
 
 	@Override
@@ -71,8 +61,6 @@ public class PipeDataTask implements Runnable {
 		try {
 
 			executeTask();
-
-			semaphore.release();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
