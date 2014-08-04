@@ -44,24 +44,12 @@ import org.spotter.eclipse.ui.dialogs.ConfigParamSetEditingDialog;
 public class CustomDialogCellEditor extends CellEditor {
 
 	/**
-	 * Default CustomDialogCellEditor style
-	 */
-	private static final int defaultStyle = SWT.NONE;
-
-	/**
 	 * The corresponding configuration parameter description.
 	 */
 	private ConfigParameterDescription configParamDesc;
 
-	/**
-	 * The editor control.
-	 */
-	private Composite editor;
-
-	/**
-	 * The label widget that gets reused by <code>updateLabel</code>.
-	 */
-	private Label defaultLabel;
+	private Composite editorComposite;
+	private Label editorLabel;
 
 	/**
 	 * The value of this cell editor; initially <code>null</code>.
@@ -69,36 +57,13 @@ public class CustomDialogCellEditor extends CellEditor {
 	private Object value = null;
 
 	/**
-	 * Creates a new dialog cell editor with no control.
-	 */
-	public CustomDialogCellEditor() {
-		setStyle(defaultStyle);
-	}
-
-	/**
-	 * Creates a new custom dialog cell editor parented under the given control.
-	 * The cell editor value is <code>null</code> initially, and has no
-	 * validator.
+	 * Creates a new dialog parented under the given control.
 	 * 
 	 * @param parent
 	 *            the parent control
 	 */
 	public CustomDialogCellEditor(Composite parent) {
-		this(parent, defaultStyle);
-	}
-
-	/**
-	 * Creates a new custom dialog cell editor parented under the given control.
-	 * The cell editor value is <code>null</code> initially, and has no
-	 * validator.
-	 * 
-	 * @param parent
-	 *            the parent control
-	 * @param style
-	 *            the style bits
-	 */
-	public CustomDialogCellEditor(Composite parent, int style) {
-		super(parent, style);
+		super(parent);
 	}
 
 	/**
@@ -112,10 +77,10 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * This will directly start editing the cell. Needs to be executed as async
-	 * Runnable because of the structure of the framework and
-	 * <code>activate()</code> must return first before <code>editValue()</code>
-	 * can be called.
+	 * This will directly start editing the cell. Needs to be executed as
+	 * asynchronous <code>Runnable</code> because of the structure of the
+	 * framework and because <code>activate()</code> must return first before
+	 * <code>editValue()</code> can be called.
 	 */
 	@Override
 	public void activate() {
@@ -128,43 +93,42 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Creates the controls used to show the value of this cell editor.
+	 * Creates the label used to show the value of this cell editor.
 	 * 
 	 * @param cell
 	 *            the control for this cell editor
-	 * @return the underlying control
+	 * @return the newly created label
 	 */
 	protected Control createContents(Composite cell) {
-		defaultLabel = new Label(cell, SWT.LEFT);
-		defaultLabel.setFont(cell.getFont());
-		defaultLabel.setBackground(cell.getBackground());
-		return defaultLabel;
+		editorLabel = new Label(cell, SWT.LEFT);
+		editorLabel.setBackground(cell.getBackground());
+		editorLabel.setFont(cell.getFont());
+		return editorLabel;
 	}
 
 	/**
-	 * Creates a composite as this cell editor's control.
+	 * Creates a composite which serves as this cell editor's control.
 	 * 
 	 * @return the new control
 	 */
 	protected Control createControl(Composite parent) {
-		Font font = parent.getFont();
 		Color bgColor = parent.getBackground();
+		Font font = parent.getFont();
 
-		editor = new Composite(parent, getStyle());
-		editor.setFont(font);
-		editor.setBackground(bgColor);
-		editor.setLayout(new FillLayout());
+		editorComposite = new Composite(parent, getStyle());
+		editorComposite.setBackground(bgColor);
+		editorComposite.setFont(font);
+		editorComposite.setLayout(new FillLayout());
 
-		createContents(editor);
-		updateContents(value);
-
+		createContents(editorComposite);
 		setValueValid(true);
+		updateLabel(value);
 
-		return editor;
+		return editorComposite;
 	}
 
 	/**
-	 * Returns this cell editor's value.
+	 * Returns the value of this cell editor.
 	 * 
 	 * @return the value of this cell editor
 	 */
@@ -174,35 +138,32 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Sets the focus to the cell editor's default label.
-	 */
-	@Override
-	protected void doSetFocus() {
-		defaultLabel.setFocus();
-	}
-
-	/**
-	 * Sets this cell editor's value and updates the contents.
+	 * Sets the value of this cell editor and updates the label.
 	 * 
 	 * @param value
 	 *            the value of this cell editor
 	 */
 	protected void doSetValue(Object value) {
 		this.value = value;
-		updateContents(value);
+		updateLabel(value);
 	}
 
 	/**
-	 * Opens a dialog box under the given parent control and returns the
-	 * dialog's value when it closes, or <code>null</code> if the dialog was
-	 * canceled or no selection was made in the dialog.
+	 * Sets the focus to the cell editor's label.
+	 */
+	@Override
+	protected void doSetFocus() {
+		editorLabel.setFocus();
+	}
+
+	/**
+	 * Opens the dialog that suits the type provided by the configuration
+	 * parameter description.
 	 * 
-	 * @param cellEditorWindow
-	 *            the parent control cell editor's window
 	 * @return the selected value, or <code>null</code> if the dialog was
 	 *         canceled or no selection was made in the dialog
 	 */
-	private Object openDialogBox(Control cellEditorWindow) {
+	private Object openDialog() {
 		if (configParamDesc == null) {
 			return null;
 		}
@@ -210,7 +171,8 @@ public class CustomDialogCellEditor extends CellEditor {
 		String result = null;
 		String oldValue = (String) value;
 		boolean needCharConversion = false;
-		Shell shell = new Shell(Display.getDefault());
+
+		Shell shell = editorComposite.getShell();
 
 		if (configParamDesc.isADirectory()) {
 			result = openDirectoryDialog(shell, oldValue);
@@ -220,7 +182,7 @@ public class CustomDialogCellEditor extends CellEditor {
 			needCharConversion = result != null;
 		} else if (configParamDesc.isASet()) {
 			ConfigParamSetEditingDialog dialog = new ConfigParamSetEditingDialog(shell, configParamDesc,
-					defaultLabel.getText());
+					editorLabel.getText());
 			if (dialog.open() == Window.OK) {
 				result = dialog.getResult();
 			}
@@ -252,11 +214,12 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Lets the user edit the value via a custom dialog.
+	 * Lets the user edit the value via a custom dialog depending on the
+	 * parameter type.
 	 */
 	private void editValue() {
 		Control previousFocusControl = Display.getCurrent().getFocusControl();
-		Object newValue = openDialogBox(editor);
+		Object newValue = openDialog();
 		if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
 			previousFocusControl.forceFocus();
 		}
@@ -267,8 +230,8 @@ public class CustomDialogCellEditor extends CellEditor {
 				markDirty();
 				doSetValue(newValue);
 			} else {
-				// try to insert the current value into the error message.
-				setErrorMessage(MessageFormat.format(getErrorMessage(), new Object[] { newValue.toString() }));
+				String msg = MessageFormat.format(getErrorMessage(), new Object[] { newValue.toString() });
+				setErrorMessage(msg);
 			}
 			fireApplyEditorValue();
 		} else {
@@ -277,13 +240,13 @@ public class CustomDialogCellEditor extends CellEditor {
 	}
 
 	/**
-	 * Updates the controls showing the value of this cell editor.
+	 * Updates the label showing the value of this cell editor.
 	 * 
 	 * @param value
 	 *            the new value of this cell editor
 	 */
-	protected void updateContents(Object value) {
-		if (defaultLabel == null) {
+	private void updateLabel(Object value) {
+		if (editorLabel == null) {
 			return;
 		}
 
@@ -291,6 +254,6 @@ public class CustomDialogCellEditor extends CellEditor {
 		if (value != null) {
 			text = value.toString();
 		}
-		defaultLabel.setText(text);
+		editorLabel.setText(text);
 	}
 }

@@ -23,17 +23,17 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 
 /**
  * The activator class controls the plug-in life cycle. It also offers easy
- * access to the DynamicSpotter Project Navigator and some of its important
- * content. Every time a new input is set by the workbench the reference to the
- * viewer will be updated here by the NavigatorContentProvider.
+ * access to the DynamicSpotter Project Navigator viewer and some of its
+ * important content. Every time a new input is set by the workbench the
+ * reference to the viewer will be updated here by the NavigatorContentProvider.
  * 
  * @see org.spotter.eclipse.ui.providers.NavigatorContentProvider
  * 
@@ -54,7 +54,7 @@ public class Activator extends AbstractUIPlugin {
 	// The clients per project identified by project name
 	// (each project can have individual host/port settings)
 	private Map<String, ServiceClientWrapper> serviceClients = new HashMap<>();
-	private TreeViewer navigatorviewer;
+	private CommonViewer navigatorViewer;
 	// The current project history elements in the navigator
 	private Map<String, SpotterProjectResults> projectHistoryElements = new HashMap<>();
 	// The currently selected projects in the navigator
@@ -78,10 +78,6 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		imageRegistry = plugin.getImageRegistry();
-		// Properties properties = new Properties();
-		// properties.setProperty("org.lpe.common.extension.appRootDir",
-		// "none");
-		// GlobalConfiguration.initialize(properties);
 	}
 
 	/*
@@ -150,8 +146,8 @@ public class Activator extends AbstractUIPlugin {
 	 * 
 	 * @return the navigator viewer
 	 */
-	public TreeViewer getNavigatorViewer() {
-		return navigatorviewer;
+	public CommonViewer getNavigatorViewer() {
+		return navigatorViewer;
 	}
 
 	/**
@@ -160,8 +156,8 @@ public class Activator extends AbstractUIPlugin {
 	 * @param navigatorViewer
 	 *            the navigator viewer to set
 	 */
-	public void setNavigatorViewer(TreeViewer navigatorViewer) {
-		this.navigatorviewer = navigatorViewer;
+	public void setNavigatorViewer(CommonViewer navigatorViewer) {
+		this.navigatorViewer = navigatorViewer;
 	}
 
 	/**
