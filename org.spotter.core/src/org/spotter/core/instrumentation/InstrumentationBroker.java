@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.description.InstrumentationDescription;
@@ -75,16 +76,16 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	@Override
 	public void initialize() throws InstrumentationException {
 		try {
-			final Semaphore semaphore = new Semaphore(instrumentationControllers.size(), true);
+			List<Future<?>> tasks = new ArrayList<>();
 
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
-				semaphore.acquire();
-				LpeSystemUtils.submitTask(new InitializeTask(semaphore, instController));
+				tasks.add(LpeSystemUtils.submitTask(new InitializeTask(instController)));
 			}
-
-			// wait for termination of all instrumentation tasks
-			semaphore.acquire(instrumentationControllers.size());
-		} catch (InterruptedException e) {
+			// wait for termination of all initialization tasks
+			for (Future<?> task : tasks) {
+				task.get();
+			}
+		} catch (InterruptedException | ExecutionException e) {
 			throw new InstrumentationException(e);
 		}
 
@@ -96,16 +97,16 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 			if (description == null) {
 				throw new InstrumentationException("Instrumentation description must not be null!");
 			}
-			final Semaphore semaphore = new Semaphore(instrumentationControllers.size(), true);
-
+			List<Future<?>> tasks = new ArrayList<>();
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
-				semaphore.acquire();
-				LpeSystemUtils.submitTask(new InstrumentTask(semaphore, instController, description));
-			}
 
+				tasks.add(LpeSystemUtils.submitTask(new InstrumentTask(instController, description)));
+			}
 			// wait for termination of all instrumentation tasks
-			semaphore.acquire(instrumentationControllers.size());
-		} catch (InterruptedException e) {
+			for (Future<?> task : tasks) {
+				task.get();
+			}
+		} catch (InterruptedException | ExecutionException e) {
 			throw new InstrumentationException(e);
 		}
 
@@ -114,16 +115,17 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	@Override
 	public void uninstrument() throws InstrumentationException {
 		try {
-			final Semaphore semaphore = new Semaphore(instrumentationControllers.size(), true);
-
+			List<Future<?>> tasks = new ArrayList<>();
 			for (ISpotterInstrumentation instController : instrumentationControllers) {
-				semaphore.acquire();
-				LpeSystemUtils.submitTask(new UninstrumentTask(semaphore, instController));
+
+				tasks.add(LpeSystemUtils.submitTask(new UninstrumentTask(instController)));
 			}
 
-			// wait for termination of all instrumentation tasks
-			semaphore.acquire(instrumentationControllers.size());
-		} catch (InterruptedException e) {
+			// wait for termination of all uninstrumentation tasks
+			for (Future<?> task : tasks) {
+				task.get();
+			}
+		} catch (InterruptedException | ExecutionException e) {
 			throw new InstrumentationException(e);
 		}
 
@@ -145,18 +147,11 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 
 	private abstract class Task implements Runnable {
 
-		private Semaphore semaphore;
-
-		public Task(Semaphore semaphore) {
-			this.semaphore = semaphore;
-		}
-
 		@Override
 		public void run() {
 			try {
 
 				executeTask();
-				semaphore.release();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -171,9 +166,9 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 		ISpotterInstrumentation instController;
 		InstrumentationDescription description;
 
-		public InstrumentTask(Semaphore semaphore, ISpotterInstrumentation instController,
-				InstrumentationDescription description) {
-			super(semaphore);
+		public InstrumentTask(ISpotterInstrumentation instController, InstrumentationDescription description)
+				throws InterruptedException {
+
 			this.instController = instController;
 			this.description = description;
 		}
@@ -208,8 +203,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	private class UninstrumentTask extends Task {
 		ISpotterInstrumentation instController;
 
-		public UninstrumentTask(Semaphore semaphore, ISpotterInstrumentation instController) {
-			super(semaphore);
+		public UninstrumentTask(ISpotterInstrumentation instController) throws InterruptedException {
 			this.instController = instController;
 		}
 
@@ -223,8 +217,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	private class InitializeTask extends Task {
 		private ISpotterInstrumentation instController;
 
-		public InitializeTask(Semaphore semaphore, ISpotterInstrumentation instController) {
-			super(semaphore);
+		public InitializeTask(ISpotterInstrumentation instController) throws InterruptedException {
 			this.instController = instController;
 		}
 

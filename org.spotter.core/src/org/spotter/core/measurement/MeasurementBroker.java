@@ -16,15 +16,15 @@
 package org.spotter.core.measurement;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.aim.api.exceptions.MeasurementException;
@@ -58,6 +58,8 @@ public final class MeasurementBroker implements IMeasurementController {
 	private final List<IMeasurementController> controllers;
 
 	private long controllerRelativeTime = 0;
+
+	private boolean dataPipeliningFinished = false;
 
 	/**
 	 * Constructor.
@@ -119,20 +121,29 @@ public final class MeasurementBroker implements IMeasurementController {
 	public MeasurementData getMeasurementData() throws MeasurementException {
 
 		try {
-
-			final Semaphore semaphore = new Semaphore(controllers.size(), true);
+			final List<Future<?>> tasks = new ArrayList<>();
 
 			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
 			for (IMeasurementController mController : controllers) {
-				LpeSystemUtils.submitTask(new PipeDataTask(semaphore, mController, records));
+				tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
 			}
 			MeasurementData result = new MeasurementData();
-			while (!(records.isEmpty() && semaphore.availablePermits() == controllers.size())) {
+			dataPipeliningFinished = false;
+
+			Future<?> terminationListeningTask = asyncListenForTermination(tasks);
+
+			while (!(records.isEmpty() && dataPipeliningFinished)) {
 				AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
 				if (record != null) {
 					result.getRecords().add(record);
 				}
+			}
+
+			try {
+				terminationListeningTask.get();
+			} catch (ExecutionException e) {
+				throw new MeasurementException(e);
 			}
 
 			return result;
@@ -140,6 +151,25 @@ public final class MeasurementBroker implements IMeasurementController {
 		} catch (InterruptedException e) {
 			throw new MeasurementException(e);
 		}
+	}
+
+	private Future<?> asyncListenForTermination(final List<Future<?>> tasks) {
+		Future<?> terminationListeningTask = LpeSystemUtils.submitTask(new Runnable() {
+
+			@Override
+			public void run() {
+				for (Future<?> task : tasks) {
+					try {
+						task.get();
+					} catch (InterruptedException | ExecutionException e) {
+						throw new RuntimeException(e);
+					}
+				}
+				dataPipeliningFinished = true;
+
+			}
+		});
+		return terminationListeningTask;
 	}
 
 	@Override
@@ -157,40 +187,32 @@ public final class MeasurementBroker implements IMeasurementController {
 
 	@Override
 	public void pipeToOutputStream(OutputStream oStream) throws MeasurementException {
-		try {
 
-			final Semaphore semaphore = new Semaphore(controllers.size(), true);
+		final List<Future<?>> tasks = new ArrayList<>();
 
-			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
+		final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
-			for (IMeasurementController mController : controllers) {
-				LpeSystemUtils.submitTask(new PipeDataTask(semaphore, mController, records));
-			}
+		for (IMeasurementController mController : controllers) {
+			tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
+		}
+		dataPipeliningFinished = false;
 
-			BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(oStream));
-			try {
-				while (!(records.isEmpty() && semaphore.availablePermits() == controllers.size())) {
-					AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
-					if (record != null) {
+		Future<?> terminationListeningTask = asyncListenForTermination(tasks);
 
-						bWriter.write(record.toString());
+		try (BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(oStream))) {
+			while (!(records.isEmpty() && dataPipeliningFinished)) {
+				AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
+				if (record != null) {
 
-						bWriter.newLine();
-					}
-				}
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
-				if (bWriter != null) {
-					try {
-						bWriter.close();
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
+					bWriter.write(record.toString());
+
+					bWriter.newLine();
 				}
 			}
 
-		} catch (InterruptedException e) {
+			terminationListeningTask.get();
+
+		} catch (Exception e) {
 			throw new MeasurementException(e);
 		}
 
