@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -74,7 +73,6 @@ public final class SpotterProjectSupport {
 	private static final boolean DEFAULT_EXPERT_VIEW_ENABLED = false;
 	private static final String KEY_EXPERT_VIEW_ENABLED = "spotter.expertview.enabled";
 
-	private static final String TITLE_ERR_DIALOG = "Spotter Project";
 	private static final String ERR_GET_SPOTTER_CONFIG_PARAMS = "Error occured while getting DynamicSpotter configuration parameters";
 	private static final String ERR_CLOSE_STREAM = "Error occured while closing a stream";
 	private static final String ERR_CREATE_PROJECT = "Error occured while creating a new project";
@@ -98,7 +96,7 @@ public final class SpotterProjectSupport {
 	}
 
 	/**
-	 * Create a new Spotter project.
+	 * Create a new DynamicSpotter project.
 	 * 
 	 * @param projectName
 	 *            the name of the new project
@@ -119,10 +117,9 @@ public final class SpotterProjectSupport {
 			String[] paths = { DEFAULT_RESULTS_DIR_NAME };
 			addToProjectStructure(project, paths);
 		} catch (Exception e) {
-			// project could not be created successfully
-			LOGGER.error(e.getMessage());
 			// project creation failed
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_CREATE_PROJECT);
+			LOGGER.error(e.getMessage());
+			DialogUtils.openError(ERR_CREATE_PROJECT);
 			project = null;
 		}
 
@@ -144,7 +141,7 @@ public final class SpotterProjectSupport {
 				// reset results view for the deleted project
 				ResultsView.reset(project);
 
-				// close spotter editors
+				// close DynamicSpotter editors
 				List<IEditorReference> closeEditors = new ArrayList<IEditorReference>();
 				for (IEditorReference ref : page.getEditorReferences()) {
 					IEditorPart editorPart = ref.getEditor(true);
@@ -202,13 +199,13 @@ public final class SpotterProjectSupport {
 	}
 
 	/**
-	 * Save the given Spotter properties to the specified file. The necessary
-	 * general properties will be added automatically.
+	 * Save the given DynamicSpotter properties to the specified file. The
+	 * necessary general properties will be added automatically.
 	 * 
 	 * @param file
 	 *            the destination file
 	 * @param properties
-	 *            the Spotter properties to save
+	 *            the DynamicSpotter properties to save
 	 * @throws UICoreException
 	 *             when saving fails
 	 */
@@ -234,11 +231,11 @@ public final class SpotterProjectSupport {
 	}
 
 	/**
-	 * Updates the Spotter configuration file. Loads the current configuration
-	 * from file and saves it updating project related paths.
+	 * Updates the DynamicSpotter configuration file. Loads the current
+	 * configuration from file and saves it updating project related paths.
 	 * 
 	 * @param project
-	 *            the project the Spotter configuration belongs to
+	 *            the project the DynamicSpotter configuration belongs to
 	 * @throws UICoreException
 	 *             when updating fails
 	 */
