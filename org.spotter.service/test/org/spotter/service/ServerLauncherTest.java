@@ -31,21 +31,15 @@ public class ServerLauncherTest {
 	public void testMain() {
 		String[] argsEmpty = {};
 		String[] argsNull = null;
-		String[] argsStart = { "start" };
-		String[] argsShutdown = { "shutdown" };
-		String[] argsStartCustomized = { "start", "port=1337" };
-		String[] argsShutdownCustomized = { "shutdown", "port=1337" };
+		String[] argsStartCustomized = { "start", "port=11337" };
+		String[] argsShutdownCustomized = { "shutdown", "port=11337" };
 		String[] argsRootDir = { "rootDir=" };
-		String[] argsUnordered = { "port=1337", "start" };
+		String[] argsUnordered = { "port=11337", "start" };
 		String[] argsHelp = { "-h" };
 
 		ServerLauncher.main(argsNull);
 		
 		ServerLauncher.main(argsEmpty);
-		
-		ServerLauncher.main(argsStart);
-		
-		ServerLauncher.main(argsShutdown);
 		
 		ServerLauncher.main(argsStartCustomized);
 		
