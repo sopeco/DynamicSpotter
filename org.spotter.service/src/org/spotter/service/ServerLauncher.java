@@ -100,9 +100,9 @@ public final class ServerLauncher {
 		LOGGER.info("Usage: java -jar <SPOTTER_SERVER_JAR> {start | shutdown} [options]");
 		LOGGER.info("the options are:");
 		LOGGER.info(HELP_KEY + ": show this help text");
-		LOGGER.info(PORT_KEY + "=<PORT>: port to bind the server to, default: 8080");
+		LOGGER.info(PORT_KEY + "<PORT>: port to bind the server to, default: 8080");
 		LOGGER.info(SPOTTER_ROOT_DIR_KEY
-				+ "=<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. "
+				+ "<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. "
 				+ "Specifies where the location of the plugins folder for DynamicSpotter. Default root is the current directory.");
 	}
 

@@ -30,6 +30,8 @@ import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.Extensions;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.extension.IExtensionArtifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
 import org.spotter.core.Spotter;
 import org.spotter.core.detection.AbstractDetectionExtension;
@@ -48,6 +50,7 @@ import org.spotter.shared.status.SpotterProgress;
  * 
  */
 public class SpotterServiceWrapper {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterServiceWrapper.class);
 	private static SpotterServiceWrapper instance;
 
 	/**
@@ -89,6 +92,7 @@ public class SpotterServiceWrapper {
 				try {
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 				} catch (InstrumentationException | MeasurementException | WorkloadException e) {
+					LOGGER.error("Diagnosis failed: Error: {}", e);
 					throw new RuntimeException(e);
 				}
 
