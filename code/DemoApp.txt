@@ -1,0 +1,33 @@
+public class DummyApp {
+	// A dummy service containing a One Lane Bridge anti-pattern
+	@GET @Path("testOLB")
+	public String testOLB() 
+	 throws InterruptedException {
+		System.out.println("OLB called");
+		OLB.getInstnace().olbMethod();
+		return "Hello from OLB Test Method!";
+	}
+	
+	// Another dummy service containing no performance problems.
+	@GET @Path("fibonacci")
+	public String fibonacci() {
+		fibonacci(4);
+		return "Hello from Fibonacci Method!";
+	}
+	
+	// Recursive calculation of fibonacci.
+	private int fibonacci(int n) {
+		if (n <= 1) 
+			return 1;
+		 else 
+			return fibonacci(n - 2) + fibonacci(n - 1);
+	}
+}
+
+public class OLB {
+	...
+	// Method leading to a One Lane Bridge. 
+	public synchronized void olbMethod() throws InterruptedException {
+		Thread.sleep(100); // sleep 100 ms
+	}
+}

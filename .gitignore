@@ -1,7 +1,9 @@
-*.aux
-*.bbl
-*.blg
-doc.log
-*.pdf
-*.synctex.gz
-*.toc
+/do.synctex.gz
+/doc.aux
+/doc.log
+/doc.toc
+/.project
+/.texlipse
+/doc.pdf
+/tmp/*
+/doc.synctex.gz
