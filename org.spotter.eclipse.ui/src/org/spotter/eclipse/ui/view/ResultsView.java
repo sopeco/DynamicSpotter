@@ -99,7 +99,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	public static final String VIEW_ID = "org.spotter.eclipse.ui.view.resultsView";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ResultsView.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(ResultsView.class);
 
 	private static final String RESULTS_VIEW_TITLE = "Results";
 	private static final String DLG_RESOURCE_TITLE = "Resource '%s' (%s)";
@@ -179,12 +180,15 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	 *            match any
 	 */
 	public static void reset(IProject project) {
-		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench()
+				.getWorkbenchWindows()) {
 			for (IWorkbenchPage page : window.getPages()) {
-				ResultsView resultsView = (ResultsView) page.findView(ResultsView.VIEW_ID);
+				ResultsView resultsView = (ResultsView) page
+						.findView(ResultsView.VIEW_ID);
 				if (resultsView != null) {
 					SpotterProjectRunResult result = resultsView.getResult();
-					if (project == null || result != null && project.equals(result.getProject())) {
+					if (project == null || result != null
+							&& project.equals(result.getProject())) {
 						resultsView.setResult(null);
 					}
 				}
@@ -203,12 +207,15 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	 *            match any
 	 */
 	public static void reset(IFolder folder) {
-		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench()
+				.getWorkbenchWindows()) {
 			for (IWorkbenchPage page : window.getPages()) {
-				ResultsView resultsView = (ResultsView) page.findView(ResultsView.VIEW_ID);
+				ResultsView resultsView = (ResultsView) page
+						.findView(ResultsView.VIEW_ID);
 				if (resultsView != null) {
 					SpotterProjectRunResult result = resultsView.getResult();
-					if (folder == null || result != null && folder.equals(result.getResultFolder())) {
+					if (folder == null || result != null
+							&& folder.equals(result.getResultFolder())) {
 						resultsView.setResult(null);
 					}
 				}
@@ -224,7 +231,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		parent.setLayout(new FillLayout());
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
-		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container, new ExtensionItem());
+		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container,
+				new ExtensionItem());
 		SpotterExtensionsLabelProvider labelProvider = (SpotterExtensionsLabelProvider) hierarchyTreeViewer
 				.getLabelProvider();
 		imageProvider = new ResultExtensionsImageProvider();
@@ -245,14 +253,16 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	private void createHierarchyDetailsUpperPart(Composite parent) {
 		Composite compUpperPart = new Composite(parent, SWT.NONE);
-		compUpperPart.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		compUpperPart.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true,
+				false));
 		compUpperPart.setLayout(new GridLayout(2, false));
 
 		Label label = new Label(compUpperPart, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 		label.setText("Problem Name:");
 		lblProblemName = new Label(compUpperPart, SWT.NONE);
-		lblProblemName.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+		lblProblemName.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true,
+				false));
 		lblProblemName.setText(LABEL_NONE_SELECTED);
 
 		label = new Label(compUpperPart, SWT.NONE);
@@ -266,30 +276,36 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 		label.setText("Description:");
 		lblDescription = new Label(compUpperPart, SWT.WRAP);
-		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true,
+				false));
 		lblDescription.setText("");
 	}
 
 	private void createHierarchyDetailsLowerPart(Composite parent) {
 		Composite compLowerPart = new Composite(parent, SWT.NONE);
-		compLowerPart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		compLowerPart
+				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		compLowerPart.setLayout(new FillLayout(SWT.HORIZONTAL));
-		SashForm sashContainer = new SashForm(compLowerPart, SWT.HORIZONTAL | SWT.SMOOTH);
+		SashForm sashContainer = new SashForm(compLowerPart, SWT.HORIZONTAL
+				| SWT.SMOOTH);
 
 		Group grpResult = new Group(sashContainer, SWT.NONE);
 		grpResult.setText("Result Message");
 		grpResult.setLayout(new FillLayout());
 
-		textResult = new Text(grpResult, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		textResult = new Text(grpResult, SWT.MULTI | SWT.H_SCROLL
+				| SWT.V_SCROLL);
 		textResult.setText("");
 		textResult.setEditable(false);
 
 		Group grpResources = new Group(sashContainer, SWT.NONE);
 		grpResources.setText("Resources");
 		grpResources.setLayout(new FillLayout(SWT.HORIZONTAL));
-		SashForm sashResources = new SashForm(grpResources, SWT.HORIZONTAL | SWT.SMOOTH);
+		SashForm sashResources = new SashForm(grpResources, SWT.HORIZONTAL
+				| SWT.SMOOTH);
 
-		listResources = new List(sashResources, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		listResources = new List(sashResources, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL);
 		canvasRes = new Canvas(sashResources, SWT.NONE);
 
 		sashResources.setWeights(new int[] { 1, 2 });
@@ -307,7 +323,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 					shell = canvasRes.getShell();
 					if (shell != null) {
 						savedCursor = shell.getCursor();
-						Cursor zoomCursor = Display.getDefault().getSystemCursor(SWT.CURSOR_HAND);
+						Cursor zoomCursor = Display.getDefault()
+								.getSystemCursor(SWT.CURSOR_HAND);
 						shell.setCursor(zoomCursor);
 					}
 				}
@@ -328,7 +345,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		canvasRes.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				if (resourceImageData != null && listResources.getSelectionCount() > 0) {
+				if (resourceImageData != null
+						&& listResources.getSelectionCount() > 0) {
 					String resourceName = listResources.getSelection()[0];
 					String resourceIdentifier = createResourceIdentifier(resourceName);
 					if (resourceShells.containsKey(resourceIdentifier)) {
@@ -349,28 +367,34 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void addSelectionListeners() {
-		hierarchyTreeViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				currentSelectedProblem = null;
-				if (!sel.isEmpty()) {
-					ExtensionItem item = (ExtensionItem) sel.getFirstElement();
-					Object problem = item.getModelWrapper().getXMLModel();
-					if (problem instanceof XPerformanceProblem) {
-						currentSelectedProblem = (XPerformanceProblem) problem;
+		hierarchyTreeViewer
+				.addPostSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						IStructuredSelection sel = (IStructuredSelection) event
+								.getSelection();
+						currentSelectedProblem = null;
+						if (!sel.isEmpty()) {
+							ExtensionItem item = (ExtensionItem) sel
+									.getFirstElement();
+							Object problem = item.getModelWrapper()
+									.getXMLModel();
+							if (problem instanceof XPerformanceProblem) {
+								currentSelectedProblem = (XPerformanceProblem) problem;
+							}
+						}
+						updateProblemDetails();
 					}
-				}
-				updateProblemDetails();
-			}
-		});
+				});
 
 		hierarchyTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				IStructuredSelection selection = (IStructuredSelection) event
+						.getSelection();
 				Object selectedNode = selection.getFirstElement();
-				hierarchyTreeViewer.setExpandedState(selectedNode, !hierarchyTreeViewer.getExpandedState(selectedNode));
+				hierarchyTreeViewer.setExpandedState(selectedNode,
+						!hierarchyTreeViewer.getExpandedState(selectedNode));
 			}
 		});
 
@@ -399,7 +423,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 				resourceImageData = new ImageData(resourceFile);
 				int width = Math.min(canvasWidth, resourceImageData.width);
 				int height = Math.min(canvasHeight, resourceImageData.height);
-				resourceImage = new Image(canvasRes.getDisplay(), resourceImageData.scaledTo(width, height));
+				resourceImage = new Image(canvasRes.getDisplay(),
+						resourceImageData.scaledTo(width, height));
 			} // else {
 				// TODO: draw "not available image" picture using GC
 			// }
@@ -413,13 +438,16 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		Display display = Display.getDefault();
 		Rectangle displayRect = display.getClientArea();
 
-		final Image image = new Image(display, createScaledImageData(displayRect));
+		final Image image = new Image(display,
+				createScaledImageData(displayRect));
 		label.setImage(image);
 
 		popupShell.setLayout(new FillLayout());
-		popupShell.setImage(Activator.getImage(SpotterProjectParent.IMAGE_PATH));
+		popupShell
+				.setImage(Activator.getImage(SpotterProjectParent.IMAGE_PATH));
 		String projectName = runResultItem.getProject().getName();
-		popupShell.setText(String.format(DLG_RESOURCE_TITLE, resourceIdentifier, projectName));
+		popupShell.setText(String.format(DLG_RESOURCE_TITLE,
+				resourceIdentifier, projectName));
 		popupShell.pack();
 
 		Rectangle splashRect = popupShell.getBounds();
@@ -451,7 +479,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		int width = resourceImageData.width;
 		int height = resourceImageData.height;
 		int maxImageWidth = displayRect.width + displayRect.x;
-		int maxImageHeight = displayRect.height + displayRect.y - DLG_RESOURCE_TOP_MARGIN;
+		int maxImageHeight = displayRect.height + displayRect.y
+				- DLG_RESOURCE_TOP_MARGIN;
 
 		int scaledWidth = Math.min(width, maxImageWidth);
 		int scaledHeight = Math.min(height, maxImageHeight);
@@ -491,15 +520,18 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String name = currentSelectedProblem.getExtensionName();
 			lblProblemName.setText(name);
 			String description = client.getExtensionDescription(name);
-			lblDescription.setText(description == null ? LABEL_NO_INFO : description);
+			lblDescription.setText(description == null ? LABEL_NO_INFO
+					: description);
 
 			String id = currentSelectedProblem.getUniqueId();
-			SpotterResult spotterResult = resultsContainer == null ? null : resultsContainer.getResultsMap().get(id);
+			SpotterResult spotterResult = resultsContainer == null ? null
+					: resultsContainer.getResultsMap().get(id);
 			if (spotterResult == null) {
 				lblStatus.setText(LABEL_NO_LOOKUP);
 				textResult.setText(LABEL_NO_LOOKUP);
 			} else {
-				lblStatus.setText(spotterResult.isDetected() ? LABEL_DETECTED : LABEL_NOT_DETECTED);
+				lblStatus.setText(spotterResult.isDetected() ? LABEL_DETECTED
+						: LABEL_NOT_DETECTED);
 				textResult.setText(spotterResult.getMessage());
 				populateResourcesList(spotterResult);
 			}
@@ -568,8 +600,10 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
 			Object first = ((IStructuredSelection) selection).getFirstElement();
 			if (first instanceof SpotterProjectRunResult) {
-				IFolder newFolder = ((SpotterProjectRunResult) first).getResultFolder();
-				if (getResult() == null || !getResult().getResultFolder().equals(newFolder)) {
+				IFolder newFolder = ((SpotterProjectRunResult) first)
+						.getResultFolder();
+				if (getResult() == null
+						|| !getResult().getResultFolder().equals(newFolder)) {
 					setResult((SpotterProjectRunResult) first);
 				}
 			}
@@ -582,7 +616,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			resetHierarchy();
 			resetReport();
 		} else {
-			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
+			String contentDescription = String.format(
+					RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
 					runResultItem.getProject().getName());
 			setContentDescription(contentDescription);
 			updateHierarchy();
@@ -613,31 +648,38 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateHierarchy() {
-		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME
+				+ File.separator + runResultItem.getText() + File.separator
+				+ ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
 		IFile file = runResultItem.getProject().getFile(filename);
 		ExtensionItem input = null;
 		try {
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
 				file.refreshLocal(IResource.DEPTH_ZERO, null);
 			}
-			BufferedInputStream bufferedInStream = new BufferedInputStream(file.getContents());
+			BufferedInputStream bufferedInStream = new BufferedInputStream(
+					file.getContents());
 			ObjectInputStream objectIn = new ObjectInputStream(bufferedInStream);
 			resultsContainer = (ResultsContainer) objectIn.readObject();
 			objectIn.close();
 			bufferedInStream.close();
 
-			input = HierarchyEditor.createPerformanceProblemHierarchy(runResultItem.getProject().getName(),
+			input = HierarchyEditor.createPerformanceProblemHierarchy(
+					runResultItem.getProject().getName(),
 					resultsContainer.getRootProblem());
 		} catch (CoreException e) {
 			resultsContainer = null;
 			String text = ERR_MSG_MISSING_SER_FILE + " (" + filename + ")";
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			LOGGER.error(text
+					+ (e.getMessage() != null ? " (" + e.getMessage() + ")"
+							: ""));
 			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
 		} catch (IOException | ClassNotFoundException e) {
 			resultsContainer = null;
 			String text = String.format(ERR_MSG_IO_ERROR, filename);
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			LOGGER.error(text
+					+ (e.getMessage() != null ? " (" + e.getMessage() + ")"
+							: ""));
 			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
 		} finally {
 			imageProvider.setResultsContainer(resultsContainer);
@@ -650,15 +692,17 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateReport() {
-		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-				+ File.separator + ResultsLocationConstants.TXT_REPORT_FILE_NAME;
+		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME
+				+ File.separator + runResultItem.getText() + File.separator
+				+ ResultsLocationConstants.TXT_REPORT_FILE_NAME;
 		IFile file = runResultItem.getProject().getFile(filename);
 		StringBuilder sb = new StringBuilder();
 		try {
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
 				file.refreshLocal(IResource.DEPTH_ZERO, null);
 			}
-			BufferedInputStream bufferedInStream = new BufferedInputStream(file.getContents());
+			BufferedInputStream bufferedInStream = new BufferedInputStream(
+					file.getContents());
 			int readByte;
 			while ((readByte = bufferedInStream.read()) != -1) {
 				sb.append((char) readByte);
@@ -667,25 +711,42 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			textReport.setText(sb.toString());
 		} catch (CoreException e) {
 			String text = ERR_MSG_MISSING_REPORT + " (" + filename + ")";
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			LOGGER.error(text
+					+ (e.getMessage() != null ? " (" + e.getMessage() + ")"
+							: ""));
 			textReport.setText(text);
 			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
 		} catch (IOException e) {
 			String text = String.format(ERR_MSG_IO_ERROR, filename);
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			LOGGER.error(text
+					+ (e.getMessage() != null ? " (" + e.getMessage() + ")"
+							: ""));
 			textReport.setText(text);
 			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
 		}
 	}
 
 	private String getCurrentResourceFolder() {
-		String projectRelativeRunPath = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator
-				+ runResultItem.getText();
-		IFolder folder = runResultItem.getProject().getFolder(projectRelativeRunPath);
+		String projectRelativeRunPath = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME
+				+ File.separator + runResultItem.getText();
+		IFolder folder = runResultItem.getProject().getFolder(
+				projectRelativeRunPath);
 		String currentRunFolder = folder.getLocation().toString() + "/";
-		String subDirPath = currentSelectedProblem.getExtensionName() + "/"
-				+ ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR + "/";
+		String subDirPath = getSubDirPathForProblem(currentSelectedProblem);
+
 		return currentRunFolder + subDirPath;
+	}
+
+	private static String getSubDirPathForProblem(XPerformanceProblem problem) {
+		// TODO: there must be a way to retrieve this path from the result
+		// independent of the extension's implementation!
+		String name = problem.getExtensionName();
+		String idTag = "" + problem.getUniqueId().hashCode();
+
+		String subDirPath = name + "-" + idTag + "/"
+				+ ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR + "/";
+
+		return subDirPath;
 	}
 
 }
