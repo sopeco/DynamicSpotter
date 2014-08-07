@@ -47,7 +47,8 @@ public class RunHandler extends AbstractHandler {
 
 	private static final String MSG_MULTI_SELECTION = "More than one project has been selected.";
 	private static final String MSG_MISS_CONFIG = "DynamicSpotter Configuration '%s' is missing!";
-	private static final String MSG_ALREADY_RUNNING = "DynamicSpotter is already running";
+	private static final String MSG_ALREADY_RUNNING = "DynamicSpotter is already running!";
+	private static final String MSG_NO_CONNECTION = "No connection to DynamicSpotter Service!";
 	private static final String MSG_RUNTIME_ERROR = "Error occured during diagnosis: %s";
 	private static final String MSG_SPOTTER_STARTED = "Going to start DynamicSpotter diagnosis for project '%s' now. Continue?";
 
@@ -71,8 +72,12 @@ public class RunHandler extends AbstractHandler {
 			DialogUtils.openError(DIALOG_TITLE, String.format(MSG_MISS_CONFIG, spotterFilePath));
 			return null;
 		}
-		if (client.isRunning()) {
+		if (client.isRunning(true)) {
 			DialogUtils.openWarning(DIALOG_TITLE, MSG_ALREADY_RUNNING);
+			return null;
+		}
+		if (client.isConnectionIssue()) {
+			DialogUtils.openWarning(DIALOG_TITLE, MSG_NO_CONNECTION);
 			return null;
 		}
 
@@ -91,7 +96,7 @@ public class RunHandler extends AbstractHandler {
 
 	private void startSpotterRun(IProject project, ServiceClientWrapper client, String spotterConfigPath) {
 		Long jobId = client.startDiagnosis(spotterConfigPath);
-		if (jobId != null) {
+		if (jobId != null && jobId != 0) {
 			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId);
 			job.schedule();
 		} else {

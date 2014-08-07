@@ -24,10 +24,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.progress.IProgressConstants;
@@ -55,7 +53,8 @@ public class DynamicSpotterRunJob extends Job {
 	private static final int HUNDRED_PERCENT = 100;
 	private static final int FIVE_PERCENT = 5;
 
-	private static final String MSG_SPOTTER_FINISHED = "Finished the DynamicSpotter diagnosis!";
+	private static final String MSG_RUN_FINISH = "Finished the DynamicSpotter diagnosis successfully!";
+	private static final String MSG_RUN_ERROR = "Aborted the DynamicSpotter diagnosis due to an error!";
 	private static final String MSG_LOST_CONNECTION = "Lost connection to DS Service!";
 	private static final String MSG_CANCELLED = "The progress report has been cancelled and you will "
 			+ "not be informed when the run is finished. DynamicSpotter will continue to run on the "
@@ -83,12 +82,12 @@ public class DynamicSpotterRunJob extends Job {
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
-		// IAction gotoAction = new Action("Results") {
-		// public void run() {
-		// // TODO: show results in ResultsView
-		// }
-		// };
-		// setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+//		IAction gotoAction = new Action("Results") {
+//			public void run() {
+//				// TODO: show results in ResultsView
+//			}
+//		};
+//		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
 		setPriority(LONG);
 		setUser(true);
 	}
@@ -100,10 +99,9 @@ public class DynamicSpotterRunJob extends Job {
 		monitor.beginTask("DynamicSpotter Diagnosis", HUNDRED_PERCENT);
 		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
 
-		while (client.isRunning()) {
+		while (client.isRunning(true)) {
 			if (monitor.isCanceled()) {
-				DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
-				return new Status(Status.CANCEL, Activator.PLUGIN_ID, Status.OK, MSG_CANCELLED, null);
+				return onUserCancelledJob(null);
 			}
 			Long currentJobId = client.getCurrentJobId();
 			// check if the job is still being processed
@@ -112,20 +110,28 @@ public class DynamicSpotterRunJob extends Job {
 				try {
 					Thread.sleep(SLEEP_TIME_MILLIS);
 				} catch (InterruptedException e) {
-					DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
-					return new Status(Status.CANCEL, Activator.PLUGIN_ID, Status.OK, MSG_CANCELLED, null);
+					return onUserCancelledJob(e);
 				}
 			} else {
+				// assume our job is due
 				break;
 			}
 		}
-		if (!client.testConnection(false)) {
-			DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
-			return new Status(Status.WARNING, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
+
+		Exception runException = null;
+
+		if (client.getLastException() != null) {
+			if (client.isConnectionIssue()) {
+				DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
+				return new Status(Status.WARNING, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
+			} else {
+				// job was cancelled on server-side due to an error
+				runException = client.getLastException();
+			}
 		}
 
 		monitor.done();
-		onFinishedJob();
+		onFinishedJob(runException);
 
 		// keep the finished job in the progress view only if
 		// it is not running in the progress dialog
@@ -168,7 +174,12 @@ public class DynamicSpotterRunJob extends Job {
 		}
 	}
 
-	private void onFinishedJob() {
+	private IStatus onUserCancelledJob(Exception exception) {
+		DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
+		return new Status(Status.CANCEL, Activator.PLUGIN_ID, Status.OK, MSG_CANCELLED, exception);
+	}
+
+	private void onFinishedJob(final Exception runException) {
 		final Activator activator = Activator.getDefault();
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 
@@ -177,8 +188,17 @@ public class DynamicSpotterRunJob extends Job {
 			public void run() {
 				Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
 				results.get(project.getName()).refreshChildren();
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-				MessageDialog.openInformation(shell, RunHandler.DIALOG_TITLE, MSG_SPOTTER_FINISHED);
+
+				if (runException == null) {
+					DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
+				} else {
+					String exceptionMsg = runException.getLocalizedMessage();
+					if (exceptionMsg == null || exceptionMsg.isEmpty()) {
+						exceptionMsg = runException.getClass().getSimpleName();
+					}
+					String msg = DialogUtils.appendCause(MSG_RUN_ERROR, exceptionMsg, true);
+					DialogUtils.openWarning(RunHandler.DIALOG_TITLE, msg);
+				}
 			}
 		});
 	}

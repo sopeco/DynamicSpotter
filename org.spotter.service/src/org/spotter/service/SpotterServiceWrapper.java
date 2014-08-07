@@ -70,6 +70,7 @@ public class SpotterServiceWrapper {
 	private Future<?> futureObject = null;
 
 	private long currentJob;
+	private JobState currentJobState = JobState.FINISHED;
 
 	/**
 	 * Executes diagnostics process.
@@ -85,15 +86,20 @@ public class SpotterServiceWrapper {
 		}
 		final long tempJobId = System.currentTimeMillis();
 		currentJob = tempJobId;
+		currentJobState = JobState.RUNNING;
 		futureObject = executor.submit(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
+					currentJobState = JobState.FINISHED;
 				} catch (InstrumentationException | MeasurementException | WorkloadException e) {
 					LOGGER.error("Diagnosis failed: Error: {}", e);
+					currentJobState = JobState.CANCELLED;
 					throw new RuntimeException(e);
+				} finally {
+					currentJob = 0;
 				}
 
 			}
@@ -102,16 +108,19 @@ public class SpotterServiceWrapper {
 	}
 
 	/**
-	 * @return true if Spotter Diagnostics is currently running
+	 * Returns the current state of the last issued job.
+	 * 
+	 * @return the current state of the last issued job
 	 */
 	public synchronized JobState getState() {
-		if (futureObject == null || futureObject.isDone()) {
-			return JobState.FINISHED;
-		} else if (futureObject.isCancelled()) {
-			return JobState.CANCELLED;
-		} else {
-			return JobState.RUNNING;
-		}
+//		if (futureObject != null && futureObject.isCancelled()) {
+//			return JobState.CANCELLED;
+//		} else if (futureObject == null || futureObject.isDone()) {
+//			return JobState.FINISHED;
+//		} else {
+//			return JobState.RUNNING;
+//		}
+		return currentJobState;
 	}
 
 	/**

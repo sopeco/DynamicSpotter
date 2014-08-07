@@ -40,7 +40,8 @@ import com.sun.jersey.api.client.ClientHandlerException;
  * <p>
  * A wrapper for the Spotter Service Client that delegates to the client and
  * handles arising exceptions by providing meaningful screen messages to the
- * user.
+ * user. Exceptions thrown during a request are stored and can be retrieved
+ * afterwards via {@link #getLastException()}.
  * </p>
  * <p>
  * This wrapper class also caches requested information from the server for
@@ -73,6 +74,7 @@ public class ServiceClientWrapper {
 
 	private final String projectName;
 	private final SpotterServiceClient client;
+	private Exception lastException;
 	private String host;
 	private String port;
 
@@ -92,6 +94,7 @@ public class ServiceClientWrapper {
 		this.port = DEFAULT_SERVICE_PORT;
 		this.projectName = null;
 		this.client = new SpotterServiceClient(host, port);
+		this.lastException = null;
 	}
 
 	/**
@@ -115,6 +118,7 @@ public class ServiceClientWrapper {
 		this.port = prefs.get(KEY_SERVICE_PORT, DEFAULT_SERVICE_PORT);
 		this.projectName = projectName;
 		this.client = new SpotterServiceClient(host, port);
+		this.lastException = null;
 	}
 
 	/**
@@ -204,23 +208,30 @@ public class ServiceClientWrapper {
 	 * @return The retrieved job id or <code>null</code> on failure.
 	 */
 	public Long startDiagnosis(final String configurationFile) {
+		lastException = null;
 		try {
 			return client.startDiagnosis(configurationFile);
 		} catch (Exception e) {
-			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false);
+			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false, false);
 		}
 		return null;
 	}
 
 	/**
-	 * @return <code>true</code> if DynamicSpotter diagnostics is currently
-	 *         running
+	 * Returns <code>true</code> if DynamicSpotter diagnostics is currently
+	 * running, otherwise <code>false</code>.
+	 * 
+	 * @param silent
+	 *            <code>true</code> to disable dialog pop-up
+	 * @return <code>true</code> if currently running, otherwise
+	 *         <code>false</code>
 	 */
-	public boolean isRunning() {
+	public boolean isRunning(boolean silent) {
+		lastException = null;
 		try {
 			return client.isRunning();
 		} catch (Exception e) {
-			handleException("isRunning", MSG_NO_STATUS, e, true);
+			handleException("isRunning", MSG_NO_STATUS, e, silent, true);
 		}
 		return false;
 	}
@@ -230,13 +241,14 @@ public class ServiceClientWrapper {
 	 *         configuration.
 	 */
 	public Set<ConfigParameterDescription> getConfigurationParameters() {
+		lastException = null;
 		if (cachedSpotterConfParameters != null) {
 			return cachedSpotterConfParameters;
 		}
 		try {
 			cachedSpotterConfParameters = client.getConfigurationParameters();
 		} catch (Exception e) {
-			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, false);
+			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, false, false);
 		}
 		return cachedSpotterConfParameters;
 	}
@@ -250,6 +262,7 @@ public class ServiceClientWrapper {
 	 * @return the matching description object or <code>null</code> if not found
 	 */
 	public ConfigParameterDescription getSpotterConfigParam(String name) {
+		lastException = null;
 		if (cachedSpotterConfParamsMap == null) {
 			cachedSpotterConfParamsMap = initSpotterConfParamsMap();
 			if (cachedSpotterConfParamsMap == null) {
@@ -269,6 +282,7 @@ public class ServiceClientWrapper {
 	 *         the case of an error <code>null</code> is returned.
 	 */
 	public ExtensionMetaobject[] getAvailableExtensions(SpotterExtensionType extType) {
+		lastException = null;
 		ExtensionMetaobject[] metaobjects = cachedExtensionMetaobjects.get(extType);
 		if (metaobjects != null) {
 			return metaobjects;
@@ -300,6 +314,7 @@ public class ServiceClientWrapper {
 	 * @return a set of extension names for the given extension type
 	 */
 	public Set<String> getAvailableExtensionNames(SpotterExtensionType extType) {
+		lastException = null;
 		Set<String> extNames = cachedExtensionNames.get(extType);
 		if (extNames != null) {
 			return extNames;
@@ -308,7 +323,7 @@ public class ServiceClientWrapper {
 			extNames = client.getAvailableExtensions(extType);
 			cachedExtensionNames.put(extType, extNames);
 		} catch (Exception e) {
-			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, false);
+			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, false, false);
 		}
 		return extNames;
 	}
@@ -321,6 +336,7 @@ public class ServiceClientWrapper {
 	 * @return the extension configuration parameters for the extension
 	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
+		lastException = null;
 		Set<ConfigParameterDescription> confParams = cachedExtensionConfParamters.get(extName);
 		if (confParams != null) {
 			if (!cachedExtensionDescriptions.containsKey(extName)) {
@@ -333,7 +349,7 @@ public class ServiceClientWrapper {
 			cachedExtensionConfParamters.put(extName, confParams);
 			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
 		} catch (Exception e) {
-			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, false);
+			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, false, false);
 		}
 		return confParams;
 	}
@@ -346,6 +362,7 @@ public class ServiceClientWrapper {
 	 * @return the textual description of the given extension
 	 */
 	public String getExtensionDescription(String extName) {
+		lastException = null;
 		if (!cachedExtensionConfParamters.containsKey(extName)) {
 			// force caching of the extension description
 			getExtensionConfigParamters(extName);
@@ -359,10 +376,11 @@ public class ServiceClientWrapper {
 	 * @return a report on the progress of the current job
 	 */
 	public SpotterProgress getCurrentProgressReport() {
+		lastException = null;
 		try {
 			return client.getCurrentProgressReport();
 		} catch (Exception e) {
-			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, false);
+			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, false, false);
 		}
 		return null;
 	}
@@ -373,10 +391,11 @@ public class ServiceClientWrapper {
 	 * @return the id of the currently running job
 	 */
 	public Long getCurrentJobId() {
+		lastException = null;
 		try {
 			return client.getCurrentJobId();
 		} catch (Exception e) {
-			handleException("getCurrentJobId", MSG_NO_STATUS, e, false);
+			handleException("getCurrentJobId", MSG_NO_STATUS, e, false, false);
 		}
 		return null;
 	}
@@ -396,10 +415,11 @@ public class ServiceClientWrapper {
 	 *         otherwise <code>false</code>
 	 */
 	public boolean testConnectionToSattelite(String extName, String host, String port) {
+		lastException = null;
 		try {
 			return client.testConnectionToSattelite(extName, host, port);
 		} catch (Exception e) {
-			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, false);
+			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, false, false);
 		}
 		return false;
 	}
@@ -414,16 +434,37 @@ public class ServiceClientWrapper {
 	 *         otherwise <code>false</code>
 	 */
 	public boolean testConnection(boolean showErrorDialog) {
+		lastException = null;
 		boolean connection;
 		try {
 			connection = client.testConnection();
 		} catch (Exception e) {
 			connection = false;
+			lastException = e;
 		}
 		if (showErrorDialog && !connection) {
 			showConnectionProblemMessage(MSG_NO_ACTION, host, port, false);
 		}
 		return connection;
+	}
+
+	/**
+	 * Returns the last exception thrown during a request.
+	 * 
+	 * @return the last exception thrown
+	 */
+	public Exception getLastException() {
+		return lastException;
+	}
+
+	/**
+	 * Returns whether the reason for the last exception was a connection issue.
+	 * 
+	 * @return <code>true</code> if it was connection issue, <code>false</code>
+	 *         otherwise
+	 */
+	public boolean isConnectionIssue() {
+		return lastException instanceof ClientHandlerException;
 	}
 
 	/**
@@ -473,22 +514,44 @@ public class ServiceClientWrapper {
 		}
 	}
 
-	private void handleException(String requestName, String requestErrorMsg, Exception e, boolean warning) {
+	/**
+	 * Handles an exception and stores the given exception which can then be
+	 * retrieved later via {@link #getLastException()}.
+	 * 
+	 * @param requestName
+	 *            The name of the requester. This name is only used for logging.
+	 * @param requestErrorMsg
+	 *            The error message for the request failure. This message is
+	 *            included in the screen message in case of a connection issue.
+	 * @param exception
+	 *            The exception thrown in the request
+	 * @param silent
+	 *            <code>true</code> to disable a message dialog pop-up
+	 * @param warning
+	 *            <code>true</code> for warning, <code>false</code> for error
+	 */
+	private void handleException(String requestName, String requestErrorMsg, Exception exception, boolean silent,
+			boolean warning) {
+		lastException = exception;
 		if (warning) {
-			LOGGER.warn("{} request failed! Cause: {}", requestName, e.getMessage());
+			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.getMessage());
 		} else {
-			LOGGER.error("{} request failed! Cause: {}", requestName, e.getMessage());
+			LOGGER.error("{} request failed! Cause: {}", requestName, exception.getMessage());
 		}
-		if (e instanceof ClientHandlerException) {
-			// problem with connection
+		if (silent) {
+			return;
+		}
+
+		if (isConnectionIssue()) {
 			showConnectionProblemMessage(requestErrorMsg, host, port, warning);
 		} else {
 			// illegal response state or server error
-			String errLocalMsg = e.getLocalizedMessage();
+			String msgHeader = "DS Service returned with an error!";
+			String errLocalMsg = exception.getLocalizedMessage();
 			if (errLocalMsg == null) {
-				errLocalMsg = e.getClass().getName();
+				errLocalMsg = "No exception message (" + exception.getClass().getName() + ")";
 			}
-			String msg = requestErrorMsg + "\n\nCause: " + errLocalMsg;
+			String msg = msgHeader + "\n\n" + errLocalMsg;
 			if (warning) {
 				DialogUtils.openWarning(DIALOG_TITLE, msg);
 			} else {

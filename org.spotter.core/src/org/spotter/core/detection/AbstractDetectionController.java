@@ -98,7 +98,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 	@Override
 	public SpotterResult analyzeProblem() throws InstrumentationException, MeasurementException, WorkloadException {
-		try {
+//		try {
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
 
 				ProgressManager.getInstance().addAdditionalDuration(SUT_WARMPUP_DURATION);
@@ -120,25 +120,25 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
 			return analyze(getResultManager().loadData());
-		} catch (Exception e) {
-			if (e instanceof InstrumentationException) {
-				throw (InstrumentationException) e;
-			} else {
-				if (instrumented) {
-					instrumentationController.uninstrument();
-				}
-				instrumented = false;
-
-				String message = "Error during problem analysis by " + this.getClass().getSimpleName()
-						+ ". Ignoring and resuming!";
-				LOGGER.warn(message + " Cause: {}", e);
-				SpotterResult result = new SpotterResult();
-				result.addMessage(message);
-				result.setDetected(false);
-				return result;
-			}
-
-		}
+//		} catch (Exception e) {
+//			if (e instanceof InstrumentationException) {
+//				throw (InstrumentationException) e;
+//			} else {
+//				if (instrumented) {
+//					instrumentationController.uninstrument();
+//				}
+//				instrumented = false;
+//
+//				String message = "Error during problem analysis by " + this.getClass().getSimpleName()
+//						+ ". Ignoring and resuming!";
+//				LOGGER.warn(message + " Cause: {}", e);
+//				SpotterResult result = new SpotterResult();
+//				result.addMessage(message);
+//				result.setDetected(false);
+//				return result;
+//			}
+//
+//		}
 
 	}
 
