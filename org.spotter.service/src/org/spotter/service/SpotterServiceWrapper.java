@@ -23,8 +23,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.Extensions;
@@ -38,7 +36,6 @@ import org.spotter.core.detection.AbstractDetectionExtension;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
 import org.spotter.core.workload.AbstractWorkloadExtension;
-import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
@@ -94,7 +91,7 @@ public class SpotterServiceWrapper {
 				try {
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 					currentJobState = JobState.FINISHED;
-				} catch (InstrumentationException | MeasurementException | WorkloadException e) {
+				} catch (Exception e) {
 					LOGGER.error("Diagnosis failed: Error: {}", e);
 					currentJobState = JobState.CANCELLED;
 					throw new RuntimeException(e);
