@@ -354,7 +354,7 @@ public class PropertiesGroupViewer {
 		if (xmConfigList != null) {
 			for (XMConfiguration conf : xmConfigList) {
 				ConfigParameterDescription desc = inputModel.getExtensionConfigParam(conf.getKey());
-				if (!desc.isMandatory()) {
+				if (desc != null && !desc.isMandatory()) {
 					btnClearAllProperties.setEnabled(true);
 					return;
 				}

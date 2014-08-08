@@ -128,7 +128,7 @@ public final class HierarchyFactory {
 	 * 
 	 * @return the root of an empty hierarchy
 	 */
-	private XPerformanceProblem createEmptyHierarchy() {
+	public XPerformanceProblem createEmptyHierarchy() {
 		XPerformanceProblem problem = new XPerformanceProblem();
 		problem.setUniqueId(SpotterUtils.generateUniqueId());
 		problem.setConfig(new ArrayList<XMConfiguration>());

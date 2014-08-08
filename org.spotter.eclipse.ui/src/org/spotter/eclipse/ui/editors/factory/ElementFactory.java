@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
@@ -36,6 +35,7 @@ import org.spotter.eclipse.ui.editors.SpotterConfigEditor;
 import org.spotter.eclipse.ui.editors.SpotterConfigEditorInput;
 import org.spotter.eclipse.ui.editors.WorkloadEditor;
 import org.spotter.eclipse.ui.editors.WorkloadEditorInput;
+import org.spotter.eclipse.ui.util.DialogUtils;
 
 /**
  * A element factory to restore DynamicSpotter editor inputs.
@@ -90,7 +90,7 @@ public class ElementFactory implements IElementFactory {
 			} catch (IllegalArgumentException e) {
 				// UI show error message
 				element = null;
-				MessageDialog.openWarning(null, DLG_TITLE, ERR_RESTORE_INPUT);
+				DialogUtils.openWarning(DLG_TITLE, ERR_RESTORE_INPUT);
 			}
 		}
 

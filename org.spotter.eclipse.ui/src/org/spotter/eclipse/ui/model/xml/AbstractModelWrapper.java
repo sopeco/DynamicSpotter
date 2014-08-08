@@ -51,6 +51,11 @@ public abstract class AbstractModelWrapper implements IModelWrapper {
 	}
 
 	@Override
+	public String getProjectName() {
+		return extension == null ? null : extension.getProjectName();
+	}
+
+	@Override
 	public String getName() {
 		return SpotterUtils.extractConfigValue(getConfig(), NAME_KEY);
 	}

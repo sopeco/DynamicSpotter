@@ -22,7 +22,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
@@ -81,7 +80,7 @@ public class RunHandler extends AbstractHandler {
 			return null;
 		}
 
-		boolean startConfirm = MessageDialog.openConfirm(null, DIALOG_TITLE,
+		boolean startConfirm = DialogUtils.openConfirm(DIALOG_TITLE,
 				String.format(MSG_SPOTTER_STARTED, project.getName()));
 		if (startConfirm) {
 			startSpotterRun(project, client, spotterFilePath);

@@ -19,7 +19,6 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -125,7 +124,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		try {
 			properties = SpotterProjectSupport.getSpotterConfig(file);
 		} catch (UICoreException e) {
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_INIT + "\n\nReason: " + e.getMessage());
+			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_INIT + "\n\nReason: " + e.getMessage());
 			return null;
 		}
 

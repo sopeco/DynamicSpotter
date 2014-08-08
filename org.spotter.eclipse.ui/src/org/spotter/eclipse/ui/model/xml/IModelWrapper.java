@@ -51,6 +51,11 @@ public interface IModelWrapper {
 	String getExtensionName();
 
 	/**
+	 * @return the name of the project the model's extension is associated with
+	 */
+	String getProjectName();
+
+	/**
 	 * @return the name of the model
 	 */
 	String getName();

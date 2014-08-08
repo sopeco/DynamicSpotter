@@ -85,16 +85,13 @@ public class ServiceClientWrapper {
 	private Map<SpotterExtensionType, ExtensionMetaobject[]> cachedExtensionMetaobjects = new HashMap<>();
 	private Map<String, Set<ConfigParameterDescription>> cachedExtensionConfParamters = new HashMap<>();
 	private Map<String, String> cachedExtensionDescriptions = new HashMap<>();
+	private long lastClearTime;
 
 	/**
 	 * Creates a new instance using the default host and port.
 	 */
 	public ServiceClientWrapper() {
-		this.host = DEFAULT_SERVICE_HOST;
-		this.port = DEFAULT_SERVICE_PORT;
-		this.projectName = null;
-		this.client = new SpotterServiceClient(host, port);
-		this.lastException = null;
+		this(null, true);
 	}
 
 	/**
@@ -107,18 +104,28 @@ public class ServiceClientWrapper {
 	 *            <code>null</code> to store them at the plugin's root scope
 	 */
 	public ServiceClientWrapper(String projectName) {
-		Preferences prefs;
-		if (projectName == null) {
-			prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+		this(projectName, false);
+	}
+
+	private ServiceClientWrapper(String projectName, boolean useDefaults) {
+		if (useDefaults) {
+			this.host = DEFAULT_SERVICE_HOST;
+			this.port = DEFAULT_SERVICE_PORT;
 		} else {
-			prefs = SpotterProjectSupport.getProjectPreferences(projectName);
+			Preferences prefs;
+			if (projectName == null) {
+				prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			} else {
+				prefs = SpotterProjectSupport.getProjectPreferences(projectName);
+			}
+			this.host = prefs.get(KEY_SERVICE_HOST, DEFAULT_SERVICE_HOST);
+			this.port = prefs.get(KEY_SERVICE_PORT, DEFAULT_SERVICE_PORT);
 		}
 
-		this.host = prefs.get(KEY_SERVICE_HOST, DEFAULT_SERVICE_HOST);
-		this.port = prefs.get(KEY_SERVICE_PORT, DEFAULT_SERVICE_PORT);
 		this.projectName = projectName;
 		this.client = new SpotterServiceClient(host, port);
 		this.lastException = null;
+		this.lastClearTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -140,6 +147,18 @@ public class ServiceClientWrapper {
 	 */
 	public String getPort() {
 		return this.port;
+	}
+
+	/**
+	 * Returns a value that determines the last time the cache was cleared. If a
+	 * previous received value is smaller than the current one it means that the
+	 * cache has been cleared in the meantime.
+	 * 
+	 * @return a number that can be used for comparison to check if cache has
+	 *         been cleared meanwhile
+	 */
+	public long getLastClearTime() {
+		return lastClearTime;
 	}
 
 	/**
@@ -294,11 +313,11 @@ public class ServiceClientWrapper {
 
 		List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();
 		for (String extName : extNames) {
-			Set<ConfigParameterDescription> extensionConfParams = client.getExtensionConfigParamters(extName);
-			if (extensionConfParams == null) {
+			// force caching and ignore invalid extensions
+			if (getExtensionConfigParamters(extName, true) == null) {
 				continue;
 			}
-			list.add(new ExtensionMetaobject(projectName, extName, extensionConfParams));
+			list.add(new ExtensionMetaobject(projectName, extName));
 		}
 
 		metaobjects = list.toArray(new ExtensionMetaobject[list.size()]);
@@ -336,6 +355,10 @@ public class ServiceClientWrapper {
 	 * @return the extension configuration parameters for the extension
 	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
+		return getExtensionConfigParamters(extName, false);
+	}
+
+	private Set<ConfigParameterDescription> getExtensionConfigParamters(String extName, boolean silent) {
 		lastException = null;
 		Set<ConfigParameterDescription> confParams = cachedExtensionConfParamters.get(extName);
 		if (confParams != null) {
@@ -349,7 +372,7 @@ public class ServiceClientWrapper {
 			cachedExtensionConfParamters.put(extName, confParams);
 			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
 		} catch (Exception e) {
-			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, false, false);
+			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, silent, false);
 		}
 		return confParams;
 	}
@@ -486,6 +509,8 @@ public class ServiceClientWrapper {
 		cachedExtensionMetaobjects.clear();
 		cachedExtensionConfParamters.clear();
 		cachedExtensionDescriptions.clear();
+
+		lastClearTime = System.currentTimeMillis();
 	}
 
 	/**

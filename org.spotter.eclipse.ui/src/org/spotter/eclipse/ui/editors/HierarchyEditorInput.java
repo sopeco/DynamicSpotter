@@ -15,9 +15,6 @@
  */
 package org.spotter.eclipse.ui.editors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
@@ -35,7 +32,7 @@ public class HierarchyEditorInput extends AbstractSpotterEditorInput {
 	private static final String NAME = "Hierarchy";
 	private static final String IMAGE_PATH = SpotterProjectHierarchy.IMAGE_PATH;
 
-	private List<XPerformanceProblem> performanceProblems;
+	private XPerformanceProblem problemRoot;
 
 	/**
 	 * Creates a new instance of this class.
@@ -46,18 +43,11 @@ public class HierarchyEditorInput extends AbstractSpotterEditorInput {
 	public HierarchyEditorInput(IFile file) {
 		super(file);
 		HierarchyFactory factory = HierarchyFactory.getInstance();
-		XPerformanceProblem rootProblem;
 
 		try {
-			rootProblem = factory.parseHierarchyFile(getPath().toString());
+			problemRoot = factory.parseHierarchyFile(getPath().toString());
 		} catch (UICoreException e) {
-			rootProblem = null;
-		}
-
-		if (rootProblem == null || rootProblem.getProblem() == null) {
-			performanceProblems = new ArrayList<XPerformanceProblem>();
-		} else {
-			performanceProblems = rootProblem.getProblem();
+			problemRoot = HierarchyFactory.getInstance().createEmptyHierarchy();
 		}
 	}
 
@@ -77,10 +67,12 @@ public class HierarchyEditorInput extends AbstractSpotterEditorInput {
 	}
 
 	/**
-	 * @return the performance problems of this editor input
+	 * Returns the root of the problem hierarchy.
+	 * 
+	 * @return the performance problem root of this editor input; never <code>null</code>
 	 */
-	public List<XPerformanceProblem> getPerformanceProblems() {
-		return performanceProblems;
+	public XPerformanceProblem getPerformanceProblemRoot() {
+		return problemRoot;
 	}
 
 }

@@ -89,7 +89,7 @@ public class ExtensionsGroupViewer {
 			| SWT.V_SCROLL;
 
 	private static final String NO_SERVICE_CONNECTION = "No connection to Spotter Service";
-	private static final String NO_EXTENSIONS = "No exension in the category was found. Ensure that "
+	private static final String NO_EXTENSIONS = "No extension in the category was found. Ensure that "
 			+ "you have placed the extension jar in the correct directory PATH/TO/PLUGINS.";
 
 	private final AbstractExtensionsEditor editor;

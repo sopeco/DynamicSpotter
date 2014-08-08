@@ -27,7 +27,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -81,6 +80,7 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.providers.ResultExtensionsImageProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
@@ -637,12 +637,12 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			resultsContainer = null;
 			String text = ERR_MSG_MISSING_SER_FILE + " (" + filename + ")";
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
+			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		} catch (IOException | ClassNotFoundException e) {
 			resultsContainer = null;
 			String text = String.format(ERR_MSG_IO_ERROR, filename);
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
+			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		} finally {
 			imageProvider.setResultsContainer(resultsContainer);
 			if (input == null) {
@@ -673,12 +673,12 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String text = ERR_MSG_MISSING_REPORT + " (" + filename + ")";
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
 			textReport.setText(text);
-			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
+			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		} catch (IOException e) {
 			String text = String.format(ERR_MSG_IO_ERROR, filename);
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
 			textReport.setText(text);
-			MessageDialog.openWarning(null, RESULTS_VIEW_TITLE, text);
+			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		}
 	}
 
