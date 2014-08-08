@@ -103,15 +103,12 @@ public class SpotterServiceTest {
 	@Test
 	public void testIsRunning() {
 		SpotterServiceResponse<Boolean> rb;
-		
-		// wait till the last run finished
-		while (ss.isRunning().getPayload()) {
-			rb = null; // to avoid checkstyle error
-		}
-		
-		rb = ss.isRunning();
-		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
-		Assert.assertEquals(false, rb.getPayload().booleanValue());
+
+		do {
+			rb = ss.isRunning();
+		} while (!rb.getStatus().equals(ResponseStatus.SERVER_ERROR));
+		Assert.assertEquals(ResponseStatus.SERVER_ERROR, rb.getStatus());
+		Assert.assertNull(rb.getPayload());
 	}
 	
 	/**
@@ -164,7 +161,7 @@ public class SpotterServiceTest {
 	
 	private static void initGlobalConfigs(String baseDir) {
 		Properties properties = new Properties();
-		properties.setProperty("org.lpe.common.extension.appRootDir", "C:\\Users\\D061465\\git\\DynamicSpotter\\org.spotter.service");
+		properties.setProperty("org.lpe.common.extension.appRootDir", tempDir.getAbsolutePath());
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
 		properties.setProperty(ConfigKeys.EXPERIMENT_DURATION, "1");

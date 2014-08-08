@@ -22,6 +22,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,26 +31,55 @@ import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.LpeFileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.client.dummy.DummyWorkloadExtension;
 import org.spotter.service.ServerLauncher;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+
 public class SpotterServiceClientTest {
 
-	private static final String host = "localhost";
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterServiceClientTest.class);
 	
-	private static final String port = "8080";
+	private static final int SHUTDOWN_WAIT_DELAY = 5000;
+	
+	private static final String host = "localhost";
+	private static final String port = "11337";
 	
 	private SpotterServiceClient ssc;
 	
 	private static File tempDir;
 	
 	@BeforeClass
-	public static void initializeExtension() throws IOException {
+	public static void initialize() throws IOException {
 		createTempDir();
 		initGlobalConfigs(tempDir.getAbsolutePath());
+		
+		// make sure the custom port is not used
+		try {
+			String[] argsShutdownCustomized = { "shutdown", "port=" + port };
+			ServerLauncher.main(argsShutdownCustomized);
+			Thread.sleep(SHUTDOWN_WAIT_DELAY);
+		} catch (ClientHandlerException e) {
+			LOGGER.debug("shutdown not necessary, no currently running service!");
+		} catch (InterruptedException e) {
+			LOGGER.warn("interrupted sleep delay after shutdown!");
+		}
+		
+		startServer();
+	}
+
+	@AfterClass
+	public static void cleanUp() throws IOException {
+		if (tempDir.exists()) {
+			LpeFileUtils.removeDir(tempDir.getAbsolutePath());
+		}
+		
+		shutdownServer();
 	}
 	
 	@Before
@@ -57,14 +87,19 @@ public class SpotterServiceClientTest {
 		ssc = new SpotterServiceClient(host, port);
 	}
 	
-	private void startServer() {
-		String[] argsStart = {"start"};
-		ServerLauncher.main(argsStart);
+	private static void startServer() {
+		String[] argsStartCustomized = {"start", "port=" + port };
+		ServerLauncher.main(argsStartCustomized);
 	}
 	
-	public void shutdownServer() {
-		String[] argsShutdown = {"shutdown"};
-		ServerLauncher.main(argsShutdown);
+	private static void shutdownServer() {
+		String[] argsShutdownCustomized = {"shutdown", "port=" + port };
+		ServerLauncher.main(argsShutdownCustomized);
+		try {
+			Thread.sleep(SHUTDOWN_WAIT_DELAY);
+		} catch (InterruptedException e) {
+			LOGGER.warn("interrupted sleep delay after shutdown!");
+		}
 	}
 	
 	@Test
@@ -75,29 +110,16 @@ public class SpotterServiceClientTest {
 	
 	@Test
 	public void testIsRunningOnline() {
-		startServer();
-
 		boolean status = ssc.isRunning();
 		Assert.assertEquals(false, status);
-		
-		// empty configuration file = does not start diagnose
-		ssc.startDiagnosis("");
-		status = ssc.isRunning();
-		Assert.assertEquals(false, status);
-		
-		shutdownServer();
 	}
 	
 	@Test
 	public void testGetAvailableExtensions() {
 		registerExtension();
 
-		startServer();
-
 		Set<String> set = ssc.getAvailableExtensions(SpotterExtensionType.WORKLOAD_EXTENSION);
 		Assert.assertEquals(1, set.size()); // we have one workload extension registered
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
@@ -106,12 +128,8 @@ public class SpotterServiceClientTest {
 	public void testGetConfigurationParameters() {
 		registerExtension();
 
-		startServer();
-
 		Set<ConfigParameterDescription> cpd = ssc.getConfigurationParameters();
 		Assert.assertEquals(true, cpd.size() > 0);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
@@ -120,59 +138,40 @@ public class SpotterServiceClientTest {
 	public void testGetExtensionConfigurationParameters() {
 		registerExtension();
 
-		startServer();
-
 		Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
+		System.out.println("cpd size = " + cpd.size());
 		Assert.assertEquals(true, cpd.size() > 0);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
 
 	@Test
 	public void testGetCurrentJobId() {
-		startServer();
-
-		long jobId = ssc.startDiagnosis("");
 		long currentJobId = ssc.getCurrentJobId();
-		Assert.assertEquals(jobId, currentJobId);
-		
-		shutdownServer();
+		// no job is currently running
+		Assert.assertEquals(currentJobId, 0);
 	}
 	
 	@Test
 	public void testGetCurrentProgressReport() {
-		startServer();
-
 		SpotterProgress sp = ssc.getCurrentProgressReport();
 		Assert.assertEquals(0, sp.getProblemProgressMapping().size());
-		
-		shutdownServer();
 	}
 	
 	@Test
 	public void testConnectionToSattelite() {
 		registerExtension();
 		
-		startServer();
-		
 		boolean status = ssc.testConnectionToSattelite("DummyWorkload", "localhost", "8080");
 		Assert.assertEquals(true, status);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
 	
 	@Test
 	public void testConnection() {
-		startServer();
-		
 		boolean status = ssc.testConnection();
 		Assert.assertEquals(true, status);
-		
-		shutdownServer();
 	}
 	
 	private static void createTempDir() throws IOException {
@@ -185,7 +184,7 @@ public class SpotterServiceClientTest {
 	
 	private static void initGlobalConfigs(String baseDir) {
 		Properties properties = new Properties();
-		properties.setProperty("org.lpe.common.extension.appRootDir", "C:\\Users\\D061465\\git\\DynamicSpotter\\org.spotter.client");
+		properties.setProperty("org.lpe.common.extension.appRootDir", tempDir.getAbsolutePath());
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
 		properties.setProperty(ConfigKeys.EXPERIMENT_DURATION, "1");
