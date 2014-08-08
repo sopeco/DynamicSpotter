@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.system.LpeSystemUtils;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.listeners.IItemChangedListener;
 import org.spotter.eclipse.ui.listeners.IItemPropertiesChangedListener;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
@@ -59,6 +60,8 @@ public class ExtensionItem {
 	private final IModelWrapper modelWrapper;
 	private final Map<String, ConfigParameterDescription> remainingDescriptions;
 
+	private ServiceClientWrapper client;
+	private long lastCacheClearTime;
 	private Map<String, ConfigParameterDescription> paramsMap;
 	private Boolean connection;
 	private boolean ignoreConnection;
@@ -99,10 +102,17 @@ public class ExtensionItem {
 		this.childrenItems = new ArrayList<ExtensionItem>();
 		this.parentItem = parent;
 
+		this.client = null;
+		this.lastCacheClearTime = 0;
 		this.modelWrapper = modelWrapper;
 		if (modelWrapper == null) {
 			this.remainingDescriptions = new HashMap<String, ConfigParameterDescription>();
 		} else {
+			String projectName = modelWrapper.getProjectName();
+			if (projectName != null) {
+				this.client = Activator.getDefault().getClient(projectName);
+				this.lastCacheClearTime = client.getLastClearTime();
+			}
 			this.remainingDescriptions = computeConfigurableExtensionConfigParams();
 			ConfigParameterDescription extDesc = getExtensionConfigParam(ConfigParameterDescription.EXT_DESCRIPTION_KEY);
 			if (extDesc != null) {
@@ -329,6 +339,7 @@ public class ExtensionItem {
 			for (XMConfiguration conf : xmConfigList) {
 				ConfigParameterDescription desc = getExtensionConfigParam(conf.getKey());
 				if (!desc.isMandatory()) {
+					// TODO: recalculate remainingDescription after cache clear
 					removeLater.add(conf);
 					remainingDescriptions.put(conf.getKey(), desc);
 				}
@@ -472,11 +483,20 @@ public class ExtensionItem {
 	 * @return The description that suits the given key
 	 */
 	public ConfigParameterDescription getExtensionConfigParam(String key) {
-		if (paramsMap == null) {
+		if (paramsMap == null || hasCacheCleared()) {
 			initParamsMap();
 			return paramsMap == null ? null : paramsMap.get(key);
 		}
 		return paramsMap.get(key);
+	}
+
+	private boolean hasCacheCleared() {
+		if (client == null) {
+			return false;
+		}
+
+		long clearTime = client.getLastClearTime();
+		return lastCacheClearTime < clearTime;
 	}
 
 	/**
@@ -517,6 +537,7 @@ public class ExtensionItem {
 	}
 
 	private void initParamsMap() {
+		paramsMap = null;
 		Set<ConfigParameterDescription> params = modelWrapper.getExtensionConfigParams();
 		if (params == null) {
 			// can not initialize the params map
@@ -525,6 +546,10 @@ public class ExtensionItem {
 		paramsMap = new HashMap<String, ConfigParameterDescription>();
 		for (ConfigParameterDescription desc : params) {
 			paramsMap.put(desc.getName(), desc);
+		}
+		
+		if (client != null) {
+			lastCacheClearTime = client.getLastClearTime();
 		}
 	}
 

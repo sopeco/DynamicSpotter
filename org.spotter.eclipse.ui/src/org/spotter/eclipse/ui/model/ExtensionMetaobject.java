@@ -15,9 +15,12 @@
  */
 package org.spotter.eclipse.ui.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 
 /**
  * This class contains relevant meta information about an extension such as its
@@ -29,8 +32,8 @@ import org.lpe.common.config.ConfigParameterDescription;
 public class ExtensionMetaobject {
 
 	private final String projectName;
+	private final ServiceClientWrapper client;
 	private final String extensionName;
-	private final Set<ConfigParameterDescription> configParams;
 
 	/**
 	 * Create a new instance for the given project.
@@ -42,10 +45,15 @@ public class ExtensionMetaobject {
 	 * @param configParams
 	 *            The parameters of the extension
 	 */
-	public ExtensionMetaobject(String projectName, String extensionName, Set<ConfigParameterDescription> configParams) {
+	public ExtensionMetaobject(String projectName, String extensionName) {
 		this.projectName = projectName;
+		if (projectName == null) {
+			this.client = null;
+		} else {
+			this.client = Activator.getDefault().getClient(projectName);
+		}
+
 		this.extensionName = extensionName;
-		this.configParams = configParams;
 	}
 
 	/**
@@ -66,7 +74,14 @@ public class ExtensionMetaobject {
 	 * @return the configuration parameters
 	 */
 	public Set<ConfigParameterDescription> getConfigParams() {
-		return configParams;
+		Set<ConfigParameterDescription> params;
+		if (client == null) {
+			params = new HashSet<>();
+		} else {
+			params = client.getExtensionConfigParamters(extensionName);
+		}
+
+		return params;
 	}
 
 }

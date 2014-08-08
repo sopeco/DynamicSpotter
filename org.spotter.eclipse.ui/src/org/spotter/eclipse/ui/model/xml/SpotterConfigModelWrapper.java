@@ -63,6 +63,11 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 	}
 
 	@Override
+	public String getProjectName() {
+		return projectName;
+	}
+
+	@Override
 	public String getName() {
 		return null;
 	}

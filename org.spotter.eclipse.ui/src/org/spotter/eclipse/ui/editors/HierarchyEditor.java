@@ -16,11 +16,9 @@
 package org.spotter.eclipse.ui.editors;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
@@ -159,14 +157,13 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	private static void buildRecursiveTree(ServiceClientWrapper client, ExtensionItem parent,
 			XPerformanceProblem parentProblem, XPerformanceProblem problem) throws UICoreException {
 		String extName = problem.getExtensionName();
-		Set<ConfigParameterDescription> configParams = client.getExtensionConfigParamters(extName);
 
-		if (configParams == null) {
+		if (client.getExtensionConfigParamters(extName) == null) {
 			throw new UICoreException("Could not fully initialize ExtensionItem");
 		}
 
 		String projectName = client.getProjectName();
-		ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName, configParams);
+		ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
 		IModelWrapper wrapper = new HierarchyModelWrapper(extension, parentProblem.getProblem(), problem);
 		ExtensionItem child = new ExtensionItem(wrapper);
 		parent.addItem(child);

@@ -16,10 +16,8 @@
 package org.spotter.eclipse.ui.editors;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
@@ -73,15 +71,14 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		for (XMeasurementEnvObject envObj : envObjects) {
 			String extName = envObj.getExtensionName();
-			Set<ConfigParameterDescription> configParams = client.getExtensionConfigParamters(extName);
 
-			if (configParams == null) {
+			if (client.getExtensionConfigParamters(extName) == null) {
 				DialogUtils.openWarning(TITLE_ERR_DIALOG,
 						"Creating initial input failed. Cause: Missing information to fully initialize ExtensionItem");
 				return new ExtensionItem();
 			}
 
-			ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName, configParams);
+			ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
 			IModelWrapper wrapper = new EnvironmentModelWrapper(extension, envObjects, envObj);
 			input.addItem(new ExtensionItem(wrapper));
 		}
