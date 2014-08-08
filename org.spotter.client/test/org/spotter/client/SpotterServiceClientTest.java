@@ -22,6 +22,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,6 +45,8 @@ public class SpotterServiceClientTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterServiceClientTest.class);
 	
+	private static final int SHUTDOWN_WAIT_DELAY = 5000;
+	
 	private static final String host = "localhost";
 	private static final String port = "11337";
 	
@@ -60,9 +63,23 @@ public class SpotterServiceClientTest {
 		try {
 			String[] argsShutdownCustomized = { "shutdown", "port=" + port };
 			ServerLauncher.main(argsShutdownCustomized);
+			Thread.sleep(SHUTDOWN_WAIT_DELAY);
 		} catch (ClientHandlerException e) {
-			LOGGER.debug("shutdown not necessary, no currently running service");
+			LOGGER.debug("shutdown not necessary, no currently running service!");
+		} catch (InterruptedException e) {
+			LOGGER.warn("interrupted sleep delay after shutdown!");
 		}
+		
+		startServer();
+	}
+
+	@AfterClass
+	public static void cleanUp() throws IOException {
+		if (tempDir.exists()) {
+			LpeFileUtils.removeDir(tempDir.getAbsolutePath());
+		}
+		
+		shutdownServer();
 	}
 	
 	@Before
@@ -70,14 +87,19 @@ public class SpotterServiceClientTest {
 		ssc = new SpotterServiceClient(host, port);
 	}
 	
-	private void startServer() {
+	private static void startServer() {
 		String[] argsStartCustomized = {"start", "port=" + port };
 		ServerLauncher.main(argsStartCustomized);
 	}
 	
-	public void shutdownServer() {
+	private static void shutdownServer() {
 		String[] argsShutdownCustomized = {"shutdown", "port=" + port };
 		ServerLauncher.main(argsShutdownCustomized);
+		try {
+			Thread.sleep(SHUTDOWN_WAIT_DELAY);
+		} catch (InterruptedException e) {
+			LOGGER.warn("interrupted sleep delay after shutdown!");
+		}
 	}
 	
 	@Test
@@ -88,29 +110,16 @@ public class SpotterServiceClientTest {
 	
 	@Test
 	public void testIsRunningOnline() {
-		startServer();
-
 		boolean status = ssc.isRunning();
 		Assert.assertEquals(false, status);
-		
-		// empty configuration file = does not start diagnosis
-		ssc.startDiagnosis("");
-		status = ssc.isRunning();
-		Assert.assertEquals(false, status);
-		
-		shutdownServer();
 	}
 	
 	@Test
 	public void testGetAvailableExtensions() {
 		registerExtension();
 
-		startServer();
-
 		Set<String> set = ssc.getAvailableExtensions(SpotterExtensionType.WORKLOAD_EXTENSION);
 		Assert.assertEquals(1, set.size()); // we have one workload extension registered
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
@@ -119,12 +128,8 @@ public class SpotterServiceClientTest {
 	public void testGetConfigurationParameters() {
 		registerExtension();
 
-		startServer();
-
 		Set<ConfigParameterDescription> cpd = ssc.getConfigurationParameters();
 		Assert.assertEquals(true, cpd.size() > 0);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
@@ -133,59 +138,40 @@ public class SpotterServiceClientTest {
 	public void testGetExtensionConfigurationParameters() {
 		registerExtension();
 
-		startServer();
-
 		Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
+		System.out.println("cpd size = " + cpd.size());
 		Assert.assertEquals(true, cpd.size() > 0);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
 
 	@Test
 	public void testGetCurrentJobId() {
-		startServer();
-
-		long jobId = ssc.startDiagnosis("");
 		long currentJobId = ssc.getCurrentJobId();
-		Assert.assertEquals(jobId, currentJobId);
-		
-		shutdownServer();
+		// no job is currently running
+		Assert.assertEquals(currentJobId, 0);
 	}
 	
 	@Test
 	public void testGetCurrentProgressReport() {
-		startServer();
-
 		SpotterProgress sp = ssc.getCurrentProgressReport();
 		Assert.assertEquals(0, sp.getProblemProgressMapping().size());
-		
-		shutdownServer();
 	}
 	
 	@Test
 	public void testConnectionToSattelite() {
 		registerExtension();
 		
-		startServer();
-		
 		boolean status = ssc.testConnectionToSattelite("DummyWorkload", "localhost", "8080");
 		Assert.assertEquals(true, status);
-		
-		shutdownServer();
 		
 		removeExtension();
 	}
 	
 	@Test
 	public void testConnection() {
-		startServer();
-		
 		boolean status = ssc.testConnection();
 		Assert.assertEquals(true, status);
-		
-		shutdownServer();
 	}
 	
 	private static void createTempDir() throws IOException {

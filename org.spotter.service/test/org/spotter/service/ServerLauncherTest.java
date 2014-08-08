@@ -29,7 +29,8 @@ import com.sun.jersey.api.client.ClientHandlerException;
 public class ServerLauncherTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncherTest.class);
-	
+	private static final long SHUTDOWN_WAIT_DELAY = 5000;
+
 	/**
 	 * Tests everything related to the {@link ServerLauncher} class.
 	 */
@@ -46,23 +47,26 @@ public class ServerLauncherTest {
 		// make sure the custom port is not used
 		try {
 			ServerLauncher.main(argsShutdownCustomized);
+			Thread.sleep(SHUTDOWN_WAIT_DELAY);
 		} catch (ClientHandlerException e) {
 			LOGGER.debug("shutdown not necessary, no currently running service");
+		} catch (InterruptedException e) {
+			LOGGER.warn("interrupted sleep delay after shutdown!");
 		}
-		
+
 		ServerLauncher.main(argsNull);
-		
+
 		ServerLauncher.main(argsEmpty);
-		
+
 		ServerLauncher.main(argsStartCustomized);
-		
+
 		ServerLauncher.main(argsShutdownCustomized);
 
 		ServerLauncher.main(argsRootDir);
 
 		ServerLauncher.main(argsUnordered);
-		
-		// needs to be the last test, because "help" is triggered always to true!
+
+		// needs to be the last test, "help" always triggered always to true
 		ServerLauncher.main(argsHelp);
 	}
 
