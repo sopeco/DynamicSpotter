@@ -139,7 +139,6 @@ public class SpotterServiceClientTest {
 		registerExtension();
 
 		Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
-		System.out.println("cpd size = " + cpd.size());
 		Assert.assertEquals(true, cpd.size() > 0);
 		
 		removeExtension();
