@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
@@ -31,6 +30,7 @@ import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.HierarchyModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.configuration.SpotterExtensionType;
@@ -55,7 +55,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 
 	private static final SpotterExtensionType EXTENSION_TYPE = SpotterExtensionType.DETECTION_EXTENSION;
 
-	private XPerformanceProblem performanceProblems;
+	private XPerformanceProblem problemRoot;
 
 	@Override
 	protected String getEditorName() {
@@ -64,31 +64,24 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) getEditorInput();
-
 		try {
-			HierarchyFactory factory = HierarchyFactory.getInstance();
-			XPerformanceProblem problem = factory.parseHierarchyFile(input.getPath().toString());
-
-			applyChanges(problem);
-			SpotterProjectSupport.saveHierarchy(input.getFile(), problem);
-
+			HierarchyEditorInput input = (HierarchyEditorInput) getEditorInput();
+			SpotterProjectSupport.saveHierarchy(input.getFile(), input.getPerformanceProblemRoot());
 			super.doSave(monitor);
 		} catch (Exception e) {
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
+			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
 		}
 	}
 
 	@Override
 	public ExtensionItem getInitialExtensionsInput() {
-		if (performanceProblems == null) {
-			performanceProblems = new XPerformanceProblem();
+		if (problemRoot == null) {
 			HierarchyEditorInput editorInput = (HierarchyEditorInput) getEditorInput();
-			performanceProblems.setProblem(editorInput.getPerformanceProblems());
+			problemRoot = editorInput.getPerformanceProblemRoot();
 		}
 
 		String projectName = getProject().getName();
-		return createPerformanceProblemHierarchy(projectName, performanceProblems);
+		return createPerformanceProblemHierarchy(projectName, problemRoot);
 	}
 
 	@Override
@@ -114,12 +107,6 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		}
 		container.getProblem().add(problem);
 		return new HierarchyModelWrapper(extensionComponent, container.getProblem(), problem);
-	}
-
-	@Override
-	protected void applyChanges(Object xmlModelRoot) {
-		XPerformanceProblem problem = (XPerformanceProblem) xmlModelRoot;
-		problem.setProblem(performanceProblems.getProblem());
 	}
 
 	@Override
@@ -153,12 +140,15 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		ExtensionItem input = new ExtensionItem(rootModel);
 		input.setIgnoreConnection(true);
 
+		if (rootProblem.getProblem() == null) {
+			rootProblem.setProblem(new ArrayList<XPerformanceProblem>());
+		}
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		for (XPerformanceProblem problem : rootProblem.getProblem()) {
 			try {
 				buildRecursiveTree(client, input, rootProblem, problem);
 			} catch (UICoreException e) {
-				MessageDialog.openWarning(null, TITLE_ERR_DIALOG,
+				DialogUtils.openWarning(TITLE_ERR_DIALOG,
 						"Creating performance problem hierarchy failed. Cause: " + e.getMessage());
 				return new ExtensionItem(rootModel);
 			}

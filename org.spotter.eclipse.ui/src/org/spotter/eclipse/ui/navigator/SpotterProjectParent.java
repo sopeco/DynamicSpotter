@@ -28,7 +28,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
@@ -192,7 +191,6 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			return;
 		}
 
-		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		String prompt;
 		if (projects.size() > 1) {
 			prompt = createMultiMessage(projects);
@@ -200,7 +198,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			prompt = createSingleMessage(projects.iterator().next());
 		}
 
-		boolean confirm = MessageDialog.openConfirm(shell, DELETE_DLG_TITLE, prompt);
+		boolean confirm = DialogUtils.openConfirm(DELETE_DLG_TITLE, prompt);
 		if (!confirm) {
 			return;
 		}

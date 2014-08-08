@@ -340,12 +340,13 @@ public final class SpotterProjectSupport {
 	 *             when default DynamicSpotter properties could not be created
 	 */
 	public static Properties createDefaultSpotterProperties(String projectName) throws UICoreException {
-		Properties properties = new Properties();
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		Set<ConfigParameterDescription> parameters = client.getConfigurationParameters();
 		if (parameters == null) {
 			throw new UICoreException(ERR_GET_SPOTTER_CONFIG_PARAMS, null);
 		}
+
+		Properties properties = new Properties();
 		for (ConfigParameterDescription desc : parameters) {
 			if (desc.isMandatory() && desc.getName() != null) {
 				String val = desc.getDefaultValue() == null ? "" : desc.getDefaultValue();

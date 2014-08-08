@@ -74,14 +74,6 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	 */
 	public abstract IModelWrapper createModelWrapper(Object parent, ExtensionMetaobject extensionComponent);
 
-	/**
-	 * Applies the implementing editor's related data to the XML model root.
-	 * 
-	 * @param xmlModelRoot
-	 *            the XML model root that shall be modified
-	 */
-	protected abstract void applyChanges(Object xmlModelRoot);
-
 	@Override
 	public void createPartControl(Composite parent) {
 		AbstractSpotterEditorInput editorInput = (AbstractSpotterEditorInput) getEditorInput();

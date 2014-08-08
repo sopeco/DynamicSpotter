@@ -19,16 +19,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
-import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.xml.EnvironmentModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
@@ -56,6 +56,14 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	 */
 	protected abstract SpotterExtensionType getExtensionType();
 
+	/**
+	 * Applies the implementing editor's related data to the XML model root.
+	 * 
+	 * @param xmlModelRoot
+	 *            the XML model root that shall be modified
+	 */
+	protected abstract void applyChanges(Object xmlModelRoot);
+
 	@Override
 	public ExtensionItem getInitialExtensionsInput() {
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
@@ -68,7 +76,7 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 			Set<ConfigParameterDescription> configParams = client.getExtensionConfigParamters(extName);
 
 			if (configParams == null) {
-				MessageDialog.openWarning(null, TITLE_ERR_DIALOG,
+				DialogUtils.openWarning(TITLE_ERR_DIALOG,
 						"Creating initial input failed. Cause: Missing information to fully initialize ExtensionItem");
 				return new ExtensionItem();
 			}
@@ -109,7 +117,7 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 
 			super.doSave(monitor);
 		} catch (Exception e) {
-			MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
+			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
 		}
 	}
 

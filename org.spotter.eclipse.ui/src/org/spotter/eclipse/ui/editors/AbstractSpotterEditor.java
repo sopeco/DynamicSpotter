@@ -20,9 +20,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
@@ -33,6 +30,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.util.DialogUtils;
 
 /**
  * Abstract super class for all Spotter editors. Implements basic functionality
@@ -141,9 +139,11 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 		setInput(input);
 	}
 
+	/**
+	 * Save as is not allowed and currently not supported.
+	 */
 	@Override
 	public void doSaveAs() {
-		// not supported so far
 	}
 
 	/**
@@ -229,9 +229,9 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * @param dirtyFlag
 	 */
 	protected void updateDirtyFlag(boolean dirtyFlag) {
-		boolean oldDirtyFlag = this.dirtyFlag;
+		boolean fireChange = this.dirtyFlag != dirtyFlag;
 		this.dirtyFlag = dirtyFlag;
-		if (oldDirtyFlag != dirtyFlag) {
+		if (fireChange) {
 			firePropertyChange(PROP_DIRTY);
 		}
 	}
@@ -273,15 +273,14 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 				applicableOrRepaired = false;
 			}
 		}
-		Shell shell = Display.getCurrent().getActiveShell();
 		dialogQuestion = String.format(dialogQuestion, containedFile.getLocation(), containedFile.getProject()
 				.getName());
-		if (!applicableOrRepaired && MessageDialog.openConfirm(shell, TITLE_INPUT_INVALID, dialogQuestion)) {
+		if (!applicableOrRepaired && DialogUtils.openConfirm(TITLE_INPUT_INVALID, dialogQuestion)) {
 			try {
 				makeInputApplicable(input);
 				applicableOrRepaired = true;
 			} catch (UICoreException e) {
-				MessageDialog.openError(null, TITLE_ERR_DIALOG, ERR_MSG_MAKE_APPLICABLE_FAILED);
+				DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_MAKE_APPLICABLE_FAILED);
 			}
 		}
 		return applicableOrRepaired;
