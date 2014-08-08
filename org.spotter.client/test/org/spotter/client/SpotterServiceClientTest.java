@@ -30,26 +30,39 @@ import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.LpeFileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.client.dummy.DummyWorkloadExtension;
 import org.spotter.service.ServerLauncher;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+
 public class SpotterServiceClientTest {
 
-	private static final String host = "localhost";
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterServiceClientTest.class);
 	
-	private static final String port = "8080";
+	private static final String host = "localhost";
+	private static final String port = "11337";
 	
 	private SpotterServiceClient ssc;
 	
 	private static File tempDir;
 	
 	@BeforeClass
-	public static void initializeExtension() throws IOException {
+	public static void initialize() throws IOException {
 		createTempDir();
 		initGlobalConfigs(tempDir.getAbsolutePath());
+		
+		// make sure the custom port is not used
+		try {
+			String[] argsShutdownCustomized = { "shutdown", "port=" + port };
+			ServerLauncher.main(argsShutdownCustomized);
+		} catch (ClientHandlerException e) {
+			LOGGER.debug("shutdown not necessary, no currently running service");
+		}
 	}
 	
 	@Before
@@ -58,13 +71,13 @@ public class SpotterServiceClientTest {
 	}
 	
 	private void startServer() {
-		String[] argsStart = {"start"};
-		ServerLauncher.main(argsStart);
+		String[] argsStartCustomized = {"start", "port=" + port };
+		ServerLauncher.main(argsStartCustomized);
 	}
 	
 	public void shutdownServer() {
-		String[] argsShutdown = {"shutdown"};
-		ServerLauncher.main(argsShutdown);
+		String[] argsShutdownCustomized = {"shutdown", "port=" + port };
+		ServerLauncher.main(argsShutdownCustomized);
 	}
 	
 	@Test
@@ -80,7 +93,7 @@ public class SpotterServiceClientTest {
 		boolean status = ssc.isRunning();
 		Assert.assertEquals(false, status);
 		
-		// empty configuration file = does not start diagnose
+		// empty configuration file = does not start diagnosis
 		ssc.startDiagnosis("");
 		status = ssc.isRunning();
 		Assert.assertEquals(false, status);
@@ -185,7 +198,7 @@ public class SpotterServiceClientTest {
 	
 	private static void initGlobalConfigs(String baseDir) {
 		Properties properties = new Properties();
-		properties.setProperty("org.lpe.common.extension.appRootDir", "C:\\Users\\D061465\\git\\DynamicSpotter\\org.spotter.client");
+		properties.setProperty("org.lpe.common.extension.appRootDir", tempDir.getAbsolutePath());
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
 		properties.setProperty(ConfigKeys.EXPERIMENT_DURATION, "1");

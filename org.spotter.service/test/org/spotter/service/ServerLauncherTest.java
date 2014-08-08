@@ -16,6 +16,10 @@
 package org.spotter.service;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jersey.api.client.ClientHandlerException;
 
 /**
  * Tests the {@link ServerLauncher} class.
@@ -23,6 +27,8 @@ import org.junit.Test;
  * @author Peter Merkert
  */
 public class ServerLauncherTest {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncherTest.class);
 	
 	/**
 	 * Tests everything related to the {@link ServerLauncher} class.
@@ -37,6 +43,13 @@ public class ServerLauncherTest {
 		String[] argsUnordered = { "port=11337", "start" };
 		String[] argsHelp = { "-h" };
 
+		// make sure the custom port is not used
+		try {
+			ServerLauncher.main(argsShutdownCustomized);
+		} catch (ClientHandlerException e) {
+			LOGGER.debug("shutdown not necessary, no currently running service");
+		}
+		
 		ServerLauncher.main(argsNull);
 		
 		ServerLauncher.main(argsEmpty);
