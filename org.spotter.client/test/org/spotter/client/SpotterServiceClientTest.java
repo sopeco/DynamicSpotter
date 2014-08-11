@@ -78,8 +78,6 @@ public class SpotterServiceClientTest {
 		if (tempDir.exists()) {
 			LpeFileUtils.removeDir(tempDir.getAbsolutePath());
 		}
-		
-		shutdownServer();
 	}
 	
 	@Before
@@ -90,16 +88,6 @@ public class SpotterServiceClientTest {
 	private static void startServer() {
 		String[] argsStartCustomized = {"start", "port=" + port };
 		ServerLauncher.main(argsStartCustomized);
-	}
-	
-	private static void shutdownServer() {
-		String[] argsShutdownCustomized = {"shutdown", "port=" + port };
-		ServerLauncher.main(argsShutdownCustomized);
-		try {
-			Thread.sleep(SHUTDOWN_WAIT_DELAY);
-		} catch (InterruptedException e) {
-			LOGGER.warn("interrupted sleep delay after shutdown!");
-		}
 	}
 	
 	@Test
@@ -183,9 +171,10 @@ public class SpotterServiceClientTest {
 	
 	private static void initGlobalConfigs(String baseDir) {
 		Properties properties = new Properties();
-		properties.setProperty("org.lpe.common.extension.appRootDir", tempDir.getAbsolutePath());
+		properties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, tempDir.getAbsolutePath());
+		properties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, "plugins");
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
-		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
+		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator") + "results");
 		properties.setProperty(ConfigKeys.EXPERIMENT_DURATION, "1");
 		properties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, "1");
 		properties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, "1");
