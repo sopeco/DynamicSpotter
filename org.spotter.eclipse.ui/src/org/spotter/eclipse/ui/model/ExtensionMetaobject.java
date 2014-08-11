@@ -42,8 +42,6 @@ public class ExtensionMetaobject {
 	 *            The project the extension is associated with
 	 * @param extensionName
 	 *            The name of the extension
-	 * @param configParams
-	 *            The parameters of the extension
 	 */
 	public ExtensionMetaobject(String projectName, String extensionName) {
 		this.projectName = projectName;

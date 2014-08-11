@@ -18,6 +18,7 @@
 		<module>../org.spotter.service</module>
 		<module>../org.spotter.client</module>
 		<module>../org.spotter.eclipse.ui</module>
+		<module>../org.spotter.eclipse.ui.test</module>
 
 
 	</modules>
