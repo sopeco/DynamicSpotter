@@ -91,7 +91,7 @@ public class SpotterServiceWrapper {
 				try {
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 					currentJobState = JobState.FINISHED;
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					LOGGER.error("Diagnosis failed: Error: {}", e);
 					currentJobState = JobState.CANCELLED;
 					throw new RuntimeException(e);
@@ -110,13 +110,6 @@ public class SpotterServiceWrapper {
 	 * @return the current state of the last issued job
 	 */
 	public synchronized JobState getState() {
-//		if (futureObject != null && futureObject.isCancelled()) {
-//			return JobState.CANCELLED;
-//		} else if (futureObject == null || futureObject.isDone()) {
-//			return JobState.FINISHED;
-//		} else {
-//			return JobState.RUNNING;
-//		}
 		return currentJobState;
 	}
 
