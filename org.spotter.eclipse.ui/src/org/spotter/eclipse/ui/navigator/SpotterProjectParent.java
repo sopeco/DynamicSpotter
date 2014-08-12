@@ -49,7 +49,7 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 public class SpotterProjectParent implements ISpotterProjectElement, IDeletable, IDuplicatable {
 
 	public static final ISpotterProjectElement[] NO_CHILDREN = new ISpotterProjectElement[0];
-	public static final String IMAGE_PATH = "icons/project.gif"; //$NON-NLS-1$
+	public static final String IMAGE_PATH = "icons/ds_16.png"; //$NON-NLS-1$
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectParent.class);
 	private static final String ELEMENT_TYPE_NAME = "Project";
