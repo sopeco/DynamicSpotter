@@ -1,0 +1,22 @@
+	...
+	
+	/**
+	 * Returns the name of the extension which is expected 
+	 * to be unique in the framework.
+	 * 
+	 * The name is expected to be specific to the extension 
+	 * that is provided.
+	 */
+	String getName();
+
+	/**
+	 * Returns a set of configuration parameter descriptions.
+	 */
+	Set<ConfigParameterDescription> getConfigParameters();
+	
+	/**
+	 * Creates a new artifact for this extension.
+	 */
+	EA createExtensionArtifact();
+
+	...

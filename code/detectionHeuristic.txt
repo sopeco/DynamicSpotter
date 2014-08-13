@@ -1,0 +1,44 @@
+public class MyDetection extends AbstractDetectionController {
+
+	private int numExperimentSteps;
+
+	public MyDetection(IExtension<IDetectionController> provider) {
+		super(provider);
+	}
+
+	@Override
+	public void loadProperties() {
+		// load heuristic-specific configuration properties
+		numExperimentSteps = Integer.parseInt(
+			getProblemDetectionConfiguration().
+				getProperty("myDetection.numSteps"));
+	}
+
+	@Override
+	protected void executeExperiments() 
+		throws InstrumentationException, 
+	       MeasurementException, 
+	       WorkloadException {
+		// create a problem specific instrumentation description
+		InstrumentationDescription instDescr = ...;
+		
+		// trigger default experiment series
+		executeDefaultExperimentSeries(MyDetection.class, 
+			numExperimentSteps, instDescr);
+	}
+
+	@Override
+	protected SpotterResult analyze(DatasetCollection data) {
+		// analyze measurement data
+		// ...
+		SpotterResult result = new SpotterResult();
+		result.setDetected(true);
+		result.addMessage("Detection run finished successfully!");
+		return result;
+	}
+
+	@Override
+	public int getNumOfExperiments() {
+		return numExperimentSteps;
+	}
+}

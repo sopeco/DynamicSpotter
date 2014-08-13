@@ -1,0 +1,43 @@
+public class MyMeasurementExtensionArtifact 
+	extends AbstractMeasurementAdapter {
+
+	public MyMeasurementExtensionArtifact(IExtension<?> provider) {
+		super(provider);
+	}
+	
+	@Override
+	public void initialize() throws MeasurementException {
+		// initialization
+	}
+	
+	@Override
+	public void enableMonitoring() throws MeasurementException {
+		// activate data gathering / resets previously gathered data
+	}
+
+	@Override
+	public void disableMonitoring() 
+		throws MeasurementException {
+		// deactivate data gathering
+	}
+
+	@Override
+	public MeasurementData getMeasurementData() 
+		throws MeasurementException {
+		// collect and return measured data
+	}
+
+	@Override
+	public void pipeToOutputStream(OutputStream oStream) 
+		throws MeasurementException {
+		// pipe measured data to the given oStream
+	}
+
+	@Override
+	public long getCurrentTime() {
+		// returns the current timestamp of the 
+		// node the measurement tool is running on.
+		// This is required for synchronization of 
+		// distributed measurement records.
+	}
+}

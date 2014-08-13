@@ -42,9 +42,9 @@
 \begin{center}
 \textsc{}\\[5cm]
 % Oberer Teil der Titelseite:
-\begin{textblock*}{115mm}(57mm,70mm)
+\begin{textblock*}{115mm}(65mm,70mm)
 \centering{
-\includegraphics[scale=0.35]{figures/spotter_logo.pdf}
+\includegraphics[scale=0.3]{figures/spotter_logo.pdf}
 }
 \end{textblock*}
 
@@ -55,15 +55,33 @@
 % Title
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
+\begin{minipage}{0.48\textwidth}
+\centering
 \Large{
-\textbf{Alexander Wert}\\alexander.wert@kit.edu\\ Am
+\textbf{Alexander Wert}}
+\large{
+\\alexander.wert@kit.edu\\ Am
 Fasanengarten 5\\
 Software Design and Quality
 \\
 Karlsruhe Institute of Technology
-}\\[1.0cm]
+}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\Large{
+\textbf{Denis Kn\"opfle}}\\
+\large{
+denis.knoepfle@sap.com\\
+Vincenz-Prie{\ss}nitz-Stra{\ss}e 1\\
+SAP AG\\
+\textcolor[rgb]{1,1,1}{ }}
+\end{minipage}
+\\[3.0cm]
 
 \Large{\textbf{Contributors}}\\
+\Large{Alexander Wert},
 \Large{Christoph Heger},
 \Large{Roozbeh Farahbod},
 \Large{Denis Kn\"opfle},
@@ -213,11 +231,9 @@ problem.
 
 
 
-\section{Architecture and Project Structure}
+\section{Architecture of \DS}
 \label{sec:architecture}
-In this section we describe the architecture of \DS and introduce the project structure of the \DS code repository. 
 
-\subsection{Architecture of \DS}
 \begin{figure}[p]
 \includegraphics[width=\textwidth]{figures/architecture.pdf}
 \caption{\DS architecture}
@@ -624,8 +640,172 @@ execute the following Maven build command:
 mvn clean install
 \end{lstlisting}
 If executed successfully, Maven creates in the \texttt{target} directories of the individual sub-projects the
-corresponding JARs.
-\newpage
+corresponding JARs. The executable JAR for the \DS Service is located in the \texttt{org.spotter.service/target}
+directory. 
+
+The Eclipse Plugin JAR is located in the \texttt{org.spotter.eclipse.ui/target} directory.
+
+\section{Writing Extensions for \DS}
+\label{sec:extensions}
+As mentioned in Section~\ref{sec:architecture}, \DS provides four different types of extensions which are required to
+run \DS. These types are explained in Section~\ref{sec:architecture}. A collection of some extensions for \DS is
+available under the following GitHub repository:
+\newline
+\newline
+\link{https://github.com/sopeco/DynamicSpotter-Extensions}
+\newline
+\newline
+In this section, we explain how to write different types of extensions for \DS.
+
+\subsection{General Structure of a \DS Extension}
+\label{sec:extensionsGeneralStructure}
+\DS extensions can be either bundled in separate JARs or in aggregated JARs each containing several extensions.
+A single extension at least comprises a Java class providing meta-information about the extension (with typical suffix
+\texttt{\_\_\_Extension}), a Java class representing the actual extension artifact, and an entry in a text file
+declaring the extension. The extension class has to implement at least three methods (cf.
+Listing~\ref{lst:iExtension}). 
+\lstinputlisting[language=Java, frame=single,
+caption=Methods to be
+implemented by an
+Extension Class,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:iExtension]{code/IExtension.txt} The \texttt{getName} method specifies the name of the extensions, the \texttt{getConfigParameters} method allows to define a set of extension-specific configuration parameters, and the
+\texttt{createExtensionsArtifacts} method creates the actual extension artifact. The extension artifact needs to
+pass an instance of the extension class as the extension provider to the super constructor (cf.
+Listing~\ref{lst:ExtensionArtifact}).
+\lstinputlisting[language=Java, frame=single,
+caption=A constructor of
+an Extension Artifact,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:ExtensionArtifact]{code/ExtensionArtifact.txt}
+Finally, we have to declare the extension in the \texttt{extensions.info} file. The \texttt{extensions.info} file
+contains per extension a line with the full qualified name of the corresponding extension (provider) class (cf.
+Listing~\ref{lst:extensionsInfo}).
+\lstinputlisting[language=Java, frame=single,
+caption=Declaring an extension in the \texttt{extensions.info}
+file,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3, label=lst:extensionsInfo]{code/extensions.info}
+The \texttt{extensions.info} file needs to be located in a directory called \texttt{plugins}.
+Assuming that we bundle each extension in a separate JAR, despite for additional dependencies the JAR structure would
+look like as follows:
+\dirtree{%
+ .1 /.
+ .2 org.
+ .3 \ldots.
+ .4 MyExtension.class.
+ .4 MyExtensionArtifact.class.
+ .2 plugins.
+ .3 extensions.info.
+}
+
+In the following, we describe for each extension type what needs to implemented to provide an extension for the
+corresponding type.
+
+\subsection{Writing an Instrumentation Extension}
+As explained in Section~\ref{sec:extensionsGeneralStructure}, for an extension we need an \emph{extension artifact
+class} implementing the functionality of the extension type and an \emph{extension class} providing meta information on
+the extension. Except for the class to inherit, the extension class has the same structure for the extension types
+\emph{Instrumentation, Measurement and Load Generation} (cf. Listing~\ref{lst:instExtension}). 
+\lstinputlisting[language=Java, frame=single,
+caption=Extension class
+for an instrumentation
+extension,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:instExtension]{code/instExtension.txt}
+An instrumentation extension needs to inherit the class \texttt{AbstractInstrumentationExtension}. \texttt{getName}
+returns the unique name of the extension. In the \texttt{initializeConfigurationParameters} method we can provide a
+textual description of the extension as well as a set of extension-specific configuration parameters. The
+\texttt{isRemoteExtension} method indicates whether the corresponding extension is an adapter to a remote satellite. If
+that is the case, \DS later uses the \texttt{testConnection} method to check whether a connection to the remote
+satellite can be established. Finally, the method \texttt{createExtensionArtifact} creates a new instance of the actual
+instrumentation extension artifact (here: \texttt{MyInstExtensionArtifact}). In this example the class
+\texttt{MyInstExtensionArtifact} implements the actual instrumentation adapter, and as such has to inherit the class
+\texttt{AbstractInstrumentationAdapter} (cf. Listing~\ref{lst:instExtensionArtifact}).
+\lstinputlisting[language=Java, frame=single,
+caption=Extension Artifact class
+for an instrumentation
+extension,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:instExtensionArtifact]{code/instExtensionArtifact.txt}
+An instrumentation extension artifact has to implement three methods: \texttt{initialize, instrument} and
+\texttt{uninstrument}. The \texttt{initialize} method takes care of conducting initialization tasks required before the
+specific instrumentation tool can be used. The \texttt{instrument} method triggers the instrumentation, realizing the
+instrumentation instructions wrapped by the instrumentation description. Finally, the \texttt{uninstrument} method
+reverts the instrumentation. Depending on the tool used for instrumentation the implementation of this instrumentation
+adapter may look completely different. For instance, if we are using our own instrumentation tool (Adaptable
+Instrumentation and Monitoring (AIM)), the adapter just passes the instrumentation description to the remote
+AIM instrumentation engine to realize the instrumentation. An instrumentation extension for Kieker or DiSL would require
+to translate the instrumentation description into Kieker- or DiSL-specific instrumentation instructions. Furthermore, if
+the instrumentation tool does not support dynamically adaptable instrumentation, the instrumentation extension would
+need to take care of restarting the target application to enable adaptation of the instrumentation state.
+Regardless of which instrumentation tool is used behind an instrumentation extension, \DS only assumes that after
+calling the \texttt{instrument} method, the target application is instrumented accordingly. Analogously for the
+\texttt{uninstrument} method.
+
+
+\subsection{Writing a Measurement Extension}
+A measurement extension class has to inherit the class \texttt{AbstractMeasurmentExtension}. Apart from that, the
+extension class of a measurement extension has the same structure as shown in Listing~\ref{lst:instExtension}. A
+measurement extension artifact has to inherit the class \texttt{AbstractMeasurmentAdapter} exhibiting a structure as
+depicted in Listing~\ref{lst:measExtensionArtifact}.
+\lstinputlisting[language=Java, frame=single,
+caption=Extension Artifact class
+for a measurement
+extension,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:measExtensionArtifact]{code/measExtensionArtifact.txt}
+Analogously to the instrumentation adapter, a measurement adapter can be initialized. The \texttt{enableMonitoring} and
+\texttt{disableMonitoring} activate data gathering on the target system. The methods \texttt{getMeasurementData} and
+\texttt{pipeToOutputStream} allow to retrieve the data measured since the last activation of monitoring. While
+\texttt{getMeasurementData} is a blocking call, \texttt{pipeToOutputStream} allows to take advantage of data pipelining.
+Finally, \texttt{getCurrentTime} returns the current timestamp of the monitoring tool. This timestamp is required to
+align the timestamps of all records which may come from distributed system nodes.
+Analogously to instrumentation extensions, a measurement extension serves as an adapter. For instance, if we want
+to use Kieker as monitoring tool, the corresponding measurement extension has to take care of translating Kieker
+monitoring records into the DynamicSpotter-specific representation of measurement data. In this way, we enable the usage
+of diverse tools via the adapters while keeping a consistent data representation within \DS.
+
+\subsection{Writing a Load Generation Extension}
+A load generation extension class has to inherit the class \texttt{AbstractWorkloadExtension}. Apart from that, the
+extension class of a measurement extension has the same structure as shown in Listing~\ref{lst:instExtension}.
+A load generation extension artifact has to inherit the class \texttt{AbstractWorkloadAdapter} yielding a class
+structure as depicted in Listing~\ref{lst:wlExtensionArtifact}.
+\lstinputlisting[language=Java, frame=single,
+caption=Extension Artifact class
+for a load generation
+extension,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:wlExtensionArtifact]{code/wlExtensionArtifact.txt}
+Same as for the instrumentation and measurement adapters, a workload adapter provides a method for initialization tasks.
+By calling the \texttt{startLoad} method, \DS tells a workload adapter to start generating load \emph{asynchronously}. 
+The three \texttt{wait\_\_\_} methods block until the corresponding experiment phase has been reached.
+In our extensions repository (cf. Section~\ref{sec:links}), we provide load generation adapters for Apache JMeter,
+HP~LoadRunner, and a simple custom workload generator used in the Demo example in Section~\ref{sec:demoApp}.
+
+
+\subsection{Writing a Detection Heuristic}
+In the \DS framework the detection heuristics for individual performance problems are managed as extensions, as well.
+The extension class of a detection heuristic extension has to extend the class \texttt{AbstractDetectionExtension}. 
+The three methods which need to be implemented we already know from the general structure shown in
+Listing~\ref{lst:iExtension}. The class implementing the actual detection logic has to extend the
+\texttt{AbstractDetectionController} class. This inheritance requires the detection class to implement four methods as
+shown in Listing~\ref{lst:detectionHeuristic}.
+\lstinputlisting[language=Java, frame=single,
+caption=Detection controller class
+for a detection heuristic
+extension,commentstyle=\color{mygreen},keywordstyle=\color{blue},stringstyle=\color{mymauve},tabsize=3,
+label=lst:detectionHeuristic]{code/detectionHeuristic.txt}
+The \texttt{loadProperties} method is called by \DS directly after the instantiation of the detection class. This method
+can be used to load heuristic-specific properties as defined in the \texttt{getConfigParameters} method of the extension
+class (cf. Listing~\ref{lst:iExtension}). The detection process of an individual heuristic comprises two phases: an
+experiment execution phase and an data analysis phase. While the former is triggered by the \texttt{executeExperiments}
+method, the \texttt{analyze} method is responsible for analysing the measured data and return a detection result.
+For the experiment phase, a detection heuristic has to specify a problem-specific instrumentation of the target
+application by providing an instrumentation description. (Note: this instrumentation description should be system
+independent in order to be reused in other systems as well.) Using the instrumentation description the detection
+heuristic can tell the \DS to execute a series of experiments (cf. \texttt{executeDefaultExperimentSeries}) using the
+corresponding instrumentation, measurement and load generation adapters. \texttt{defaultExperimentSeries} means that a
+set of \texttt{n} experiments is executed, whereby the load is increased from one experiment to the next between a load
+of 1 user and the specified maximum number of users. When the experimentation phase has finished, \DS calls the
+\texttt{analyze} method passing the measured data as input to that method. It is now up to the analyze method to apply
+certain detection rules in order to provide a detection result. A detection result has to state whether the
+corresponding analyzed performance problem has been detected or not.
+Finally, the \texttt{getNumOfExperiments} method is used by \DS to estimate the duration of the experiments. In this
+method, the developer of a detection heuristic has to provide the number of experiments executed for that heuristic.
+
 \section{Useful Links}
 \label{sec:links}
 \begin{table}[h]

@@ -1,0 +1,38 @@
+public class MyInstExtension extends AbstractInstrumentationExtension {	
+
+	@Override
+	public String getName() {
+		return "MyInstrumentation";
+	}
+
+	@Override
+	protected void initializeConfigurationParameters() {
+		addConfigParameter(
+			ConfigParameterDescription.createExtensionDescription(
+				"This text provides a description on the extension."));
+		
+		ConfigParameterDescription aConfigParameter 
+			= new ConfigParameterDescription(
+				"parameterName", LpeSupportedTypes.Long);
+		aConfigParameter.setDefaultValue(10);
+		aConfigParameter.setDescription(
+			"This text describes the configuration parameter.");
+		
+		addConfigParameter(aConfigParameter);
+	}
+
+	@Override
+	public boolean isRemoteExtension() {
+		return true;
+	}
+
+	@Override
+	public boolean testConnection(String host, String port) {
+		// test connection to remote satellite
+	}
+
+	@Override
+	public IInstrumentationAdapter createExtensionArtifact() {
+		return new MyInstExtensionArtifact(this);
+	}
+}

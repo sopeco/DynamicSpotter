@@ -1,0 +1,25 @@
+public class MyInstExtensionArtifact 
+	extends AbstractInstrumentationAdapter {
+
+	public MyInstExtensionArtifact(IExtension<?> provider) {
+		super(provider);
+	}
+
+	@Override
+	public void initialize() throws InstrumentationException {
+		// initialization of the instrumentation adapter
+	}
+
+	@Override
+	public void instrument(InstrumentationDescription description) 
+		throws InstrumentationException {
+		// instrument the target application as specified 
+		// in the instrumentation description 
+	}
+
+	@Override
+	public void uninstrument() throws InstrumentationException {
+		// revert instrumentation
+	}
+
+}

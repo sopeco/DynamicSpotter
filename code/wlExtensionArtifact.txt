@@ -1,0 +1,36 @@
+public class MyWorkloadExtensionArtifact 
+	extends AbstractWorkloadAdapter {
+
+	public MyWorkloadExtensionArtifact(IExtension<?> provider) {
+		super(provider);
+	}
+	
+	@Override
+	public void initialize() throws WorkloadException {
+		// initialization
+	}
+
+	@Override
+	public void startLoad(LoadConfig loadConfig) 
+		throws WorkloadException {
+		// asynchronously start generation of workload
+	}
+
+	@Override
+	public void waitForWarmupPhaseTermination() 
+		throws WorkloadException {
+		// blocks until the warm-up phase terminates
+	}
+
+	@Override
+	public void waitForExperimentPhaseTermination() 
+		throws WorkloadException {
+		// blocks until the stable experiment phase terminates
+	}
+
+	@Override
+	public void waitForFinishedLoad() throws WorkloadException {
+		// blocks until the cool down phase terminates
+		// and no load is submitted to the target application anymore
+	}
+}

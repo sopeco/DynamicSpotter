@@ -1,0 +1,17 @@
+public class MyDetectionExtension extends AbstractDetectionExtension {
+
+	@Override
+	public IDetectionController createExtensionArtifact() {
+		return new MyDetection(this);
+	}
+
+	@Override
+	public String getName() {
+		return "MyDetection";
+	}
+
+	@Override
+	protected void initializeConfigurationParameters() {
+		// define heuristic-specific configuration parameters
+	}
+}
