@@ -30,7 +30,7 @@ import org.lpe.common.extension.IExtensionArtifact;
  * @author Alexander Wert
  * 
  */
-public interface IMeasurementController extends IExtensionArtifact {
+public interface IMeasurementAdapter extends IExtensionArtifact {
 
 	/**
 	 * Enables monitoring or measurement data collection.

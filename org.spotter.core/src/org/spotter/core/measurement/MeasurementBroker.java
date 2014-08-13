@@ -40,7 +40,7 @@ import org.lpe.common.util.system.LpeSystemUtils;
  * @author Alexander Wert
  * 
  */
-public final class MeasurementBroker implements IMeasurementController {
+public final class MeasurementBroker implements IMeasurementAdapter {
 
 	private static MeasurementBroker instance;
 
@@ -55,7 +55,7 @@ public final class MeasurementBroker implements IMeasurementController {
 		return instance;
 	}
 
-	private final List<IMeasurementController> controllers;
+	private final List<IMeasurementAdapter> controllers;
 
 	private long controllerRelativeTime = 0;
 
@@ -68,7 +68,7 @@ public final class MeasurementBroker implements IMeasurementController {
 	 *            instrumentation controllers to manage
 	 */
 	private MeasurementBroker() {
-		this.controllers = new ArrayList<IMeasurementController>();
+		this.controllers = new ArrayList<IMeasurementAdapter>();
 
 	}
 
@@ -78,7 +78,7 @@ public final class MeasurementBroker implements IMeasurementController {
 	 * @param instrumentationControllers
 	 *            collection of measurement controllers
 	 */
-	public void setControllers(Collection<IMeasurementController> instrumentationControllers) {
+	public void setControllers(Collection<IMeasurementAdapter> instrumentationControllers) {
 		this.controllers.clear();
 		this.controllers.addAll(instrumentationControllers);
 	}
@@ -96,7 +96,7 @@ public final class MeasurementBroker implements IMeasurementController {
 		long startRequestTime;
 		long endRequestTime;
 		long triggerTime = System.currentTimeMillis();
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			startRequestTime = System.currentTimeMillis();
 			controllerTime = controller.getCurrentTime();
 			endRequestTime = System.currentTimeMillis();
@@ -104,7 +104,7 @@ public final class MeasurementBroker implements IMeasurementController {
 					- (startRequestTime - triggerTime));
 		}
 
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			controller.enableMonitoring();
 		}
 
@@ -112,7 +112,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 	@Override
 	public void disableMonitoring() throws MeasurementException {
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			controller.disableMonitoring();
 		}
 	}
@@ -125,7 +125,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
-			for (IMeasurementController mController : controllers) {
+			for (IMeasurementAdapter mController : controllers) {
 				tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
 			}
 			MeasurementData result = new MeasurementData();
@@ -174,7 +174,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 	@Override
 	public void initialize() throws MeasurementException {
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			controller.initialize();
 		}
 
@@ -192,7 +192,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 		final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
-		for (IMeasurementController mController : controllers) {
+		for (IMeasurementAdapter mController : controllers) {
 			tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
 		}
 		dataPipeliningFinished = false;
@@ -221,7 +221,7 @@ public final class MeasurementBroker implements IMeasurementController {
 	@Override
 	public Properties getProperties() {
 		Properties props = new Properties();
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			props.putAll(controller.getProperties());
 		}
 		return props;
@@ -259,7 +259,7 @@ public final class MeasurementBroker implements IMeasurementController {
 
 	@Override
 	public void storeReport(String path) throws MeasurementException {
-		for (IMeasurementController controller : controllers) {
+		for (IMeasurementAdapter controller : controllers) {
 			controller.storeReport(path);
 		}
 	}

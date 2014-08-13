@@ -35,7 +35,7 @@ import org.lpe.common.util.system.LpeSystemUtils;
  * 
  */
 public class PipeDataTask implements Runnable {
-	private AbstractMeasurementController mController;
+	private AbstractMeasurementAdapter mController;
 	private LinkedBlockingQueue<AbstractRecord> records;
 
 	/**
@@ -46,8 +46,8 @@ public class PipeDataTask implements Runnable {
 	 * @param records
 	 *            blocking queue where to write records to
 	 */
-	public PipeDataTask(IMeasurementController mController, LinkedBlockingQueue<AbstractRecord> records) {
-		this.mController = (AbstractMeasurementController) mController;
+	public PipeDataTask(IMeasurementAdapter mController, LinkedBlockingQueue<AbstractRecord> records) {
+		this.mController = (AbstractMeasurementAdapter) mController;
 		this.records = records;
 
 		if (mController == null || records == null) {

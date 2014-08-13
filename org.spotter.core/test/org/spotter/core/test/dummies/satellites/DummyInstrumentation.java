@@ -18,9 +18,9 @@ package org.spotter.core.test.dummies.satellites;
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
-import org.spotter.core.instrumentation.AbstractSpotterInstrumentation;
+import org.spotter.core.instrumentation.AbstractInstrumentationAdapter;
 
-public class DummyInstrumentation extends AbstractSpotterInstrumentation {
+public class DummyInstrumentation extends AbstractInstrumentationAdapter {
 
 	public boolean initialized = false;
 	public boolean instrumented = false;

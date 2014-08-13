@@ -18,7 +18,7 @@ package org.spotter.core.test.dummies.satellites;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.IMeasurementAdapter;
 
 public class DummyMeasurementExtension extends AbstractMeasurmentExtension{
 
@@ -28,7 +28,7 @@ public class DummyMeasurementExtension extends AbstractMeasurmentExtension{
 	}
 
 	@Override
-	public IMeasurementController createExtensionArtifact() {
+	public IMeasurementAdapter createExtensionArtifact() {
 		return new DummyMeasurement(this);
 	}
 

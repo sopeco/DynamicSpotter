@@ -28,7 +28,7 @@ import org.lpe.common.extension.IExtensionArtifact;
  * @author Alexander Wert
  * 
  */
-public interface ISpotterInstrumentation extends IExtensionArtifact {
+public interface IInstrumentationAdapter extends IExtensionArtifact {
 
 	String INSTRUMENTATION_INCLUDES = "org.spotter.instrumentation.packageIncludes";
 	String INSTRUMENTATION_EXCLUDES = "org.spotter.instrumentation.packageExcludes";

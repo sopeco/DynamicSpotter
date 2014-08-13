@@ -18,7 +18,7 @@ package org.spotter.core.test.dummies.satellites;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
 
 public class DummyInstrumentationExtension extends AbstractInstrumentationExtension{
 
@@ -28,7 +28,7 @@ public class DummyInstrumentationExtension extends AbstractInstrumentationExtens
 	}
 
 	@Override
-	public ISpotterInstrumentation createExtensionArtifact() {
+	public IInstrumentationAdapter createExtensionArtifact() {
 		return new DummyInstrumentation(this);
 	}
 

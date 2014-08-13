@@ -25,9 +25,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.lpe.common.extension.ExtensionRegistry;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.workload.AbstractWorkloadExtension;
 import org.spotter.core.workload.IWorkloadAdapter;
 import org.spotter.shared.environment.model.ObjectFactory;
@@ -59,15 +59,15 @@ public final class MeasurementEnvironmentFactory {
 	}
 
 	/**
-	 * Creates a list of {@link IMeasurementController} instances corresponding
+	 * Creates a list of {@link IMeasurementAdapter} instances corresponding
 	 * to the measurement environment description of the passed file.
 	 * 
 	 * @param fileName
 	 *            xml file describing the measruement environment
-	 * @return list of {@link IMeasurementController} instances
+	 * @return list of {@link IMeasurementAdapter} instances
 	 */
-	public List<IMeasurementController> createMeasurementControllers(String fileName) {
-		List<IMeasurementController> result = new ArrayList<IMeasurementController>();
+	public List<IMeasurementAdapter> createMeasurementControllers(String fileName) {
+		List<IMeasurementAdapter> result = new ArrayList<IMeasurementAdapter>();
 		XMeasurementEnvironment mEnv = parseXMLFile(fileName);
 		if (mEnv != null && mEnv.getMeasurementController() != null) {
 
@@ -79,15 +79,15 @@ public final class MeasurementEnvironmentFactory {
 	}
 
 	/**
-	 * Creates a list of {@link ISpotterInstrumentation} instances corresponding
+	 * Creates a list of {@link IInstrumentationAdapter} instances corresponding
 	 * to the measurement environment description of the passed file.
 	 * 
 	 * @param fileName
 	 *            xml file describing the measruement environment
-	 * @return list of {@link ISpotterInstrumentation} instances
+	 * @return list of {@link IInstrumentationAdapter} instances
 	 */
-	public List<ISpotterInstrumentation> createInstrumentationControllers(String fileName) {
-		List<ISpotterInstrumentation> result = new ArrayList<ISpotterInstrumentation>();
+	public List<IInstrumentationAdapter> createInstrumentationControllers(String fileName) {
+		List<IInstrumentationAdapter> result = new ArrayList<IInstrumentationAdapter>();
 		XMeasurementEnvironment mEnv = parseXMLFile(fileName);
 		if (mEnv != null && mEnv.getInstrumentationController() != null) {
 			for (XMeasurementEnvObject xController : mEnv.getInstrumentationController()) {
@@ -141,17 +141,17 @@ public final class MeasurementEnvironmentFactory {
 	}
 
 	/**
-	 * Creates an instance for the interface {@link IMeasurementController}
+	 * Creates an instance for the interface {@link IMeasurementAdapter}
 	 * based on the information provided in the passed
 	 * {@link XMeasurementController} object.
 	 * 
 	 * @param xController
 	 *            construction information
-	 * @return an instance for the interface {@link IMeasurementController}
+	 * @return an instance for the interface {@link IMeasurementAdapter}
 	 */
-	private IMeasurementController createMeasurementController(XMeasurementEnvObject xController) {
+	private IMeasurementAdapter createMeasurementController(XMeasurementEnvObject xController) {
 		try {
-			IMeasurementController controller = ExtensionRegistry.getSingleton().getExtensionArtifact(
+			IMeasurementAdapter controller = ExtensionRegistry.getSingleton().getExtensionArtifact(
 					AbstractMeasurmentExtension.class, xController.getExtensionName());
 			if (xController.getConfig() != null) {
 				for (XMConfiguration xConfig : xController.getConfig()) {
@@ -167,17 +167,17 @@ public final class MeasurementEnvironmentFactory {
 	}
 
 	/**
-	 * Creates an instance for the interface {@link ISpotterInstrumentation}
+	 * Creates an instance for the interface {@link IInstrumentationAdapter}
 	 * based on the information provided in the passed
 	 * {@link XInstrumentationController} object.
 	 * 
 	 * @param xController
 	 *            construction information
-	 * @return an instance for the interface {@link ISpotterInstrumentation}
+	 * @return an instance for the interface {@link IInstrumentationAdapter}
 	 */
-	private ISpotterInstrumentation createInstrumentationController(XMeasurementEnvObject xController) {
+	private IInstrumentationAdapter createInstrumentationController(XMeasurementEnvObject xController) {
 		try {
-			ISpotterInstrumentation controller = ExtensionRegistry.getSingleton().getExtensionArtifact(
+			IInstrumentationAdapter controller = ExtensionRegistry.getSingleton().getExtensionArtifact(
 					AbstractInstrumentationExtension.class, xController.getExtensionName());
 			if (xController.getConfig() != null) {
 				for (XMConfiguration xConfig : xController.getConfig()) {

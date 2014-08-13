@@ -34,7 +34,7 @@ import org.lpe.common.util.system.LpeSystemUtils;
  * @author Alexander Wert
  * 
  */
-public final class InstrumentationBroker implements ISpotterInstrumentation {
+public final class InstrumentationBroker implements IInstrumentationAdapter {
 
 	private static InstrumentationBroker instance;
 
@@ -49,7 +49,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 		return instance;
 	}
 
-	private final List<ISpotterInstrumentation> instrumentationControllers;
+	private final List<IInstrumentationAdapter> instrumentationControllers;
 
 	/**
 	 * Constructor.
@@ -58,7 +58,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	 *            instrumentation controllers to manage
 	 */
 	private InstrumentationBroker() {
-		this.instrumentationControllers = new ArrayList<ISpotterInstrumentation>();
+		this.instrumentationControllers = new ArrayList<IInstrumentationAdapter>();
 
 	}
 
@@ -68,7 +68,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	 * @param instrumentationControllers
 	 *            controllers
 	 */
-	public void setControllers(Collection<ISpotterInstrumentation> instrumentationControllers) {
+	public void setControllers(Collection<IInstrumentationAdapter> instrumentationControllers) {
 		this.instrumentationControllers.clear();
 		this.instrumentationControllers.addAll(instrumentationControllers);
 	}
@@ -78,7 +78,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 		try {
 			List<Future<?>> tasks = new ArrayList<>();
 
-			for (ISpotterInstrumentation instController : instrumentationControllers) {
+			for (IInstrumentationAdapter instController : instrumentationControllers) {
 				tasks.add(LpeSystemUtils.submitTask(new InitializeTask(instController)));
 			}
 			// wait for termination of all initialization tasks
@@ -98,7 +98,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 				throw new InstrumentationException("Instrumentation description must not be null!");
 			}
 			List<Future<?>> tasks = new ArrayList<>();
-			for (ISpotterInstrumentation instController : instrumentationControllers) {
+			for (IInstrumentationAdapter instController : instrumentationControllers) {
 
 				tasks.add(LpeSystemUtils.submitTask(new InstrumentTask(instController, description)));
 			}
@@ -116,7 +116,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	public void uninstrument() throws InstrumentationException {
 		try {
 			List<Future<?>> tasks = new ArrayList<>();
-			for (ISpotterInstrumentation instController : instrumentationControllers) {
+			for (IInstrumentationAdapter instController : instrumentationControllers) {
 
 				tasks.add(LpeSystemUtils.submitTask(new UninstrumentTask(instController)));
 			}
@@ -134,7 +134,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	@Override
 	public Properties getProperties() {
 		Properties props = new Properties();
-		for (ISpotterInstrumentation instController : instrumentationControllers) {
+		for (IInstrumentationAdapter instController : instrumentationControllers) {
 			props.putAll(instController.getProperties());
 		}
 		return props;
@@ -163,10 +163,10 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	}
 
 	private class InstrumentTask extends Task {
-		ISpotterInstrumentation instController;
+		IInstrumentationAdapter instController;
 		InstrumentationDescription description;
 
-		public InstrumentTask(ISpotterInstrumentation instController, InstrumentationDescription description)
+		public InstrumentTask(IInstrumentationAdapter instController, InstrumentationDescription description)
 				throws InterruptedException {
 
 			this.instController = instController;
@@ -177,7 +177,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 		protected void executeTask() throws InstrumentationException {
 
 			String csListIncludes = instController.getProperties().getProperty(
-					ISpotterInstrumentation.INSTRUMENTATION_INCLUDES);
+					IInstrumentationAdapter.INSTRUMENTATION_INCLUDES);
 			csListIncludes = (csListIncludes == null || csListIncludes.isEmpty()) ? null : csListIncludes;
 			if (csListIncludes != null) {
 				String[] includesArr = csListIncludes.split(",");
@@ -186,7 +186,7 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 				}
 			}
 			String csListExcludes = instController.getProperties().getProperty(
-					ISpotterInstrumentation.INSTRUMENTATION_EXCLUDES);
+					IInstrumentationAdapter.INSTRUMENTATION_EXCLUDES);
 			csListExcludes = (csListExcludes == null || csListExcludes.isEmpty()) ? null : csListExcludes;
 
 			if (csListExcludes != null) {
@@ -201,9 +201,9 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	}
 
 	private class UninstrumentTask extends Task {
-		ISpotterInstrumentation instController;
+		IInstrumentationAdapter instController;
 
-		public UninstrumentTask(ISpotterInstrumentation instController) throws InterruptedException {
+		public UninstrumentTask(IInstrumentationAdapter instController) throws InterruptedException {
 			this.instController = instController;
 		}
 
@@ -215,9 +215,9 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	}
 
 	private class InitializeTask extends Task {
-		private ISpotterInstrumentation instController;
+		private IInstrumentationAdapter instController;
 
-		public InitializeTask(ISpotterInstrumentation instController) throws InterruptedException {
+		public InitializeTask(IInstrumentationAdapter instController) throws InterruptedException {
 			this.instController = instController;
 		}
 
@@ -258,10 +258,10 @@ public final class InstrumentationBroker implements ISpotterInstrumentation {
 	 *            Class type of the controllers
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends ISpotterInstrumentation> List<T> getInstrumentationControllers(Class<T> type) {
+	public <T extends IInstrumentationAdapter> List<T> getInstrumentationControllers(Class<T> type) {
 		List<T> result = new ArrayList<>();
 
-		for (ISpotterInstrumentation controller : instrumentationControllers) {
+		for (IInstrumentationAdapter controller : instrumentationControllers) {
 			if (type.isAssignableFrom(controller.getClass())) {
 				result.add((T) controller);
 			}

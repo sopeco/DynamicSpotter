@@ -43,14 +43,13 @@ public interface IWorkloadAdapter extends IExtensionArtifact {
 	/**
 	 * Starts the workload generation.
 	 * 
-	 * @param config
+	 * @param loadConfig
 	 *            contains configuration properties for the specific workload
-	 *            generator. The workload characteristics are described within
-	 *            this configuration as well.
+	 *            generator.
 	 * @throws WorkloadException
 	 *             if starting load fails
 	 */
-	void startLoad(Properties config) throws WorkloadException;
+	void startLoad(LoadConfig loadConfig) throws WorkloadException;
 
 	/**
 	 * Blocks until warmup phase is finished.

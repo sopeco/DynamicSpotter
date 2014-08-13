@@ -28,7 +28,7 @@ import org.spotter.core.AbstractSpotterSatelliteExtension;
  * 
  */
 public abstract class AbstractInstrumentationExtension extends AbstractSpotterSatelliteExtension implements
-		IExtension<ISpotterInstrumentation> {
+		IExtension<IInstrumentationAdapter> {
 
 	@Override
 	public final Set<ConfigParameterDescription> getConfigParameters() {

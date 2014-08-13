@@ -44,9 +44,9 @@ import org.spotter.core.config.interpretation.HierarchyFactory;
 import org.spotter.core.config.interpretation.HierarchyTest;
 import org.spotter.core.config.interpretation.MeasurementEnvironmentFactory;
 import org.spotter.core.config.interpretation.PerformanceProblem;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
 import org.spotter.core.instrumentation.InstrumentationBroker;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.measurement.MeasurementBroker;
 import org.spotter.core.test.dummies.detection.MockDetection;
 import org.spotter.core.test.dummies.satellites.DummyMeasurement;
@@ -110,7 +110,7 @@ public class AbstractDetectionControllerTest {
 		if (measurementEnvironmentFile == null) {
 			throw new InstrumentationException("Measurement Environment File has not been specified!");
 		}
-		List<IMeasurementController> controllers = MeasurementEnvironmentFactory.getInstance()
+		List<IMeasurementAdapter> controllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(measurementEnvironmentFile);
 		MeasurementBroker measurementController = MeasurementBroker.getInstance();
 		measurementController.setControllers(controllers);
@@ -123,7 +123,7 @@ public class AbstractDetectionControllerTest {
 		if (measurementEnvironmentFile == null) {
 			throw new InstrumentationException("Measurement Environment File has not been specified!");
 		}
-		List<ISpotterInstrumentation> instrumentations = MeasurementEnvironmentFactory.getInstance()
+		List<IInstrumentationAdapter> instrumentations = MeasurementEnvironmentFactory.getInstance()
 				.createInstrumentationControllers(measurementEnvironmentFile);
 		InstrumentationBroker instrumentationController = InstrumentationBroker.getInstance();
 		instrumentationController.setControllers(instrumentations);

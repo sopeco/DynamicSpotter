@@ -26,8 +26,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.config.GlobalConfiguration;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.workload.IWorkloadAdapter;
 import org.spotter.shared.configuration.ConfigKeys;
 
@@ -50,7 +50,7 @@ public class MEFactoryTest {
 		// *****************************
 		// INSTRUMENTATION CONTROLLERS
 		// *****************************
-		List<ISpotterInstrumentation> instrumentations = MeasurementEnvironmentFactory.getInstance()
+		List<IInstrumentationAdapter> instrumentations = MeasurementEnvironmentFactory.getInstance()
 				.createInstrumentationControllers(envFile);
 		Assert.assertEquals(1, instrumentations.size());
 		Assert.assertEquals("DummyInstrumentation", instrumentations.get(0).getProvider().getName());
@@ -69,7 +69,7 @@ public class MEFactoryTest {
 		// *****************************
 		// MEASUREMENT CONTROLLERS
 		// *****************************
-		List<IMeasurementController> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertEquals("DummyMeasurement", measurementControllers.get(0).getProvider().getName());
@@ -154,7 +154,7 @@ public class MEFactoryTest {
 	public void testInvalidHostMeasurement() throws URISyntaxException {
 		URL url = HierarchyTest.class.getResource("/test-env.xml");
 		String envFile = url.toURI().getPath();
-		List<IMeasurementController> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getHost());
@@ -164,7 +164,7 @@ public class MEFactoryTest {
 	public void testInvalidPortMeasurement() throws URISyntaxException {
 		URL url = HierarchyTest.class.getResource("/test-env.xml");
 		String envFile = url.toURI().getPath();
-		List<IMeasurementController> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getPort());
@@ -192,7 +192,7 @@ public class MEFactoryTest {
 	public void testInvalidNameMeasurement() throws URISyntaxException {
 		URL url = HierarchyTest.class.getResource("/test-env.xml");
 		String envFile = url.toURI().getPath();
-		List<IMeasurementController> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getName());

@@ -36,7 +36,7 @@ import org.aim.api.measurement.utils.RecordCSVWriter;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.system.LpeSystemUtils;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.SpotterResult;
@@ -249,7 +249,7 @@ public class DetectionResultManager {
 	 * @throws MeasurementException
 	 *             thrown if storing raw data fails
 	 */
-	public void storeResults(final Set<Parameter> parameters, final IMeasurementController measurementController)
+	public void storeResults(final Set<Parameter> parameters, final IMeasurementAdapter measurementController)
 			throws MeasurementException {
 		try {
 			resultCount++;
