@@ -59,6 +59,7 @@ public class ServiceClientSettingsDialog extends TitleAreaDialog implements ICon
 	 * 
 	 * @param parent
 	 *            The parent composite the content is placed in
+	 * @return a {@link Control} instance
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {

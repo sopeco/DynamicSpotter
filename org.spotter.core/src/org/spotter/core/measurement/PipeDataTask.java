@@ -67,6 +67,12 @@ public class PipeDataTask implements Runnable {
 
 	}
 
+	/**
+	 * Executes the pipe data task.
+	 * 
+	 * @throws MeasurementException
+	 *             if data transmission fails
+	 */
 	protected void executeTask() throws MeasurementException {
 
 		try {

@@ -104,6 +104,8 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 	/**
 	 * Implementing classes must provide a name for the given element.
 	 * 
+	 * @param element
+	 *            target element
 	 * @return the name of the given element
 	 */
 	protected abstract String getElementName(Object element);
@@ -112,6 +114,8 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 	 * Implementing classes must provide a description for the given element or
 	 * <code>null</code> if none.
 	 * 
+	 * @param element
+	 *            target element
 	 * @return the description of the given element or <code>null</code> if none
 	 */
 	protected abstract String getElementDescription(Object element);
@@ -121,6 +125,7 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 	 * 
 	 * @param parent
 	 *            The parent composite the content is placed in
+	 * @return a {@link Control} instance
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
@@ -217,6 +222,7 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 	 * Create contents of the button bar.
 	 * 
 	 * @param parent
+	 *            parent composite
 	 */
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
@@ -228,6 +234,8 @@ public abstract class AbstractAddDialog extends TitleAreaDialog {
 
 	/**
 	 * Return the initial size of the dialog.
+	 * 
+	 * @return the initial size of the dialog.
 	 */
 	@Override
 	protected Point getInitialSize() {

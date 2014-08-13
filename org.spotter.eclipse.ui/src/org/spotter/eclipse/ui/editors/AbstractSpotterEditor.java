@@ -81,7 +81,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	/**
 	 * Implementing editors should create a suitable editor input and return it.
 	 * 
-	 * @param project
+	 * @param file
 	 *            the resource file
 	 * @return an editor input for this editor
 	 * @throws UICoreException
@@ -227,6 +227,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * change event if the flag has changed.
 	 * 
 	 * @param dirtyFlag
+	 *            dirtyFlag to set
 	 */
 	protected void updateDirtyFlag(boolean dirtyFlag) {
 		boolean fireChange = this.dirtyFlag != dirtyFlag;

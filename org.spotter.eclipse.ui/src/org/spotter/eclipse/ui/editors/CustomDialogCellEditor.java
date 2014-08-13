@@ -109,6 +109,8 @@ public class CustomDialogCellEditor extends CellEditor {
 	/**
 	 * Creates a composite which serves as this cell editor's control.
 	 * 
+	 * @param parent
+	 *            the parent composite
 	 * @return the new control
 	 */
 	protected Control createControl(Composite parent) {

@@ -37,48 +37,50 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	 * Constructor.
 	 */
 	public AbstractDetectionExtension() {
-		
+
 		configParameters = new HashSet<ConfigParameterDescription>();
 		configParameters.add(createIsDetectableParameter());
 		configParameters.add(createReuseExperimentsParameter());
 		initializeConfigurationParameters();
 	}
 
+	/**
+	 * This method is called to initialize heuristic specific configuration
+	 * parameters.
+	 */
 	protected abstract void initializeConfigurationParameters();
 
 	/**
-	 * @param configuration
+	 * Adds a configuration parameter to the extension.
+	 * 
+	 * @param parameter
 	 *            parameter to add to this extension
 	 */
 	protected void addConfigParameter(ConfigParameterDescription parameter) {
 		configParameters.add(parameter);
 	}
-	
+
 	@Override
 	public final Set<ConfigParameterDescription> getConfigParameters() {
 		return configParameters;
 	}
-	
-	
-	
+
 	private ConfigParameterDescription createReuseExperimentsParameter() {
 		ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
 				REUSE_EXPERIMENTS_FROM_PARENT, LpeSupportedTypes.Boolean);
-		reuseExperimentsParameter
-				.setDescription("Indicates whether the experiments from "
-						+ "the parent heuristic should be used for this heuristic.");
+		reuseExperimentsParameter.setDescription("Indicates whether the experiments from "
+				+ "the parent heuristic should be used for this heuristic.");
 		reuseExperimentsParameter.setDefaultValue(String.valueOf(false));
 		return reuseExperimentsParameter;
 	}
-	
+
 	private ConfigParameterDescription createIsDetectableParameter() {
 		ConfigParameterDescription nameParameter = new ConfigParameterDescription(
 				AbstractDetectionController.DETECTABLE_KEY, LpeSupportedTypes.Boolean);
 		nameParameter.setMandatory(true);
 		nameParameter.setASet(false);
 		nameParameter.setDefaultValue("true");
-		nameParameter
-				.setDescription("Specifies if this problem node is detectable!");
+		nameParameter.setDescription("Specifies if this problem node is detectable!");
 
 		return nameParameter;
 	}

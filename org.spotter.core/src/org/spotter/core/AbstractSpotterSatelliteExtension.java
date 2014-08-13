@@ -63,6 +63,10 @@ public abstract class AbstractSpotterSatelliteExtension {
 		initializeConfigurationParameters();
 	}
 
+	/**
+	 * This method is called to initialize satellite specific configuration
+	 * parameters.
+	 */
 	protected abstract void initializeConfigurationParameters();
 
 	/**
@@ -75,7 +79,9 @@ public abstract class AbstractSpotterSatelliteExtension {
 	}
 
 	/**
-	 * @param configuration
+	 * Adds a configuration parameter to the extension.
+	 * 
+	 * @param parameter
 	 *            parameter to add to this extension
 	 */
 	protected void addConfigParameter(ConfigParameterDescription parameter) {

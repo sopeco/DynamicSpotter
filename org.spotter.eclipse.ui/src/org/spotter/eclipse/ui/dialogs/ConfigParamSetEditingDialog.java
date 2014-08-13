@@ -102,6 +102,8 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	 * Create contents of the dialog.
 	 * 
 	 * @param parent
+	 *            parent composite
+	 * @return a {@link Control} instance
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
@@ -176,7 +178,7 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 
 		TableViewerColumn tableColumn = new TableViewerColumn(checkConfElemsTblViewer, SWT.NONE);
 		tableColLayout.setColumnData(tableColumn.getColumn(), new ColumnWeightData(1));
-		
+
 		checkConfElemsTblViewer.setContentProvider(new ArrayContentProvider());
 		checkConfElemsTblViewer.setLabelProvider(new LabelProvider());
 		checkConfElemsTblViewer.setInput(desc.getOptions().toArray(new String[desc.getOptions().size()]));
@@ -185,7 +187,7 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 		Composite controlComp = new Composite(container, SWT.NONE);
 		controlComp.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		controlComp.setLayout(new GridLayout());
-		
+
 		btnSelectAll = new Button(controlComp, SWT.NONE);
 		btnSelectAll.setToolTipText("Select all items.");
 		btnSelectAll.setText("Select All");
@@ -316,6 +318,7 @@ public class ConfigParamSetEditingDialog extends TitleAreaDialog {
 	 * Create contents of the button bar.
 	 * 
 	 * @param parent
+	 *            parent composite
 	 */
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
