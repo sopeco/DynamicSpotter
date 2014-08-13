@@ -71,15 +71,15 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 	@Override
 	public void initialize() throws WorkloadException {
 		for (IWorkloadAdapter wlAdapter : wlAdapters) {
-			wlAdapter.initialize(); 
+			wlAdapter.initialize();
 		}
 
 	}
 
 	@Override
-	public void startLoad(Properties config) throws WorkloadException {
+	public void startLoad(LoadConfig loadConfig) throws WorkloadException {
 		for (IWorkloadAdapter wlAdapter : wlAdapters) {
-			wlAdapter.startLoad(config);
+			wlAdapter.startLoad(loadConfig);
 		}
 
 	}

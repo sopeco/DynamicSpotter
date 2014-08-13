@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.workload.AbstractWorkloadAdapter;
+import org.spotter.core.workload.LoadConfig;
 import org.spotter.exceptions.WorkloadException;
 
 public class DummyWorkload extends AbstractWorkloadAdapter {
@@ -39,7 +40,7 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	}
 
 	@Override
-	public void startLoad(Properties config) throws WorkloadException {
+	public void startLoad(LoadConfig loadConfig) throws WorkloadException {
 		loadStarted = true;
 		numExperiments++;
 	}

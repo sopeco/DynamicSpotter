@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.core.instrumentation;
+package org.spotter.core.measurement;
 
 import java.util.Properties;
 
@@ -23,25 +23,26 @@ import org.lpe.common.util.LpeStringUtils;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
 
 /**
- * Abstract class for Spotter instrumentation.
+ * The {@link AbstractMeasurementAdapter} contains common properties of all
+ * MeasurementController implementations.
  * 
  * @author Alexander Wert
  * 
  */
-public abstract class AbstractSpotterInstrumentation extends AbstractExtensionArtifact implements
-		ISpotterInstrumentation {
+public abstract class AbstractMeasurementAdapter extends AbstractExtensionArtifact implements IMeasurementAdapter {
 
 
 	/**
-	 * Construcotr.
+	 * Constructor.
 	 * 
 	 * @param provider
-	 *            extension provider
+	 *            Extension provider of that object
 	 */
-	public AbstractSpotterInstrumentation(IExtension<?> provider) {
+	public AbstractMeasurementAdapter(IExtension<?> provider) {
 		super(provider);
 	}
 
+	private long relativeTime;
 	private Properties properties;
 
 	/**
@@ -71,7 +72,6 @@ public abstract class AbstractSpotterInstrumentation extends AbstractExtensionAr
 	/**
 	 * @return the properties
 	 */
-	@Override
 	public Properties getProperties() {
 		if (properties == null) {
 			properties = new Properties();
@@ -83,9 +83,25 @@ public abstract class AbstractSpotterInstrumentation extends AbstractExtensionAr
 	 * @param properties
 	 *            the properties to set
 	 */
-	@Override
 	public void setProperties(Properties properties) {
 		this.properties = properties;
+	}
+
+	/**
+	 * @return the relativeTime
+	 */
+	@Override
+	public long getControllerRelativeTime() {
+		return relativeTime;
+	}
+
+	/**
+	 * @param relativeTime
+	 *            the relativeTime to set
+	 */
+	@Override
+	public void setControllerRelativeTime(long relativeTime) {
+		this.relativeTime = relativeTime;
 	}
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.core.measurement;
+package org.spotter.core.instrumentation;
 
 import java.util.Properties;
 
@@ -23,26 +23,25 @@ import org.lpe.common.util.LpeStringUtils;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
 
 /**
- * The {@link AbstractMeasurementController} contains common properties of all
- * MeasurementController implementations.
+ * Abstract class for Spotter instrumentation.
  * 
  * @author Alexander Wert
  * 
  */
-public abstract class AbstractMeasurementController extends AbstractExtensionArtifact implements IMeasurementController {
+public abstract class AbstractInstrumentationAdapter extends AbstractExtensionArtifact implements
+		IInstrumentationAdapter {
 
 
 	/**
-	 * Constructor.
+	 * Construcotr.
 	 * 
 	 * @param provider
-	 *            Extension provider of that object
+	 *            extension provider
 	 */
-	public AbstractMeasurementController(IExtension<?> provider) {
+	public AbstractInstrumentationAdapter(IExtension<?> provider) {
 		super(provider);
 	}
 
-	private long relativeTime;
 	private Properties properties;
 
 	/**
@@ -72,6 +71,7 @@ public abstract class AbstractMeasurementController extends AbstractExtensionArt
 	/**
 	 * @return the properties
 	 */
+	@Override
 	public Properties getProperties() {
 		if (properties == null) {
 			properties = new Properties();
@@ -83,25 +83,9 @@ public abstract class AbstractMeasurementController extends AbstractExtensionArt
 	 * @param properties
 	 *            the properties to set
 	 */
+	@Override
 	public void setProperties(Properties properties) {
 		this.properties = properties;
-	}
-
-	/**
-	 * @return the relativeTime
-	 */
-	@Override
-	public long getControllerRelativeTime() {
-		return relativeTime;
-	}
-
-	/**
-	 * @param relativeTime
-	 *            the relativeTime to set
-	 */
-	@Override
-	public void setControllerRelativeTime(long relativeTime) {
-		this.relativeTime = relativeTime;
 	}
 
 }

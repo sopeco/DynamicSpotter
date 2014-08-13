@@ -29,9 +29,9 @@ import org.aim.api.measurement.MeasurementData;
 import org.aim.artifacts.records.CPUUtilizationRecord;
 import org.aim.artifacts.records.ResponseTimeRecord;
 import org.lpe.common.extension.IExtension;
-import org.spotter.core.measurement.AbstractMeasurementController;
+import org.spotter.core.measurement.AbstractMeasurementAdapter;
 
-public class DummyMeasurement extends AbstractMeasurementController{
+public class DummyMeasurement extends AbstractMeasurementAdapter{
 
 	public static final int NUM_RECORDS = 60;
 	

@@ -33,11 +33,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.util.system.LpeSystemUtils;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
-import org.spotter.core.instrumentation.AbstractSpotterInstrumentation;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
+import org.spotter.core.instrumentation.AbstractInstrumentationAdapter;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
 import org.spotter.core.instrumentation.InstrumentationBroker;
-import org.spotter.core.measurement.AbstractMeasurementController;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.AbstractMeasurementAdapter;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.measurement.MeasurementBroker;
 import org.spotter.core.test.dummies.satellites.DummyInstrumentation;
 import org.spotter.core.test.dummies.satellites.DummyMeasurement;
@@ -60,8 +60,8 @@ public class SatellitesTest {
 		testProperties.setProperty(AbstractSpotterSatelliteExtension.HOST_KEY, "testHost");
 		testProperties.setProperty(AbstractSpotterSatelliteExtension.PORT_KEY, "testPort");
 		testProperties.setProperty("anotherProperty", "testProperty");
-		testProperties.setProperty(ISpotterInstrumentation.INSTRUMENTATION_INCLUDES, "org.test");
-		testProperties.setProperty(ISpotterInstrumentation.INSTRUMENTATION_EXCLUDES, "org.another.test");
+		testProperties.setProperty(IInstrumentationAdapter.INSTRUMENTATION_INCLUDES, "org.test");
+		testProperties.setProperty(IInstrumentationAdapter.INSTRUMENTATION_EXCLUDES, "org.another.test");
 
 		testProperties_2 = new Properties();
 		testProperties_2.setProperty(AbstractSpotterSatelliteExtension.NAME_KEY, "testName_2");
@@ -85,7 +85,7 @@ public class SatellitesTest {
 
 	@Test
 	public void testAbstractSpotterInstrumentation() {
-		AbstractSpotterInstrumentation asInst = new DummyInstrumentation(null);
+		AbstractInstrumentationAdapter asInst = new DummyInstrumentation(null);
 
 		asInst.setProperties(testProperties);
 		Assert.assertEquals("testName", asInst.getName());
@@ -98,7 +98,7 @@ public class SatellitesTest {
 
 	@Test
 	public void testAbstractMeasurementController() {
-		AbstractMeasurementController measController = new DummyMeasurement(null);
+		AbstractMeasurementAdapter measController = new DummyMeasurement(null);
 
 		measController.setProperties(testProperties);
 		long time = System.currentTimeMillis();
@@ -139,7 +139,7 @@ public class SatellitesTest {
 
 		inst_3.setProperties(testProperties_3);
 
-		List<ISpotterInstrumentation> instControllers = new ArrayList<>();
+		List<IInstrumentationAdapter> instControllers = new ArrayList<>();
 		instControllers.add(inst_1);
 		instControllers.add(inst_2);
 		instControllers.add(inst_3);
@@ -152,8 +152,8 @@ public class SatellitesTest {
 		Assert.assertEquals("localhost", instBroker.getHost());
 		Assert.assertEquals("NA", instBroker.getPort());
 		Assert.assertTrue(instControllers.containsAll(instBroker
-				.getInstrumentationControllers(ISpotterInstrumentation.class)));
-		Assert.assertTrue(instBroker.getInstrumentationControllers(ISpotterInstrumentation.class).containsAll(
+				.getInstrumentationControllers(IInstrumentationAdapter.class)));
+		Assert.assertTrue(instBroker.getInstrumentationControllers(IInstrumentationAdapter.class).containsAll(
 				instControllers));
 		Assert.assertTrue(instControllers.containsAll(instBroker
 				.getInstrumentationControllers(DummyInstrumentation.class)));
@@ -213,7 +213,7 @@ public class SatellitesTest {
 
 		meas_3.setProperties(testProperties_3);
 
-		List<IMeasurementController> measControllers = new ArrayList<>();
+		List<IMeasurementAdapter> measControllers = new ArrayList<>();
 		measControllers.add(meas_1);
 		measControllers.add(meas_2);
 		measControllers.add(meas_3);

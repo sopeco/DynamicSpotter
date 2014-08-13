@@ -34,11 +34,12 @@ import org.lpe.common.util.LpeStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.ProgressManager;
-import org.spotter.core.instrumentation.ISpotterInstrumentation;
+import org.spotter.core.instrumentation.IInstrumentationAdapter;
 import org.spotter.core.instrumentation.InstrumentationBroker;
-import org.spotter.core.measurement.IMeasurementController;
+import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.measurement.MeasurementBroker;
 import org.spotter.core.workload.IWorkloadAdapter;
+import org.spotter.core.workload.LoadConfig;
 import org.spotter.core.workload.WorkloadAdapterBroker;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.configuration.ConfigKeys;
@@ -68,10 +69,10 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	protected static final String NUMBER_OF_USERS_KEY = "numUsers";
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
 
-	private ISpotterInstrumentation instrumentationController;
+	private IInstrumentationAdapter instrumentationController;
 	private String problemId;
 
-	protected IMeasurementController measurementController;
+	protected IMeasurementAdapter measurementController;
 	protected IWorkloadAdapter workloadAdapter;
 	private final DetectionResultManager resultManager;
 
@@ -98,48 +99,27 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 	@Override
 	public SpotterResult analyzeProblem() throws InstrumentationException, MeasurementException, WorkloadException {
-//		try {
+		if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
+
+			ProgressManager.getInstance().addAdditionalDuration(SUT_WARMPUP_DURATION);
+		}
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
+
+		if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
+			resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
+					ConfigKeys.DUMMY_EXPERIMENT_DATA));
+		} else if (this instanceof IExperimentReuser) {
+			resultManager.useParentDataDir();
+		} else {
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
-
-				ProgressManager.getInstance().addAdditionalDuration(SUT_WARMPUP_DURATION);
-			}
-			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
-
-			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
-				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
-						ConfigKeys.DUMMY_EXPERIMENT_DATA));
-			} else if (this instanceof IExperimentReuser) {
-				resultManager.useParentDataDir();
-			} else {
-				if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
-					warmUpSUT();
-				}
-
-				executeExperiments();
+				warmUpSUT();
 			}
 
-			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
-			return analyze(getResultManager().loadData());
-//		} catch (Exception e) {
-//			if (e instanceof InstrumentationException) {
-//				throw (InstrumentationException) e;
-//			} else {
-//				if (instrumented) {
-//					instrumentationController.uninstrument();
-//				}
-//				instrumented = false;
-//
-//				String message = "Error during problem analysis by " + this.getClass().getSimpleName()
-//						+ ". Ignoring and resuming!";
-//				LOGGER.warn(message + " Cause: {}", e);
-//				SpotterResult result = new SpotterResult();
-//				result.addMessage(message);
-//				result.setDetected(false);
-//				return result;
-//			}
-//
-//		}
+			executeExperiments();
+		}
 
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
+		return analyze(getResultManager().loadData());
 	}
 
 	/**
@@ -152,15 +132,15 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	private void warmUpSUT() throws WorkloadException {
 		if (!sutWarmedUp) {
 			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.WARM_UP);
-			Properties wlProperties = new Properties();
-			wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(1));
-			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH, String.valueOf(1));
-			wlProperties.setProperty(ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL, String.valueOf(1));
-			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, String.valueOf(1));
-			wlProperties.setProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL, String.valueOf(1));
-			wlProperties.setProperty(ConfigKeys.EXPERIMENT_DURATION, String.valueOf(SUT_WARMPUP_DURATION));
 
-			workloadAdapter.startLoad(wlProperties);
+			LoadConfig lConfig = new LoadConfig();
+			lConfig.setNumUsers(1);
+			lConfig.setRampUpIntervalLength(1);
+			lConfig.setRampUpUsersPerInterval(1);
+			lConfig.setCoolDownIntervalLength(1);
+			lConfig.setCoolDownUsersPerInterval(1);
+			lConfig.setExperimentDuration(SUT_WARMPUP_DURATION);
+			workloadAdapter.startLoad(lConfig);
 			workloadAdapter.waitForFinishedLoad();
 			sutWarmedUp = true;
 		}
@@ -230,23 +210,29 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			throws WorkloadException, MeasurementException {
 
 		LOGGER.info("{} started experiment with {} users ...", detectionControllerClass.getSimpleName(), numUsers);
-		Properties wlProperties = new Properties();
-		wlProperties.setProperty(IWorkloadAdapter.NUMBER_CURRENT_USERS, String.valueOf(numUsers));
-
-		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
-				DiagnosisStatus.EXPERIMENTING_RAMP_UP);
-		workloadAdapter.startLoad(wlProperties);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
+		LoadConfig lConfig = new LoadConfig();
+		lConfig.setNumUsers(numUsers);
+		lConfig.setRampUpIntervalLength(GlobalConfiguration.getInstance().getPropertyAsInteger(
+				ConfigKeys.EXPERIMENT_RAMP_UP_INTERVAL_LENGTH));
+		lConfig.setRampUpUsersPerInterval(GlobalConfiguration.getInstance().getPropertyAsInteger(
+				ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL));
+		lConfig.setCoolDownIntervalLength(GlobalConfiguration.getInstance().getPropertyAsInteger(
+				ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH));
+		lConfig.setCoolDownUsersPerInterval(GlobalConfiguration.getInstance().getPropertyAsInteger(
+				ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL));
+		lConfig.setExperimentDuration(GlobalConfiguration.getInstance().getPropertyAsInteger(
+				ConfigKeys.EXPERIMENT_DURATION));
+		workloadAdapter.startLoad(lConfig);
 
 		workloadAdapter.waitForWarmupPhaseTermination();
 
-		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
-				DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
 		measurementController.enableMonitoring();
 
 		workloadAdapter.waitForExperimentPhaseTermination();
 
-		ProgressManager.getInstance().updateProgressStatus(getProblemId(),
-				DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
+		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
 		measurementController.disableMonitoring();
 
 		workloadAdapter.waitForFinishedLoad();
