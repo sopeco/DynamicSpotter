@@ -146,6 +146,25 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		}
 	}
 
+	/**
+	 * Executes a default experiment series comprising
+	 * {@link numExperimentSteps} experiments. Starts with a load of one user
+	 * and increases the load from one experiment to the next until the maximum
+	 * number of users is reached.
+	 * 
+	 * @param detectionControllerClass
+	 *            class of the detection controller executing the experiments
+	 * @param numExperimentSteps
+	 *            number of experiment steps to execute
+	 * @param instDescription
+	 *            instrumentation description to use for instrumentation
+	 * @throws InstrumentationException
+	 *             if instrumentation fails
+	 * @throws MeasurementException
+	 *             if measurement data cannot be collected
+	 * @throws WorkloadException
+	 *             if load cannot be generated properly
+	 */
 	protected void executeDefaultExperimentSeries(Class<? extends IDetectionController> detectionControllerClass,
 			int numExperimentSteps, InstrumentationDescription instDescription) throws InstrumentationException,
 			MeasurementException, WorkloadException {
@@ -180,6 +199,16 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 	}
 
+	/**
+	 * Instruments the target application according to the passed
+	 * {@link instDescription}.
+	 * 
+	 * @param instDescription
+	 *            instrumentation description describing the desired
+	 *            instrumentation state of the target application
+	 * @throws InstrumentationException
+	 *             if instrumentation fails
+	 */
 	protected void instrumentApplication(InstrumentationDescription instDescription) throws InstrumentationException {
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INSTRUMENTING);
 		long instrumentationStart = System.currentTimeMillis();
@@ -197,6 +226,12 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 	}
 
+	/**
+	 * Reverts instrumentation.
+	 * 
+	 * @throws InstrumentationException
+	 *             if reversion fails
+	 */
 	protected void uninstrumentApplication() throws InstrumentationException {
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.UNINSTRUMENTING);
 		long uninstrumentationStart = System.currentTimeMillis();
@@ -206,6 +241,18 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				(System.currentTimeMillis() - uninstrumentationStart) / SECOND);
 	}
 
+	/**
+	 * Runs a single experiment.
+	 * 
+	 * @param detectionControllerClass
+	 *            class of the detection controller running the analysis
+	 * @param numUsers
+	 *            number of user to use for the load of this experiment
+	 * @throws WorkloadException
+	 *             if load generation fails
+	 * @throws MeasurementException
+	 *             if data collection fails
+	 */
 	protected void runExperiment(Class<? extends IDetectionController> detectionControllerClass, int numUsers)
 			throws WorkloadException, MeasurementException {
 
@@ -287,6 +334,16 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		resultManager.setProblemId(problemId);
 	}
 
+	/**
+	 * Triggers heuristic specific experiment execution.
+	 * 
+	 * @throws InstrumentationException
+	 *             if instrumentation fails
+	 * @throws MeasurementException
+	 *             if measurement data cannot be collected
+	 * @throws WorkloadException
+	 *             if load cannot be generated properly
+	 */
 	protected abstract void executeExperiments() throws InstrumentationException, MeasurementException,
 			WorkloadException;
 

@@ -108,7 +108,7 @@
       <property name="tabWidth" value="4"/>
     </module>
     <module name="JavadocMethod">
-      <property name="scope" value="public"/>
+      <property name="scope" value="protected"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
   </module>
