@@ -314,9 +314,9 @@ All binaries required for executing the demo scenario are available in the \text
 download from the following URLs:
 \newline
 \newline
-Windows: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1_0/demo-all-in-one.zip}
+Windows: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.zip}
 \newline
-Linux: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1_0/demo-all-in-one.tar.gz}
+Linux: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.tar.gz}
 \newline
 \newline
 Unpack the archive in any directory. The content of the archive is the following:
@@ -567,7 +567,31 @@ In general, depending on the complexity of the scenario the execution of \DS may
 scenario may take up to 30 minutes. 
 
 \subsubsection{Analyzing \DS Results}
+The results of a run are stored in the project's \texttt{results} folder. For each run a separate folder is created. Inside this folder all relevant data of the run are stored, e.g. also additional resources that were generated.
+Each of these folders are represented as a sub-node under the \emph{Results} node in the \DS project navigator. If the \emph{Results View} has not been opened yet, it can be opened via \texttt{Window \(\rightarrow\) Show View \(\rightarrow\) Other...} under the category \emph{\DS} (cf. Figure~\ref{fig:openResultsView}), or simply by doubleclicking on any of the results sub-nodes.
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/demo/0014-results-1.png}
+\caption{Show Results View}
+\label{fig:openResultsView}
+\end{figure}
+
+The \emph{Results View} displays the content corresponding to the selected run node in the navigator (cf. Figure~\ref{fig:resultsView}).
+The view contains two tabs, one showing the hierarchy and one showing the report text.
+In the upper part of the hierarchy tab there is the hierarchy tree that was used during the diagnosis.
+Each detected problem is marked with a red flag. Problems that have not been detected are marked with a green flag.
+An exclamation mark signals that there has been an error during the diagnosis of this problem.
+
+In the lower part the details of the currently selected problem including its related resources are shown.
+If resources are available, clicking on one of the items in the list will show a little preview next to it which can be enlarged by clicking on the preview image.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/demo/0014-results-2.png}
+\caption{Results View}
+\label{fig:resultsView}
+\end{figure}
 
 
 \subsection{Executing \DS from Command Line}
