@@ -66,6 +66,13 @@ public final class ConfigCheck {
 						+ "In this case a valid directory with dummy data has to be specified, "
 						+ "which is not the case!");
 			} else {
+				File dir = new File(dummyData);
+				if (!dir.exists() || !dir.isDirectory()) {
+					throw new IllegalStateException(
+							"The DynamicSpotter configuration is specified to omit experiments. "
+									+ "In this case a valid directory with dummy data has to be specified, "
+									+ "which is not the case!");
+				}
 				correctFileSeparator(ConfigKeys.DUMMY_EXPERIMENT_DATA, true);
 			}
 		}
@@ -81,7 +88,7 @@ public final class ConfigCheck {
 		} catch (Throwable e) {
 			throw new IllegalStateException("Configuration Error: " + "Experiment ramp up time is not an integer!");
 		}
-		
+
 		rampUpStr = GlobalConfiguration.getInstance().getProperty(ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL);
 		if (rampUpStr == null) {
 			throw new IllegalStateException("Configuration Error: " + "Experiment ramp up time has not been specified!");
@@ -92,7 +99,8 @@ public final class ConfigCheck {
 			throw new IllegalStateException("Configuration Error: " + "Experiment ramp up time is not an integer!");
 		}
 
-		String coolDownStr = GlobalConfiguration.getInstance().getProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH);
+		String coolDownStr = GlobalConfiguration.getInstance().getProperty(
+				ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH);
 		if (coolDownStr == null) {
 			throw new IllegalStateException("Configuration Error: "
 					+ "Experiment cool down time has not been specified!");
@@ -102,8 +110,9 @@ public final class ConfigCheck {
 		} catch (Throwable e) {
 			throw new IllegalStateException("Configuration Error: " + "Experiment cool down time is not an integer!");
 		}
-		
-		coolDownStr = GlobalConfiguration.getInstance().getProperty(ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL);
+
+		coolDownStr = GlobalConfiguration.getInstance().getProperty(
+				ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL);
 		if (coolDownStr == null) {
 			throw new IllegalStateException("Configuration Error: "
 					+ "Experiment cool down time has not been specified!");

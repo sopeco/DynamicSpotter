@@ -15,6 +15,11 @@
  */
 package org.spotter.service;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +35,26 @@ public class ServerLauncherTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerLauncherTest.class);
 	private static final long SHUTDOWN_WAIT_DELAY = 5000;
+	private static final int DEFAULT_PORT = 8080;
+	private static final int PORT = 11337;
 
 	/**
 	 * Tests everything related to the {@link ServerLauncher} class.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
 	 */
 	@Test
-	public void testMain() {
+	@Ignore
+	// this test would require to shutdown the DS server, however, this then
+	// shuts down the JVM... need to find a better solution
+	public void testMain() throws IOException, InterruptedException {
 		String[] argsEmpty = {};
 		String[] argsNull = null;
-		String[] argsStartCustomized = { "start", "port=11337" };
-		String[] argsShutdownCustomized = { "shutdown", "port=11337" };
+		String[] argsStartCustomized = { "start", "port=" + PORT };
+		String[] argsShutdownCustomized = { "shutdown", "port=" + PORT };
 		String[] argsRootDir = { "rootDir=" };
-		String[] argsUnordered = { "port=11337", "start" };
+		String[] argsUnordered = { "port=" + PORT, "start" };
 		String[] argsHelp = { "-h" };
 
 		// make sure the custom port is not used
@@ -55,19 +68,43 @@ public class ServerLauncherTest {
 		}
 
 		ServerLauncher.main(argsNull);
+		Assert.assertTrue(portFree(DEFAULT_PORT));
 
 		ServerLauncher.main(argsEmpty);
+		Assert.assertTrue(portFree(DEFAULT_PORT));
 
 		ServerLauncher.main(argsStartCustomized);
+		Assert.assertFalse(portFree(PORT));
 
 		ServerLauncher.main(argsShutdownCustomized);
+		while (!portFree(PORT)) {
+			Thread.sleep(50);
+		}
 
 		ServerLauncher.main(argsRootDir);
 
 		ServerLauncher.main(argsUnordered);
+		ServerLauncher.main(argsShutdownCustomized);
+		while (!portFree(PORT)) {
+			Thread.sleep(50);
+		}
 
 		// needs to be the last test, "help" always triggered always to true
 		ServerLauncher.main(argsHelp);
+	}
+
+	private boolean portFree(int port) throws IOException {
+		ServerSocket socket = null;
+		try {
+			socket = new ServerSocket(port);
+		} catch (IOException e) {
+			return false;
+		} finally {
+			if (socket != null) {
+				socket.close();
+			}
+		}
+		return true;
 	}
 
 }
