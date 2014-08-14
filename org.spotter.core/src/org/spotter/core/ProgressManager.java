@@ -20,6 +20,8 @@ import java.util.concurrent.Future;
 
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.system.LpeSystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.core.detection.IDetectionController;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.status.DiagnosisProgress;
@@ -34,7 +36,7 @@ import org.spotter.shared.status.SpotterProgress;
  * 
  */
 public final class ProgressManager implements Runnable {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProgressManager.class);
 	private static final int SECOND = 1000;
 
 	private static ProgressManager instance;
@@ -115,7 +117,9 @@ public final class ProgressManager implements Runnable {
 	 */
 	public synchronized void setController(IDetectionController controller) {
 		this.controller = controller;
-
+		estimatedDuration = 0;
+		additionalDuration = 0;
+		initialEstimateConducted = false;
 	}
 
 	/**
@@ -186,10 +190,13 @@ public final class ProgressManager implements Runnable {
 
 		// value 0, it must be checked to be greater 0
 		if (currentEstimatedOverallDuration > 0) {
-			updateProgress(controller.getProblemId(), (double) elapsedTime / (double) getEstimatedOverallDuration(),
-					getEstimatedOverallDuration() - elapsedTime);
+			updateProgress(controller.getProblemId(), (double) elapsedTime / (double) currentEstimatedOverallDuration,
+					currentEstimatedOverallDuration - elapsedTime);
 		}
 
+		LOGGER.info("Progress - " + controller.getProvider().getName() + " - {}% - remaining: {}s",
+				(double) elapsedTime / (double) currentEstimatedOverallDuration, currentEstimatedOverallDuration
+						- elapsedTime);
 	}
 
 	/**
