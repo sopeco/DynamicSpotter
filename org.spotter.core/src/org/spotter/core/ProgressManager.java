@@ -58,6 +58,7 @@ public final class ProgressManager implements Runnable {
 	private IDetectionController controller;
 	private long estimatedDuration = 0;
 	private long additionalDuration = 0;
+	private long problemInvestigationStartedTimestamp;
 	private int samplingDelay = SECOND; // in [ms]
 	private Future<?> managingTask;
 	private SpotterProgress spotterProgress;
@@ -143,6 +144,7 @@ public final class ProgressManager implements Runnable {
 		int numExperiments = controller.getNumOfExperiments();
 		long numUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
 		estimatedDuration = calculateExperimentDuration(numUsers) * numExperiments;
+		problemInvestigationStartedTimestamp = System.currentTimeMillis();
 		initialEstimateConducted = true;
 	}
 
@@ -179,9 +181,7 @@ public final class ProgressManager implements Runnable {
 	 * Updates the current progress of this controller.
 	 */
 	public void updateEstimatedProgress() {
-		long elapsedTime = (System.currentTimeMillis() - GlobalConfiguration.getInstance().getPropertyAsLong(
-				ConfigKeys.PPD_RUN_TIMESTAMP, 0L))
-				/ SECOND;
+		long elapsedTime = (System.currentTimeMillis() - problemInvestigationStartedTimestamp) / SECOND;
 
 		long currentEstimatedOverallDuration = getEstimatedOverallDuration();
 
