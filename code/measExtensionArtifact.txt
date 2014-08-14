@@ -6,12 +6,14 @@ public class MyMeasurementExtensionArtifact
 	}
 	
 	@Override
-	public void initialize() throws MeasurementException {
+	public void initialize() 
+		throws MeasurementException {
 		// initialization
 	}
 	
 	@Override
-	public void enableMonitoring() throws MeasurementException {
+	public void enableMonitoring() 
+		throws MeasurementException {
 		// activate data gathering / resets previously gathered data
 	}
 

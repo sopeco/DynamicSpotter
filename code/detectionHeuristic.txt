@@ -16,12 +16,10 @@ public class MyDetection extends AbstractDetectionController {
 
 	@Override
 	protected void executeExperiments() 
-		throws InstrumentationException, 
-	       MeasurementException, 
+		throws InstrumentationException, MeasurementException, 
 	       WorkloadException {
 		// create a problem specific instrumentation description
 		InstrumentationDescription instDescr = ...;
-		
 		// trigger default experiment series
 		executeDefaultExperimentSeries(MyDetection.class, 
 			numExperimentSteps, instDescr);

@@ -6,7 +6,9 @@ public class MyWorkloadExtensionArtifact
 	}
 	
 	@Override
-	public void initialize() throws WorkloadException {
+	public void initialize() 
+		throws WorkloadException {
+		
 		// initialization
 	}
 

@@ -130,9 +130,15 @@ SAP AG\\
 % 
 % \maketitle
 \tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%% 			APPROACH
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-
-
 \section{The Approach behind \DS}
 \label{sec:approach}
 \DS is a framework for automatic detection of performance problems in Java-based enterprise software systems. Therefore,
@@ -230,15 +236,16 @@ problem exists in the SUT and, where appropriate, points to the root cause and l
 problem.
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%% 		   ARCHITECTURE
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Architecture of \DS}
 \label{sec:architecture}
-
-\begin{figure}[p]
-\includegraphics[width=\textwidth]{figures/architecture.pdf}
-\caption{\DS architecture}
-\label{fig:architecture}
-\end{figure}
 As described in Section~\ref{sec:approach}, \DS is a framework for automatic detection of performance problems. The
 architecture of \DS is depicted in Figure~\ref{fig:architecture}. The main component of \DS (\texttt{\DS Core}) realizes
 the logic for automating performance tests and data analysis. In particular, \texttt{\DS Core} is responsible for
@@ -290,7 +297,22 @@ extensions and establishes connections to the corresponding external instrumenta
 tools. \DS is then able to automatically run performance tests and analyze measurement data as defined in the heuristics
 of the individual performance problems from the performance problem hierarchy. As a result, \DS provides a report to the
 user stating which performance problems have been detected.  
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.87\textwidth]{figures/architecture.pdf}
+\caption{\DS architecture}
+\label{fig:architecture}
+\end{figure}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%% 		 GETTING STARTED
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{DynamicSpotter - Getting Started}
 In this section, we demonstrate the usage of \DS on a very simple scenario. Some of the \DS plugins we use in this
 scenario are just simple examples (e.g. the plugin for load generation) to demonstrate the \DS framework. In real
@@ -476,17 +498,7 @@ In the project wizard, a name for the project and the configuration of the conne
 \caption{Creating \DS Project}
 \label{fig:createProject}
 \end{figure}
-The newly created project should now occur in the Project Navigator with a project structure as shown in
-Figure~\ref{fig:projectStructure}. 
-A \DS Project has two main nodes: a \texttt{Configuration} part and a \texttt{Results} part. In the
-\texttt{Configuration} part, one has to specify the scenario-specific properties as well as domain specific
-configuration parameters for \DS. The \texttt{\DS Config} contains global configurations and domain specific information
-required for the execution of \DS on the specific system under test. The \texttt{Satellite Adapter} configurations allow
-to specify the measurement environment of the scenario including configuration of instrumentation, measurement and
-workload adapters.
-
-The \texttt{Results} part provides a history of results for \DS diagnosis runs
-executed for that \DS Project.
+The new project should appear in the Project Navigator (cf. Figure~\ref{fig:projectStructure}). 
 
 \begin{figure}[h]
 \centering
@@ -494,6 +506,17 @@ executed for that \DS Project.
 \caption{Project Structure}
 \label{fig:projectStructure}
 \end{figure}
+
+A \DS Project has two main nodes: a \texttt{Configuration} part and a \texttt{Results} part. In the
+\texttt{Configuration} part, one has to specify the scenario-specific properties as well as domain specific
+configuration parameters for \DS. The \texttt{\DS Config} contains global configurations and domain specific information
+required for the execution of \DS on the specific system under test. The \texttt{Satellite Adapter} configurations allow
+to specify the measurement environment of the scenario including configuration of instrumentation, measurement and
+workload adapters.
+The \texttt{Results} part provides a history of results for \DS diagnosis runs
+executed for that \DS Project.
+
+
 
 In the following, we explain how to configure \DS for our demo scenario. First, we edit the \texttt{\DS Config} by
 opening (double-click on \texttt{\DS Config} in the Project Navigator) the \texttt{\DS Config Editor} (cf.
@@ -534,6 +557,12 @@ Satellite Adapters}. There, we add an instrumentation adapter of type
 \caption{\DS Instrumentation Satellite Adapter Editor}
 \label{fig:instrumentationEditor}
 \end{figure}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/demo/0012-workloadConfig.png}
+\caption{Configuration of the Workload Adapter}
+\label{fig:workloadConfig}
+\end{figure}
 We then see a instrumentation adapter entry in the list with a red cross (cf. Figure~\ref{fig:instrumentationEditor}).
 The red cross means that no connection to the satellite could be established. As mentioned in Section~\ref{sec:demoApp}, the instrumentation agent starts per default
 its REST service on port \texttt{8888}. Thus, we need to change the port in the properties view of the
@@ -544,7 +573,7 @@ Analogously to the configuration of the instrumentation adapter we have to creat
 \texttt{measurement.satellite.adapter.instrumentation} in order to connect to the measurement interface of the
 instrumentation agent. 
 
-Finally, we have to configure a workload adapter. Therefore, we open the \texttt{Workload Satellite Adapter Editor} and
+Next, we have to configure a workload adapter. Therefore, we open the \texttt{Workload Satellite Adapter Editor} and
 add a satellite of the type \texttt{workload.satellite.adapter.customized} (cf. Figure~\ref{fig:workloadConfig}). This
 type of workload adapter is a simple load generator which runs within the \DS process. Therefore, this adapter does not have properties like host or port and
 is per default connected to \DS (green check mark). The customized workload adapter uses a Java class extending the
@@ -553,12 +582,28 @@ specify the full qualified class name of that load script class (\texttt{workloa
 path (\texttt{workload.simple.userScriptPath}) to the directory containing the Java package structure (the
 \texttt{loadScript} directory of the all-in-one-drop archive).
 
-\begin{figure}[h]
+Finally, we have to tell \DS which performance anti-patterns should be analyzed in the target application. Configuring
+the performance problem hierarchy is a task for performance experts. Therefore, we first have to activate the expert
+view by selecting \texttt{Enable Expert View} in the context menu of our \DS Project (cf.
+Figure~\ref{fig:contextMenu2}). 
+\begin{figure}[h!]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/demo/0012-workloadConfig.png}
-\caption{Configuration of the Workload Adapter}
-\label{fig:workloadConfig}
+\subfigure[Enabling Expert View
+\label{fig:contextMenu2}]{
+	\includegraphics[width=0.28\textwidth]{figures/demo/0015-expertView.png}
+}
+\subfigure[Hierarchy Editor
+\label{fig:hierarchyEditor}]{
+	\includegraphics[width=0.68\textwidth]{figures/demo/0016-hierarchy.png}
+}
+\caption{Editing the Performance Problem Hierarchy}
+\label{fig:editingHierarchy}
 \end{figure}
+Now, an additional node called \texttt{Hierarchy} should appear in the project navigator. 
+Double click on that node to edit the performance
+problem hierarchy. For sake of simplicity, in our demo scenario we consider only two performance anti-patterns to be
+analyzed: the One Lane Bridge (OLB) and the Ramp anti-pattern. Add (flat, not appending) both anti-patterns to the
+hierarchy and save the changes (cf. Figure~\ref{fig:hierarchyEditor}).
 
 Having configured the global properties and specified the measurement environment, our \DS Project is ready to be
 executed. Therefore select the \texttt{DemoApp} project in the \DS Project Navigator and click on the \texttt{Run}
@@ -567,17 +612,25 @@ In general, depending on the complexity of the scenario the execution of \DS may
 scenario may take up to 30 minutes. 
 
 \subsubsection{Analyzing \DS Results}
-The results of a run are stored in the project's \texttt{results} folder. For each run a separate folder is created. Inside this folder all relevant data of the run are stored, e.g. also additional resources that were generated.
-Each of these folders are represented as a sub-node under the \emph{Results} node in the \DS project navigator. If the \emph{Results View} has not been opened yet, it can be opened via \texttt{Window \(\rightarrow\) Show View \(\rightarrow\) Other...} under the category \emph{\DS} (cf. Figure~\ref{fig:openResultsView}), or simply by doubleclicking on any of the results sub-nodes.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.4\textwidth]{figures/demo/0014-results-1.png}
+The results of a run are stored in the project's \texttt{results} folder. For each run a separate folder is created.
+Inside this folder all relevant data of the run are stored, e.g. also additional resources that were generated.
+Each of these folders are represented as a sub-node under the \emph{Results} node in the \DS project navigator. 
+\begin{figure}[h!] \centering \includegraphics[width=0.33\textwidth]{figures/demo/0014-results-1.png}
 \caption{Show Results View}
 \label{fig:openResultsView}
 \end{figure}
+\begin{figure}[h!] \centering \includegraphics[width=0.9\textwidth]{figures/demo/0014-results-2.png}
+\caption{Results View}
+\label{fig:resultsView}
+\end{figure}
 
-The \emph{Results View} displays the content corresponding to the selected run node in the navigator (cf. Figure~\ref{fig:resultsView}).
+If the
+\emph{Results View} has not been opened yet, it can be opened via \texttt{Window \(\rightarrow\) Show View
+\(\rightarrow\) Other...} under the category \emph{\DS} (cf. Figure~\ref{fig:openResultsView}), or simply by
+double-clicking on any of the results sub-nodes.
+
+The \emph{Results View} displays the content corresponding to the selected run node in the navigator (cf.
+Figure~\ref{fig:resultsView}).
 The view contains two tabs, one showing the hierarchy and one showing the report text.
 In the upper part of the hierarchy tab there is the hierarchy tree that was used during the diagnosis.
 Each detected problem is marked with a red flag. Problems that have not been detected are marked with a green flag.
@@ -586,12 +639,10 @@ An exclamation mark signals that there has been an error during the diagnosis of
 In the lower part the details of the currently selected problem including its related resources are shown.
 If resources are available, clicking on one of the items in the list will show a little preview next to it which can be enlarged by clicking on the preview image.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/demo/0014-results-2.png}
-\caption{Results View}
-\label{fig:resultsView}
-\end{figure}
+In our demo example, the Ramp anti-pattern has not been detected, however, \DS detected a One Lane Bridge (OLB) in
+method \texttt{org.spotter.ext.demo.app.DummyApp.testOLB()} (cf. Figure~\ref{fig:resultsView}). The additional resources
+(graphs) show that the response times grow steadily with the load while the CPU utilization does not increase
+significantly.
 
 
 \subsection{Executing \DS from Command Line}
@@ -611,7 +662,14 @@ Thereby, the \texttt{<PATH\_TO\_SPOTTER\_CONF>} points to the \DS configuration 
 result directory.
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%%    BUILDING DYNAMIC SPOTTER
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Building \DS}
 \label{sec:buildingDynamicSpotter}
 In order to build the \DS framework, the following tools need to be installed:
@@ -669,6 +727,15 @@ directory.
 
 The Eclipse Plugin JAR is located in the \texttt{org.spotter.eclipse.ui/target} directory.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%%       WRITING EXTENSIONS
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Writing Extensions for \DS}
 \label{sec:extensions}
 As mentioned in Section~\ref{sec:architecture}, \DS provides four different types of extensions which are required to
@@ -830,6 +897,14 @@ corresponding analyzed performance problem has been detected or not.
 Finally, the \texttt{getNumOfExperiments} method is used by \DS to estimate the duration of the experiments. In this
 method, the developer of a detection heuristic has to provide the number of experiments executed for that heuristic.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%%       USEFUL LINKS
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Useful Links}
 \label{sec:links}
 \begin{table}[h]
@@ -861,10 +936,10 @@ v1\_0/demo-all-in-one.zip}}}
 \newline
 \small{\textcolor[rgb]{0.0,0.0,1.0}{\href{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.zip}{http://i43vm-saas.ipd.uka.de:8082/DS/
 v1\_0/demo-all-in-one.tar.gz}}}
-& All-in-One Drop containing the demo example\DS\\
+& All-in-One Drop containing the demo example for \DS\\
 \midrule
 \small{\textcolor[rgb]{0.0,0.0,1.0}{\href{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/javadoc/index.html}{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/
-javadoc/index.html}}} & JavaDoc for the \DS framework\\
+javadoc/index.html}}} & JavaDoc for the \DS framework version 1.0\\
 \midrule
 \multicolumn{2}{c}{\mbox{\textbf{Build Infrastructure}}}\\
 \midrule

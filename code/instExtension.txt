@@ -17,7 +17,6 @@ public class MyInstExtension extends AbstractInstrumentationExtension {
 		aConfigParameter.setDefaultValue(10);
 		aConfigParameter.setDescription(
 			"This text describes the configuration parameter.");
-		
 		addConfigParameter(aConfigParameter);
 	}
 

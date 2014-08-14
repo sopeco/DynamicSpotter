@@ -1,8 +1,5 @@
 	/**
 	 * Constructor.
-	 * 
-	 * @param provider
-	 *            extension provider.
 	 */
 	public ExtArtifact(IExtension<IDetectionController> provider) {
 		super(provider);
