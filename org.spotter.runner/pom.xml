@@ -10,7 +10,8 @@
 	</parent>
 
 	<artifactId>org.spotter.runner</artifactId>
-	<name>spotter Runner</name>
+	<name>DynamicSpotter Runner</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -83,6 +84,11 @@
 									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<file>DEPENDENCIES.txt</file>
+									<file>LICENSE.txt</file>
 								</transformer>
 							</transformers>
 							<filters>

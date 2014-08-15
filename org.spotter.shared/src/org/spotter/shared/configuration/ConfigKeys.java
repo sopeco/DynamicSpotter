@@ -29,8 +29,11 @@ import org.lpe.common.util.LpeSupportedTypes;
 public final class ConfigKeys {
 
 	private static final int _10 = 10;
-	private static final int _180 = 180;
+	public static final int DEFAULT_SUT_WARMUP_DURATION = 180;
 
+	
+	public static final String DETECTABLE_KEY = "org.spotter.detection.detectable";
+	
 	/**
 	 * Config-Key for the path to the performance problem hierarchy file.<br />
 	 * <b>Required configuration key.</b>
@@ -239,7 +242,7 @@ public final class ConfigKeys {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(PREWARUMUP_DURATION,
 				LpeSupportedTypes.Integer);
 		parameter.setMandatory(false);
-		parameter.setDefaultValue(String.valueOf(_180));
+		parameter.setDefaultValue(String.valueOf(DEFAULT_SUT_WARMUP_DURATION));
 		parameter
 				.setDescription("Specifies the duration the pre-warmup phase should be running. In the pre-warmup phase workload is started "
 						+ "to force the JVM to load classes which are used in the real experiment. "

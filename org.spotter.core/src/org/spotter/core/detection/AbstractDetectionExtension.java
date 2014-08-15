@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
+import org.spotter.shared.configuration.ConfigKeys;
 
 /**
  * Abstract class for all detection extensions.
@@ -75,8 +76,8 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	}
 
 	private ConfigParameterDescription createIsDetectableParameter() {
-		ConfigParameterDescription nameParameter = new ConfigParameterDescription(
-				AbstractDetectionController.DETECTABLE_KEY, LpeSupportedTypes.Boolean);
+		ConfigParameterDescription nameParameter = new ConfigParameterDescription(ConfigKeys.DETECTABLE_KEY,
+				LpeSupportedTypes.Boolean);
 		nameParameter.setMandatory(true);
 		nameParameter.setASet(false);
 		nameParameter.setDefaultValue("true");

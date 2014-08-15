@@ -42,7 +42,7 @@ public class DetectionE extends AbstractDetectionController {
 	}
 
 	@Override
-	public int getNumOfExperiments() {
+	public long getExperimentSeriesDuration() {
 		return 1;
 	}
 

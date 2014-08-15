@@ -67,6 +67,11 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
 								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<file>DEPENDENCIES.txt</file>
+									<file>LICENSE.txt</file>
+								</transformer>
 							</transformers>
 							<filters>
 								<filter>

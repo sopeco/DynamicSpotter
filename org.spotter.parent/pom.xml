@@ -5,7 +5,7 @@
 	<artifactId>org.spotter.parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spotter Parent</name>
+	<name>DynamicSpotter</name>
 
 	<properties>
 		<lpe.common.version>1.0.2-SNAPSHOT</lpe.common.version>
@@ -170,7 +170,7 @@
 					<maxRank>15</maxRank>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
@@ -182,9 +182,9 @@
 						<xml>XML_STYLE</xml>
 					</mapping>
 					<excludes>
-            			<exclude>**/README</exclude>
-            			<exclude>**license.txt</exclude>
-        			</excludes>
+						<exclude>**/README</exclude>
+						<exclude>**license.txt</exclude>
+					</excludes>
 					<properties>
 						<year>2014</year>
 						<organization>SAP AG</organization>
@@ -193,6 +193,11 @@
 					<useDefaultExcludes>true</useDefaultExcludes>
 				</configuration>
 			</plugin>
+<!-- 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>1.7</version>
+			</plugin> -->
 		</plugins>
 
 	</build>

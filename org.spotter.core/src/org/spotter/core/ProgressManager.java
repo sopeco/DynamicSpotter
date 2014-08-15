@@ -15,10 +15,12 @@
  */
 package org.spotter.core;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.util.LpeStringUtils;
 import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,11 @@ import org.spotter.shared.status.SpotterProgress;
  * 
  */
 public final class ProgressManager implements Runnable {
+	private static final double _100_PERCENT = 100.0;
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProgressManager.class);
 	private static final int SECOND = 1000;
+	private static final int MIN_NUM_USERS = 1;
+	private static final double EPSILON = 0.5;
 
 	private static ProgressManager instance;
 
@@ -141,14 +146,22 @@ public final class ProgressManager implements Runnable {
 	}
 
 	private void calculateInitialEstimatedDuration() {
-		int numExperiments = controller.getNumOfExperiments();
-		long numUsers = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.WORKLOAD_MAXUSERS, 1L);
-		estimatedDuration = calculateExperimentDuration(numUsers) * numExperiments;
+		estimatedDuration = controller.getExperimentSeriesDuration();
 		problemInvestigationStartedTimestamp = System.currentTimeMillis();
 		initialEstimateConducted = true;
 	}
 
-	private long calculateExperimentDuration(long numUsers) {
+	/**
+	 * Calculates the duration of a single experiment (including warm-up and
+	 * cool-down phases).
+	 * 
+	 * @param numUsers
+	 *            number of users to ramp up
+	 * @param stablePhaseDuration
+	 *            duration of the stable experimentation phase
+	 * @return calculated duration
+	 */
+	public long calculateExperimentDuration(long numUsers, long stablePhaseDuration) {
 		long rampUpUsersPerInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
 				ConfigKeys.EXPERIMENT_RAMP_UP_NUM_USERS_PER_INTERVAL, 0L);
 
@@ -161,8 +174,6 @@ public final class ProgressManager implements Runnable {
 		long coolDownInterval = GlobalConfiguration.getInstance().getPropertyAsLong(
 				ConfigKeys.EXPERIMENT_COOL_DOWN_INTERVAL_LENGTH, 0L);
 
-		long stablePhase = GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L);
-
 		long rampUp = 0;
 		if (rampUpUsersPerInterval != 0) {
 			rampUp = (numUsers / rampUpUsersPerInterval) * rampUpInterval;
@@ -173,7 +184,47 @@ public final class ProgressManager implements Runnable {
 			coolDown = (numUsers / coolDownUsersPerInterval) * coolDownInterval;
 		}
 
-		return rampUp + stablePhase + coolDown;
+		return rampUp + stablePhaseDuration + coolDown;
+
+	}
+
+	/**
+	 * Calculates the experiment series duration for a default experiment series
+	 * with the given amount of experimentation steps.
+	 * 
+	 * @param experimentSteps
+	 *            number of experimentation steps
+	 * @return duration of a default experiment series
+	 */
+	public long calculateDefaultExperimentSeriesDuration(int experimentSteps) {
+		int maxUsers = Integer.parseInt(LpeStringUtils.getPropertyOrFail(GlobalConfiguration.getInstance()
+				.getProperties(), ConfigKeys.WORKLOAD_MAXUSERS, null));
+
+		if (experimentSteps <= 1) {
+			return calculateExperimentDuration(maxUsers,
+					GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L));
+		} else {
+			double dMinUsers = MIN_NUM_USERS;
+			double dMaxUsers = maxUsers;
+			double dStep = (dMaxUsers - dMinUsers) / (double) (experimentSteps - 1);
+
+			// if we have the same number of maximum and minimum users, then we
+			// have only one experiment run
+			if (dStep <= 0.0 + EPSILON) {
+				return calculateExperimentDuration(MIN_NUM_USERS,
+						GlobalConfiguration.getInstance().getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L));
+			} else {
+				long duration = 0L;
+				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSILON); dUsers += dStep) {
+					int numUsers = new Double(dUsers).intValue();
+
+					duration += calculateExperimentDuration(numUsers, GlobalConfiguration.getInstance()
+							.getPropertyAsLong(ConfigKeys.EXPERIMENT_DURATION, 0L));
+				}
+				return duration;
+
+			}
+		}
 
 	}
 
@@ -194,9 +245,13 @@ public final class ProgressManager implements Runnable {
 					currentEstimatedOverallDuration - elapsedTime);
 		}
 
-		LOGGER.info("Progress - " + controller.getProvider().getName() + " - {}% - remaining: {}s",
-				(double) elapsedTime / (double) currentEstimatedOverallDuration, currentEstimatedOverallDuration
-						- elapsedTime);
+		if (LOGGER.isInfoEnabled()) {
+			DecimalFormat dFormat = new DecimalFormat("#00.0");
+			LOGGER.info("Progress - " + controller.getProvider().getName() + " - {}% - remaining: {}s",
+					dFormat.format(((double) elapsedTime / (double) currentEstimatedOverallDuration) * _100_PERCENT),
+					currentEstimatedOverallDuration - elapsedTime);
+		}
+
 	}
 
 	/**

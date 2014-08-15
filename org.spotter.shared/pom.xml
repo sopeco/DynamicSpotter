@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>org.spotter.shared</artifactId>
-	<name>Dynamic Spotter Shared</name>
+	<name>DynamicSpotter Shared</name>
 	
 	<dependencies>
 		<dependency>
