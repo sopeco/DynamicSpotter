@@ -15,8 +15,8 @@
  */
 package org.spotter.shared.status;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Progress of a Dynamic Spotter run/job.
@@ -31,7 +31,7 @@ public class SpotterProgress {
 	 * Constructor.
 	 */
 	public SpotterProgress() {
-		problemProgressMapping = new HashMap<>();
+		problemProgressMapping = new ConcurrentHashMap<>();
 	}
 
 
