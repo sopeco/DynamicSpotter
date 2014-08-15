@@ -54,29 +54,27 @@ import org.spotter.shared.status.DiagnosisStatus;
  * 
  */
 public abstract class AbstractDetectionController extends AbstractExtensionArtifact implements IDetectionController {
-	private static final double EPSILON = 0.5;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectionController.class);
-
-	/**
-	 * property key for detection name.
-	 */
+	private static final double EPSILON = 0.5;
 	public static final long SECOND = 1000L;
-	public static final String DETECTABLE_KEY = "org.spotter.detection.detectable";
-	private static final int SUT_WARMPUP_DURATION = GlobalConfiguration.getInstance().getPropertyAsInteger(
-			ConfigKeys.PREWARUMUP_DURATION, 180);
+
 	private static final int MIN_NUM_USERS = 1;
 	protected static final String NUMBER_OF_USERS_KEY = "numUsers";
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
 
-	private IInstrumentationAdapter instrumentationController;
+	private static int getSUTWarmUpDuration() {
+		return GlobalConfiguration.getInstance().getPropertyAsInteger(ConfigKeys.PREWARUMUP_DURATION,
+				ConfigKeys.DEFAULT_SUT_WARMUP_DURATION);
+	}
+
 	private String problemId;
 
-	protected IMeasurementAdapter measurementController;
-	protected IWorkloadAdapter workloadAdapter;
+	private final IInstrumentationAdapter instrumentationController;
+	private final IMeasurementAdapter measurementController;
+	private final IWorkloadAdapter workloadAdapter;
 	private final DetectionResultManager resultManager;
 
-	protected boolean instrumented = false;
+	private boolean instrumented = false;
 	private boolean sutWarmedUp = false;
 	private Properties problemDetectionConfiguration = new Properties();
 
@@ -99,27 +97,34 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 	@Override
 	public SpotterResult analyzeProblem() throws InstrumentationException, MeasurementException, WorkloadException {
-		if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
-
-			ProgressManager.getInstance().addAdditionalDuration(SUT_WARMPUP_DURATION);
-		}
-		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
-
-		if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
-			resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
-					ConfigKeys.DUMMY_EXPERIMENT_DATA));
-		} else if (this instanceof IExperimentReuser) {
-			resultManager.useParentDataDir();
-		} else {
+		try {
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
-				warmUpSUT();
+
+				ProgressManager.getInstance().addAdditionalDuration(getSUTWarmUpDuration());
+			}
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
+
+			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
+				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
+						ConfigKeys.DUMMY_EXPERIMENT_DATA));
+			} else if (this instanceof IExperimentReuser) {
+				resultManager.useParentDataDir();
+			} else {
+				if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
+					warmUpSUT();
+				}
+
+				executeExperiments();
 			}
 
-			executeExperiments();
-		}
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
+			return analyze(getResultManager().loadData());
+		} finally {
+			if (instrumented) {
+				instrumentationController.uninstrument();
 
-		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
-		return analyze(getResultManager().loadData());
+			}
+		}
 	}
 
 	/**
@@ -139,9 +144,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			lConfig.setRampUpUsersPerInterval(1);
 			lConfig.setCoolDownIntervalLength(1);
 			lConfig.setCoolDownUsersPerInterval(1);
-			lConfig.setExperimentDuration(SUT_WARMPUP_DURATION);
-			workloadAdapter.startLoad(lConfig);
-			workloadAdapter.waitForFinishedLoad();
+			lConfig.setExperimentDuration(getSUTWarmUpDuration());
+			getWorkloadAdapter().startLoad(lConfig);
+			getWorkloadAdapter().waitForFinishedLoad();
 			sutWarmedUp = true;
 		}
 	}
@@ -219,7 +224,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		for (IExperimentReuser reuser : experimentReuser) {
 			descriptionBuilder.appendOtherDescription(reuser.getInstrumentationDescription());
 		}
-		instrumentationController.instrument(descriptionBuilder.build());
+		getInstrumentationController().instrument(descriptionBuilder.build());
 		instrumented = true;
 		ProgressManager.getInstance().addAdditionalDuration(
 				(System.currentTimeMillis() - instrumentationStart) / SECOND);
@@ -235,7 +240,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	protected void uninstrumentApplication() throws InstrumentationException {
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.UNINSTRUMENTING);
 		long uninstrumentationStart = System.currentTimeMillis();
-		instrumentationController.uninstrument();
+		getInstrumentationController().uninstrument();
 		instrumented = false;
 		ProgressManager.getInstance().addAdditionalDuration(
 				(System.currentTimeMillis() - uninstrumentationStart) / SECOND);
@@ -270,19 +275,19 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				ConfigKeys.EXPERIMENT_COOL_DOWN_NUM_USERS_PER_INTERVAL));
 		lConfig.setExperimentDuration(GlobalConfiguration.getInstance().getPropertyAsInteger(
 				ConfigKeys.EXPERIMENT_DURATION));
-		workloadAdapter.startLoad(lConfig);
+		getWorkloadAdapter().startLoad(lConfig);
 
-		workloadAdapter.waitForWarmupPhaseTermination();
+		getWorkloadAdapter().waitForWarmupPhaseTermination();
 
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_STABLE_PHASE);
-		measurementController.enableMonitoring();
+		getMeasurementController().enableMonitoring();
 
-		workloadAdapter.waitForExperimentPhaseTermination();
+		getWorkloadAdapter().waitForExperimentPhaseTermination();
 
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_COOL_DOWN);
-		measurementController.disableMonitoring();
+		getMeasurementController().disableMonitoring();
 
-		workloadAdapter.waitForFinishedLoad();
+		getWorkloadAdapter().waitForFinishedLoad();
 
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.COLLECTING_DATA);
 		LOGGER.info("Storing data ...");
@@ -290,7 +295,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		Parameter numOfUsersParameter = new Parameter(NUMBER_OF_USERS_KEY, numUsers);
 		Set<Parameter> parameters = new TreeSet<>();
 		parameters.add(numOfUsersParameter);
-		getResultManager().storeResults(parameters, measurementController);
+		getResultManager().storeResults(parameters, getMeasurementController());
 		ProgressManager.getInstance()
 				.addAdditionalDuration((System.currentTimeMillis() - dataCollectionStart) / SECOND);
 		LOGGER.info("Data stored!");
@@ -356,5 +361,26 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 *         investigation
 	 */
 	protected abstract SpotterResult analyze(DatasetCollection data);
+
+	/**
+	 * @return the measurementController
+	 */
+	protected IMeasurementAdapter getMeasurementController() {
+		return measurementController;
+	}
+
+	/**
+	 * @return the workloadAdapter
+	 */
+	protected IWorkloadAdapter getWorkloadAdapter() {
+		return workloadAdapter;
+	}
+
+	/**
+	 * @return the instrumentationController
+	 */
+	protected IInstrumentationAdapter getInstrumentationController() {
+		return instrumentationController;
+	}
 
 }

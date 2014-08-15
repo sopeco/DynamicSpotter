@@ -47,7 +47,7 @@ public class MockDetection extends AbstractDetectionController {
 	}
 
 	@Override
-	public int getNumOfExperiments() {
+	public long getExperimentSeriesDuration() {
 		return NUM_EXPERIMENTS;
 	}
 

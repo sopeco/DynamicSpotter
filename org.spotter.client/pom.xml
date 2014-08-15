@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>org.spotter.client</artifactId>
-	<name>Dynamic Spotter Client</name>
+	<name>DynamicSpotter Client</name>
 
 
 	<dependencies>
@@ -19,22 +19,22 @@
 			<artifactId>jersey-bundle</artifactId>
 			<version>1.17.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.spotter</groupId>
 			<artifactId>org.spotter.shared</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.spotter</groupId>
 			<artifactId>org.spotter.service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -67,6 +67,11 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
 								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<file>DEPENDENCIES.txt</file>
+									<file>LICENSE.txt</file>
+								</transformer>
 							</transformers>
 							<filters>
 								<filter>
@@ -83,24 +88,26 @@
 				</executions>
 			</plugin>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <target name="copy and rename file">
-                                <copy file="${project.build.directory}/${project.build.finalName}-shaded.jar" tofile="${basedir}/../org.spotter.eclipse.ui/lib/org.spotter.client.assembly.jar" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>install</phase>
+						<configuration>
+							<target name="copy and rename file">
+								<copy
+									file="${project.build.directory}/${project.build.finalName}-shaded.jar"
+									tofile="${basedir}/../org.spotter.eclipse.ui/lib/org.spotter.client.assembly.jar" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>

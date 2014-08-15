@@ -89,10 +89,10 @@ public interface IDetectionController extends IExtensionArtifact {
 	void setProblemId(String problemId);
 
 	/**
-	 * Returns the number of experiments this detection controller is going to
-	 * execute.
+	 * Returns the estimated duration of the experiment series conducted for the
+	 * corresponding performance problem. unit: [seconds]
 	 * 
-	 * @return number of experiments
+	 * @return duration of experiments
 	 */
-	int getNumOfExperiments();
+	long getExperimentSeriesDuration();
 }

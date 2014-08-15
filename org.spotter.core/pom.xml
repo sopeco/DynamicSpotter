@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>org.spotter.core</artifactId>
-	<name>spotter Core</name>
+	<name>DynamicSpotter Core</name>
 	
 
 	<dependencies>

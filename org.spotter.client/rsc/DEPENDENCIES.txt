@@ -1,0 +1,51 @@
+DynamicSpotter uses the following third-party dependencies:
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+MODULE NAME						MAVEN ARTIFACT - URL																		LICENSE
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ASM Core						asm:asm:3.1 - http://asm.objectweb.org/asm/													BSD style
+Hamcrest Core 					org.hamcrest:hamcrest-core:1.1 - https://github.com/hamcrest/JavaHamcrest					BSD style
+jersey-bundle					com.sun.jersey:jersey-bundle:1.17.1 - https://jersey.java.net/jersey-bundle/				Common Development and Distribution License (CDDL) Version 1.1
+jersey-client					com.sun.jersey:jersey-client:1.17.1 - https://jersey.java.net/jersey-client/				Common Development and Distribution License (CDDL) Version 1.1
+jersey-core						com.sun.jersey:jersey-core:1.17.1 - https://jersey.java.net/jersey-core/					Common Development and Distribution License (CDDL) Version 1.1
+jersey-grizzly2					com.sun.jersey:jersey-grizzly2:1.17.1 - https://jersey.java.net/jersey-grizzly2/			Common Development and Distribution License (CDDL) Version 1.1
+jersey-json						com.sun.jersey:jersey-json:1.17.1 - https://jersey.java.net/jersey-json/					Common Development and Distribution License (CDDL) Version 1.1
+jersey-server					com.sun.jersey:jersey-server:1.17.1 - https://jersey.java.net/jersey-server/				Common Development and Distribution License (CDDL) Version 1.1
+JAXB Reference Implementation	com.sun.xml.bind:jaxb-impl:2.2.6 - http://jaxb.java.net/									Common Development and Distribution License (CDDL) Version 1.1
+JMS API 						javax.jms:javax.jms-api:2.0 - http://java.net/projects/jms-spec/pages/Home					Common Development and Distribution License (CDDL) Version 1.1
+jsr311-api 						javax.ws.rs:jsr311-api:1.1.1 - https://jsr311.dev.java.net									Common Development and Distribution License (CDDL) Version 1.1
+management-api 					org.glassfish.external:management-api:3.0.0-b012 - http://kenai.com/hg/gmbal~gf_common		Common Development and Distribution License (CDDL) Version 1.1
+gmbal 							org.glassfish.gmbal:gmbal:3.2.0-b003 - http://kenai.com/hg/gmbal~master						Common Development and Distribution License (CDDL) Version 1.1
+gmbal-api-only 					org.glassfish.gmbal:gmbal-api-only:3.2.0-b003 - http://kenai.com/hg/gmbal~master			Common Development and Distribution License (CDDL) Version 1.1
+grizzly-framework 				org.glassfish.grizzly:grizzly-framework:2.3.7 - http://grizzly.java.net						Common Development and Distribution License (CDDL) Version 1.1
+grizzly-framework-monitoring 	org.glassfish.grizzly:grizzly-framework-monitoring:2.3.7 - http://grizzly.java.net			Common Development and Distribution License (CDDL) Version 1.1
+grizzly-http 					org.glassfish.grizzly:grizzly-http:2.3.7 - http://grizzly.java.net							Common Development and Distribution License (CDDL) Version 1.1
+grizzly-http-monitoring 		org.glassfish.grizzly:grizzly-http-monitoring:2.3.7 - http://grizzly.java.net				Common Development and Distribution License (CDDL) Version 1.1
+grizzly-http-server 			org.glassfish.grizzly:grizzly-http-server:2.3.7 - http://grizzly.java.net					Common Development and Distribution License (CDDL) Version 1.1
+grizzly-http-server-monitoring 	org.glassfish.grizzly:grizzly-http-server-monitoring:2.3.7 - http://grizzly.java.net		Common Development and Distribution License (CDDL) Version 1.1
+grizzly-http-servlet 			org.glassfish.grizzly:grizzly-http-servlet:2.3.7 - http://grizzly.java.net					Common Development and Distribution License (CDDL) Version 1.1
+Maven Default Project 			org.glassfish.pfl:pfl-asm:1.0.0-b001														Common Development and Distribution License (CDDL) Version 1.1
+Maven Default Project 			org.glassfish.pfl:pfl-basic:1.0.0-b001														Common Development and Distribution License (CDDL) Version 1.1
+Maven Default Project 			org.glassfish.pfl:pfl-basic-tools:1.0.0-b001												Common Development and Distribution License (CDDL) Version 1.1
+Maven Default Project 			org.glassfish.pfl:pfl-tf:1.0.0-b001															Common Development and Distribution License (CDDL) Version 1.1
+Maven Default Project 			org.glassfish.pfl:pfl-tf-tools:1.0.0-b001													Common Development and Distribution License (CDDL) Version 1.1
+JUnit							junit:junit:4.10 - http://junit.org															Common Public License Version 1.0
+Logback Classic Module			ch.qos.logback:logback-classic:0.9.28 - http://logback.qos.ch								Eclipse Public License - v 1.0
+Logback Core Module				ch.qos.logback:logback-core:0.9.28 - http://logback.qos.ch									Eclipse Public License - v 1.0
+SLF4J API Module 				org.slf4j:slf4j-api:1.6.1 - http://www.slf4j.org											MIT License
+FoundationDB SQL Parser			com.foundationdb:fdb-sql-parser:1.1.0 - https://github.com/foundationdb/sql-parser			The Apache Software License, Version 2.0
+XChart							com.xeiam.xchart:xchart:2.2.1 - http://xeiam.com/xchart.jsp/xchart							The Apache Software License, Version 2.0
+Commons CLI						commons-cli:commons-cli:1.2 - http://commons.apache.org/cli/								The Apache Software License, Version 2.0
+Commons IO						commons-io:commons-io:2.4 - http://commons.apache.org/io/									The Apache Software License, Version 2.0
+opencsv							net.sf.opencsv:opencsv:2.3 - http://opencsv.sf.net											The Apache Software License, Version 2.0
+org.apache.tools.ant			org.apache.ant:ant:1.7.0 - http://ant.apache.org/ant/										The Apache Software License, Version 2.0
+ant-launcher					org.apache.ant:ant-launcher:1.7.0 - http://ant.apache.org/ant-launcher/						The Apache Software License, Version 2.0
+Commons Math					org.apache.commons:commons-math3:3.2 - http://commons.apache.org/proper/commons-math/		The Apache Software License, Version 2.0
+Jackson							org.codehaus.jackson:jackson-core-asl:1.9.13 - http://jackson.codehaus.org					The Apache Software License, Version 2.0
+JAX-RS provider for JSON		org.codehaus.jackson:jackson-jaxrs:1.9.13 - http://jackson.codehaus.org						The Apache Software License, Version 2.0
+Data Mapper for Jackson			org.codehaus.jackson:jackson-mapper-asl:1.9.13 - http://jackson.codehaus.org				The Apache Software License, Version 2.0
+Xml Compatibility for Jackson	org.codehaus.jackson:jackson-xc:1.9.13 - http://jackson.codehaus.org						The Apache Software License, Version 2.0
+Jettison						org.codehaus.jettison:jettison:1.1 - http://jettison.codehaus.org/							The Apache Software License, Version 2.0
+SIGAR 							org.hyperic:sigar:1.6.3.82 - http://sigar.hyperic.com/										The Apache Software License, Version 2.0
+Servlet API 					org.mortbay.jetty:servlet-api:3.0.20100224 - http://www.eclipse.org/jetty/					The Apache Software License, Version 2.0
+

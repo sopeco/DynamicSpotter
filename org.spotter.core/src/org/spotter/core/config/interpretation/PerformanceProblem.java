@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.spotter.core.detection.AbstractDetectionController;
 import org.spotter.core.detection.IDetectionController;
+import org.spotter.shared.configuration.ConfigKeys;
 
 /**
  * A {@link PerformanceProblem} instance represents a performance problem node
@@ -55,18 +55,21 @@ public class PerformanceProblem {
 	}
 
 	/**
-	 * Returns the detection controller ({@link AbstractDetectionController}) to
-	 * be used for detection of this problem.
+	 * Returns the detection controller (
+	 * {@link org.spotter.core.detection.AbstractDetectionController}) to be
+	 * used for detection of this problem.
 	 * 
-	 * @return the detection controller ({@link AbstractDetectionController}) to
-	 *         be used for detection of this problem.
+	 * @return the detection controller (
+	 *         {@link org.spotter.core.detection.AbstractDetectionController})
+	 *         to be used for detection of this problem.
 	 */
 	public IDetectionController getDetectionController() {
 		return detectionController;
 	}
 
 	/**
-	 * Sets the detection controller ({@link AbstractDetectionController}) to be
+	 * Sets the detection controller (
+	 * {@link org.spotter.core.detection.AbstractDetectionController}) to be
 	 * used for detection of this problem.
 	 * 
 	 * @param detectionController
@@ -105,8 +108,7 @@ public class PerformanceProblem {
 	 */
 	public boolean isDetectable() {
 		if (detectable == null) {
-			detectable = Boolean.parseBoolean(getConfiguration().getProperty(
-					AbstractDetectionController.DETECTABLE_KEY, "true"));
+			detectable = Boolean.parseBoolean(getConfiguration().getProperty(ConfigKeys.DETECTABLE_KEY, "true"));
 		}
 
 		return detectable;
