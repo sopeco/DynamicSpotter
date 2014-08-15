@@ -50,6 +50,7 @@ public class DynamicSpotterRunJob extends Job {
 	private static final String ICON_PATH = "icons/diagnosis.png"; //$NON-NLS-1$
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
+	private static final int HUNDRED_PERCENT = 100;
 	private static final int KEY_HASH_LENGTH = 7;
 
 	private static final String MSG_RUN_FINISH = "Finished the DynamicSpotter diagnosis successfully!";
@@ -81,12 +82,12 @@ public class DynamicSpotterRunJob extends Job {
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
-//		IAction gotoAction = new Action("Results") {
-//			public void run() {
-//				// TODO: show results in ResultsView
-//			}
-//		};
-//		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+		// IAction gotoAction = new Action("Results") {
+		// public void run() {
+		// // TODO: show results in ResultsView
+		// }
+		// };
+		// setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
 		setPriority(LONG);
 		setUser(true);
 	}
@@ -166,7 +167,7 @@ public class DynamicSpotterRunJob extends Job {
 		}
 		if (currentProblem != null) {
 			DiagnosisProgress progress = currentProblem.getValue();
-			String estimation = String.format("%.1f", 100 * progress.getEstimatedProgress());
+			String estimation = String.format("%.1f", HUNDRED_PERCENT * progress.getEstimatedProgress());
 			String keyHashTag = createKeyHashTag(currentProblem.getKey());
 			String problemName = progress.getName() + "-" + keyHashTag;
 			monitor.setTaskName(problemName + " (" + estimation + " %): " + progress.getStatus());
