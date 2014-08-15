@@ -894,8 +894,9 @@ of 1 user and the specified maximum number of users. When the experimentation ph
 \texttt{analyze} method passing the measured data as input to that method. It is now up to the analyze method to apply
 certain detection rules in order to provide a detection result. A detection result has to state whether the
 corresponding analyzed performance problem has been detected or not.
-Finally, the \texttt{getNumOfExperiments} method is used by \DS to estimate the duration of the experiments. In this
-method, the developer of a detection heuristic has to provide the number of experiments executed for that heuristic.
+Finally, the \texttt{getExperimentSeriesDuration} method is used by \DS to estimate the duration of the experiments. In this
+method, the developer of a detection heuristic has to provide the estimated duration (in seconds) of the experiments
+executed for that heuristic.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

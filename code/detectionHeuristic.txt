@@ -36,7 +36,7 @@ public class MyDetection extends AbstractDetectionController {
 	}
 
 	@Override
-	public int getNumOfExperiments() {
-		return numExperimentSteps;
+	public long getExperimentSeriesDuration() {
+		// estimate duration of the experiment series to execute
 	}
 }
