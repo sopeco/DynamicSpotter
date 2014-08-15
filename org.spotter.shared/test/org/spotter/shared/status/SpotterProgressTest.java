@@ -39,7 +39,7 @@ public class SpotterProgressTest {
 	 */
 	@Test
 	public void testDiagnosisProgress() {
-		DiagnosisProgress diagProgress = new DiagnosisProgress(DiagnosisStatus.EXPERIMENTING_STABLE_PHASE, _0_8,
+		DiagnosisProgress diagProgress = new DiagnosisProgress("", DiagnosisStatus.EXPERIMENTING_STABLE_PHASE, _0_8,
 				_10000, MESSAGE);
 		Assert.assertEquals(_10000, diagProgress.getEstimatedRemainingDuration());
 		Assert.assertEquals(_0_8, diagProgress.getEstimatedProgress());
@@ -66,10 +66,10 @@ public class SpotterProgressTest {
 	public void testSpotterProgress() {
 		SpotterProgress sProgress = new SpotterProgress();
 
-		DiagnosisProgress diagProgress_1 = new DiagnosisProgress(DiagnosisStatus.EXPERIMENTING_STABLE_PHASE, _0_8,
+		DiagnosisProgress diagProgress_1 = new DiagnosisProgress("", DiagnosisStatus.EXPERIMENTING_STABLE_PHASE, _0_8,
 				_10000, MESSAGE);
 		String message = "myMessage";
-		DiagnosisProgress diagProgress_2 = new DiagnosisProgress(DiagnosisStatus.COLLECTING_DATA, _0_8, _10000, message);
+		DiagnosisProgress diagProgress_2 = new DiagnosisProgress("", DiagnosisStatus.COLLECTING_DATA, _0_8, _10000, message);
 
 		String problemName_1 = "prob_A";
 		String problemName_2 = "prob_B";

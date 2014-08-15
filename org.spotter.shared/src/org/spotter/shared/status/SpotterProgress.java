@@ -45,7 +45,7 @@ public class SpotterProgress {
 		if (problemProgressMapping.containsKey(problemName)) {
 			return problemProgressMapping.get(problemName);
 		} else {
-			return new DiagnosisProgress(DiagnosisStatus.PENDING, 0.0, 0L, "");
+			return new DiagnosisProgress("", DiagnosisStatus.PENDING, 0.0, 0L, "");
 		}
 	}
 

@@ -102,7 +102,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 				ProgressManager.getInstance().addAdditionalDuration(getSUTWarmUpDuration());
 			}
+
 			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
+			ProgressManager.getInstance().setProblemName(getProblemId(), getProvider().getName());
 
 			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
 				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(

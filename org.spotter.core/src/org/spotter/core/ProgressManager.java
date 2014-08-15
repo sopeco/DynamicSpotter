@@ -273,6 +273,23 @@ public final class ProgressManager implements Runnable {
 	}
 
 	/**
+	 * Sets the name for the problem with the given id.
+	 * 
+	 * @param problemId
+	 *            problem unique id specifying the corresponding diagnosis step
+	 * @param problemName
+	 *            name to set
+	 */
+	public void setProblemName(String problemId, String problemName) {
+		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
+			getSpotterProgress().getProblemProgressMapping().get(problemId).setName(problemName);
+		} else {
+			DiagnosisProgress progress = new DiagnosisProgress(problemName, null, 0.0, 0L, "");
+			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
+		}
+	}
+	
+	/**
 	 * Updates the progress status.
 	 * 
 	 * @param problemId
@@ -284,7 +301,7 @@ public final class ProgressManager implements Runnable {
 		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
 			getSpotterProgress().getProblemProgressMapping().get(problemId).setStatus(status);
 		} else {
-			DiagnosisProgress progress = new DiagnosisProgress(status, 0.0, 0L, "");
+			DiagnosisProgress progress = new DiagnosisProgress("", status, 0.0, 0L, "");
 			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
 		}
 	}
@@ -320,7 +337,7 @@ public final class ProgressManager implements Runnable {
 			progress.setStatus(status);
 			progress.setCurrentProgressMessage(currentProgressMessage);
 		} else {
-			DiagnosisProgress progress = new DiagnosisProgress(status, 0.0, 0L, currentProgressMessage);
+			DiagnosisProgress progress = new DiagnosisProgress("", status, 0.0, 0L, currentProgressMessage);
 			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
 		}
 	}
