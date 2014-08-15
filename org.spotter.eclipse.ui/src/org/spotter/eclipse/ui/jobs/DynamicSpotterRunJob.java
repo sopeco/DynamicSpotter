@@ -50,8 +50,7 @@ public class DynamicSpotterRunJob extends Job {
 	private static final String ICON_PATH = "icons/diagnosis.png"; //$NON-NLS-1$
 
 	private static final int SLEEP_TIME_MILLIS = 1000;
-	private static final int HUNDRED_PERCENT = 100;
-	private static final int FIVE_PERCENT = 5;
+	private static final int KEY_HASH_LENGTH = 7;
 
 	private static final String MSG_RUN_FINISH = "Finished the DynamicSpotter diagnosis successfully!";
 	private static final String MSG_RUN_ERROR = "Aborted the DynamicSpotter diagnosis due to an error!";
@@ -96,7 +95,7 @@ public class DynamicSpotterRunJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		processedProblems.clear();
 		currentProblem = null;
-		monitor.beginTask("DynamicSpotter Diagnosis", HUNDRED_PERCENT);
+		monitor.beginTask("DynamicSpotter Diagnosis '" + project.getName() + "'", IProgressMonitor.UNKNOWN);
 		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
 
 		while (client.isRunning(true)) {
@@ -143,7 +142,6 @@ public class DynamicSpotterRunJob extends Job {
 	}
 
 	private void updateCurrentRun(ServiceClientWrapper client, IProgressMonitor monitor) {
-		// TODO: implement correct progress view (needs more data from service)
 		SpotterProgress spotterProgress = client.getCurrentProgressReport();
 		if (spotterProgress == null || spotterProgress.getProblemProgressMapping() == null) {
 			return;
@@ -161,16 +159,25 @@ public class DynamicSpotterRunJob extends Job {
 					currentProblem = progressEntry;
 				}
 			} else {
+				// the current problem under investigation changed
 				currentProblem = progressEntry;
 				processedProblems.add(currentProblem.getKey());
 			}
 		}
 		if (currentProblem != null) {
 			DiagnosisProgress progress = currentProblem.getValue();
-			monitor.subTask("ProblemId: \"" + currentProblem.getKey() + "\" - " + progress.getCurrentProgressMessage()
-					+ " - " + progress.getStatus());
-			// currently this is just a fake representation of work completed
-			monitor.worked(FIVE_PERCENT);
+			String estimation = String.format("%.1f", 100 * progress.getEstimatedProgress());
+			String keyHashTag = createKeyHashTag(currentProblem.getKey());
+			String problemName = progress.getName() + "-" + keyHashTag;
+			monitor.setTaskName(problemName + " (" + estimation + " %): " + progress.getStatus());
+		}
+	}
+
+	private String createKeyHashTag(String key) {
+		if (key.length() < KEY_HASH_LENGTH) {
+			return key;
+		} else {
+			return key.substring(0, KEY_HASH_LENGTH);
 		}
 	}
 

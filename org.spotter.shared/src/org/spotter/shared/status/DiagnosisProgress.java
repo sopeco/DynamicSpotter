@@ -22,6 +22,7 @@ package org.spotter.shared.status;
  *
  */
 public class DiagnosisProgress {
+	private String name;
 	private DiagnosisStatus status;
 	private double estimatedProgress;
 	private long estimatedRemainingDuration; // [s]
@@ -35,18 +36,35 @@ public class DiagnosisProgress {
 	
 	/**
 	 * Constructor.
+	 * @param name problem name
 	 * @param status diagnosis status
 	 * @param estimatedProgress estimated progress in percent
 	 * @param estimatedRemainingDuration estimated remaining duration in seconds
 	 * @param currentProgressMessage additional progress message
 	 */
-	public DiagnosisProgress(DiagnosisStatus status, double estimatedProgress, long estimatedRemainingDuration,
+	public DiagnosisProgress(String name, DiagnosisStatus status, double estimatedProgress, long estimatedRemainingDuration,
 			String currentProgressMessage) {
 		super();
+		this.name = name;
 		this.status = status;
 		this.estimatedProgress = estimatedProgress;
 		this.estimatedRemainingDuration = estimatedRemainingDuration;
 		this.currentProgressMessage = currentProgressMessage;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
