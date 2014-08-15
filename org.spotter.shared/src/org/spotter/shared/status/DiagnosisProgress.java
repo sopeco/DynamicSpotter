@@ -17,9 +17,9 @@ package org.spotter.shared.status;
 
 /**
  * Representation of the progress of a diagnosis step of Dynamic Spotter run.
- *  
+ * 
  * @author Alexander Wert
- *
+ * 
  */
 public class DiagnosisProgress {
 	private String name;
@@ -33,17 +33,23 @@ public class DiagnosisProgress {
 	 */
 	public DiagnosisProgress() {
 	}
-	
+
 	/**
 	 * Constructor.
-	 * @param name problem name
-	 * @param status diagnosis status
-	 * @param estimatedProgress estimated progress in percent
-	 * @param estimatedRemainingDuration estimated remaining duration in seconds
-	 * @param currentProgressMessage additional progress message
+	 * 
+	 * @param name
+	 *            problem name
+	 * @param status
+	 *            diagnosis status
+	 * @param estimatedProgress
+	 *            estimated progress in percent
+	 * @param estimatedRemainingDuration
+	 *            estimated remaining duration in seconds
+	 * @param currentProgressMessage
+	 *            additional progress message
 	 */
-	public DiagnosisProgress(String name, DiagnosisStatus status, double estimatedProgress, long estimatedRemainingDuration,
-			String currentProgressMessage) {
+	public DiagnosisProgress(String name, DiagnosisStatus status, double estimatedProgress,
+			long estimatedRemainingDuration, String currentProgressMessage) {
 		super();
 		this.name = name;
 		this.status = status;
@@ -70,7 +76,7 @@ public class DiagnosisProgress {
 	/**
 	 * @return the status
 	 */
-	public DiagnosisStatus getStatus() {
+	public synchronized DiagnosisStatus getStatus() {
 		return status;
 	}
 
@@ -78,14 +84,14 @@ public class DiagnosisProgress {
 	 * @param status
 	 *            the status to set
 	 */
-	public void setStatus(DiagnosisStatus status) {
+	public synchronized void setStatus(DiagnosisStatus status) {
 		this.status = status;
 	}
 
 	/**
 	 * @return the estimatedProgress
 	 */
-	public double getEstimatedProgress() {
+	public synchronized double getEstimatedProgress() {
 		return estimatedProgress;
 	}
 
@@ -93,14 +99,14 @@ public class DiagnosisProgress {
 	 * @param estimatedProgress
 	 *            the estimatedProgress to set
 	 */
-	public void setEstimatedProgress(double estimatedProgress) {
+	public synchronized void setEstimatedProgress(double estimatedProgress) {
 		this.estimatedProgress = estimatedProgress;
 	}
 
 	/**
 	 * @return the estimatedRemainingDuration
 	 */
-	public long getEstimatedRemainingDuration() {
+	public synchronized long getEstimatedRemainingDuration() {
 		return estimatedRemainingDuration;
 	}
 
@@ -108,14 +114,14 @@ public class DiagnosisProgress {
 	 * @param estimatedRemainingDuration
 	 *            the estimatedRemainingDuration to set
 	 */
-	public void setEstimatedRemainingDuration(long estimatedRemainingDuration) {
+	public synchronized void setEstimatedRemainingDuration(long estimatedRemainingDuration) {
 		this.estimatedRemainingDuration = estimatedRemainingDuration;
 	}
 
 	/**
 	 * @return the currentProgressMessage
 	 */
-	public String getCurrentProgressMessage() {
+	public synchronized String getCurrentProgressMessage() {
 		return currentProgressMessage;
 	}
 
@@ -123,7 +129,7 @@ public class DiagnosisProgress {
 	 * @param currentProgressMessage
 	 *            the currentProgressMessage to set
 	 */
-	public void setCurrentProgressMessage(String currentProgressMessage) {
+	public synchronized void setCurrentProgressMessage(String currentProgressMessage) {
 		this.currentProgressMessage = currentProgressMessage;
 	}
 

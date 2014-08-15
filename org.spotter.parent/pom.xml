@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spotter</groupId>
 	<artifactId>org.spotter.parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>DynamicSpotter</name>
 
 	<properties>
-		<lpe.common.version>1.0.2-SNAPSHOT</lpe.common.version>
+		<lpe.common.version>1.0.3</lpe.common.version>
 	</properties>
 
 	<modules>
