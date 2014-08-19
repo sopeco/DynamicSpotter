@@ -9,6 +9,7 @@
 
 	<properties>
 		<lpe.common.version>1.0.4-SNAPSHOT</lpe.common.version>
+		<aim.version>1.0.4-SNAPSHOT</aim.version>
 	</properties>
 
 	<modules>
@@ -78,14 +79,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.lpe.common</groupId>
+			<groupId>org.aim</groupId>
 			<artifactId>org.aim.api</artifactId>
-			<version>${lpe.common.version}</version>
+			<version>${aim.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.lpe.common</groupId>
+			<groupId>org.aim</groupId>
 			<artifactId>org.aim.artifacts.core</artifactId>
-			<version>${lpe.common.version}</version>
+			<version>${aim.version}</version>
 		</dependency>
 
 		<dependency>
