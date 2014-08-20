@@ -50,7 +50,6 @@ import org.spotter.eclipse.ui.ProjectNature;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
-import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.configuration.ConfigKeys;
@@ -512,7 +511,7 @@ public final class SpotterProjectSupport {
 	}
 
 	private static void addHierarchyXMLConfiguration(IProject project) throws UICoreException {
-		XPerformanceProblem problem = HierarchyFactory.getInstance().createProblemHierarchyRoot();
+		XPerformanceProblem problem = Activator.getDefault().getClient(project.getName()).getDefaultHierarchy();
 		saveHierarchy(project.getFile(HIERARCHY_FILENAME), problem);
 	}
 

@@ -32,6 +32,8 @@ import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.shared.configuration.SpotterExtensionType;
+import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.status.SpotterProgress;
 
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -70,6 +72,7 @@ public class ServiceClientWrapper {
 	private static final String MSG_NO_STATUS = "Could not retrieve status.";
 	private static final String MSG_NO_CONFIG_PARAMS = "Could not retrieve configuration parameters.";
 	private static final String MSG_NO_EXTENSIONS = "Could not retrieve list of extensions.";
+	private static final String MSG_NO_DEFAULT_HIER = "Could not retrieve the default hierarchy.";
 	private static final String MSG_NO_SATTELITE_TEST = "Could not test satellite connection.";
 
 	private final String projectName;
@@ -391,6 +394,21 @@ public class ServiceClientWrapper {
 			getExtensionConfigParamters(extName);
 		}
 		return cachedExtensionDescriptions.get(extName);
+	}
+
+	/**
+	 * Returns the default hierarchy.
+	 * 
+	 * @return the default hierarchy
+	 */
+	public XPerformanceProblem getDefaultHierarchy() {
+		lastException = null;
+		try {
+			return client.getDefaultHierarchy();
+		} catch (Exception e) {
+			handleException("getDefaultHierarchy", MSG_NO_DEFAULT_HIER, e, true, true);
+		}
+		return RawHierarchyFactory.getInstance().createEmptyHierarchy();
 	}
 
 	/**
