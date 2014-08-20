@@ -103,8 +103,8 @@ public abstract class AbstractSpotterSatelliteExtension {
 		hostParameter.setMandatory(true);
 		hostParameter.setASet(false);
 		hostParameter.setDefaultValue("localhost");
-		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. "
-				+ "This satellite adapter connects to the satellite on this host/ip.");
+		hostParameter.setDescription("The host/ip where the corresponding satellite is running on. This satellite "
+				+ "connects to the satellite on this host/ip (no protocol prefix required, e.g. omit \"http://\").");
 
 		return hostParameter;
 	}
