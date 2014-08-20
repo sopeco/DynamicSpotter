@@ -38,6 +38,8 @@ import org.spotter.core.measurement.AbstractMeasurmentExtension;
 import org.spotter.core.workload.AbstractWorkloadExtension;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
+import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
@@ -202,6 +204,15 @@ public class SpotterServiceWrapper {
 			return Collections.emptySet();
 		}
 		return extension.getConfigParameters();
+	}
+
+	/**
+	 * Returns the default hierarchy.
+	 * 
+	 * @return default hierarchy
+	 */
+	public XPerformanceProblem getDefaultHierarchy() {
+		return RawHierarchyFactory.getInstance().createProblemHierarchyRoot();
 	}
 
 	/**

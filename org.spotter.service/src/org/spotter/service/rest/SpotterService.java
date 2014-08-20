@@ -30,6 +30,7 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.service.SpotterServiceWrapper;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.service.ResponseStatus;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
@@ -156,6 +157,23 @@ public class SpotterService {
 			Set<ConfigParameterDescription> set = SpotterServiceWrapper.getInstance().getExtensionConfigParamters(
 					extName);
 			return new SpotterServiceResponse<Set<ConfigParameterDescription>>(set, ResponseStatus.OK);
+		} catch (Exception e) {
+			return createErrorResponse(e);
+		}
+	}
+
+	/**
+	 * Returns the default hierarchy.
+	 * 
+	 * @return default hierarchy
+	 */
+	@GET
+	@Path(ConfigKeys.SPOTTER_REST_DEFAULT_HIERARCHY)
+	@Produces(MediaType.APPLICATION_JSON)
+	public SpotterServiceResponse<XPerformanceProblem> getDefaultHierarchy() {
+		try {
+			XPerformanceProblem root = SpotterServiceWrapper.getInstance().getDefaultHierarchy();
+			return new SpotterServiceResponse<XPerformanceProblem>(root, ResponseStatus.OK);
 		} catch (Exception e) {
 			return createErrorResponse(e);
 		}

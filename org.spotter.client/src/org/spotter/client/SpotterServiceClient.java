@@ -23,6 +23,7 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.web.LpeWebUtils;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.SpotterExtensionType;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
 
@@ -173,6 +174,27 @@ public class SpotterServiceClient {
 				.path(ConfigKeys.SPOTTER_REST_BASE).path(ConfigKeys.SPOTTER_REST_EXTENSION_PARAMETERS)
 				.path(extName.toString()).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Set<ConfigParameterDescription>>>() {
+				});
+		switch (response.getStatus()) {
+		case OK:
+			return response.getPayload();
+		case SERVER_ERROR:
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
+		case INVALID_STATE:
+		default:
+			throw new IllegalStateException("Illegal response state!");
+		}
+	}
+
+	/**
+	 * Returns the default hierarchy.
+	 * 
+	 * @return the default hierarchy
+	 */
+	public XPerformanceProblem getDefaultHierarchy() {
+		SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_DEFAULT_HIERARCHY).accept(MediaType.APPLICATION_JSON)
+				.get(new GenericType<SpotterServiceResponse<XPerformanceProblem>>() {
 				});
 		switch (response.getStatus()) {
 		case OK:

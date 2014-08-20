@@ -15,37 +15,25 @@
  */
 package org.spotter.eclipse.ui.model.xml;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.ArrayList;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.UICoreException;
-import org.spotter.eclipse.ui.util.SpotterUtils;
-import org.spotter.shared.environment.model.XMConfiguration;
-import org.spotter.shared.hierarchy.model.ObjectFactory;
+import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
- * A factory to create empty root instances of <code>XPerformanceProblem</code>
- * or instances that are parsed from a performance problem hierarchy XML file.
+ * A factory that wraps the RawHierarchyFactory for the UI, used to parse an
+ * instance of <code>XPerformanceProblem</code> from a performance problem
+ * hierarchy XML file.
  * 
  * @author Denis Knoepfle
  * 
  */
 public final class HierarchyFactory {
-
-	/**
-	 * The name of the default hierarchy configuration file.
-	 */
-	private static final String DEFAULT_HIERARCHY_FILENAME = "default-hierarchy.xml";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HierarchyFactory.class);
 
@@ -78,14 +66,7 @@ public final class HierarchyFactory {
 	 */
 	public XPerformanceProblem parseHierarchyFile(String fileName) throws UICoreException {
 		try {
-			FileReader fileReader = new FileReader(fileName);
-			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
-			Unmarshaller u = jc.createUnmarshaller();
-
-			@SuppressWarnings("unchecked")
-			JAXBElement<XPerformanceProblem> element = (JAXBElement<XPerformanceProblem>) u.unmarshal(fileReader);
-			XPerformanceProblem xRoot = element.getValue();
-
+			XPerformanceProblem xRoot = RawHierarchyFactory.getInstance().parseHierarchyFile(fileName);
 			return xRoot;
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file '" + fileName + "'!";
@@ -96,49 +77,6 @@ public final class HierarchyFactory {
 			LOGGER.error(msg + ", " + e.getMessage());
 			throw new UICoreException(msg, e);
 		}
-	}
-
-	/**
-	 * Creates a new performance problem hierarchy using the default hierarchy
-	 * configuration file located in the root directory of the execution path of
-	 * the UI. The default configuration has to be named
-	 * {@value #DEFAULT_HIERARCHY_FILENAME}. If the file does not exist an empty
-	 * hierarchy is returned.
-	 * 
-	 * @return the default hierarchy given by the configuration file or an empty
-	 *         root instance if file can not be parsed
-	 */
-	public XPerformanceProblem createProblemHierarchyRoot() {
-		File file = new File(DEFAULT_HIERARCHY_FILENAME);
-		XPerformanceProblem root;
-		try {
-			root = parseHierarchyFile(DEFAULT_HIERARCHY_FILENAME);
-		} catch (UICoreException e) {
-			String msg = "Could not load the default hierarchy file '" + file.getAbsolutePath()
-					+ "', using empty hierarchy instead! Cause: " + e.getMessage();
-			LOGGER.warn(msg);
-			root = createEmptyHierarchy();
-		}
-
-		return root;
-	}
-
-	/**
-	 * Creates an empty hierarchy. The root node is set to be non-detectable.
-	 * 
-	 * @return the root of an empty hierarchy
-	 */
-	public XPerformanceProblem createEmptyHierarchy() {
-		XPerformanceProblem problem = new XPerformanceProblem();
-		problem.setUniqueId(SpotterUtils.generateUniqueId());
-		problem.setConfig(new ArrayList<XMConfiguration>());
-
-		XMConfiguration xmConfig = new XMConfiguration();
-		xmConfig.setKey("org.spotter.detection.detectable");
-		xmConfig.setValue(Boolean.toString(false));
-		problem.getConfig().add(xmConfig);
-
-		return problem;
 	}
 
 }

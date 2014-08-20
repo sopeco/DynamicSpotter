@@ -15,18 +15,12 @@
  */
 package org.spotter.core.config.interpretation;
 
-import java.io.FileReader;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-
 import org.lpe.common.extension.ExtensionRegistry;
 import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.detection.IDetectionExtension;
 import org.spotter.core.detection.IExperimentReuser;
 import org.spotter.shared.environment.model.XMConfiguration;
-import org.spotter.shared.hierarchy.model.ObjectFactory;
+import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.model.ResultsContainer;
 
@@ -122,12 +116,7 @@ public final class HierarchyFactory {
 	 */
 	private PerformanceProblem parsePPHFile(String fileName, ResultsContainer resultsContainer) {
 		try {
-			FileReader fileReader = new FileReader(fileName);
-			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
-			Unmarshaller u = jc.createUnmarshaller();
-
-			@SuppressWarnings("unchecked")
-			XPerformanceProblem xRoot = ((JAXBElement<XPerformanceProblem>) u.unmarshal(fileReader)).getValue();
+			XPerformanceProblem xRoot = RawHierarchyFactory.getInstance().parseHierarchyFile(fileName);
 			resultsContainer.setRootProblem(xRoot);
 
 			return visitProblem(xRoot);

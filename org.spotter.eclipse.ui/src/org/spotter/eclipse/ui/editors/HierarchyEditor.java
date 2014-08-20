@@ -30,8 +30,8 @@ import org.spotter.eclipse.ui.model.xml.HierarchyModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
-import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.configuration.SpotterExtensionType;
+import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
@@ -99,7 +99,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		XPerformanceProblem container = (XPerformanceProblem) parent;
 		XPerformanceProblem problem = new XPerformanceProblem();
 		problem.setExtensionName(extensionComponent.getExtensionName());
-		problem.setUniqueId(SpotterUtils.generateUniqueId());
+		problem.setUniqueId(RawHierarchyFactory.generateUniqueId());
 		if (container.getProblem() == null) {
 			container.setProblem(new ArrayList<XPerformanceProblem>());
 		}
@@ -119,7 +119,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 
 	@Override
 	protected void makeInputApplicable(AbstractSpotterEditorInput input) throws UICoreException {
-		XPerformanceProblem problem = HierarchyFactory.getInstance().createProblemHierarchyRoot();
+		XPerformanceProblem problem = Activator.getDefault().getClient(getProject().getName()).getDefaultHierarchy();
 		SpotterProjectSupport.saveHierarchy(input.getFile(), problem);
 	}
 
