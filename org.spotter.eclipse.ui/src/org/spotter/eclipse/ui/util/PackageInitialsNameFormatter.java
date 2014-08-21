@@ -25,7 +25,8 @@ package org.spotter.eclipse.ui.util;
 public class PackageInitialsNameFormatter extends FullNameFormatter {
 
 	private static final String FORMATTER_NAME = "package initials";
-	private static final String PACKAGE_SEPARATOR_REGEX = "\\.";
+	private static final String PACKAGE_SEPARATOR = ".";
+	private static final String PACKAGE_SEPARATOR_REGEX = "\\" + PACKAGE_SEPARATOR;
 
 	@Override
 	public String format(String name) {
@@ -33,10 +34,13 @@ public class PackageInitialsNameFormatter extends FullNameFormatter {
 		if (parts.length == 0) {
 			return name;
 		}
+		if (parts.length == 1 && name.endsWith(PACKAGE_SEPARATOR)) {
+			return parts[0].charAt(0) + PACKAGE_SEPARATOR;
+		}
 		StringBuilder sb = new StringBuilder();
 		int countPackages = parts.length - 1;
 		for (int i = 0; i < countPackages; ++i) {
-			sb.append(parts[i].charAt(0) + ".");
+			sb.append(parts[i].charAt(0) + PACKAGE_SEPARATOR);
 		}
 		sb.append(parts[countPackages]);
 		return sb.toString();
