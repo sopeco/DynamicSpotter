@@ -15,8 +15,11 @@
  */
 package org.spotter.runner;
 
+import java.util.Properties;
+
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
+import org.lpe.common.config.GlobalConfiguration;
 import org.spotter.core.Spotter;
 import org.spotter.exceptions.WorkloadException;
 
@@ -53,6 +56,9 @@ public final class SpotterRunner {
 		}
 
 		String configFile = args[0];
+		// there are no core properties,
+		// just provide an empty properties object for that
+		GlobalConfiguration.initialize(new Properties());
 		Spotter.getInstance().startDiagnosis(configFile);
 	}
 }
