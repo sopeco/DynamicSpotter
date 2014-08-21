@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DynamicSpotter Eclipse UI Test
+Bundle-SymbolicName: org.spotter.eclipse.ui.test
+Bundle-Version: 1.0.1.qualifier
+Bundle-Vendor: SAP AG
+Fragment-Host: org.spotter.eclipse.ui;bundle-version="1.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit;bundle-version="4.11.0"
+Bundle-ClassPath: .,
+ ../org.spotter.eclipse.ui
