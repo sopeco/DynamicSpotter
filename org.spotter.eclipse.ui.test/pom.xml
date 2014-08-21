@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.spotter</groupId>
 		<artifactId>org.spotter.parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.1-SNAPSHOT</version>
 		<relativePath>../org.spotter.parent</relativePath>
 	</parent>
 
@@ -77,14 +77,7 @@
 				<configuration>
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>true</useUIThread>
-					<providerHint>junit4</providerHint>
-					<dependencies>
-						<dependency>
-							<groupId>junit</groupId>
-							<artifactId>junit</artifactId>
-							<version>4.10</version>
-						</dependency>
-					</dependencies>
+					<!-- <providerHint>junit4</providerHint> -->
 				</configuration>
 			</plugin>
 		</plugins>
@@ -95,12 +88,12 @@
 		<dependency>
 			<groupId>org.spotter</groupId>
 			<artifactId>org.spotter.eclipse.ui</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 </project>
