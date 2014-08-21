@@ -652,8 +652,42 @@ background (which you can find in the project directory in your Eclipse workspac
 In order to execute \DS from the command line, \DS configuration files need to be passed to \DS directly instead of
 executing the steps from Section~\ref{sec:usingEclipseUI}. 
 First, adapt the paths in the \texttt{demo-config/spotter.conf} of the all-in-one-drop. In particular, set the paths to
-the hierarchy XML, the measurement environment XML and the result directory 
-When adapted use the following command to start \DS from the command line:
+the hierarchy XML, the measurement environment XML and the result directory:
+\begin{lstlisting}[language=sh,morekeywords={java,javaagent,port, rootDir}, frame=single]
+# path to the XML file describing the problem hierarchy
+org.spotter.conf.problemHierarchyFile = ...
+
+# path to the XML file describing all measurement satellites 
+# and their configurations
+org.spotter.measurement.environmentDescriptionFile = ...
+
+# path to the directory containing the results
+org.spotter.resultDir = ...
+\end{lstlisting}
+
+Furthermore, you need to adapt the path to the workload file in the \texttt{demo-config/spotter.conf}. Therefore,
+for the property \texttt{org.spotter.workload.simple.userScriptPath} set the value to the \emph{absolute path} of the
+\texttt{all-in-one-drop/loadScript} directory.
+
+\begin{lstlisting}[language=xml,morekeywords={java,javaagent,port, rootDir}, frame=single]
+...
+<workloadAdapter>
+
+   <extensionName>workload.satellite.adapter.customized</extensionName>
+   
+   <config key="org.spotter.satellite.adapter.name" 
+     value="Customized Workload Satellite Adapter"/>
+     
+   <config key="org.spotter.workload.simple.userScriptClassName" 
+     value="org.spotter.ext.demo.load.VUser"/>
+     
+   <config key="org.spotter.workload.simple.userScriptPath" 
+     value="..."/>
+     
+</workloadAdapter>
+...
+\end{lstlisting}
+Having adapted the configuration files use the following command to start \DS from the command line:
 \begin{lstlisting}[language=sh,morekeywords={java,javaagent,port, rootDir}, frame=single]
 java -jar ds-cl-runner.jar <PATH_TO_SPOTTER_CONF>
 \end{lstlisting}
