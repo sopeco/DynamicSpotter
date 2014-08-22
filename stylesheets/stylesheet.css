@@ -65,7 +65,7 @@ a:hover {
 
 header {
   padding-top: 40px;
-  padding-bottom: 40px;
+  padding-bottom: 60px;
   font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif; 
   background: #2e7bcf url(../images/header-bg.jpg) 0 0 repeat-x;
   border-bottom: solid 1px #275da1;
@@ -133,10 +133,11 @@ font-size: 16px;
 font-weight: bold;
 }
 
-div.sponsor { 
-margin-top: 100px;
+div.side {
 margin-bottom: 100px;
 }
+
+
 
 img.sponsor {
 display: block;
@@ -158,12 +159,51 @@ a.button small {
   display: block;
   font-size: 13px;
 }
+
 header a.button {
   position: absolute;
   right: 0;
   top: 0;
   background: transparent url(../images/github-button.png) 0 0 no-repeat;
 }
+header a.panel {
+top: auto;
+left: 0;
+bottom: -91px;
+padding-top: 10px;
+font-size: 20px;
+}
+
+header a.active{
+  background: transparent url(../images/panel-button.png) 0 0 no-repeat;
+}
+header a.passive{
+  background: transparent url(../images/panel-button-passive.png) 0 0 no-repeat;
+}
+
+header a.pFirst{
+  padding-left:50px;
+}
+
+header a.pSecond{
+  padding-left:27px; 
+  left: 147px;
+}
+header a.pThird{
+  padding-left:38px; 
+  left: 294px;
+}
+header a.pFourth{
+  padding-left:37px; 
+  left: 441px;
+}
+
+header a.panel:hover {
+color: #9ddcff;
+}
+
+
+
 aside a.button {
   width: 138px;
   padding-left: 64px;
@@ -461,6 +501,20 @@ footer a:hover {
     font-size: 13px;
     display: inline;
   }
+  
+ header a.panel {
+ display: inline-block;
+ bottom:auto;
+ left:auto;
+ padding-left: auto;
+}
+
+header a.panel:hover {
+color: #000;
+}
+
+
+  
   #main-content,
   aside#sidebar {
     float: none;
@@ -472,6 +526,9 @@ footer a:hover {
     border-top: solid 1px #ddd;
     padding: 20px 0;
     min-height: 0;
+  }
+  aside#sidebar div.downloads{
+	display: none;
   }
   aside#sidebar a.button {
     display: none;
