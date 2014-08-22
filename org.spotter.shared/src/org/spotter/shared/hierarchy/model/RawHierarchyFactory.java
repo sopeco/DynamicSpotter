@@ -17,18 +17,15 @@ package org.spotter.shared.hierarchy.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.shared.environment.model.XMConfiguration;
+import org.spotter.shared.util.JAXBUtil;
 
 /**
  * A factory to create empty root instances of <code>XPerformanceProblem</code>
@@ -75,13 +72,7 @@ public final class RawHierarchyFactory {
 	 *             when there is an error parsing the file
 	 */
 	public XPerformanceProblem parseHierarchyFile(String fileName) throws FileNotFoundException, JAXBException {
-		FileReader fileReader = new FileReader(fileName);
-		JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
-		Unmarshaller u = jc.createUnmarshaller();
-
-		@SuppressWarnings("unchecked")
-		JAXBElement<XPerformanceProblem> element = (JAXBElement<XPerformanceProblem>) u.unmarshal(fileReader);
-		XPerformanceProblem xRoot = element.getValue();
+		XPerformanceProblem xRoot = JAXBUtil.parseXMLFile(fileName, ObjectFactory.class.getPackage().getName());
 
 		return xRoot;
 	}

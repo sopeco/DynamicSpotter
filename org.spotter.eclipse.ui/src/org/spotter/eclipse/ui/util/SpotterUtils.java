@@ -15,15 +15,11 @@
  */
 package org.spotter.eclipse.ui.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -36,6 +32,7 @@ import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
 import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.shared.environment.model.XMConfiguration;
+import org.spotter.shared.util.JAXBUtil;
 
 /**
  * An utility class for the Spotter UI.
@@ -45,7 +42,6 @@ import org.spotter.shared.environment.model.XMConfiguration;
  */
 public final class SpotterUtils {
 
-	private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	private static final String ERR_MSG_OPEN = "Error while opening element '%s'!";
 	private static final String ERR_MSG_DUPLICATE = "Error while duplicating element '%s'!";
 	private static final String ERR_MSG_DELETE = "Error while deleting element '%s'!";
@@ -75,17 +71,7 @@ public final class SpotterUtils {
 	 *             if a resource error occurs
 	 */
 	public static void writeElementToFile(IFile file, Object jaxbElement) throws JAXBException, CoreException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(jaxbElement.getClass());
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-		// configure JAXB
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-		jaxbMarshaller.setProperty("com.sun.xml.bind.xmlHeaders", XML_HEADER);
-
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		jaxbMarshaller.marshal(jaxbElement, outputStream);
-		InputStream source = new ByteArrayInputStream(outputStream.toByteArray());
+		InputStream source = JAXBUtil.createInputStreamFromElement(jaxbElement);
 		if (file.exists()) {
 			file.setContents(source, true, true, null);
 		} else {
