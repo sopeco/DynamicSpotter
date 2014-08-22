@@ -15,11 +15,15 @@
  */
 package org.spotter.runner;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
 import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.extension.ExtensionRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.core.Spotter;
 import org.spotter.exceptions.WorkloadException;
 
@@ -30,6 +34,17 @@ import org.spotter.exceptions.WorkloadException;
  * 
  */
 public final class SpotterRunner {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterRunner.class);
+
+	private static final String DEFAULT_PLUGINS_FOLDER = "plugins";
+
+	private static final String SPOTTER_ROOT_DIR_KEY = "rootDir=";
+
+	private static final String HELP_KEY = "-h";
+
+	private static String rootDir = System.getProperty("user.dir");
+
+	private static boolean help = false;
 
 	/**
 	 * Private constructor due to utility class.
@@ -51,14 +66,59 @@ public final class SpotterRunner {
 	 *             thrown if a problem with instrumentation occurs
 	 */
 	public static void main(String[] args) throws InstrumentationException, MeasurementException, WorkloadException {
-		if (args.length < 1 || args[0].isEmpty()) {
-			throw new IllegalArgumentException("Please provide a configuration file as program argument!");
-		}
+		if (args != null) {
 
-		String configFile = args[0];
-		// there are no core properties, just provide an empty properties object
-		// for that
-		GlobalConfiguration.initialize(new Properties());
-		Spotter.getInstance().startDiagnosis(configFile);
+			parseArgs(args);
+
+			if (args.length < 1 || help) {
+				LOGGER.error("Invalid value for 1st argument! Needs to be a path to the configuration file!");
+				printHelp();
+			} else {
+				File configFile = new File(args[0]);
+				if (!configFile.exists()) {
+					LOGGER.error("Invalid value for 1st argument! Needs to be a path to the configuration file!");
+					printHelp();
+				} else {
+					Properties coreProperties = new Properties();
+					coreProperties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, rootDir);
+					coreProperties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, DEFAULT_PLUGINS_FOLDER);
+					GlobalConfiguration.initialize(coreProperties);
+
+					Spotter.getInstance().startDiagnosis(configFile.getAbsolutePath());
+				}
+			}
+
+		} else {
+			printHelp();
+		}
+	}
+
+	private static void printHelp() {
+		LOGGER.info("DynamicSpotter Service Launcher requires at least one argument:");
+		LOGGER.info("Usage: java -jar <SPOTTER_RUNNER_JAR> PATH_TO_CONFIG_FILE [options]");
+		LOGGER.info("the options are:");
+		LOGGER.info(HELP_KEY + ": show this help text");
+		LOGGER.info(SPOTTER_ROOT_DIR_KEY
+				+ "<PATH_TO_SPOTTER_ROOT>: path to the root directory of spotter. "
+				+ "Specifies where the location of the plugins folder for DynamicSpotter. Default root is the current directory.");
+	}
+
+	/**
+	 * Parses the agent arguments.
+	 * 
+	 * @param agentArgs
+	 *            arguments as string
+	 */
+	private static void parseArgs(String[] agentArgs) {
+
+		for (String arg : agentArgs) {
+			if (arg.startsWith(SPOTTER_ROOT_DIR_KEY)) {
+				rootDir = arg.substring(SPOTTER_ROOT_DIR_KEY.length());
+			}
+			if (arg.startsWith(HELP_KEY)) {
+				help = true;
+			}
+
+		}
 	}
 }
