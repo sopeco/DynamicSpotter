@@ -1,0 +1,4 @@
+http://sopeco.github.io/DynamicSpotter/index.html
+http://sopeco.github.io/DynamicSpotter/contact.html
+http://sopeco.github.io/DynamicSpotter/downloads.html
+http://sopeco.github.io/DynamicSpotter/related.html
