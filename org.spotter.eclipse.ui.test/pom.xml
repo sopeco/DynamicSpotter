@@ -93,20 +93,36 @@
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
+				<dependencies>
+					<dependency>
+						<groupId>ant-contrib</groupId>
+						<artifactId>ant-contrib</artifactId>
+						<version>20020829</version>
+					</dependency>
+				</dependencies>
 				<executions>
+
 					<execution>
+						<id>instrument</id>
 						<phase>process-classes</phase>
 						<configuration>
-							<target name="instrumentation">
+							<tasks>
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+									classpathref="maven.plugin.classpath" />
+
 								<if>
 									<available
 										file="/home/lpe/jenkins/cobertura-2.0.3/cobertura-instrument.sh" />
 									<then>
 										<ant antfile="build.xml" target="instrument" />
 									</then>
-
+									<else>
+										<echo>Skipping EclipseUI Cobertura Tests (Instrumentation)</echo>
+									</else>
 								</if>
-							</target>
+							</tasks>
+							<!-- <target name="instrumentation"> <ant antfile="build.xml" target="instrument" 
+								/> </target> -->
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -114,18 +130,25 @@
 					</execution>
 
 					<execution>
+						<id>report</id>
 						<phase>install</phase>
 						<configuration>
-							<target name="report">
+							<tasks>
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+									classpathref="maven.plugin.classpath" />
 								<if>
 									<available
 										file="/home/lpe/jenkins/cobertura-2.0.3/cobertura-instrument.sh" />
 									<then>
 										<ant antfile="build.xml" target="report" />
 									</then>
-
+									<else>
+										<echo>Skipping EclipseUI Cobertura Tests (Instrumentation)</echo>
+									</else>
 								</if>
-							</target>
+							</tasks>
+							<!-- <target name="report"> <ant antfile="build.xml" target="report" 
+								/> </target> -->
 						</configuration>
 						<goals>
 							<goal>run</goal>
