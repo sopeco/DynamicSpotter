@@ -112,8 +112,9 @@
 
 								<if>
 									<available
-										file="/home/lpe/jenkins/cobertura-2.0.3/cobertura-instrument.sh" />
+										file="/home/lpe/cobertura-2.0.3/cobertura-instrument.sh" />
 									<then>
+									    <echo>Running EclipseUI Cobertura Tests (Instrumentation)</echo>
 										<ant antfile="build.xml" target="instrument" />
 									</then>
 									<else>
@@ -138,12 +139,13 @@
 									classpathref="maven.plugin.classpath" />
 								<if>
 									<available
-										file="/home/lpe/jenkins/cobertura-2.0.3/cobertura-instrument.sh" />
+										file="/home/lpe/cobertura-2.0.3/cobertura-report.sh" />
 									<then>
+										<echo>Running EclipseUI Cobertura Tests (Reporting)</echo>
 										<ant antfile="build.xml" target="report" />
 									</then>
 									<else>
-										<echo>Skipping EclipseUI Cobertura Tests (Instrumentation)</echo>
+										<echo>Skipping EclipseUI Cobertura Tests (Reporting)</echo>
 									</else>
 								</if>
 							</tasks>

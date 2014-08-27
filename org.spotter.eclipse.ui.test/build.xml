@@ -38,7 +38,7 @@
 	</target>
 
 	<property environment="env" />
-	<property name="COBERTURA_HOME" value="/home/lpe/jenkins/cobertura-2.0.3" />
+	<property name="COBERTURA_HOME" value="/home/lpe/cobertura-2.0.3" />
 	<property name="cobertura.dir" value="${COBERTURA_HOME}" />
 	<path id="cobertura.classpath">
 		<fileset dir="${cobertura.dir}">
