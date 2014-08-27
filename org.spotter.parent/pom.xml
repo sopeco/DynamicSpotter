@@ -19,7 +19,7 @@
 		<module>../org.spotter.service</module>
 		<module>../org.spotter.client</module>
 		<module>../org.spotter.eclipse.ui</module>
-		<module>../org.spotter.eclipse.ui.test</module>
+		<!-- <module>../org.spotter.eclipse.ui.test</module> -->
 
 
 	</modules>
@@ -194,11 +194,24 @@
 					<useDefaultExcludes>true</useDefaultExcludes>
 				</configuration>
 			</plugin>
-<!-- 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>1.7</version>
-			</plugin> -->
+			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>license-maven-plugin</artifactId> 
+				<version>1.7</version> </plugin> -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>.</directory>
+							<includes>
+								<include>**/*.ser</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
 		</plugins>
 
 	</build>
