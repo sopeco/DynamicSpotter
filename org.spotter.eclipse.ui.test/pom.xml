@@ -107,23 +107,21 @@
 						<phase>process-classes</phase>
 						<configuration>
 							<tasks>
-								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
-									classpathref="maven.plugin.classpath" />
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 
 								<if>
-									<available
-										file="/home/lpe/cobertura-2.0.3/cobertura-instrument.sh" />
+									<available file="/home/lpe/cobertura-2.0.3/cobertura-instrument.sh" />
 									<then>
-									    <echo>Running EclipseUI Cobertura Tests (Instrumentation)</echo>
-										<ant antfile="build.xml" target="instrument" />
+										<echo>Running EclipseUI Cobertura Tests (Instrumentation)</echo>
+										<ant antfile="build.xml">
+											<target name="instrument" />
+										</ant>
 									</then>
 									<else>
 										<echo>Skipping EclipseUI Cobertura Tests (Instrumentation)</echo>
 									</else>
 								</if>
 							</tasks>
-							<!-- <target name="instrumentation"> <ant antfile="build.xml" target="instrument" 
-								/> </target> -->
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -135,22 +133,20 @@
 						<phase>install</phase>
 						<configuration>
 							<tasks>
-								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
-									classpathref="maven.plugin.classpath" />
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 								<if>
-									<available
-										file="/home/lpe/cobertura-2.0.3/cobertura-report.sh" />
+									<available file="/home/lpe/cobertura-2.0.3/cobertura-report.sh" />
 									<then>
 										<echo>Running EclipseUI Cobertura Tests (Reporting)</echo>
-										<ant antfile="build.xml" target="report" />
+										<ant antfile="build.xml">
+											<target name="report" />
+										</ant>
 									</then>
 									<else>
 										<echo>Skipping EclipseUI Cobertura Tests (Reporting)</echo>
 									</else>
 								</if>
 							</tasks>
-							<!-- <target name="report"> <ant antfile="build.xml" target="report" 
-								/> </target> -->
 						</configuration>
 						<goals>
 							<goal>run</goal>
