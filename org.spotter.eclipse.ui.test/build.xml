@@ -4,14 +4,12 @@
 		<!-- <antcall target="instrumentAModule">
             <param name="module" value="MODULE_NAME_TO_REPLACE"/>
         </antcall> -->
-		<echo>Running EclipseUI Cobertura Tests (Instrumentation)</echo>
 		<antcall target="instrumentAModule">
 			<param name="module" value="org.spotter.eclipse.ui" />
 		</antcall>
 	</target>
 
 	<target name="report" depends="merge">
-		<echo>Running EclipseUI Cobertura Tests (Reporting)</echo>
 		<property name="src.dir" value="src/" />
 		<cobertura-report datafile="sum.ser" format="html" destdir="./target/report">
 			<!-- Add all modules that should be included below -->
@@ -31,6 +29,9 @@
 	<target name="instrumentAModule">
 		<property name="classes.dir" value="target/classes" />
 		<cobertura-instrument todir="../${module}/${classes.dir}">
+			<auxClasspath>
+				<path refid="cobertura-auxpath" />
+			</auxClasspath>
 			<fileset dir="../${module}/target/classes">
 				<include name="**/*.class" />
 			</fileset>
@@ -44,6 +45,13 @@
 		<fileset dir="${cobertura.dir}">
 			<include name="cobertura*.jar" />
 			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+	<path id="cobertura-auxpath">
+		<dirset dir="../org.spotter.eclipse.ui" />
+		<fileset dir="../org.spotter.eclipse.ui" defaultexcludes="true">
+			<include name="**/*.class" />
+			<include name="**/*.jar" />
 		</fileset>
 	</path>
 	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
