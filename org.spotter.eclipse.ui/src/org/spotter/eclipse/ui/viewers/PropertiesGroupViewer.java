@@ -22,6 +22,7 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -31,9 +32,12 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -195,6 +199,13 @@ public class PropertiesGroupViewer {
 		grpProperties.setText("properties");
 		grpProperties.setLayout(WidgetUtils.createGridLayout(GRP_PROPERTIES_COLUMNS));
 
+		createTableViewer(grpProperties);
+		createTraversalSupport(propertiesTblViewer);
+		createNameFormatters(grpProperties);
+		createButtons(grpProperties);
+	}
+
+	private void createTableViewer(Composite grpProperties) {
 		// configure table layout
 		Composite tblPropertiesComp = new Composite(grpProperties, SWT.NONE);
 		tblPropertiesComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, TABLE_COMPOSITE_HOR_SPAN, 1));
@@ -223,7 +234,55 @@ public class PropertiesGroupViewer {
 		PropertiesComparator comparator = new PropertiesComparator();
 		nameColumn.getColumn().addSelectionListener(createColumnSelectionAdapter(comparator));
 		propertiesTblViewer.setComparator(comparator);
+	}
 
+	private void createTraversalSupport(final TableViewer tableViewer) {
+		// TODO: see TextCellEditor line 170 and other editors
+		// traverse doit = false required there
+		final Table table = tableViewer.getTable();
+		TraverseListener traverseListener = new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if (e.keyCode == SWT.TAB) {
+					int index = table.getSelectionIndex();
+					int shiftState = e.stateMask & SWT.SHIFT;
+					if (shiftState != 0 && index > 0 || shiftState == 0 && index < table.getItemCount() - 1) {
+						e.doit = false;
+					}
+				}
+			}
+		};
+		KeyListener keyListener = new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.TAB && !tableViewer.getSelection().isEmpty()) {
+					int index = table.getSelectionIndex();
+					if ((e.stateMask & SWT.SHIFT) != 0) {
+						// backwards
+						index--;
+						if (index >= 0) {
+							Object element = tableViewer.getElementAt(index);
+							table.setSelection(index);
+							tableViewer.setSelection(new StructuredSelection(element));
+						}
+					} else {
+						// forwards
+						index++;
+						if (index < table.getItemCount()) {
+							Object element = tableViewer.getElementAt(index);
+							table.setSelection(index);
+							tableViewer.setSelection(new StructuredSelection(element));
+						}
+					}
+				}
+			}
+		};
+
+		table.addTraverseListener(traverseListener);
+		table.addKeyListener(keyListener);
+	}
+
+	private void createNameFormatters(Composite grpProperties) {
 		Label lblDisplayName = new Label(grpProperties, SWT.LEFT);
 		lblDisplayName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		lblDisplayName.setText("display name");
@@ -237,7 +296,9 @@ public class PropertiesGroupViewer {
 		}
 		comboDisplayName.setItems(formatterNames);
 		comboDisplayName.select(0);
+	}
 
+	private void createButtons(Composite grpProperties) {
 		// button bar composite to make buttons equal width
 		Composite btnBarComp = new Composite(grpProperties, SWT.NONE);
 		btnBarComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
