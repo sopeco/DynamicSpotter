@@ -144,9 +144,32 @@ RE 1674/6-1
         </aside>
       </div>
     </div></span>
-          <script type="text/javascript"></script><script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
-		  <script></script>
-          <script type="text/javascript"></script>
+			<script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+		  <script>
+			// Set to the same value as the web property used on the site
+			var gaProperty = 'UA-52849629-1';
 
+			// Disable tracking if the opt-out cookie exists.
+			var disableStr = 'ga-disable-' + gaProperty;
+			if (document.cookie.indexOf(disableStr + '=true') > -1) {
+			  window[disableStr] = true;
+			}
+
+			// Opt-out function
+			function gaOptout() {
+			  document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+			  window[disableStr] = true;
+			}
+		  </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-52849629-1");
+			  _gat._anonymizeIp();
+			  pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
   
 </body></html>
