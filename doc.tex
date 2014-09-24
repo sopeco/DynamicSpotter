@@ -304,6 +304,107 @@ user stating which performance problems have been detected.
 \label{fig:architecture}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% 	
+%%%%%% 		 GETTING STARTED
+%%%%%% 	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{DynamicSpotter - Quick Start}
+To get a demo for \DS running, follow the following steps:  
+\begin{enumerate}
+  \item First, you need a Java JDK 1.7 to be installed.
+  \item Download the Demo-Bundle from the following URLs:\\
+  	\newline
+	\newline
+	Windows: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.zip}
+	\newline
+	Linux: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.tar.gz}
+	\newline
+	\newline
+  \item Unpack the archive to an arbitrary directory. Lets call it \texttt{DEMO\_HOME}:
+  		\begin{figure}[h!]
+			\centering
+			\includegraphics[width=0.4\textwidth]{figures/quickStart/SNAG-0000.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+  \item Open a command line window and go to the \texttt{DEMO\_HOME} directory
+  \item Start the target application (System under Test) by executing the following command line script:
+    \newline
+	\newline
+	\textbf{Windows:} \texttt{startDemoApp.bat}
+	\newline
+	\textbf{Linux:} \texttt{sh startDemoApp.sh}
+
+		\begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0001.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+		
+	If you see a line ending with\\\texttt{\ldots - Web-Server started on port 8081}\\ the target application has been
+	started successfully:\\
+	\begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0002.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+	
+	\textbf{IMPORTANT:} Do not stop the application!
+  \item Open a \emph{second} command line window and again go to the \texttt{DEMO\_HOME} directory
+  \item Start \DS analysis by executing the following command line script:
+  \newline
+	\newline
+	\textbf{Windows:} \texttt{startDSfromCommandLine.bat}
+	\newline
+	\textbf{Linux:} \texttt{sh startDSfromCommandLine.sh}
+	\begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0005.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+		
+		If \DS has been started successfully you should see progress report in the command line:
+		\begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0006.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+	\item In the demo scenario \DS runs about 15 minutes to execute all required experiments and analyze the measurement
+	data.
+	\item When \DS has finished its analysis it generates a result report in the \texttt{DEMO\_HOME/results} directory.
+	There \DS creates a folder with the latest timestamp as folder name. Go to that directory. 
+	\item The \texttt{SpotterReport.txt} file contains a textual description of which problems have been detected or not.
+	\item If you further go to the individual directories of the anti-patterns (e.g. OLB\_2006070899), there you find the
+	raw measurement data in the \texttt{csv} folder and (if available) some graphs in the \texttt{result-details} folder
+	illustrating the problem:
+	\begin{figure}[h!]
+			\centering
+			\includegraphics[width=0.8\textwidth]{figures/quickStart/SNAG-0007.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+		
+		The following graphs for instance show that the response times of the \emph{testOLB()} service grow with the load,
+		while the CPU utilization stays low.
+		 \begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0008.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+		\begin{figure}[h!]
+			\centering
+			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0009.png}
+			\label{fig:unpackedArchive}
+		\end{figure}
+		
+		Please read the next chapter to get more details on the Demo scenario and to see how to
+		configure \DS using an Eclipse plugin.
+\end{enumerate}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -312,6 +413,7 @@ user stating which performance problems have been detected.
 %%%%%% 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \newpage
 \section{DynamicSpotter - Getting Started}
 In this section, we demonstrate the usage of \DS on a very simple scenario. Some of the \DS plugins we use in this
