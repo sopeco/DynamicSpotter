@@ -313,7 +313,8 @@ user stating which performance problems have been detected.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{DynamicSpotter - Quick Start}
-To get a demo for \DS running, follow the following steps:  
+To get a demo for \DS running, follow the following steps.\\
+\textbf{Note:} The following screenshots show the execution in Windows and work similarly in Linux.
 \begin{enumerate}
   \item First, you need a Java JDK 1.7 to be installed.
   \item Download the Demo-Bundle from the following URLs:\\
@@ -322,21 +323,22 @@ To get a demo for \DS running, follow the following steps:
 	Windows: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.zip}
 	\newline
 	Linux: \link{http://i43vm-saas.ipd.uka.de:8082/DS/v1\_0/demo-all-in-one.tar.gz}
-	\newline
-	\newline
   \item Unpack the archive to an arbitrary directory. Lets call it \texttt{DEMO\_HOME}:
   		\begin{figure}[h!]
 			\centering
 			\includegraphics[width=0.4\textwidth]{figures/quickStart/SNAG-0000.png}
 			\label{fig:unpackedArchive}
 		\end{figure}
-  \item Open a command line window and go to the \texttt{DEMO\_HOME} directory
+  \item Open a command line window (e.g. \texttt{cmd} in Windows) and go to the \texttt{DEMO\_HOME}
+  directory with \texttt{cd PATH\_TO\_DEMO\_HOME}.\\
+  \textbf{Linux only:} make the script files executable with:
+  \texttt{chmod u+x ./*.sh}
   \item Start the target application (System under Test) by executing the following command line script:
     \newline
 	\newline
 	\textbf{Windows:} \texttt{startDemoApp.bat}
 	\newline
-	\textbf{Linux:} \texttt{sh startDemoApp.sh}
+	\textbf{Linux:} \texttt{sh ./startDemoApp.sh}
 
 		\begin{figure}[h!]
 			\centering
@@ -359,7 +361,7 @@ To get a demo for \DS running, follow the following steps:
 	\newline
 	\textbf{Windows:} \texttt{startDSfromCommandLine.bat}
 	\newline
-	\textbf{Linux:} \texttt{sh startDSfromCommandLine.sh}
+	\textbf{Linux:} \texttt{sh ./startDSfromCommandLine.sh}
 	\begin{figure}[h!]
 			\centering
 			\includegraphics[width=\textwidth]{figures/quickStart/SNAG-0005.png}
