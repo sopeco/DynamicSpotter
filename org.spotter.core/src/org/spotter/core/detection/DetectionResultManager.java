@@ -86,7 +86,8 @@ public class DetectionResultManager {
 	public String getDataPath() {
 		StringBuilder pathBuilder = new StringBuilder();
 		if (dataPath == null) {
-			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
+			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(
+					ConfigKeys.RESULT_DIR));
 			pathBuilder.append(controllerName);
 			pathBuilder.append("-");
 			pathBuilder.append(getProblemId().hashCode());
@@ -110,13 +111,15 @@ public class DetectionResultManager {
 	public String getAdditionalResourcesPath() {
 		StringBuilder pathBuilder = new StringBuilder();
 		if (resourcePath == null) {
-			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR));
+			pathBuilder.append(GlobalConfiguration.getInstance().getProperty(
+					ConfigKeys.RESULT_DIR));
 			pathBuilder.append(controllerName);
 			pathBuilder.append("-");
 			pathBuilder.append(getProblemId().hashCode());
 			pathBuilder.append(System.getProperty("file.separator"));
 
-			pathBuilder.append(ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR);
+			pathBuilder
+					.append(ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR);
 			pathBuilder.append(System.getProperty("file.separator"));
 
 			resourcePath = pathBuilder.toString();
@@ -166,7 +169,10 @@ public class DetectionResultManager {
 	 * @param spotterResult
 	 *            corresponding result object
 	 */
-	public void storeImageChartResource(Chart chart, String fileName, SpotterResult spotterResult) {
+	public void storeImageChartResource(Chart chart, String fileName,
+			SpotterResult spotterResult) {
+		fileName = fileName.replace("<", "_");
+		fileName = fileName.replace(">", "_");
 		String resourceName = fileName + ".png";
 		String filePath = getAdditionalResourcesPath() + resourceName;
 		try {
@@ -189,7 +195,8 @@ public class DetectionResultManager {
 	 * @param inStream
 	 *            input stream representing the text resource
 	 */
-	public void storeTextResource(final String fileName, final SpotterResult spotterResult, final InputStream inStream) {
+	public void storeTextResource(final String fileName,
+			final SpotterResult spotterResult, final InputStream inStream) {
 
 		Future<?> future = LpeSystemUtils.submitTask(new Runnable() {
 
@@ -203,7 +210,8 @@ public class DetectionResultManager {
 
 					FileWriter fWriter = new FileWriter(filePath);
 					bWriter = new BufferedWriter(fWriter);
-					bReader = new BufferedReader(new InputStreamReader(inStream));
+					bReader = new BufferedReader(
+							new InputStreamReader(inStream));
 					String line = bReader.readLine();
 					while (line != null) {
 						bWriter.write(line);
@@ -249,7 +257,8 @@ public class DetectionResultManager {
 	 * @throws MeasurementException
 	 *             thrown if storing raw data fails
 	 */
-	public void storeResults(final Set<Parameter> parameters, final IMeasurementAdapter measurementController)
+	public void storeResults(final Set<Parameter> parameters,
+			final IMeasurementAdapter measurementController)
 			throws MeasurementException {
 		try {
 			resultCount++;
@@ -268,11 +277,12 @@ public class DetectionResultManager {
 				}
 			});
 
-			RecordCSVWriter.getInstance().pipeDataToDatasetFiles(inStream, path, parameters);
+			RecordCSVWriter.getInstance().pipeDataToDatasetFiles(inStream,
+					path, parameters);
 
 			future.get();
 
-			measurementController.storeReport(path);
+			// measurementController.storeReport(path);
 		} catch (IOException | InterruptedException | ExecutionException e) {
 			throw new MeasurementException("Failed Storing data!", e);
 		}
@@ -286,9 +296,11 @@ public class DetectionResultManager {
 	public DatasetCollection loadData() {
 		File dir = new File(getDataPath());
 		if (!dir.exists()) {
-			throw new RuntimeException("Failed loading measurement data: Data path does not exist!");
+			throw new RuntimeException(
+					"Failed loading measurement data: Data path does not exist!");
 		}
-		return RecordCSVReader.getInstance().readDatasetCollectionFromDirectory(getDataPath());
+		return RecordCSVReader.getInstance()
+				.readDatasetCollectionFromDirectory(getDataPath());
 	}
 
 	/**
@@ -299,7 +311,8 @@ public class DetectionResultManager {
 	}
 
 	/**
-	 * @param problemId the problemId to set
+	 * @param problemId
+	 *            the problemId to set
 	 */
 	public void setProblemId(String problemId) {
 		this.problemId = problemId;
