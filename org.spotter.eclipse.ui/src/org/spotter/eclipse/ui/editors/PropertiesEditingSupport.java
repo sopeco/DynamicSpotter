@@ -15,6 +15,8 @@
  */
 package org.spotter.eclipse.ui.editors;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
@@ -22,9 +24,14 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.eclipse.ui.listeners.TextEditorErrorListener;
@@ -41,9 +48,102 @@ import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
  */
 public final class PropertiesEditingSupport extends EditingSupport {
 
+	/**
+	 * Class that handles the cycling activation of cell editors within a table
+	 * viewer during traversal when cell editing is active. This listener should
+	 * be added to the control of the corresponding cell editor.
+	 */
+	private class ActivationTraverser implements TraverseListener {
+
+		/**
+		 * The cell editor that should be activated.
+		 */
+		protected final CellEditor cellEditor;
+
+		/**
+		 * Creates an activation traverser for the given cell editor.
+		 * 
+		 * @param cellEditor
+		 *            the cell editor that should be activated
+		 */
+		public ActivationTraverser(CellEditor cellEditor) {
+			this.cellEditor = cellEditor;
+		}
+
+		/**
+		 * Performs the apply and deactivation mechanism of the cell editor.
+		 */
+		protected void performApplyAndDeactivate() {
+			try {
+				Method m = cellEditor.getClass().getSuperclass()
+						.getDeclaredMethod("fireApplyEditorValue", (Class<?>[]) new Class[0]);
+				m.setAccessible(true);
+				m.invoke(cellEditor, (Object[]) null);
+				cellEditor.deactivate();
+			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				throw new RuntimeException("Could not apply editor value", e);
+			}
+		}
+
+		@Override
+		public void keyTraversed(TraverseEvent e) {
+			if (e.detail != SWT.TRAVERSE_TAB_NEXT && e.detail != SWT.TRAVERSE_TAB_PREVIOUS) {
+				return;
+			}
+
+			performApplyAndDeactivate();
+
+			e.doit = false;
+			TableViewer tableViewer = PropertiesEditingSupport.this.propertiesViewer.getTableViewer();
+			Table table = tableViewer.getTable();
+			if (table.getItemCount() <= 1) {
+				return;
+			}
+			if (!tableViewer.getSelection().isEmpty()) {
+				int index = table.getSelectionIndex();
+				if (e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
+					// backwards
+					index = (index - 1 + table.getItemCount()) % table.getItemCount();
+					Object element = tableViewer.getElementAt(index);
+					table.setSelection(index);
+					tableViewer.setSelection(new StructuredSelection(element));
+					tableViewer.editElement(element, table.getColumnCount() - 1);
+				} else {
+					// forwards
+					index = (index + 1) % table.getItemCount();
+					Object element = tableViewer.getElementAt(index);
+					table.setSelection(index);
+					tableViewer.setSelection(new StructuredSelection(element));
+					tableViewer.editElement(element, table.getColumnCount() - 1);
+				}
+			}
+		}
+	}
+
+	private class ComboActivationTraverser extends ActivationTraverser {
+
+		public ComboActivationTraverser(CellEditor cellEditor) {
+			super(cellEditor);
+		}
+
+		@Override
+		protected void performApplyAndDeactivate() {
+			try {
+				Method m = cellEditor.getClass().getDeclaredMethod("applyEditorValueAndDeactivate",
+						(Class<?>[]) new Class[0]);
+				m.setAccessible(true);
+				m.invoke(cellEditor, (Object[]) null);
+			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e1) {
+				throw new RuntimeException("Could not apply editor value", e1);
+			}
+		}
+	}
+
 	private static final String[] BOOLEAN_VALUES = { Boolean.TRUE.toString(), Boolean.FALSE.toString() };
 	private static final int COMBO_ACTIVATION_STYLE = ComboBoxCellEditor.DROP_DOWN_ON_MOUSE_ACTIVATION
-			| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION;
+			| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION | ComboBoxCellEditor.DROP_DOWN_ON_PROGRAMMATIC_ACTIVATION;
 
 	private AbstractSpotterEditor editor;
 	private PropertiesGroupViewer propertiesViewer;
@@ -75,17 +175,22 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		this.propertiesViewer = propertiesViewer;
 		Composite parent = (Composite) getViewer().getControl();
 		cellDefaultTextEditor = new TextCellEditor(parent);
+		cellDefaultTextEditor.getControl().addTraverseListener(new ActivationTraverser(cellDefaultTextEditor));
 
 		cellNumberEditor = new TextCellEditor(parent);
 		ControlDecoration decor = new ControlDecoration(cellNumberEditor.getControl(), SWT.LEFT | SWT.TOP);
 		cellNumberEditor.addListener(new TextEditorErrorListener(cellNumberEditor, decor));
+		cellNumberEditor.getControl().addTraverseListener(new ActivationTraverser(cellNumberEditor));
 
 		cellBooleanEditor = new ComboBoxCellEditor(parent, BOOLEAN_VALUES, SWT.DROP_DOWN | SWT.READ_ONLY);
 		cellBooleanEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
+		cellBooleanEditor.getControl().addTraverseListener(new ComboActivationTraverser(cellBooleanEditor));
 		cellComboBoxEditor = new ComboBoxCellEditor(parent, new String[0], SWT.DROP_DOWN | SWT.READ_ONLY);
 		cellComboBoxEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
+		cellComboBoxEditor.getControl().addTraverseListener(new ComboActivationTraverser(cellComboBoxEditor));
 
 		cellCustomDialogEditor = new CustomDialogCellEditor(parent);
+		cellCustomDialogEditor.getControl().addTraverseListener(new ActivationTraverser(cellCustomDialogEditor));
 	}
 
 	@Override

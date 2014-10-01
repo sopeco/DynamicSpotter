@@ -194,6 +194,13 @@ public class PropertiesGroupViewer {
 		}
 	}
 
+	/**
+	 * @return the table viewer used for displaying the properties
+	 */
+	public TableViewer getTableViewer() {
+		return propertiesTblViewer;
+	}
+
 	private void createPropertiesGroup(Composite container) {
 		Group grpProperties = new Group(container, SWT.NONE);
 		grpProperties.setText("properties");
@@ -237,8 +244,6 @@ public class PropertiesGroupViewer {
 	}
 
 	private void createTraversalSupport(final TableViewer tableViewer) {
-		// TODO: see TextCellEditor line 170 and other editors
-		// traverse doit = false required there
 		final Table table = tableViewer.getTable();
 		TraverseListener traverseListener = new TraverseListener() {
 			@Override
