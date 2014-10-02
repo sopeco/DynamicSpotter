@@ -32,7 +32,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -251,30 +250,16 @@ public class PropertiesGroupViewer {
 				if (e.keyCode == SWT.TAB) {
 					int index = table.getSelectionIndex();
 					int shiftState = e.stateMask & SWT.SHIFT;
-					if (shiftState != 0 && index > 0 || shiftState == 0 && index < table.getItemCount() - 1) {
+					if (shiftState != 0 && index > 0 || shiftState == 0 && index >= 0 && index < table.getItemCount() - 1) {
 						e.doit = false;
-					}
-				}
-			}
-		};
-		KeyListener keyListener = new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.TAB && !tableViewer.getSelection().isEmpty()) {
-					int index = table.getSelectionIndex();
-					if ((e.stateMask & SWT.SHIFT) != 0) {
-						// backwards
-						index--;
-						if (index >= 0) {
-							Object element = tableViewer.getElementAt(index);
+						if (shiftState != 0) {
+							// backwards
+							Object element = tableViewer.getElementAt(--index);
 							table.setSelection(index);
 							tableViewer.setSelection(new StructuredSelection(element));
-						}
-					} else {
-						// forwards
-						index++;
-						if (index < table.getItemCount()) {
-							Object element = tableViewer.getElementAt(index);
+						} else {
+							// forwards
+							Object element = tableViewer.getElementAt(++index);
 							table.setSelection(index);
 							tableViewer.setSelection(new StructuredSelection(element));
 						}
@@ -284,7 +269,6 @@ public class PropertiesGroupViewer {
 		};
 
 		table.addTraverseListener(traverseListener);
-		table.addKeyListener(keyListener);
 	}
 
 	private void createNameFormatters(Composite grpProperties) {
