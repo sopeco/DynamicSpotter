@@ -89,7 +89,12 @@ public class SpotterProjectConfigMeasurement implements IOpenableProjectElement 
 			return;
 		}
 		IFile file = getProject().getFile(SpotterProjectSupport.ENVIRONMENT_FILENAME);
-		AbstractSpotterEditor.openInstance(new MeasurementEditorInput(file), MeasurementEditor.ID);
+		AbstractSpotterEditor.openInstance(new MeasurementEditorInput(file), getOpenId());
+	}
+
+	@Override
+	public String getOpenId() {
+		return MeasurementEditor.ID;
 	}
 
 	@Override

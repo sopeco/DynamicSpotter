@@ -110,8 +110,13 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			ResultsView view = (ResultsView) page.showView(ResultsView.VIEW_ID);
 			view.setResult(this);
 		} catch (PartInitException e) {
-			throw new RuntimeException("Could not show view " + ResultsView.VIEW_ID, e);
+			throw new RuntimeException("Could not show view " + getOpenId(), e);
 		}
+	}
+
+	@Override
+	public String getOpenId() {
+		return ResultsView.VIEW_ID;
 	}
 
 	@Override

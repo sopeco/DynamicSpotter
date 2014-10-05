@@ -28,6 +28,7 @@ import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
+import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
 
 /**
  * The activator class controls the plug-in life cycle. It also offers easy
@@ -54,7 +55,7 @@ public class Activator extends AbstractUIPlugin {
 	// The clients per project identified by project name
 	// (each project can have individual host/port settings)
 	private Map<String, ServiceClientWrapper> serviceClients = new HashMap<>();
-	private CommonViewer navigatorViewer;
+	private NavigatorContentProvider navigatorContentProvider;
 	// The current project history elements in the navigator
 	private Map<String, SpotterProjectResults> projectHistoryElements = new HashMap<>();
 	// The currently selected projects in the navigator
@@ -147,17 +148,26 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the navigator viewer
 	 */
 	public CommonViewer getNavigatorViewer() {
-		return navigatorViewer;
+		return navigatorContentProvider.getViewer();
 	}
 
 	/**
-	 * Sets the navigator viewer.
+	 * Returns the navigator content provider.
 	 * 
-	 * @param navigatorViewer
-	 *            the navigator viewer to set
+	 * @return the navigator content provider
 	 */
-	public void setNavigatorViewer(CommonViewer navigatorViewer) {
-		this.navigatorViewer = navigatorViewer;
+	public NavigatorContentProvider getNavigatorContentProvider() {
+		return navigatorContentProvider;
+	}
+
+	/**
+	 * Sets the navigator content provider.
+	 * 
+	 * @param navigatorContentProvider
+	 *            the navigator content provider to set
+	 */
+	public void setNavigatorContentProvider(NavigatorContentProvider navigatorContentProvider) {
+		this.navigatorContentProvider = navigatorContentProvider;
 	}
 
 	/**

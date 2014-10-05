@@ -89,7 +89,12 @@ public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
 			return;
 		}
 		IFile file = getProject().getFile(SpotterProjectSupport.ENVIRONMENT_FILENAME);
-		AbstractSpotterEditor.openInstance(new WorkloadEditorInput(file), WorkloadEditor.ID);
+		AbstractSpotterEditor.openInstance(new WorkloadEditorInput(file), getOpenId());
+	}
+
+	@Override
+	public String getOpenId() {
+		return WorkloadEditor.ID;
 	}
 
 	@Override

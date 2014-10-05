@@ -89,7 +89,12 @@ public class SpotterProjectConfigFile implements IOpenableProjectElement {
 			return;
 		}
 		IFile file = getProject().getFile(SpotterProjectSupport.SPOTTER_CONFIG_FILENAME);
-		AbstractSpotterEditor.openInstance(new SpotterConfigEditorInput(file), SpotterConfigEditor.ID);
+		AbstractSpotterEditor.openInstance(new SpotterConfigEditorInput(file), getOpenId());
+	}
+
+	@Override
+	public String getOpenId() {
+		return SpotterConfigEditor.ID;
 	}
 
 	@Override

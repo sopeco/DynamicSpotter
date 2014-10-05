@@ -29,4 +29,12 @@ public interface IOpenableProjectElement extends ISpotterProjectElement {
 	 */
 	void open();
 
+	/**
+	 * Returns the id of the editor or view that is necessary to open this
+	 * element.
+	 * 
+	 * @return the necessary editor or view id
+	 */
+	String getOpenId();
+
 }
