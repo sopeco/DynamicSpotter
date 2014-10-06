@@ -90,6 +90,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	public NavigatorContentProvider() {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
 		listenersRegistered = false;
+		Activator.getDefault().setNavigatorContentProvider(this);
 	}
 
 	@Override
@@ -98,6 +99,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		if (listenersRegistered && viewer != null) {
 			removeListeners();
 		}
+		Activator.getDefault().setNavigatorContentProvider(null);
 	}
 
 	@Override
@@ -111,10 +113,18 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		}
 
 		this.viewer = (CommonViewer) viewer;
-		Activator.getDefault().setNavigatorViewer(this.viewer);
 		this.viewer.setComparator(new FixedOrderViewerComparator());
 
 		registerListeners();
+	}
+
+	/**
+	 * Returns the common viewer currently associated with this content provider.
+	 * 
+	 * @return the currently associated viewer
+	 */
+	public CommonViewer getViewer() {
+		return this.viewer;
 	}
 
 	private void removeListeners() {

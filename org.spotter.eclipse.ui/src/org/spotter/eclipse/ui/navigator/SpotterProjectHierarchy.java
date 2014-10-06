@@ -89,7 +89,12 @@ public class SpotterProjectHierarchy implements IOpenableProjectElement {
 			return;
 		}
 		IFile file = getProject().getFile(SpotterProjectSupport.HIERARCHY_FILENAME);
-		AbstractSpotterEditor.openInstance(new HierarchyEditorInput(file), HierarchyEditor.ID);
+		AbstractSpotterEditor.openInstance(new HierarchyEditorInput(file), getOpenId());
+	}
+
+	@Override
+	public String getOpenId() {
+		return HierarchyEditor.ID;
 	}
 
 	@Override
