@@ -1,7 +1,7 @@
 package org.spotter.eclipse.ui.navigator;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -16,10 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
-import org.spotter.eclipse.ui.editors.InstrumentationEditor;
-import org.spotter.eclipse.ui.editors.MeasurementEditor;
-import org.spotter.eclipse.ui.editors.SpotterConfigEditor;
-import org.spotter.eclipse.ui.editors.WorkloadEditor;
 import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
 
 /**
@@ -32,26 +28,6 @@ import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
 public class LinkHelper implements ILinkHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LinkHelper.class);
-	
-	private Map<String, Class<?>> editorsMapping;
-
-	/**
-	 * The constructor.
-	 */
-	public LinkHelper() {
-		this.editorsMapping = createEditorsMapping();
-	}
-
-	private Map<String, Class<?>> createEditorsMapping() {
-		Map<String, Class<?>> map = new HashMap<>();
-
-		map.put(SpotterConfigEditor.ID, SpotterProjectConfigFile.class);
-		map.put(InstrumentationEditor.ID, SpotterProjectConfigInstrumentation.class);
-		map.put(MeasurementEditor.ID, SpotterProjectConfigMeasurement.class);
-		map.put(WorkloadEditor.ID, SpotterProjectConfigWorkload.class);
-
-		return map;
-	}
 
 	@Override
 	public IStructuredSelection findSelection(IEditorInput anInput) {
@@ -61,11 +37,6 @@ public class LinkHelper implements ILinkHelper {
 		AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) anInput;
 		IProject correspondingProject = input.getProject();
 		String editorId = input.getEditorId();
-		Class<?> selectionClazz = editorsMapping.get(editorId);
-		
-		if (selectionClazz == null) {
-			return null;
-		}
 		
 		NavigatorContentProvider provider = Activator.getDefault().getNavigatorContentProvider();
 		CommonViewer viewer = provider.getViewer();
@@ -74,10 +45,13 @@ public class LinkHelper implements ILinkHelper {
 		for (Object rawParent : parentObjects) {
 			ISpotterProjectElement parent = (ISpotterProjectElement) rawParent;
 			if (parent.getProject().equals(correspondingProject)) {
-				ISpotterProjectElement element = recursiveElementSearch(selectionClazz, parent);
+				ISpotterProjectElement element = recursiveElementSearch(editorId, parent);
 				if (element != null) {
 					// found a valid matching selection, so make it visible
-					Activator.getDefault().getNavigatorViewer().reveal(element);
+					if (viewer.testFindItem(element) == null) {
+						expandToElement(viewer, element);
+					}
+					viewer.reveal(element);
 					return new StructuredSelection(element);
 				}
 				break;
@@ -87,22 +61,42 @@ public class LinkHelper implements ILinkHelper {
 		return null;
 	}
 
-	private ISpotterProjectElement recursiveElementSearch(Class<?> selectionClazz, ISpotterProjectElement parent) {
-		if (!parent.hasChildren()) {
+	private ISpotterProjectElement recursiveElementSearch(String editorId, ISpotterProjectElement parent) {
+		NavigatorContentProvider provider = Activator.getDefault().getNavigatorContentProvider();
+		if (!provider.hasChildren(parent)) {
 			return null;
 		}
 		
-		for (Object rawChild : parent.getChildren()) {
+		Object[] rawChildren = provider.getChildren(parent);
+		Activator.getDefault().getNavigatorViewer().refresh(parent);
+		
+		for (Object rawChild : rawChildren) {
 			ISpotterProjectElement element = (ISpotterProjectElement) rawChild;
-			if (selectionClazz.isInstance(element)) {
-				return element;
+			if (rawChild instanceof IOpenableProjectElement) {
+				IOpenableProjectElement openableElement = (IOpenableProjectElement) rawChild;
+				if (editorId.equals(openableElement.getOpenId())) {
+					return element;
+				}
 			}
-			element = recursiveElementSearch(selectionClazz, element);
+			element = recursiveElementSearch(editorId, element);
 			if (element != null) {
 				return element;
 			}
 		}
 		return null;
+	}
+
+	private void expandToElement(CommonViewer viewer, ISpotterProjectElement element) {
+		ISpotterProjectElement parent = element;
+		List<ISpotterProjectElement> ancestorList = new ArrayList<>();
+		while (!SpotterProjectParent.class.isInstance(parent)) {
+			parent = (ISpotterProjectElement) parent.getParent();
+			ancestorList.add(parent);
+		}
+		
+		for (int i = ancestorList.size() - 1; i >= 0; i--) {
+			viewer.expandToLevel(ancestorList.get(i), 1);
+		}
 	}
 
 	@Override
