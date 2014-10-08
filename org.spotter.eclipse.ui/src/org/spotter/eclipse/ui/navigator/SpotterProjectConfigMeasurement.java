@@ -22,7 +22,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.MeasurementEditor;
 import org.spotter.eclipse.ui.editors.MeasurementEditorInput;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.FileManager;
 
 /**
  * An element that represents the measurement controllers node.
@@ -88,7 +88,7 @@ public class SpotterProjectConfigMeasurement implements IOpenableProjectElement 
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
-		IFile file = getProject().getFile(SpotterProjectSupport.ENVIRONMENT_FILENAME);
+		IFile file = getProject().getFile(FileManager.ENVIRONMENT_FILENAME);
 		AbstractSpotterEditor.openInstance(new MeasurementEditorInput(file), getOpenId());
 	}
 

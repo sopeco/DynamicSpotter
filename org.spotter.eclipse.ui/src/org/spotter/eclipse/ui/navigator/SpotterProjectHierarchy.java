@@ -22,7 +22,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.editors.HierarchyEditorInput;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.FileManager;
 
 /**
  * An element that represents the hierarchy node.
@@ -88,7 +88,7 @@ public class SpotterProjectHierarchy implements IOpenableProjectElement {
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
-		IFile file = getProject().getFile(SpotterProjectSupport.HIERARCHY_FILENAME);
+		IFile file = getProject().getFile(FileManager.HIERARCHY_FILENAME);
 		AbstractSpotterEditor.openInstance(new HierarchyEditorInput(file), getOpenId());
 	}
 
