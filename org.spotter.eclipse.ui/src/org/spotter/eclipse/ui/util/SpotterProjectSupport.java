@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -31,7 +33,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -53,6 +54,7 @@ import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.configuration.FileManager;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
@@ -64,11 +66,6 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  */
 public final class SpotterProjectSupport {
 
-	public static final String DEFAULT_RESULTS_DIR_NAME = "results";
-	public static final String SPOTTER_CONFIG_FILENAME = "spotter.conf";
-	public static final String ENVIRONMENT_FILENAME = "mEnv.xml";
-	public static final String HIERARCHY_FILENAME = "hierarchy.xml";
-
 	private static final boolean DEFAULT_EXPERT_VIEW_ENABLED = false;
 	private static final String KEY_EXPERT_VIEW_ENABLED = "spotter.expertview.enabled";
 
@@ -79,11 +76,6 @@ public final class SpotterProjectSupport {
 	private static final String ERR_WRITE_ENV_XML = "Error occured while writing to environment XML file";
 	private static final String ERR_WRITE_HIERARCHY_XML = "Error occured while writing to hierarchy XML file";
 	private static final String ERR_WRITE_SPOTTER_CONF = "Error occured while writing to DynamicSpotter configuration file";
-
-	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
-	private static final String KEY_ENVIRONMENT_FILE_DESC = "path to the XML file describing all measurement satellites and their configurations";
-
-	private static final String KEY_RESULTS_DIR_DESC = "path to the directory containing the results";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectSupport.class);
 
@@ -113,7 +105,7 @@ public final class SpotterProjectSupport {
 			addHierarchyXMLConfiguration(project);
 			addSpotterConfig(project);
 
-			String[] paths = { DEFAULT_RESULTS_DIR_NAME };
+			String[] paths = { FileManager.DEFAULT_RESULTS_DIR_NAME };
 			addToProjectStructure(project, paths);
 		} catch (Exception e) {
 			// project creation failed
@@ -209,9 +201,14 @@ public final class SpotterProjectSupport {
 	 *             when saving fails
 	 */
 	public static void saveSpotterConfig(IFile file, Properties properties) throws UICoreException {
-		Properties general = createGeneralSpotterProperties(file.getProject());
-		String projectName = file.getProject().getName();
-		String output = createSpotterConfigFileString(projectName, general, properties);
+		IProject project = file.getProject();
+		String location = project.getLocation().toString();
+		Properties general = FileManager.getInstance().createGeneralSpotterProperties(location);
+
+		Map<String, String> descriptionMapping = createDescriptionMapping(project.getName(), properties);
+		String output = FileManager.getInstance().createSpotterConfigFileContent(descriptionMapping, general,
+				properties);
+
 		InputStream source = new ByteArrayInputStream(output.getBytes());
 		try {
 			if (file.exists()) {
@@ -229,6 +226,22 @@ public final class SpotterProjectSupport {
 		}
 	}
 
+	private static Map<String, String> createDescriptionMapping(String projectName, Properties properties) {
+		Map<String, String> descriptionMapping = new HashMap<>();
+		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+
+		if (!client.testConnection(false)) {
+			return descriptionMapping;
+		}
+
+		for (String key : properties.stringPropertyNames()) {
+			ConfigParameterDescription desc = client.getSpotterConfigParam(key);
+			String comment = desc == null ? null : desc.getDescription();
+			descriptionMapping.put(key, comment);
+		}
+		return descriptionMapping;
+	}
+
 	/**
 	 * Updates the DynamicSpotter configuration file. Loads the current
 	 * configuration from file and saves it updating project related paths.
@@ -239,7 +252,7 @@ public final class SpotterProjectSupport {
 	 *             when updating fails
 	 */
 	public static void updateSpotterConfig(IProject project) throws UICoreException {
-		IFile spotterFile = project.getFile(SPOTTER_CONFIG_FILENAME);
+		IFile spotterFile = project.getFile(FileManager.SPOTTER_CONFIG_FILENAME);
 		saveSpotterConfig(spotterFile, getSpotterConfig(spotterFile));
 	}
 
@@ -306,26 +319,6 @@ public final class SpotterProjectSupport {
 		for (String key : ALL_KEYS) {
 			properties.remove(key);
 		}
-		return properties;
-	}
-
-	/**
-	 * Create general DynamicSpotter properties for the given project.
-	 * 
-	 * @param project
-	 *            the project the properties should be set for
-	 * @return the general DynamicSpotter properties for the given project
-	 */
-	public static Properties createGeneralSpotterProperties(IProject project) {
-		IPath projectPath = project.getLocation();
-		Properties properties = new Properties();
-
-		properties.setProperty(ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE, projectPath.append(HIERARCHY_FILENAME)
-				.toString());
-		properties.setProperty(ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, projectPath.append(ENVIRONMENT_FILENAME)
-				.toString());
-		properties.setProperty(ConfigKeys.RESULT_DIR, projectPath.append(DEFAULT_RESULTS_DIR_NAME).toString());
-
 		return properties;
 	}
 
@@ -507,47 +500,17 @@ public final class SpotterProjectSupport {
 
 	private static void addEnvironmentXMLConfiguration(IProject project) throws UICoreException {
 		XMeasurementEnvironment env = MeasurementEnvironmentFactory.getInstance().createMeasurementEnvironment();
-		saveEnvironment(project.getFile(ENVIRONMENT_FILENAME), env);
+		saveEnvironment(project.getFile(FileManager.ENVIRONMENT_FILENAME), env);
 	}
 
 	private static void addHierarchyXMLConfiguration(IProject project) throws UICoreException {
 		XPerformanceProblem problem = Activator.getDefault().getClient(project.getName()).getDefaultHierarchy();
-		saveHierarchy(project.getFile(HIERARCHY_FILENAME), problem);
+		saveHierarchy(project.getFile(FileManager.HIERARCHY_FILENAME), problem);
 	}
 
 	private static void addSpotterConfig(IProject project) throws UICoreException {
-		saveSpotterConfig(project.getFile(SPOTTER_CONFIG_FILENAME), createDefaultSpotterProperties(project.getName()));
-	}
-
-	private static String createSpotterConfigFileString(String projectName, Properties general, Properties properties) {
-		StringBuilder sb = new StringBuilder();
-		writeHeading(sb, "GENERAL");
-		writeKeyValuePair(sb, general, ConfigKeys.CONF_PROBLEM_HIERARCHY_FILE, KEY_HIERARCHY_FILE_DESC);
-		writeKeyValuePair(sb, general, ConfigKeys.MEASUREMENT_ENVIRONMENT_FILE, KEY_ENVIRONMENT_FILE_DESC);
-		writeKeyValuePair(sb, general, ConfigKeys.RESULT_DIR, KEY_RESULTS_DIR_DESC);
-		sb.append("\r\n\r\n");
-		writeHeading(sb, "SPECIFIED SETTINGS");
-
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
-		for (String key : properties.stringPropertyNames()) {
-			ConfigParameterDescription desc = client.getSpotterConfigParam(key);
-			String comment = desc == null ? null : desc.getDescription();
-			writeKeyValuePair(sb, properties, key, comment);
-		}
-		return sb.toString();
-	}
-
-	private static void writeHeading(StringBuilder sb, String heading) {
-		sb.append("####################################\r\n### " + heading
-				+ "\r\n####################################\r\n");
-	}
-
-	private static void writeKeyValuePair(StringBuilder sb, Properties prop, String key, String comment) {
-		sb.append("\r\n");
-		if (comment != null) {
-			sb.append("# " + comment + "\r\n");
-		}
-		sb.append(key + " = " + prop.getProperty(key) + "\r\n");
+		saveSpotterConfig(project.getFile(FileManager.SPOTTER_CONFIG_FILENAME),
+				createDefaultSpotterProperties(project.getName()));
 	}
 
 }

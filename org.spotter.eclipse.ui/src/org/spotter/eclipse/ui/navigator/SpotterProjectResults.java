@@ -27,7 +27,7 @@ import org.eclipse.swt.graphics.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.FileManager;
 
 /**
  * An element that represents the results node.
@@ -125,7 +125,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	}
 
 	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
-		String defaultResultsDir = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME;
+		String defaultResultsDir = FileManager.DEFAULT_RESULTS_DIR_NAME;
 		IFolder resDir = iProject.getFolder(defaultResultsDir);
 
 		if (!resDir.isSynchronized(IResource.DEPTH_INFINITE)) {

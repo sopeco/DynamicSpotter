@@ -130,8 +130,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		@Override
 		protected void performApplyAndDeactivate() {
 			try {
-				Method m = cellEditor.getClass().getDeclaredMethod("applyEditorValueAndDeactivate",
-						(Class<?>[]) new Class[0]);
+				Method m = cellEditor.getClass().getDeclaredMethod("applyAndDeactivate", (Class<?>[]) new Class[0]);
 				m.setAccessible(true);
 				m.invoke(cellEditor, (Object[]) null);
 			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
@@ -152,9 +151,9 @@ public final class PropertiesEditingSupport extends EditingSupport {
 	// editor for numbers
 	private TextCellEditor cellNumberEditor;
 	// editor for booleans
-	private ComboBoxCellEditor cellBooleanEditor;
+	private CustomComboBoxCellEditor cellBooleanEditor;
 	// editor for parameters that are no sets but have options available
-	private ComboBoxCellEditor cellComboBoxEditor;
+	private CustomComboBoxCellEditor cellComboBoxEditor;
 	// custom editor for special purposes like directories, files and sets
 	private CustomDialogCellEditor cellCustomDialogEditor;
 
@@ -182,10 +181,10 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		cellNumberEditor.addListener(new TextEditorErrorListener(cellNumberEditor, decor));
 		cellNumberEditor.getControl().addTraverseListener(new ActivationTraverser(cellNumberEditor));
 
-		cellBooleanEditor = new ComboBoxCellEditor(parent, BOOLEAN_VALUES, SWT.DROP_DOWN | SWT.READ_ONLY);
+		cellBooleanEditor = new CustomComboBoxCellEditor(parent, BOOLEAN_VALUES, SWT.DROP_DOWN | SWT.READ_ONLY);
 		cellBooleanEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
 		cellBooleanEditor.getControl().addTraverseListener(new ComboActivationTraverser(cellBooleanEditor));
-		cellComboBoxEditor = new ComboBoxCellEditor(parent, new String[0], SWT.DROP_DOWN | SWT.READ_ONLY);
+		cellComboBoxEditor = new CustomComboBoxCellEditor(parent, new String[0], SWT.DROP_DOWN | SWT.READ_ONLY);
 		cellComboBoxEditor.setActivationStyle(COMBO_ACTIVATION_STYLE);
 		cellComboBoxEditor.getControl().addTraverseListener(new ComboActivationTraverser(cellComboBoxEditor));
 

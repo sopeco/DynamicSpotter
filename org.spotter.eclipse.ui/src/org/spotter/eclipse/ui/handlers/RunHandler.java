@@ -26,7 +26,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
 import org.spotter.eclipse.ui.util.DialogUtils;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.FileManager;
 
 /**
  * A run handler for the DynamicSpotter run command which starts the
@@ -63,7 +63,7 @@ public class RunHandler extends AbstractHandler {
 
 		IProject project = selectedProjects.iterator().next();
 		ServiceClientWrapper client = activator.getClient(project.getName());
-		String spotterFileName = SpotterProjectSupport.SPOTTER_CONFIG_FILENAME;
+		String spotterFileName = FileManager.SPOTTER_CONFIG_FILENAME;
 		IFile spotterFile = project.getFile(spotterFileName);
 		String spotterFilePath = spotterFile.getLocation().toString();
 

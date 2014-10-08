@@ -81,9 +81,9 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.providers.ResultExtensionsImageProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
 import org.spotter.eclipse.ui.util.DialogUtils;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
+import org.spotter.shared.configuration.FileManager;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
@@ -615,7 +615,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateHierarchy() {
-		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
+		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
 				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
 		IFile file = runResultItem.getProject().getFile(filename);
 		ExtensionItem input = null;
@@ -654,7 +654,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateReport() {
-		String filename = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
+		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
 				+ File.separator + ResultsLocationConstants.TXT_REPORT_FILE_NAME;
 		IFile file = runResultItem.getProject().getFile(filename);
 		StringBuilder sb = new StringBuilder();
@@ -683,7 +683,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private String getCurrentResourceFolder() {
-		String projectRelativeRunPath = SpotterProjectSupport.DEFAULT_RESULTS_DIR_NAME + File.separator
+		String projectRelativeRunPath = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator
 				+ runResultItem.getText();
 		IFolder folder = runResultItem.getProject().getFolder(projectRelativeRunPath);
 		String currentRunFolder = folder.getLocation().toString() + "/";

@@ -22,7 +22,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.InstrumentationEditor;
 import org.spotter.eclipse.ui.editors.InstrumentationEditorInput;
-import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.FileManager;
 
 /**
  * An element that represents the instrumentation controllers node.
@@ -88,7 +88,7 @@ public class SpotterProjectConfigInstrumentation implements IOpenableProjectElem
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
-		IFile file = getProject().getFile(SpotterProjectSupport.ENVIRONMENT_FILENAME);
+		IFile file = getProject().getFile(FileManager.ENVIRONMENT_FILENAME);
 		AbstractSpotterEditor.openInstance(new InstrumentationEditorInput(file), getOpenId());
 	}
 
