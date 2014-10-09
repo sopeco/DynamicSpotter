@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui.handlers;
 
+import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -24,9 +25,16 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
+import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
+import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 import org.spotter.shared.configuration.FileManager;
+import org.spotter.shared.configuration.JobDescription;
+import org.spotter.shared.environment.model.XMeasurementEnvironment;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
 /**
  * A run handler for the DynamicSpotter run command which starts the
@@ -83,7 +91,7 @@ public class RunHandler extends AbstractHandler {
 		boolean startConfirm = DialogUtils.openConfirm(DIALOG_TITLE,
 				String.format(MSG_SPOTTER_STARTED, project.getName()));
 		if (startConfirm) {
-			startSpotterRun(project, client, spotterFilePath);
+			startSpotterRun(project, client);
 		}
 		return null;
 	}
@@ -93,8 +101,16 @@ public class RunHandler extends AbstractHandler {
 		return Activator.getDefault().getSelectedProjects().size() == 1;
 	}
 
-	private void startSpotterRun(IProject project, ServiceClientWrapper client, String spotterConfigPath) {
-		Long jobId = client.startDiagnosis(spotterConfigPath);
+	private void startSpotterRun(IProject project, ServiceClientWrapper client) {
+		JobDescription jobDescription;
+		try {
+			jobDescription = createJobDescription(project);
+		} catch (UICoreException e) {
+			String msg = "Unable to read and parse all configuration files!";
+			DialogUtils.openError(DIALOG_TITLE, DialogUtils.appendCause(msg, e.getMessage()));
+			return;
+		}
+		Long jobId = client.startDiagnosis(jobDescription);
 		if (jobId != null && jobId != 0) {
 			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId);
 			job.schedule();
@@ -102,6 +118,26 @@ public class RunHandler extends AbstractHandler {
 			String msg = String.format(MSG_RUNTIME_ERROR, "Could not retrieve a valid job id!");
 			DialogUtils.openError(DIALOG_TITLE, msg);
 		}
+	}
+
+	private JobDescription createJobDescription(IProject project) throws UICoreException {
+		JobDescription jobDescription = new JobDescription();
+
+		IFile spotterFile = project.getFile(FileManager.SPOTTER_CONFIG_FILENAME);
+		Properties dynamicSpotterConfig = SpotterProjectSupport.getSpotterConfig(spotterFile);
+		jobDescription.setDynamicSpotterConfig(dynamicSpotterConfig);
+
+		MeasurementEnvironmentFactory envFactory = MeasurementEnvironmentFactory.getInstance();
+		String envFile = project.getFile(FileManager.ENVIRONMENT_FILENAME).getLocation().toString();
+		XMeasurementEnvironment measurementEnvironment = envFactory.parseXMLFile(envFile);
+		jobDescription.setMeasurementEnvironment(measurementEnvironment);
+
+		HierarchyFactory hierFactory = HierarchyFactory.getInstance();
+		String hierFile = project.getFile(FileManager.HIERARCHY_FILENAME).getLocation().toString();
+		XPerformanceProblem hierarchy = hierFactory.parseHierarchyFile(hierFile);
+		jobDescription.setHierarchy(hierarchy);
+
+		return jobDescription;
 	}
 
 }

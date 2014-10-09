@@ -31,6 +31,7 @@ import org.spotter.client.SpotterServiceClient;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
+import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -222,17 +223,17 @@ public class ServiceClientWrapper {
 	}
 
 	/**
-	 * Starts the diagnosis using the given configuration file. Returns the
+	 * Starts the diagnosis using the given job description. Returns the
 	 * retrieved job id or <code>null</code> on failure.
 	 * 
-	 * @param configurationFile
-	 *            The configuration file to use.
+	 * @param jobDescription
+	 *            The job description to use.
 	 * @return The retrieved job id or <code>null</code> on failure.
 	 */
-	public Long startDiagnosis(final String configurationFile) {
+	public Long startDiagnosis(final JobDescription jobDescription) {
 		lastException = null;
 		try {
-			return client.startDiagnosis(configurationFile);
+			return client.startDiagnosis(jobDescription);
 		} catch (Exception e) {
 			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false, false);
 		}

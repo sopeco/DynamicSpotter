@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.service.SpotterServiceWrapper;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.service.ResponseStatus;
@@ -49,8 +50,9 @@ public class SpotterService {
 	/**
 	 * Starts Dynamic Spotter diagnosis.
 	 * 
-	 * @param pathToConfigFile
-	 *            configuration file
+	 * @param jobDescription
+	 *            job description object containing the whole DS setup such as
+	 *            config values, environment and hierarchy configuration
 	 * @throws IOException
 	 *             thrown if experiment fails
 	 * @return job id, 0 if already running
@@ -59,9 +61,9 @@ public class SpotterService {
 	@Path(ConfigKeys.SPOTTER_REST_START_DIAG)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public SpotterServiceResponse<Long> startDiagnosis(String pathToConfigFile) throws IOException {
+	public SpotterServiceResponse<Long> startDiagnosis(JobDescription jobDescription) throws IOException {
 		try {
-			long jobId = SpotterServiceWrapper.getInstance().startDiagnosis(pathToConfigFile);
+			long jobId = SpotterServiceWrapper.getInstance().startDiagnosis(jobDescription);
 			if (jobId == 0) {
 				return new SpotterServiceResponse<Long>(jobId, ResponseStatus.INVALID_STATE);
 			} else {

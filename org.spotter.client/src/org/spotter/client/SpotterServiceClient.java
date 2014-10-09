@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.web.LpeWebUtils;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.service.SpotterServiceResponse;
@@ -73,15 +74,15 @@ public class SpotterServiceClient {
 	/**
 	 * Executes diagnostics process.
 	 * 
-	 * @param configurationFile
-	 *            path to the configuration file
-	 * @return job id for the started diagnosis task,
+	 * @param jobDescription
+	 *            the job description to use
+	 * @return job id for the started diagnosis task
 	 */
-	public long startDiagnosis(String configurationFile) {
+	public long startDiagnosis(JobDescription jobDescription) {
 		SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_START_DIAG).type(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).post(new GenericType<SpotterServiceResponse<Long>>() {
-				}, configurationFile);
+				}, jobDescription);
 
 		switch (response.getStatus()) {
 		case INVALID_STATE:

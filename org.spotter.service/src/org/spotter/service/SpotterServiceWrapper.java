@@ -15,6 +15,7 @@
  */
 package org.spotter.service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,11 +24,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.xml.bind.JAXBException;
+
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.Extensions;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.extension.IExtensionArtifact;
+import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
@@ -37,6 +41,8 @@ import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
 import org.spotter.core.workload.AbstractWorkloadExtension;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.configuration.FileManager;
+import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -49,7 +55,20 @@ import org.spotter.shared.status.SpotterProgress;
  * 
  */
 public class SpotterServiceWrapper {
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterServiceWrapper.class);
+
+	/**
+	 * The path to the current working directory.
+	 */
+	private static final String WORKING_DIR = System.getProperty("user.dir").replace('\\', '/');
+
+	/**
+	 * The name of the folder where to put the configuration and results of
+	 * diagnosis runs.
+	 */
+	private static final String RUNTIME_FOLDER = "runtime-diagnosis";
+
 	private static SpotterServiceWrapper instance;
 
 	/**
@@ -74,23 +93,26 @@ public class SpotterServiceWrapper {
 	/**
 	 * Executes diagnostics process.
 	 * 
-	 * @param configurationFile
-	 *            path to the configuration file
+	 * @param jobDescription
+	 *            job description object containing the whole DS setup such as
+	 *            config values, environment and hierarchy configuration
 	 * @return job id for the started diagnosis task, 0 if currently a diagnosis
 	 *         job is already running
 	 */
-	public synchronized long startDiagnosis(final String configurationFile) {
+	public synchronized long startDiagnosis(final JobDescription jobDescription) {
 		if (getState().equals(JobState.RUNNING)) {
 			return 0;
 		}
 		final long tempJobId = System.currentTimeMillis();
 		currentJob = tempJobId;
 		currentJobState = JobState.RUNNING;
+
 		futureObject = executor.submit(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
+					String configurationFile = createDynamicSpotterConfiguration(tempJobId, jobDescription);
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 					currentJobState = JobState.FINISHED;
 				} catch (Throwable e) {
@@ -104,6 +126,26 @@ public class SpotterServiceWrapper {
 			}
 		});
 		return tempJobId;
+	}
+
+	private String createDynamicSpotterConfiguration(long jobId, JobDescription jobDescription) {
+		FileManager fileManager = FileManager.getInstance();
+		String location = SpotterServiceWrapper.WORKING_DIR + "/" + SpotterServiceWrapper.RUNTIME_FOLDER + "/" + jobId;
+		LpeFileUtils.createDir(location);
+		String configurationFile = null;
+
+		try {
+			fileManager.writeEnvironmentConfig(location, jobDescription.getMeasurementEnvironment());
+			fileManager.writeHierarchyConfig(location, jobDescription.getHierarchy());
+			configurationFile = fileManager.writeSpotterConfig(location, jobDescription.getDynamicSpotterConfig());
+			LOGGER.info("Storing configuration for diagnosis run #" + jobId + " in " + location);
+		} catch (IOException | JAXBException e) {
+			String msg = "Failed to create DS configuration.";
+			LOGGER.error(msg + " Cause: {}", e.toString());
+			throw new RuntimeException(msg);
+		}
+
+		return configurationFile;
 	}
 
 	/**
