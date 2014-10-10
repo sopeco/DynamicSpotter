@@ -10,4 +10,5 @@
 dependency-reduced-pom.xml
 default-hierarchy.xml
 /plugins
+/runtime-diagnosis
 /pom.xml.versionsBackup

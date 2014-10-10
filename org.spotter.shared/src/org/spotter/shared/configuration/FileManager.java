@@ -18,11 +18,13 @@ package org.spotter.shared.configuration;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
 
+import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.util.JAXBUtil;
@@ -68,10 +70,11 @@ public final class FileManager {
 	 *            the location where to place this file (without the filename)
 	 * @param properties
 	 *            the project specific properties to write
+	 * @return the filename of the created file
 	 * @throws IOException
 	 *             if an I/O error occurs
 	 */
-	public void writeSpotterConfig(String location, Properties properties) throws IOException {
+	public String writeSpotterConfig(String location, Properties properties) throws IOException {
 		Properties general = createGeneralSpotterProperties(location);
 
 		String file = stripFileSeparator(location) + "/" + FileManager.SPOTTER_CONFIG_FILENAME;
@@ -84,6 +87,8 @@ public final class FileManager {
 				fileWriter.close();
 			}
 		}
+
+		return file;
 	}
 
 	/**
@@ -93,12 +98,14 @@ public final class FileManager {
 	 *            the location where to place this file (without the filename)
 	 * @param environment
 	 *            the environment object to write
+	 * @return the filename of the created file
 	 * @throws JAXBException
 	 *             if a problem with the marshalling occurs
 	 */
-	public void writeEnvironmentConfig(String location, XMeasurementEnvironment environment) throws JAXBException {
+	public String writeEnvironmentConfig(String location, XMeasurementEnvironment environment) throws JAXBException {
 		String file = stripFileSeparator(location) + "/" + FileManager.ENVIRONMENT_FILENAME;
 		JAXBUtil.writeElementToFile(new File(file), environment);
+		return file;
 	}
 
 	/**
@@ -108,12 +115,14 @@ public final class FileManager {
 	 *            the location where to place this file (without the filename)
 	 * @param hierarchy
 	 *            the hierarchy object to write
+	 * @return the filename of the created file
 	 * @throws JAXBException
 	 *             if a problem with the marshalling occurs
 	 */
-	public void writeHierarchyConfig(String location, XPerformanceProblem hierarchy) throws JAXBException {
+	public String writeHierarchyConfig(String location, XPerformanceProblem hierarchy) throws JAXBException {
 		String file = stripFileSeparator(location) + "/" + FileManager.HIERARCHY_FILENAME;
 		JAXBUtil.writeElementToFile(new File(file), hierarchy);
+		return file;
 	}
 
 	/**
@@ -157,8 +166,12 @@ public final class FileManager {
 		sb.append("\r\n\r\n");
 		writeHeading(sb, "SPECIFIED SETTINGS");
 
+		if (descriptionMapping == null) {
+			descriptionMapping = createDescriptionMapping();
+		}
+
 		for (String key : properties.stringPropertyNames()) {
-			String comment = descriptionMapping == null ? null : descriptionMapping.get(key);
+			String comment = descriptionMapping.get(key);
 			writeKeyValuePair(sb, properties, key, comment);
 		}
 		return sb.toString();
@@ -175,6 +188,15 @@ public final class FileManager {
 			sb.append("# " + comment + "\r\n");
 		}
 		sb.append(key + " = " + prop.getProperty(key) + "\r\n");
+	}
+
+	private Map<String, String> createDescriptionMapping() {
+		Map<String, String> descriptionMapping = new HashMap<>();
+
+		for (ConfigParameterDescription desc : ConfigKeys.getSpotterConfigParamters()) {
+			descriptionMapping.put(desc.getName(), desc.getDescription());
+		}
+		return descriptionMapping;
 	}
 
 	private String stripFileSeparator(String path) {

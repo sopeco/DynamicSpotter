@@ -27,10 +27,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.service.SpotterServiceWrapper;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
+import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.service.ResponseStatus;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
@@ -46,11 +50,14 @@ import com.sun.jersey.spi.resource.Singleton;
 @Singleton
 public class SpotterService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterService.class);
+
 	/**
 	 * Starts Dynamic Spotter diagnosis.
 	 * 
-	 * @param pathToConfigFile
-	 *            configuration file
+	 * @param jobDescription
+	 *            job description object containing the whole DS setup such as
+	 *            config values, environment and hierarchy configuration
 	 * @throws IOException
 	 *             thrown if experiment fails
 	 * @return job id, 0 if already running
@@ -59,13 +66,36 @@ public class SpotterService {
 	@Path(ConfigKeys.SPOTTER_REST_START_DIAG)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public SpotterServiceResponse<Long> startDiagnosis(String pathToConfigFile) throws IOException {
+	public SpotterServiceResponse<Long> startDiagnosis(JobDescription jobDescription) throws IOException {
 		try {
-			long jobId = SpotterServiceWrapper.getInstance().startDiagnosis(pathToConfigFile);
+			long jobId = SpotterServiceWrapper.getInstance().startDiagnosis(jobDescription);
 			if (jobId == 0) {
 				return new SpotterServiceResponse<Long>(jobId, ResponseStatus.INVALID_STATE);
 			} else {
 				return new SpotterServiceResponse<Long>(jobId, ResponseStatus.OK);
+			}
+		} catch (Exception e) {
+			return createErrorResponse(e);
+		}
+	}
+
+	/**
+	 * Retrieves results from a Dynamic Spotter diagnosis that matches the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id matching to the diagnosis run to fetch the results of
+	 * @return the results container for the given id or <code>null</code> if for the id no results exist
+	 */
+	@GET
+	@Path(ConfigKeys.SPOTTER_REST_REQU_RESULTS + "/{jobId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public SpotterServiceResponse<ResultsContainer> requestResults(@PathParam("jobId") String jobId) {
+		try {
+			ResultsContainer container = SpotterServiceWrapper.getInstance().requestResults(jobId);
+			if (jobId == null) {
+				return new SpotterServiceResponse<ResultsContainer>(null, ResponseStatus.INVALID_STATE);
+			} else {
+				return new SpotterServiceResponse<ResultsContainer>(container, ResponseStatus.OK);
 			}
 		} catch (Exception e) {
 			return createErrorResponse(e);
@@ -252,6 +282,7 @@ public class SpotterService {
 
 	private <T> SpotterServiceResponse<T> createErrorResponse(Exception e) {
 		SpotterServiceResponse<T> response = new SpotterServiceResponse<T>(null, ResponseStatus.SERVER_ERROR);
+		LOGGER.error("Server error: " + e);
 		if (e.getMessage() == null) {
 			response.setErrorMessage(e.getClass().getSimpleName());
 		} else {
