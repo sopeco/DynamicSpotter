@@ -37,22 +37,6 @@
 		<plugins>
 
 			<plugin>
-				<!-- Avoid deletion of serialized results -->
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>.</directory>
-                            <excludes>
-                                <exclude>**/results.ser</exclude>
-                            </excludes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-
-			<plugin>
 				<!-- This plugin is required for Jersey mapper to work in an assembly! -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
