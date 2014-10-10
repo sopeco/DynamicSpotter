@@ -602,7 +602,6 @@ public class ServiceClientWrapper {
 	private void handleException(String requestName, String requestErrorMsg, Exception exception, boolean silent,
 			boolean warning) {
 		lastException = exception;
-		exception.printStackTrace();
 		if (warning) {
 			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.getMessage());
 		} else {
