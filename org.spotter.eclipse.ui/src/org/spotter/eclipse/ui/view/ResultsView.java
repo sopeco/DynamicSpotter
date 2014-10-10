@@ -111,7 +111,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final String RESULTS_EMPTY_CONTENT_DESC = "None selected.";
 	private static final String EMPTY_RESULTS = "No results selected.";
 	private static final String ERR_MSG_IO_ERROR = "An I/O error occured while reading the file '%s'.";
-	private static final String ERR_MSG_MISSING_REPORT = "Could not find the spotter report file.";
+	private static final String ERR_MSG_MISSING_REPORT = "Either file is missing or report is not set.";
 	private static final String ERR_MSG_MISSING_SER_FILE = "Could not find the spotter serialization file.";
 
 	private static final String LABEL_NONE_SELECTED = "<none selected>";
@@ -587,6 +587,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
 					runResultItem.getProject().getName());
 			setContentDescription(contentDescription);
+			updateResultsContainer();
 			updateHierarchy();
 			updateReport();
 		}
@@ -614,25 +615,22 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		textReport.setText(EMPTY_RESULTS);
 	}
 
-	private void updateHierarchy() {
+	private void updateResultsContainer() {
 		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
 				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
 		IFile file = runResultItem.getProject().getFile(filename);
-		ExtensionItem input = null;
+		resultsContainer = null;
 		try {
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
 				file.refreshLocal(IResource.DEPTH_ZERO, null);
 			}
 			BufferedInputStream bufferedInStream = new BufferedInputStream(file.getContents());
 			ObjectInputStream objectIn = new ObjectInputStream(bufferedInStream);
+
 			resultsContainer = (ResultsContainer) objectIn.readObject();
+
 			objectIn.close();
 			bufferedInStream.close();
-
-			XPerformanceProblem root = resultsContainer.getRootProblem();
-			if (root != null) {
-				input = HierarchyEditor.createPerformanceProblemHierarchy(runResultItem.getProject().getName(), root);
-			}
 		} catch (CoreException e) {
 			resultsContainer = null;
 			String text = ERR_MSG_MISSING_SER_FILE + " (" + filename + ")";
@@ -643,48 +641,37 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String text = String.format(ERR_MSG_IO_ERROR, filename);
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
 			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
-		} finally {
-			imageProvider.setResultsContainer(resultsContainer);
-			if (input == null) {
-				input = new ExtensionItem();
-			}
-			hierarchyTreeViewer.setInput(input);
-			hierarchyTreeViewer.expandAll();
 		}
 	}
 
+	private void updateHierarchy() {
+		ExtensionItem input = null;
+		
+		if (resultsContainer != null) {
+			XPerformanceProblem root = resultsContainer.getRootProblem();
+			if (root != null) {
+				input = HierarchyEditor.createPerformanceProblemHierarchy(runResultItem.getProject().getName(), root);
+			}
+		}
+
+		imageProvider.setResultsContainer(resultsContainer);
+		if (input == null) {
+			input = new ExtensionItem();
+		}
+		hierarchyTreeViewer.setInput(input);
+		hierarchyTreeViewer.expandAll();
+	}
+
 	private void updateReport() {
-		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-				+ File.separator + ResultsLocationConstants.TXT_REPORT_FILE_NAME;
-		IFile file = runResultItem.getProject().getFile(filename);
-		StringBuilder sb = new StringBuilder();
-		try {
-			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
-				file.refreshLocal(IResource.DEPTH_ZERO, null);
-			}
-			BufferedInputStream bufferedInStream = new BufferedInputStream(file.getContents());
-			int readByte;
-			while ((readByte = bufferedInStream.read()) != -1) {
-				sb.append((char) readByte);
-			}
-			bufferedInStream.close();
-			textReport.setText(sb.toString());
-		} catch (CoreException e) {
-			String text = ERR_MSG_MISSING_REPORT + " (" + filename + ")";
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			textReport.setText(text);
-			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
-		} catch (IOException e) {
-			String text = String.format(ERR_MSG_IO_ERROR, filename);
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			textReport.setText(text);
-			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
+		if (resultsContainer != null && resultsContainer.getReport() != null) {
+			textReport.setText(resultsContainer.getReport());
+		} else {
+			textReport.setText(ERR_MSG_MISSING_REPORT);
 		}
 	}
 
 	private String getCurrentResourceFolder() {
-		String projectRelativeRunPath = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator
-				+ runResultItem.getText();
+		String projectRelativeRunPath = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText();
 		IFolder folder = runResultItem.getProject().getFolder(projectRelativeRunPath);
 		String currentRunFolder = folder.getLocation().toString() + "/";
 		String subDirPath = getSubDirPathForProblem(currentSelectedProblem);

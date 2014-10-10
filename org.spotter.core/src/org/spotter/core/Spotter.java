@@ -149,7 +149,8 @@ public final class Spotter {
 			long durationMillis = ((System.currentTimeMillis() - timestamp));
 
 			resultsContainer.setResultsMap(ResultBlackboard.getInstance().getResults());
-			printResults(durationMillis);
+			String report = printResults(durationMillis);
+			resultsContainer.setReport(report);
 			serializeResults(resultsContainer);
 			ResultBlackboard.getInstance().reset();
 		}
@@ -178,12 +179,13 @@ public final class Spotter {
 	}
 
 	/**
-	 * Writes the Spotter report.
+	 * Writes the Spotter report and returns the text that was printed.
 	 * 
 	 * @param durationMillis
 	 *            time in milli seconds the diagnostics took
+	 * @return the printed text
 	 */
-	private void printResults(long durationMillis) {
+	private String printResults(long durationMillis) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("PPD analysis took ");
 		builder.append(LpeNumericUtils.formatTimeMillis(durationMillis));
@@ -205,6 +207,7 @@ public final class Spotter {
 		}
 
 		LOGGER.info("Spotter analysis finished! Report is written to the following file: {}", outputFile);
+		return resultString;
 	}
 
 	/**

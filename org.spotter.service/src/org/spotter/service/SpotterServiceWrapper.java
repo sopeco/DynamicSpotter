@@ -15,7 +15,11 @@
  */
 package org.spotter.service;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,6 +50,8 @@ import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
+import org.spotter.shared.result.ResultsLocationConstants;
+import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
@@ -128,24 +134,23 @@ public class SpotterServiceWrapper {
 		return tempJobId;
 	}
 
-	private String createDynamicSpotterConfiguration(long jobId, JobDescription jobDescription) {
-		FileManager fileManager = FileManager.getInstance();
-		String location = SpotterServiceWrapper.WORKING_DIR + "/" + SpotterServiceWrapper.RUNTIME_FOLDER + "/" + jobId;
-		LpeFileUtils.createDir(location);
-		String configurationFile = null;
-
-		try {
-			fileManager.writeEnvironmentConfig(location, jobDescription.getMeasurementEnvironment());
-			fileManager.writeHierarchyConfig(location, jobDescription.getHierarchy());
-			configurationFile = fileManager.writeSpotterConfig(location, jobDescription.getDynamicSpotterConfig());
-			LOGGER.info("Storing configuration for diagnosis run #" + jobId + " in " + location);
-		} catch (IOException | JAXBException e) {
-			String msg = "Failed to create DS configuration.";
-			LOGGER.error(msg + " Cause: {}", e.toString());
-			throw new RuntimeException(msg);
+	/**
+	 * Requests the results of a the run with the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id of the diagnosis run
+	 * @return the retrieved results container or <code>null</code> if none
+	 */
+	public ResultsContainer requestResults(String jobId) {
+		String location = getRuntimeLocation();
+		File[] dirs = new File(location).listFiles();
+		for (File dir : dirs) {
+			if (dir.isDirectory() && dir.getName().equals(jobId)) {
+				location += "/" + dir.getName() + "/" + FileManager.DEFAULT_RESULTS_DIR_NAME;
+				return findResultsContainer(location);
+			}
 		}
-
-		return configurationFile;
+		return null;
 	}
 
 	/**
@@ -279,6 +284,79 @@ public class SpotterServiceWrapper {
 			return satellite.testConnection(host, port);
 		}
 		return false;
+	}
+
+	/**
+	 * Creates necessary configuration files for the diagnosis from the given
+	 * job description.
+	 * 
+	 * @param jobId
+	 *            the job id of the diagnosis
+	 * @param jobDescription
+	 *            the job description which holds the configuration information
+	 * @return the path to the DS configuration file which is required by DS
+	 */
+	private String createDynamicSpotterConfiguration(long jobId, JobDescription jobDescription) {
+		FileManager fileManager = FileManager.getInstance();
+		String location = getRuntimeLocation() + "/" + jobId;
+		LpeFileUtils.createDir(location);
+		String configurationFile = null;
+
+		try {
+			fileManager.writeEnvironmentConfig(location, jobDescription.getMeasurementEnvironment());
+			fileManager.writeHierarchyConfig(location, jobDescription.getHierarchy());
+			configurationFile = fileManager.writeSpotterConfig(location, jobDescription.getDynamicSpotterConfig());
+			LOGGER.info("Storing configuration for diagnosis run #" + jobId + " in " + location);
+		} catch (IOException | JAXBException e) {
+			String msg = "Failed to create DS configuration.";
+			LOGGER.error(msg + " Cause: {}", e.toString());
+			throw new RuntimeException(msg);
+		}
+
+		return configurationFile;
+	}
+
+	private static String getRuntimeLocation() {
+		return SpotterServiceWrapper.WORKING_DIR + "/" + SpotterServiceWrapper.RUNTIME_FOLDER;
+	}
+
+	private ResultsContainer findResultsContainer(String resultsDirLocation) {
+		String location = resultsDirLocation;
+		File resultsDir = new File(location);
+		if (resultsDir.exists() && resultsDir.isDirectory()) {
+			File[] subdirs = resultsDir.listFiles();
+			if (subdirs.length == 1 && subdirs[0].isDirectory()) {
+				location += "/" + subdirs[0].getName();
+				File result = new File(location + "/" + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+				if (result.exists() && result.isFile()) {
+					// read file content
+					System.out.println("read Result content from " + result.getAbsolutePath());
+					return readResultsContainerFromFile(result);
+				}
+			}
+		}
+		return null;
+	}
+
+	private static ResultsContainer readResultsContainerFromFile(File result) {
+		ObjectInputStream objectIn = null;
+		try {
+			BufferedInputStream bufferedInStream = new BufferedInputStream(new FileInputStream(result));
+			objectIn = new ObjectInputStream(bufferedInStream);
+			ResultsContainer resultsContainer = (ResultsContainer) objectIn.readObject();
+			return resultsContainer;
+		} catch (IOException | ClassNotFoundException e) {
+			LOGGER.warn("Error while reading results object");
+		} finally {
+			if (objectIn != null) {
+				try {
+					objectIn.close();
+				} catch (IOException e) {
+					LOGGER.debug("Error while closing results file");
+				}
+			}
+		}
+		return null;
 	}
 
 }

@@ -71,6 +71,7 @@ public class RunHandler extends AbstractHandler {
 
 		IProject project = selectedProjects.iterator().next();
 		ServiceClientWrapper client = activator.getClient(project.getName());
+		
 		String spotterFileName = FileManager.SPOTTER_CONFIG_FILENAME;
 		IFile spotterFile = project.getFile(spotterFileName);
 		String spotterFilePath = spotterFile.getLocation().toString();

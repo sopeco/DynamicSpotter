@@ -143,6 +143,7 @@ public final class ConfigKeys {
 
 	public static final String SPOTTER_REST_BASE = "spotter";
 	public static final String SPOTTER_REST_START_DIAG = "startDiagnosis";
+	public static final String SPOTTER_REST_REQU_RESULTS = "requestResults";
 	public static final String SPOTTER_REST_IS_RUNNING = "isRunning";
 	public static final String SPOTTER_REST_CONFIG_PARAMS = "configParameters";
 	public static final String SPOTTER_REST_EXTENSIONS = "extensions";

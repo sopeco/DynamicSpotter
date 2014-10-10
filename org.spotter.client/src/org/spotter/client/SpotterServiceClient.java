@@ -25,6 +25,7 @@ import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
+import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
 
@@ -95,6 +96,29 @@ public class SpotterServiceClient {
 			throw new IllegalStateException("Illegal response state!");
 		}
 
+	}
+
+	/**
+	 * Requests the results of a the run with the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id of the diagnosis run
+	 * @return the retrieved results container or <code>null</code> if none
+	 */
+	public ResultsContainer requestResults(String jobId) {
+		SpotterServiceResponse<ResultsContainer> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_REQU_RESULTS).path(jobId).accept(MediaType.APPLICATION_JSON)
+				.get(new GenericType<SpotterServiceResponse<ResultsContainer>>() {
+				});
+		switch (response.getStatus()) {
+		case OK:
+			return response.getPayload();
+		case SERVER_ERROR:
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
+		case INVALID_STATE:
+		default:
+			throw new IllegalStateException("Illegal response state!");
+		}
 	}
 
 	/**
@@ -172,8 +196,8 @@ public class SpotterServiceClient {
 	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
 		SpotterServiceResponse<Set<ConfigParameterDescription>> response = webResource
-				.path(ConfigKeys.SPOTTER_REST_BASE).path(ConfigKeys.SPOTTER_REST_EXTENSION_PARAMETERS)
-				.path(extName.toString()).accept(MediaType.APPLICATION_JSON)
+				.path(ConfigKeys.SPOTTER_REST_BASE).path(ConfigKeys.SPOTTER_REST_EXTENSION_PARAMETERS).path(extName)
+				.accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Set<ConfigParameterDescription>>>() {
 				});
 		switch (response.getStatus()) {

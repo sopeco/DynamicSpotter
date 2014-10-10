@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
+import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.status.SpotterProgress;
 
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -70,6 +72,7 @@ public class ServiceClientWrapper {
 	private static final String MSG_NO_ACTION = "Action cannot be performed without connection to DynamicSpotter Service. "
 			+ "Please check connection settings and try again.";
 	private static final String MSG_START_DIAGNOSIS = "Could not start diagnosis!";
+	private static final String MSG_REQU_RESULTS = "Could not retrieve diagnosis results!";
 	private static final String MSG_NO_STATUS = "Could not retrieve status.";
 	private static final String MSG_NO_CONFIG_PARAMS = "Could not retrieve configuration parameters.";
 	private static final String MSG_NO_EXTENSIONS = "Could not retrieve list of extensions.";
@@ -236,6 +239,23 @@ public class ServiceClientWrapper {
 			return client.startDiagnosis(jobDescription);
 		} catch (Exception e) {
 			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false, false);
+		}
+		return null;
+	}
+
+	/**
+	 * Requests the results of a the run with the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id of the diagnosis run
+	 * @return the retrieved results container or <code>null</code> if none
+	 */
+	public ResultsContainer requestResults(final String jobId) {
+		lastException = null;
+		try {
+			return client.requestResults(jobId);
+		} catch (Exception e) {
+			handleException("requestResults", MSG_REQU_RESULTS, e, false, false);
 		}
 		return null;
 	}
@@ -506,7 +526,12 @@ public class ServiceClientWrapper {
 	 *         otherwise
 	 */
 	public boolean isConnectionIssue() {
-		return lastException instanceof ClientHandlerException;
+		if (lastException instanceof ClientHandlerException) {
+			if (lastException != null && lastException.getCause() instanceof ConnectException) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -577,6 +602,7 @@ public class ServiceClientWrapper {
 	private void handleException(String requestName, String requestErrorMsg, Exception exception, boolean silent,
 			boolean warning) {
 		lastException = exception;
+		exception.printStackTrace();
 		if (warning) {
 			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.getMessage());
 		} else {

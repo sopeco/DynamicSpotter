@@ -28,8 +28,8 @@ import java.util.List;
 public class SpotterResult implements Serializable {
 
 	private static final long serialVersionUID = 6058864897164235148L;
-	
-	private final StringBuilder messageBuilder = new StringBuilder();
+
+	private final StringBuilder message = new StringBuilder();
 	private final List<String> resourceFiles = new ArrayList<>();
 	private final List<CallTree<StackTraceElement>> callTrees = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class SpotterResult implements Serializable {
 	}
 
 	/**
-	 * sets whether the the problem (to which that result belongs) has been
+	 * Sets whether the the problem (to which that result belongs) has been
 	 * detected or not.
 	 * 
 	 * @param detected
@@ -60,19 +60,19 @@ public class SpotterResult implements Serializable {
 	 * @return the diagnosis message
 	 */
 	public String getMessage() {
-		return messageBuilder.toString();
+		return message.toString();
 	}
 
 	/**
 	 * adds a message to the diagnosis text.
 	 * 
-	 * @param message
+	 * @param msg
 	 *            message to be added
 	 */
-	public void addMessage(String message) {
-		messageBuilder.append("   # ");
-		messageBuilder.append(message);
-		messageBuilder.append(System.getProperty("line.separator"));
+	public void addMessage(String msg) {
+		message.append("   # ");
+		message.append(msg);
+		message.append(System.getProperty("line.separator"));
 	}
 
 	/**
@@ -108,7 +108,5 @@ public class SpotterResult implements Serializable {
 	public List<CallTree<StackTraceElement>> getCallTrees() {
 		return callTrees;
 	}
-	
-	
 
 }

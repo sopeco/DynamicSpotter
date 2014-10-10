@@ -28,10 +28,11 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  */
 public class ResultsContainer implements Serializable {
 
-	private static final long serialVersionUID = 3192866585664021357L;
+	private static final long serialVersionUID = 3685242306730539072L;
 
 	private Map<String, SpotterResult> resultsMap;
 	private XPerformanceProblem rootProblem;
+	private String report;
 
 	/**
 	 * Returns a map from problemIds to spotter results.
@@ -67,6 +68,24 @@ public class ResultsContainer implements Serializable {
 	 */
 	public void setRootProblem(XPerformanceProblem rootProblem) {
 		this.rootProblem = rootProblem;
+	}
+
+	/**
+	 * 
+	 * @return the report text
+	 */
+	public String getReport() {
+		return report;
+	}
+
+	/**
+	 * Sets the report text.
+	 * 
+	 * @param report
+	 *            the report text to set
+	 */
+	public void setReport(String report) {
+		this.report = report;
 	}
 
 }
