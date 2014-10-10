@@ -15,11 +15,8 @@
  */
 package org.spotter.service;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -329,30 +326,13 @@ public class SpotterServiceWrapper {
 				location += "/" + subdirs[0].getName();
 				File result = new File(location + "/" + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
 				if (result.exists() && result.isFile()) {
-					// read file content
-					System.out.println("read Result content from " + result.getAbsolutePath());
-					return readResultsContainerFromFile(result);
-				}
-			}
-		}
-		return null;
-	}
 
-	private static ResultsContainer readResultsContainerFromFile(File result) {
-		ObjectInputStream objectIn = null;
-		try {
-			BufferedInputStream bufferedInStream = new BufferedInputStream(new FileInputStream(result));
-			objectIn = new ObjectInputStream(bufferedInStream);
-			ResultsContainer resultsContainer = (ResultsContainer) objectIn.readObject();
-			return resultsContainer;
-		} catch (IOException | ClassNotFoundException e) {
-			LOGGER.warn("Error while reading results object");
-		} finally {
-			if (objectIn != null) {
-				try {
-					objectIn.close();
-				} catch (IOException e) {
-					LOGGER.debug("Error while closing results file");
+					try {
+						return (ResultsContainer) LpeFileUtils.readObject(result);
+					} catch (ClassNotFoundException | IOException e) {
+						LOGGER.warn("Error while reading results object. Cause: {}", e.getMessage());
+					}
+
 				}
 			}
 		}

@@ -15,6 +15,9 @@
  */
 package org.spotter.eclipse.ui.navigator;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -64,6 +67,11 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 
 	@Override
 	public String getText() {
+		long timestamp = System.currentTimeMillis(); // TODO: replaced later by saved timestamp
+		Date date = new Date(timestamp);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd (HH:mm:ss)");
+		String readableTimestamp = dateFormat.format(date);
+		//return readableTimestamp;
 		return elementName;
 	}
 
