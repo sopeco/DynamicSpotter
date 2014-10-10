@@ -41,6 +41,7 @@ public final class FileManager {
 	public static final String SPOTTER_CONFIG_FILENAME = "spotter.conf";
 	public static final String ENVIRONMENT_FILENAME = "mEnv.xml";
 	public static final String HIERARCHY_FILENAME = "hierarchy.xml";
+	public static final String JOBS_CONTAINER_FILENAME = "jobs.ser";
 
 	private static final String KEY_HIERARCHY_FILE_DESC = "path to the XML file describing the problem hierarchy";
 	private static final String KEY_ENVIRONMENT_FILE_DESC = "path to the XML file describing all measurement satellites and their configurations";

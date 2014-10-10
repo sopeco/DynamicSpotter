@@ -71,7 +71,7 @@ public class RunHandler extends AbstractHandler {
 
 		IProject project = selectedProjects.iterator().next();
 		ServiceClientWrapper client = activator.getClient(project.getName());
-		
+
 		String spotterFileName = FileManager.SPOTTER_CONFIG_FILENAME;
 		IFile spotterFile = project.getFile(spotterFileName);
 		String spotterFilePath = spotterFile.getLocation().toString();
@@ -113,7 +113,7 @@ public class RunHandler extends AbstractHandler {
 		}
 		Long jobId = client.startDiagnosis(jobDescription);
 		if (jobId != null && jobId != 0) {
-			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId);
+			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId, System.currentTimeMillis());
 			job.schedule();
 		} else {
 			String msg = String.format(MSG_RUNTIME_ERROR, "Could not retrieve a valid job id!");

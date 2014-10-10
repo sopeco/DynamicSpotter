@@ -15,10 +15,8 @@
  */
 package org.spotter.eclipse.ui.view;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,6 +68,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -624,13 +623,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
 				file.refreshLocal(IResource.DEPTH_ZERO, null);
 			}
-			BufferedInputStream bufferedInStream = new BufferedInputStream(file.getContents());
-			ObjectInputStream objectIn = new ObjectInputStream(bufferedInStream);
-
-			resultsContainer = (ResultsContainer) objectIn.readObject();
-
-			objectIn.close();
-			bufferedInStream.close();
+			File containerFile = new File(file.getLocation().toString());
+			resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
 		} catch (CoreException e) {
 			resultsContainer = null;
 			String text = ERR_MSG_MISSING_SER_FILE + " (" + filename + ")";

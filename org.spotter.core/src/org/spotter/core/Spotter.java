@@ -17,14 +17,14 @@ package org.spotter.core;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
 import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.LpeNumericUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,17 +219,13 @@ public final class Spotter {
 	private void serializeResults(ResultsContainer resultsContainer) {
 		String outputFile = GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR)
 				+ ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+		
 		try {
-			FileOutputStream fileOut = new FileOutputStream(outputFile);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(resultsContainer);
-			out.close();
-			fileOut.close();
-		} catch (Exception e) {
-			LOGGER.error("Failed serializing results to file {}! ", outputFile);
+			LpeFileUtils.writeObject(outputFile, resultsContainer);
+			LOGGER.info("Serialized results to the following file: {}", outputFile);
+		} catch (IOException e) {
+			LOGGER.error("Failed serializing results to file {}! Cause: {}", outputFile, e.getMessage());
 		}
-
-		LOGGER.info("Serialized results to the following file: {}", outputFile);
 	}
 
 	/**
