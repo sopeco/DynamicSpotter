@@ -150,7 +150,9 @@ public final class SpotterProjectSupport {
 		// TODO: adjust dialog to allow soft deletion only from workspace
 		// without deleting it from disk
 		project.delete(true, true, null);
-		deleteProjectPreferences(project.getName());
+		String projectName = project.getName();
+		Activator.getDefault().getNavigatorContentProvider().removeCachedProject(projectName);
+		deleteProjectPreferences(projectName);
 	}
 
 	/**

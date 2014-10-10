@@ -227,6 +227,15 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		return listener;
 	}
 
+	/**
+	 * Removes a project from the cache.
+	 * 
+	 * @param projectName the name of the project to remove
+	 */
+	public void removeCachedProject(String projectName) {
+		wrapperCache.remove(projectName);
+	}
+
 	@Override
 	public Object[] getElements(Object inputElement) {
 		return getChildren(inputElement);
@@ -250,16 +259,27 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	private Object[] createSpotterProjectParents(IProject[] projects) {
 		Object[] result = null;
 
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
+		Set<String> deadProjects = new HashSet<>();
+		deadProjects.addAll(wrapperCache.keySet());
+
 		for (int i = 0; i < projects.length; i++) {
-			Object spotterProjectParent = wrapperCache.get(projects[i].getName());
+			String projectName = projects[i].getName();
+			deadProjects.remove(projectName);
+			Object spotterProjectParent = wrapperCache.get(projectName);
 			if (spotterProjectParent == null) {
 				spotterProjectParent = createSpotterProjectParent(projects[i]);
 				wrapperCache.put(projects[i].getName(), spotterProjectParent);
 			}
+			
 			if (spotterProjectParent != null) {
 				list.add(spotterProjectParent);
 			} // else ignore the project
+		}
+
+		// clean up the cache from projects that no longer exist
+		for (String deadProject : deadProjects) {
+			wrapperCache.remove(deadProject);
 		}
 
 		result = new Object[list.size()];
