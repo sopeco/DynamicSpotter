@@ -615,9 +615,14 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateResultsContainer() {
-		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
-		IFile file = runResultItem.getProject().getFile(filename);
+//		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
+//				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+//		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
+//				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+		
+		IFile file = runResultItem.getResultFolder().getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+		
+		//IFile file = runResultItem.getProject().getFile(filename);
 		resultsContainer = null;
 		try {
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
@@ -627,12 +632,12 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
 		} catch (CoreException e) {
 			resultsContainer = null;
-			String text = ERR_MSG_MISSING_SER_FILE + " (" + filename + ")";
+			String text = ERR_MSG_MISSING_SER_FILE + " (" + file.getLocation() + ")";
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
 			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		} catch (IOException | ClassNotFoundException e) {
 			resultsContainer = null;
-			String text = String.format(ERR_MSG_IO_ERROR, filename);
+			String text = String.format(ERR_MSG_IO_ERROR, file.getLocation());
 			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
 			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
 		}

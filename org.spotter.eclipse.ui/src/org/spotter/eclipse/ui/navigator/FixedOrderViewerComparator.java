@@ -75,8 +75,6 @@ public class FixedOrderViewerComparator extends ViewerComparator {
 			IBaseLabelProvider prov = ((ContentViewer) viewer).getLabelProvider();
 			if (prov instanceof ILabelProvider) {
 				ILabelProvider lprov = (ILabelProvider) prov;
-				// TODO: convert between timestamp and nice date representation
-				// for SpotterProjectRunResult elements
 				name1 = lprov.getText(e1);
 			} else {
 				name1 = e1.toString();

@@ -206,6 +206,24 @@ public final class DialogUtils {
 	}
 
 	/**
+	 * Opens asynchronously a warning dialog with the given title and message.
+	 * It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openAsyncWarning(final String title, final String message) {
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				MessageDialog.openWarning(getShell(), title, message);
+			}
+		});
+	}
+
+	/**
 	 * Opens a warning dialog with the given message and a default title. It is
 	 * ensured that the dialog is opened on the UI thread.
 	 * 
@@ -214,6 +232,17 @@ public final class DialogUtils {
 	 */
 	public static void openWarning(final String message) {
 		openWarning(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
+	 * Opens asynchronously a warning dialog with the given message and a
+	 * default title. It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openAsyncWarning(final String message) {
+		openAsyncWarning(DEFAULT_DLG_TITLE, message);
 	}
 
 	/**
