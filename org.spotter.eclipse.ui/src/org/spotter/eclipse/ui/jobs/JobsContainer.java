@@ -18,7 +18,9 @@ package org.spotter.eclipse.ui.jobs;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -42,6 +44,7 @@ public class JobsContainer implements Serializable {
 	private static final long serialVersionUID = 2437447304864394397L;
 
 	private final Set<Long> jobIds = new HashSet<>();
+	private final Map<Long, Long> timestamps = new HashMap<>();
 
 	/**
 	 * Returns <code>true</code> if the id is included, otherwise
@@ -54,6 +57,20 @@ public class JobsContainer implements Serializable {
 	 */
 	public boolean hasJobId(Long jobId) {
 		return jobIds.contains(jobId);
+	}
+
+	/**
+	 * Returns the timestamp that corresponds to the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id the timestamp shall be returned for
+	 * @return the corresponding timestamp
+	 */
+	public Long getTimestamp(Long jobId) {
+		if (!jobIds.contains(jobId)) {
+			throw new IllegalArgumentException("The given job id is not registered");
+		}
+		return timestamps.get(jobId);
 	}
 
 	/**
@@ -79,9 +96,12 @@ public class JobsContainer implements Serializable {
 	 * 
 	 * @param jobId
 	 *            the id to add
+	 * @param timestamp
+	 *            the corresponding timestamp
 	 */
-	public void addJobId(Long jobId) {
+	public void addJobId(Long jobId, Long timestamp) {
 		jobIds.add(jobId);
+		timestamps.put(jobId, timestamp);
 	}
 
 	/**
@@ -91,6 +111,7 @@ public class JobsContainer implements Serializable {
 	 *            the id to remove
 	 */
 	public void removeJobId(Long jobId) {
+		timestamps.remove(jobId);
 		jobIds.remove(jobId);
 	}
 
@@ -98,6 +119,7 @@ public class JobsContainer implements Serializable {
 	 * Clears all job ids.
 	 */
 	public void reset() {
+		timestamps.clear();
 		jobIds.clear();
 	}
 
@@ -108,33 +130,49 @@ public class JobsContainer implements Serializable {
 	 *            the project the id belongs to
 	 * @param jobId
 	 *            the id to register
+	 * @param timestamp
+	 *            the corresponding timestamp
 	 * @return <code>true</code> on success, otherwise <code>false</code>
 	 */
-	public static boolean registerJobId(IProject project, long jobId) {
+	public static boolean registerJobId(IProject project, long jobId, long timestamp) {
 		boolean success = false;
 		synchronized (JobsContainer.jobMonitor) {
 			JobsContainer jobsContainer = readJobsContainer(project);
-			jobsContainer.addJobId(jobId);
+			jobsContainer.addJobId(jobId, timestamp);
 			success = writeJobsContainer(project, jobsContainer);
 		}
 		return success;
 	}
 
 	/**
-	 * Returns the job ids that belong to the given project.
+	 * Removes the given job id for the project.
 	 * 
 	 * @param project
-	 *            the project whose job ids should be returned
-	 * @return array of related job ids
+	 *            the project the id belongs to
+	 * @param jobId
+	 *            the id to remove
+	 * @return <code>true</code> on success, otherwise <code>false</code>
 	 */
-	public static Long[] getJobIds(IProject project) {
+	public static boolean removeJobId(IProject project, long jobId) {
+		boolean success = false;
 		synchronized (JobsContainer.jobMonitor) {
 			JobsContainer jobsContainer = readJobsContainer(project);
-			return jobsContainer.getJobIds();
+			jobsContainer.removeJobId(jobId);
+			success = writeJobsContainer(project, jobsContainer);
 		}
+		return success;
 	}
 
-	private static JobsContainer readJobsContainer(IProject project) {
+	/**
+	 * Retrieves the current job container for the given project. In case the
+	 * file does not exist or an error occurs while reading it an empty
+	 * container is returned.
+	 * 
+	 * @param project
+	 *            the project the container should be retrieved for
+	 * @return the corresponding job container or an empty one
+	 */
+	public static JobsContainer readJobsContainer(IProject project) {
 		String fileName = project.getFile(FileManager.JOBS_CONTAINER_FILENAME).getLocation().toString();
 		File file = new File(fileName);
 		JobsContainer jobsContainer = new JobsContainer();

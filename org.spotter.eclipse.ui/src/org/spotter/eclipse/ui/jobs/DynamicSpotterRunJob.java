@@ -62,7 +62,6 @@ public class DynamicSpotterRunJob extends Job {
 
 	private final IProject project;
 	private final long jobId;
-	private final long timestamp;
 	private final Set<String> processedProblems;
 	private Map.Entry<String, DiagnosisProgress> currentProblem;
 
@@ -81,7 +80,6 @@ public class DynamicSpotterRunJob extends Job {
 
 		this.project = project;
 		this.jobId = jobId;
-		this.timestamp = timestamp;
 		this.processedProblems = new HashSet<>();
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
@@ -95,7 +93,7 @@ public class DynamicSpotterRunJob extends Job {
 		setPriority(LONG);
 		setUser(true);
 
-		if (!JobsContainer.registerJobId(project, jobId)) {
+		if (!JobsContainer.registerJobId(project, jobId, timestamp)) {
 			DialogUtils.openError(RunHandler.DIALOG_TITLE,
 					"There was an error when saving the job id. You may not access the results of the diagnosis run.");
 		}

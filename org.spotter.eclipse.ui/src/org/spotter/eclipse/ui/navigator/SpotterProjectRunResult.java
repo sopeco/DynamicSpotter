@@ -28,6 +28,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 
@@ -47,6 +48,8 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
 	private Image image;
+	private final long jobId;
+	private final long timestamp;
 	private final String elementName;
 
 	/**
@@ -54,24 +57,26 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	 * 
 	 * @param parent
 	 *            the parent element
-	 * @param elementName
-	 *            the name of the element
+	 * @param jobId
+	 *            the corresponding job id of this run result
+	 * @param timestamp
+	 *            the corresponding timestamp of this run result
 	 * @param resultFolder
 	 *            the result folder that is represented by this node
 	 */
-	public SpotterProjectRunResult(ISpotterProjectElement parent, String elementName, IFolder resultFolder) {
+	public SpotterProjectRunResult(ISpotterProjectElement parent, long jobId, long timestamp, IFolder resultFolder) {
 		this.parent = parent;
-		this.elementName = elementName;
+		this.jobId = jobId;
+		this.timestamp = timestamp;
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd (HH:mm:ss)");
+		this.elementName = dateFormat.format(new Date(timestamp));
+
 		this.resultFolder = resultFolder;
 	}
 
 	@Override
 	public String getText() {
-		long timestamp = System.currentTimeMillis(); // TODO: replaced later by saved timestamp
-		Date date = new Date(timestamp);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd (HH:mm:ss)");
-		String readableTimestamp = dateFormat.format(date);
-		//return readableTimestamp;
 		return elementName;
 	}
 
@@ -82,6 +87,13 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 		}
 
 		return image;
+	}
+
+	/**
+	 * @return the corresponding timestamp of this run result
+	 */
+	public long getTimestamp() {
+		return timestamp;
 	}
 
 	/**
@@ -156,6 +168,11 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 
 			ResultsView.reset(resultFolder);
 			resultFolder.delete(true, null);
+			// clear job id
+			if (!JobsContainer.removeJobId(getProject(), jobId)) {
+				DialogUtils
+						.openError("There was an error while updating the project's job ids. The results of the corresponding id will be fetched again.");
+			}
 			// update navigator viewer
 			((SpotterProjectResults) getParent()).refreshChildren();
 			TreeViewer viewer = Activator.getDefault().getNavigatorViewer();

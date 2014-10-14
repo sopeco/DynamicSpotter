@@ -16,7 +16,10 @@
 package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
@@ -24,10 +27,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
+import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.jobs.JobsContainer;
+import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.configuration.FileManager;
+import org.spotter.shared.result.ResultsLocationConstants;
+import org.spotter.shared.result.model.ResultsContainer;
 
 /**
  * An element that represents the results node.
@@ -125,39 +134,85 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	}
 
 	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
-		String defaultResultsDir = FileManager.DEFAULT_RESULTS_DIR_NAME;
-		IFolder resDir = iProject.getFolder(defaultResultsDir);
+		IFolder resDir = iProject.getFolder(FileManager.DEFAULT_RESULTS_DIR_NAME);
 
 		if (!resDir.isSynchronized(IResource.DEPTH_INFINITE)) {
 			try {
 				resDir.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
-				LOGGER.warn("Failed to refresh results directory");
+				String msg = "Failed to refresh results directory.";
+				LOGGER.warn(msg);
+				DialogUtils.openWarning(msg);
 				return SpotterProjectParent.NO_CHILDREN;
 			}
 		}
 
-		File res = new File(resDir.getLocation().toString());
-		List<File> runFolders = new ArrayList<>();
-		ISpotterProjectElement[] elements = SpotterProjectParent.NO_CHILDREN;
+		return synchronizeRunResults(iProject, resDir.getLocation().toString());
+	}
 
-		if (res.exists() && res.isDirectory()) {
-			File[] files = res.listFiles();
-			for (File file : files) {
-				if (file.isDirectory()) {
-					runFolders.add(file);
-				}
+	private ISpotterProjectElement[] synchronizeRunResults(IProject iProject, String resultsLocation) {
+		File res = new File(resultsLocation);
+		List<ISpotterProjectElement> elements = new ArrayList<>();
+		ServiceClientWrapper client = Activator.getDefault().getClient(iProject.getName());
+
+		if (!res.exists() || !res.isDirectory()) {
+			DialogUtils.openWarning("The project's results folder is missing or corrupted!");
+		} else {
+			boolean connected = client.testConnection(false);
+			if (!connected) {
+				DialogUtils.openAsyncWarning("No connection to DS service! New results cannot be fetched from the server.");
 			}
+			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
 
-			elements = new ISpotterProjectElement[runFolders.size()];
-			int i = 0;
-			for (File runFolder : runFolders) {
-				IFolder runResultFolder = iProject.getFolder(defaultResultsDir + File.separator + runFolder.getName());
-				elements[i++] = new SpotterProjectRunResult(this, runFolder.getName(), runResultFolder);
+			for (Long jobId : jobsContainer.getJobIds()) {
+				SpotterProjectRunResult runResult = processJobId(jobId, connected, client, jobsContainer,
+						resultsLocation, iProject);
+				if (runResult != null) {
+					elements.add(runResult);
+				}
 			}
 		}
 
-		return elements;
+		return elements.toArray(new ISpotterProjectElement[elements.size()]);
+	}
+
+	private SpotterProjectRunResult processJobId(Long jobId, boolean connected, ServiceClientWrapper client,
+			JobsContainer jobsContainer, String resultsLocation, IProject iProject) {
+		if (connected && client.isRunning(true) && jobId.equals(client.getCurrentJobId())) {
+			LOGGER.debug("Ignore job " + jobId + " because it is currently running");
+			return null;
+		}
+
+		Long timestamp = jobsContainer.getTimestamp(jobId);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd_HH-mm-ss-SSS");
+		String formattedTimestamp = dateFormat.format(new Date(timestamp));
+
+		String fileName = resultsLocation + "/" + formattedTimestamp;
+		File file = new File(fileName);
+		boolean success = file.exists();
+		if (!success && connected) {
+			// try to fetch data from server
+			ResultsContainer resultsContainer = client.requestResults(jobId.toString());
+			if (resultsContainer != null && file.mkdir()) {
+				String resultsFile = fileName + "/" + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+				try {
+					LpeFileUtils.writeObject(resultsFile, resultsContainer);
+					success = true;
+				} catch (IOException e) {
+					String msg = "Error while saving fetched results for job " + jobId + "!";
+					DialogUtils.openError(msg);
+					LOGGER.error(msg + " Cause: {}", e.toString());
+				}
+			}
+		}
+
+		if (success) {
+			IFolder runResultFolder = iProject.getFolder(FileManager.DEFAULT_RESULTS_DIR_NAME + "/"
+					+ formattedTimestamp);
+			return new SpotterProjectRunResult(this, jobId, timestamp, runResultFolder);
+		} else {
+			return null;
+		}
 	}
 
 }
