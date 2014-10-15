@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui;
 
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
-import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.status.SpotterProgress;
 
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -248,9 +248,10 @@ public class ServiceClientWrapper {
 	 * 
 	 * @param jobId
 	 *            the job id of the diagnosis run
-	 * @return the retrieved results container or <code>null</code> if none
+	 * @return input stream containing the zipped run result folder or
+	 *         <code>null</code> if none found
 	 */
-	public ResultsContainer requestResults(final String jobId) {
+	public InputStream requestResults(final String jobId) {
 		lastException = null;
 		try {
 			return client.requestResults(jobId);

@@ -16,7 +16,8 @@
 package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,7 +28,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.lpe.common.util.LpeFileUtils;
+import org.lpe.common.util.LpeStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -35,8 +38,6 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.configuration.FileManager;
-import org.spotter.shared.result.ResultsLocationConstants;
-import org.spotter.shared.result.model.ResultsContainer;
 
 /**
  * An element that represents the results node.
@@ -52,10 +53,12 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 
 	private static final String ELEMENT_NAME = "Results";
 	private static final String EMPTY_SUFFIX = " (empty)";
+	private static final String LOADING_SUFFIX = " (loading...)";
 
 	private ISpotterProjectElement parent;
 	private ISpotterProjectElement[] children;
 	private Image image;
+	private boolean initialLoad;
 
 	/**
 	 * Creates a new instance of this element.
@@ -65,11 +68,18 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	 */
 	public SpotterProjectResults(ISpotterProjectElement parent) {
 		this.parent = parent;
+		this.initialLoad = false;
 	}
 
 	@Override
 	public String getText() {
-		String suffix = hasChildren() ? "" : EMPTY_SUFFIX;
+		String suffix;
+		if (children == null) {
+			initialDeferredLoad();
+			suffix = LOADING_SUFFIX;
+		} else {
+			suffix = hasChildren() ? "" : EMPTY_SUFFIX;
+		}
 		return ELEMENT_NAME + suffix;
 	}
 
@@ -85,7 +95,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	@Override
 	public ISpotterProjectElement[] getChildren() {
 		if (children == null) {
-			refreshChildren();
+			initialDeferredLoad();
+			return SpotterProjectParent.NO_CHILDREN;
 		}
 		// else the children are just fine
 
@@ -95,7 +106,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	@Override
 	public boolean hasChildren() {
 		if (children == null) {
-			refreshChildren();
+			initialDeferredLoad();
+			return false;
 		}
 		// else we have already initialized them
 
@@ -133,6 +145,21 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		children = initializeChildren(getProject());
 	}
 
+	private synchronized void initialDeferredLoad() {
+		if (initialLoad) {
+			return;
+		}
+		initialLoad = true;
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				refreshChildren();
+				Activator.getDefault().getNavigatorViewer().refresh(SpotterProjectResults.this);
+			}
+		});
+	}
+
 	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
 		IFolder resDir = iProject.getFolder(FileManager.DEFAULT_RESULTS_DIR_NAME);
 
@@ -155,12 +182,14 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		List<ISpotterProjectElement> elements = new ArrayList<>();
 		ServiceClientWrapper client = Activator.getDefault().getClient(iProject.getName());
 
-		if (!res.exists() || !res.isDirectory()) {
-			DialogUtils.openWarning("The project's results folder is missing or corrupted!");
+		if (!res.isDirectory()) {
+			DialogUtils.openWarning("The project's '" + FileManager.DEFAULT_RESULTS_DIR_NAME
+					+ "' folder is missing or corrupted!");
 		} else {
 			boolean connected = client.testConnection(false);
 			if (!connected) {
-				DialogUtils.openAsyncWarning("No connection to DS service! New results cannot be fetched from the server.");
+				DialogUtils
+						.openAsyncWarning("No connection to DS service! New results cannot be fetched from the server.");
 			}
 			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
 
@@ -192,13 +221,21 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		boolean success = file.exists();
 		if (!success && connected) {
 			// try to fetch data from server
-			ResultsContainer resultsContainer = client.requestResults(jobId.toString());
-			if (resultsContainer != null && file.mkdir()) {
-				String resultsFile = fileName + "/" + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+			InputStream resultsZipStream = client.requestResults(jobId.toString());
+			if (resultsZipStream != null && file.mkdir()) {
+				String zipFileName = fileName + "/" + jobId + ".zip";
+
 				try {
-					LpeFileUtils.writeObject(resultsFile, resultsContainer);
+					FileOutputStream fos = new FileOutputStream(zipFileName);
+					LpeStreamUtils.pipe(resultsZipStream, fos);
+
+					resultsZipStream.close();
+
+					File zipFile = new File(zipFileName);
+					LpeFileUtils.unzip(zipFile, new File(fileName));
+					zipFile.delete();
 					success = true;
-				} catch (IOException e) {
+				} catch (Exception e) {
 					String msg = "Error while saving fetched results for job " + jobId + "!";
 					DialogUtils.openError(msg);
 					LOGGER.error(msg + " Cause: {}", e.toString());

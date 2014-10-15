@@ -349,7 +349,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	public void resourceChanged(IResourceChangeEvent event) {
 		UIJob uiJob = new UIJob("refresh Project Navigator") { //$NON-NLS-1$
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (viewer != null && !viewer.getControl().isDisposed()) {
+				if (viewer != null && !viewer.getControl().isDisposed() && !viewer.isBusy()) {
 					TreePath[] treePaths = viewer.getExpandedTreePaths();
 					viewer.refresh();
 					viewer.setExpandedTreePaths(treePaths);

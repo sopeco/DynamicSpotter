@@ -15,6 +15,7 @@
  */
 package org.spotter.client;
 
+import java.io.InputStream;
 import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
@@ -25,11 +26,11 @@ import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
-import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 
@@ -103,21 +104,19 @@ public class SpotterServiceClient {
 	 * 
 	 * @param jobId
 	 *            the job id of the diagnosis run
-	 * @return the retrieved results container or <code>null</code> if none
+	 * @return input stream of the zipped run result folder or <code>null</code>
+	 *         if none found
 	 */
-	public ResultsContainer requestResults(String jobId) {
-		SpotterServiceResponse<ResultsContainer> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
-				.path(ConfigKeys.SPOTTER_REST_REQU_RESULTS).path(jobId).accept(MediaType.APPLICATION_JSON)
-				.get(new GenericType<SpotterServiceResponse<ResultsContainer>>() {
-				});
-		switch (response.getStatus()) {
-		case OK:
-			return response.getPayload();
-		case SERVER_ERROR:
-			throw new RuntimeException("Server error: " + response.getErrorMessage());
-		case INVALID_STATE:
-		default:
-			throw new IllegalStateException("Illegal response state!");
+	public InputStream requestResults(String jobId) {
+		ClientResponse response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_REQU_RESULTS).type(MediaType.APPLICATION_JSON).accept("application/zip")
+				.post(ClientResponse.class, jobId);
+
+		InputStream inputStream = response.getEntityInputStream();
+		if (inputStream != null) {
+			return inputStream;
+		} else {
+			throw new RuntimeException("Server error: Received no data");
 		}
 	}
 

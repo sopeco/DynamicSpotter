@@ -76,6 +76,7 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
+import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.providers.ResultExtensionsImageProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
@@ -615,37 +616,54 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateResultsContainer() {
-//		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-//				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
-//		String filename = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText()
-//				+ File.separator + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
-		
+
 		IFile file = runResultItem.getResultFolder().getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
-		
-		//IFile file = runResultItem.getProject().getFile(filename);
+		IFolder resultFolder = runResultItem.getResultFolder();
+
 		resultsContainer = null;
+		String errorMsg = null;
 		try {
+			File containerFile = new File(file.getLocation().toString());
+			if (!containerFile.exists()) {
+				try {
+					if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
+						resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+					}
+
+					if (resultFolder.exists()) {
+						resultFolder.delete(true, null);
+					}
+					SpotterProjectResults parent = (SpotterProjectResults) runResultItem.getParent();
+					parent.refreshChildren();
+				} catch (CoreException e) {
+					LOGGER.error("Error while deleting result folder. Cause: {}", e.toString());
+				}
+			}
+
 			if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
 				file.refreshLocal(IResource.DEPTH_ZERO, null);
 			}
-			File containerFile = new File(file.getLocation().toString());
 			resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
 		} catch (CoreException e) {
 			resultsContainer = null;
-			String text = ERR_MSG_MISSING_SER_FILE + " (" + file.getLocation() + ")";
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
+			LOGGER.error(ERR_MSG_MISSING_SER_FILE + " " + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			errorMsg = ERR_MSG_MISSING_SER_FILE + " (" + file.getLocation() + ")";
 		} catch (IOException | ClassNotFoundException e) {
 			resultsContainer = null;
-			String text = String.format(ERR_MSG_IO_ERROR, file.getLocation());
-			LOGGER.error(text + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			DialogUtils.openWarning(RESULTS_VIEW_TITLE, text);
+			errorMsg = String.format(ERR_MSG_IO_ERROR, file.getLocation());
+			LOGGER.error(errorMsg + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+		}
+
+		if (errorMsg != null) {
+			resultsContainer = null;
+			DialogUtils.openWarning(RESULTS_VIEW_TITLE, errorMsg);
+			ResultsView.reset(resultFolder);
 		}
 	}
 
 	private void updateHierarchy() {
 		ExtensionItem input = null;
-		
+
 		if (resultsContainer != null) {
 			XPerformanceProblem root = resultsContainer.getRootProblem();
 			if (root != null) {
