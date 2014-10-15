@@ -16,7 +16,11 @@
 package org.spotter.service;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBException;
 
 import org.lpe.common.config.ConfigParameterDescription;
@@ -33,6 +38,7 @@ import org.lpe.common.extension.Extensions;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeFileUtils;
+import org.lpe.common.util.LpeStreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
@@ -48,13 +54,12 @@ import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.ResultsLocationConstants;
-import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
  * Wraps Spotter execution in a service layer.
  * 
- * @author Alexander Wert
+ * @author Alexander Wert, Denis Knoepfle
  * 
  */
 public class SpotterServiceWrapper {
@@ -71,6 +76,8 @@ public class SpotterServiceWrapper {
 	 * diagnosis runs.
 	 */
 	private static final String RUNTIME_FOLDER = "runtime-diagnosis";
+
+	private static final String ZIP_FILE_EXTENSION = ".zip";
 
 	private static SpotterServiceWrapper instance;
 
@@ -136,16 +143,23 @@ public class SpotterServiceWrapper {
 	 * 
 	 * @param jobId
 	 *            the job id of the diagnosis run
-	 * @return the retrieved results container or <code>null</code> if none
+	 * @return output streaming the zipped run result folder or
+	 *         <code>null</code> if none found
 	 */
-	public ResultsContainer requestResults(String jobId) {
-		String location = getRuntimeLocation();
-		File[] dirs = new File(location).listFiles();
-		for (File dir : dirs) {
-			if (dir.isDirectory() && dir.getName().equals(jobId)) {
-				location += "/" + dir.getName() + "/" + FileManager.DEFAULT_RESULTS_DIR_NAME;
-				return findResultsContainer(location);
-			}
+	public StreamingOutput requestResults(String jobId) {
+		String location = getRuntimeLocation() + "/" + jobId;
+		File dir = new File(location);
+		if (dir.isDirectory()) {
+			final String resultsFolder = location + "/" + FileManager.DEFAULT_RESULTS_DIR_NAME;
+
+			StreamingOutput output = new StreamingOutput() {
+				@Override
+				public void write(OutputStream os) {
+					pipeRunFolderToOutputStream(resultsFolder, os);
+				}
+			};
+			return output;
+
 		}
 		return null;
 	}
@@ -317,26 +331,75 @@ public class SpotterServiceWrapper {
 		return SpotterServiceWrapper.WORKING_DIR + "/" + SpotterServiceWrapper.RUNTIME_FOLDER;
 	}
 
-	private ResultsContainer findResultsContainer(String resultsDirLocation) {
+	private void pipeRunFolderToOutputStream(String resultsDirLocation, OutputStream os) {
 		String location = resultsDirLocation;
 		File resultsDir = new File(location);
-		if (resultsDir.exists() && resultsDir.isDirectory()) {
-			File[] subdirs = resultsDir.listFiles();
-			if (subdirs.length == 1 && subdirs[0].isDirectory()) {
-				location += "/" + subdirs[0].getName();
-				File result = new File(location + "/" + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
-				if (result.exists() && result.isFile()) {
 
-					try {
-						return (ResultsContainer) LpeFileUtils.readObject(result);
-					} catch (ClassNotFoundException | IOException e) {
-						LOGGER.warn("Error while reading results object. Cause: {}", e.getMessage());
-					}
-
+		if (resultsDir.isDirectory()) {
+			File[] subdirs = resultsDir.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return pathname.isDirectory();
 				}
+			});
+			if (subdirs.length == 1) {
+				location += "/" + subdirs[0].getName();
+
+				// pipe zipped run result folder
+				FileInputStream fileInputStream = null;
+				try {
+					fileInputStream = getZippedRunFolder(location);
+					LpeStreamUtils.pipe(fileInputStream, os);
+				} catch (IOException e) {
+					LOGGER.error("Error while streaming results data. Cause: {}", e.toString());
+					throw new RuntimeException(e);
+				} finally {
+					try {
+						if (fileInputStream != null) {
+							fileInputStream.close();
+						}
+					} catch (IOException e) {
+						LOGGER.warn("Error while closing stream. Cause: {}", e.toString());
+					}
+				}
+
+			} else {
+				LOGGER.warn("Expected to find 1 results folder, but found " + subdirs.length + "!");
 			}
 		}
-		return null;
+	}
+
+	private FileInputStream getZippedRunFolder(String path) throws FileNotFoundException {
+		String zipFileName = path + ZIP_FILE_EXTENSION;
+		File zipFile = new File(zipFileName);
+		File source = new File(path);
+
+		if (!zipFile.exists()) {
+			LOGGER.debug("Packing main results data from '{}' ...", path);
+
+			FileFilter fileFilter = new FileFilter() {
+
+				@Override
+				public boolean accept(File pathname) {
+					if (pathname.isFile()) {
+						return true;
+					}
+
+					if (pathname.isDirectory() && !pathname.getName().equals(ResultsLocationConstants.CSV_SUB_DIR)) {
+						return true;
+					}
+
+					return false;
+				}
+			};
+
+			LpeFileUtils.zip(source, zipFile, fileFilter);
+			LOGGER.debug("Results data packed!");
+		}
+
+		FileInputStream fis = new FileInputStream(zipFileName);
+
+		return fis;
 	}
 
 }

@@ -25,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.lpe.common.config.ConfigParameterDescription;
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
-import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.service.ResponseStatus;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
@@ -86,20 +86,20 @@ public class SpotterService {
 	 *            the job id matching to the diagnosis run to fetch the results of
 	 * @return the results container for the given id or <code>null</code> if for the id no results exist
 	 */
-	@GET
-	@Path(ConfigKeys.SPOTTER_REST_REQU_RESULTS + "/{jobId}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public SpotterServiceResponse<ResultsContainer> requestResults(@PathParam("jobId") String jobId) {
-		try {
-			ResultsContainer container = SpotterServiceWrapper.getInstance().requestResults(jobId);
-			if (jobId == null) {
-				return new SpotterServiceResponse<ResultsContainer>(null, ResponseStatus.INVALID_STATE);
-			} else {
-				return new SpotterServiceResponse<ResultsContainer>(container, ResponseStatus.OK);
-			}
-		} catch (Exception e) {
-			return createErrorResponse(e);
+	@POST
+	@Path(ConfigKeys.SPOTTER_REST_REQU_RESULTS)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces("application/zip")
+	public StreamingOutput requestResults(String jobId) {
+		if (jobId == null) {
+			return null;
 		}
+		try {
+			return SpotterServiceWrapper.getInstance().requestResults(jobId);
+		} catch (Exception e) {
+			LOGGER.error("Server error: " + e);
+		}
+		return null;
 	}
 
 	/**
