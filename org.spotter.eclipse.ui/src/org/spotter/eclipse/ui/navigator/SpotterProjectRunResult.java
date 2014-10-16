@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -174,9 +173,9 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 						.openError("There was an error while updating the project's job ids. The results of the corresponding id will be fetched again.");
 			}
 			// update navigator viewer
-			((SpotterProjectResults) getParent()).refreshChildren();
-			TreeViewer viewer = Activator.getDefault().getNavigatorViewer();
-			viewer.refresh();
+			SpotterProjectResults parent = (SpotterProjectResults) getParent();
+			parent.refreshChildren();
+			Activator.getDefault().getNavigatorViewer().refresh(parent);
 		} catch (CoreException e) {
 			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
 			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));

@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -167,9 +168,9 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 			try {
 				resDir.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
-				String msg = "Failed to refresh results directory.";
-				LOGGER.warn(msg);
-				DialogUtils.openWarning(msg);
+				String msg = "Failed to refresh results directory. Cannot proceed to create child nodes!";
+				LOGGER.error(msg);
+				DialogUtils.openError(msg);
 				return SpotterProjectParent.NO_CHILDREN;
 			}
 		}
@@ -187,13 +188,15 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 					+ "' folder is missing or corrupted!");
 		} else {
 			boolean connected = client.testConnection(false);
-			if (!connected) {
+			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
+
+			Long[] jobIds = jobsContainer.getJobIds();
+			if (!connected && jobIds.length > 0) {
 				DialogUtils
 						.openAsyncWarning("No connection to DS service! New results cannot be fetched from the server.");
 			}
-			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
 
-			for (Long jobId : jobsContainer.getJobIds()) {
+			for (Long jobId : jobIds) {
 				SpotterProjectRunResult runResult = processJobId(jobId, connected, client, jobsContainer,
 						resultsLocation, iProject);
 				if (runResult != null) {
@@ -216,40 +219,78 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd_HH-mm-ss-SSS");
 		String formattedTimestamp = dateFormat.format(new Date(timestamp));
 
-		String fileName = resultsLocation + "/" + formattedTimestamp;
-		File file = new File(fileName);
-		boolean success = file.exists();
+		String runFolderName = resultsLocation + "/" + formattedTimestamp;
+		File runFolder = new File(runFolderName);
+
+		// if the folder already exists, assume data has already been fetched
+		boolean success = runFolder.exists();
+
 		if (!success && connected) {
 			// try to fetch data from server
-			InputStream resultsZipStream = client.requestResults(jobId.toString());
-			if (resultsZipStream != null && file.mkdir()) {
-				String zipFileName = fileName + "/" + jobId + ".zip";
+			InputStream resultsZipStream = fetchResultsZipStream(client, jobId.toString());
 
-				try {
-					FileOutputStream fos = new FileOutputStream(zipFileName);
-					LpeStreamUtils.pipe(resultsZipStream, fos);
-
-					resultsZipStream.close();
-
-					File zipFile = new File(zipFileName);
-					LpeFileUtils.unzip(zipFile, new File(fileName));
-					zipFile.delete();
-					success = true;
-				} catch (Exception e) {
-					String msg = "Error while saving fetched results for job " + jobId + "!";
-					DialogUtils.openError(msg);
-					LOGGER.error(msg + " Cause: {}", e.toString());
-				}
+			if (resultsZipStream != null) {
+				String zipFileName = runFolderName + "/" + jobId + ".tmp";
+				success = unpackFromInputStream(jobId.toString(), runFolder, zipFileName, resultsZipStream);
 			}
 		}
 
 		if (success) {
-			IFolder runResultFolder = iProject.getFolder(FileManager.DEFAULT_RESULTS_DIR_NAME + "/"
-					+ formattedTimestamp);
-			return new SpotterProjectRunResult(this, jobId, timestamp, runResultFolder);
+			String projectRelativePath = FileManager.DEFAULT_RESULTS_DIR_NAME + "/" + formattedTimestamp;
+			IFolder folder = iProject.getFolder(projectRelativePath);
+			return new SpotterProjectRunResult(this, jobId, timestamp, folder);
 		} else {
 			return null;
 		}
+	}
+
+	/*
+	 * Unpacks the data from the input stream to the given run folder.
+	 */
+	private boolean unpackFromInputStream(String jobId, File runFolder, String zipFileName, InputStream resultsZipStream) {
+		try {
+			runFolder.mkdir();
+			FileOutputStream fos = new FileOutputStream(zipFileName);
+			LpeStreamUtils.pipe(resultsZipStream, fos);
+
+			resultsZipStream.close();
+
+			File zipFile = new File(zipFileName);
+			LpeFileUtils.unzip(zipFile, runFolder);
+			zipFile.delete();
+
+			return true;
+		} catch (Exception e) {
+			String msg = "Error while saving fetched results for job " + jobId + "!";
+			DialogUtils.openError(msg);
+			LOGGER.error(msg + " Cause: {}", e.toString());
+		}
+
+		return false;
+	}
+
+	/*
+	 * Tries to fetch the input stream from the server, but returns null if it's
+	 * empty.
+	 */
+	private InputStream fetchResultsZipStream(ServiceClientWrapper client, String jobId) {
+		InputStream resultsZipStream = client.requestResults(jobId);
+		boolean isEmptyStream = true;
+
+		try {
+			if (resultsZipStream != null && resultsZipStream.available() > 0) {
+				isEmptyStream = false;
+			} else {
+				String msg = "Received empty input stream for job " + jobId + ", skipping job!";
+				DialogUtils.openWarning(msg);
+			}
+		} catch (IOException e) {
+			String msg = "An error occured while reading from input stream for job " + jobId + ", skipping job!";
+			DialogUtils.openError(msg);
+			LOGGER.error(msg + " Cause: {}", e.toString());
+		}
+
+		return isEmptyStream ? null : resultsZipStream;
 	}
 
 }
