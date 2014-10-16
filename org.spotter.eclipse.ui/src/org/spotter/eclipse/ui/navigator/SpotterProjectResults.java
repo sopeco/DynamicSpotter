@@ -188,13 +188,15 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 					+ "' folder is missing or corrupted!");
 		} else {
 			boolean connected = client.testConnection(false);
-			if (!connected) {
+			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
+
+			Long[] jobIds = jobsContainer.getJobIds();
+			if (!connected && jobIds.length > 0) {
 				DialogUtils
 						.openAsyncWarning("No connection to DS service! New results cannot be fetched from the server.");
 			}
-			JobsContainer jobsContainer = JobsContainer.readJobsContainer(iProject);
 
-			for (Long jobId : jobsContainer.getJobIds()) {
+			for (Long jobId : jobIds) {
 				SpotterProjectRunResult runResult = processJobId(jobId, connected, client, jobsContainer,
 						resultsLocation, iProject);
 				if (runResult != null) {

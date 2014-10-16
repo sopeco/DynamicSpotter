@@ -34,7 +34,8 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class DialogUtils {
 
-	public static final String DEFAULT_DLG_TITLE = "DynamicSpotter";
+	private DialogUtils() {
+	}
 
 	/**
 	 * Class used only privately to retrieve a confirmation return value from a
@@ -58,8 +59,7 @@ public final class DialogUtils {
 
 	}
 
-	private DialogUtils() {
-	}
+	public static final String DEFAULT_DLG_TITLE = "DynamicSpotter";
 
 	/**
 	 * Returns the message string with the appended cause. If cause was
@@ -117,92 +117,52 @@ public final class DialogUtils {
 	}
 
 	/**
-	 * Opens a confirmation dialog with the given title and message. It is
-	 * ensured that the dialog is opened on the UI thread.
+	 * Returns <code>true</code> if currently operating on the UI thread.
 	 * 
-	 * @param title
-	 *            The title of the dialog
-	 * @param message
-	 *            The message of the dialog
-	 * @return <code>true</code> if the user presses the OK button,
-	 *         <code>false</code> otherwise
+	 * @return <code>true</code> if currently operating on the UI thread
 	 */
-	public static boolean openConfirm(final String title, final String message) {
-		if (isUIThread()) {
-			return MessageDialog.openConfirm(getShell(), title, message);
-		} else {
-			ConfirmationRunnable runnable = new ConfirmationRunnable(title, message);
-			getDisplay().syncExec(runnable);
-			return runnable.confirm;
-		}
+	private static boolean isUIThread() {
+		return Thread.currentThread() == getDisplay().getThread();
 	}
 
 	/**
-	 * Opens a confirmation dialog with the given message and a default title.
-	 * It is ensured that the dialog is opened on the UI thread.
-	 * 
-	 * @param message
-	 *            The message of the dialog
-	 * @return <code>true</code> if the user presses the OK button,
-	 *         <code>false</code> otherwise
-	 */
-	public static boolean openConfirm(final String message) {
-		return openConfirm(DEFAULT_DLG_TITLE, message);
-	}
-
-	/**
-	 * Opens an information dialog with the given title and message. It is
-	 * ensured that the dialog is opened on the UI thread.
-	 * 
-	 * @param title
-	 *            The title of the dialog
-	 * @param message
-	 *            The message of the dialog
-	 */
-	public static void openInformation(final String title, final String message) {
-		if (isUIThread()) {
-			MessageDialog.openInformation(getShell(), title, message);
-		} else {
-			getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openInformation(getShell(), title, message);
-				}
-			});
-		}
-	}
-
-	/**
-	 * Opens an information dialog with the given message and a default title.
-	 * It is ensured that the dialog is opened on the UI thread.
+	 * Opens asynchronously an information dialog with the given message and a
+	 * default title. It is ensured that the dialog is opened on the UI thread.
 	 * 
 	 * @param message
 	 *            The message of the dialog
 	 */
-	public static void openInformation(final String message) {
+	public static void openAsyncInformation(final String message) {
 		openInformation(DEFAULT_DLG_TITLE, message);
 	}
 
 	/**
-	 * Opens a warning dialog with the given title and message. It is ensured
-	 * that the dialog is opened on the UI thread.
+	 * Opens asynchronously an information dialog with the given title and
+	 * message. It is ensured that the dialog is opened on the UI thread.
 	 * 
 	 * @param title
 	 *            The title of the dialog
 	 * @param message
 	 *            The message of the dialog
 	 */
-	public static void openWarning(final String title, final String message) {
-		if (isUIThread()) {
-			MessageDialog.openWarning(getShell(), title, message);
-		} else {
-			getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openWarning(getShell(), title, message);
-				}
-			});
-		}
+	public static void openAsyncInformation(final String title, final String message) {
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				MessageDialog.openInformation(getShell(), title, message);
+			}
+		});
+	}
+
+	/**
+	 * Opens asynchronously a warning dialog with the given message and a
+	 * default title. It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openAsyncWarning(final String message) {
+		openAsyncWarning(DEFAULT_DLG_TITLE, message);
 	}
 
 	/**
@@ -224,25 +184,48 @@ public final class DialogUtils {
 	}
 
 	/**
-	 * Opens a warning dialog with the given message and a default title. It is
+	 * Opens a confirmation dialog with the given message and a default title.
+	 * It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 * @return <code>true</code> if the user presses the OK button,
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean openConfirm(final String message) {
+		return openConfirm(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
+	 * Opens a confirmation dialog with the given title and message. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 * @return <code>true</code> if the user presses the OK button,
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean openConfirm(final String title, final String message) {
+		if (isUIThread()) {
+			return MessageDialog.openConfirm(getShell(), title, message);
+		} else {
+			ConfirmationRunnable runnable = new ConfirmationRunnable(title, message);
+			getDisplay().syncExec(runnable);
+			return runnable.confirm;
+		}
+	}
+
+	/**
+	 * Opens an error dialog with the given message and a default title. It is
 	 * ensured that the dialog is opened on the UI thread.
 	 * 
 	 * @param message
 	 *            The message of the dialog
 	 */
-	public static void openWarning(final String message) {
-		openWarning(DEFAULT_DLG_TITLE, message);
-	}
-
-	/**
-	 * Opens asynchronously a warning dialog with the given message and a
-	 * default title. It is ensured that the dialog is opened on the UI thread.
-	 * 
-	 * @param message
-	 *            The message of the dialog
-	 */
-	public static void openAsyncWarning(final String message) {
-		openAsyncWarning(DEFAULT_DLG_TITLE, message);
+	public static void openError(final String message) {
+		openError(DEFAULT_DLG_TITLE, message);
 	}
 
 	/**
@@ -268,23 +251,69 @@ public final class DialogUtils {
 	}
 
 	/**
-	 * Opens an error dialog with the given message and a default title. It is
+	 * Opens an information dialog with the given message and a default title.
+	 * It is ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openInformation(final String message) {
+		openInformation(DEFAULT_DLG_TITLE, message);
+	}
+
+	/**
+	 * Opens an information dialog with the given title and message. It is
+	 * ensured that the dialog is opened on the UI thread.
+	 * 
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
+	 */
+	public static void openInformation(final String title, final String message) {
+		if (isUIThread()) {
+			MessageDialog.openInformation(getShell(), title, message);
+		} else {
+			getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openInformation(getShell(), title, message);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Opens a warning dialog with the given message and a default title. It is
 	 * ensured that the dialog is opened on the UI thread.
 	 * 
 	 * @param message
 	 *            The message of the dialog
 	 */
-	public static void openError(final String message) {
-		openError(DEFAULT_DLG_TITLE, message);
+	public static void openWarning(final String message) {
+		openWarning(DEFAULT_DLG_TITLE, message);
 	}
 
 	/**
-	 * Returns <code>true</code> if currently operating on the UI thread.
+	 * Opens a warning dialog with the given title and message. It is ensured
+	 * that the dialog is opened on the UI thread.
 	 * 
-	 * @return <code>true</code> if currently operating on the UI thread
+	 * @param title
+	 *            The title of the dialog
+	 * @param message
+	 *            The message of the dialog
 	 */
-	private static boolean isUIThread() {
-		return Thread.currentThread() == getDisplay().getThread();
+	public static void openWarning(final String title, final String message) {
+		if (isUIThread()) {
+			MessageDialog.openWarning(getShell(), title, message);
+		} else {
+			getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openWarning(getShell(), title, message);
+				}
+			});
+		}
 	}
 
 }

@@ -18,7 +18,9 @@ package org.spotter.eclipse.ui.view;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -83,7 +85,6 @@ import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
-import org.spotter.shared.configuration.FileManager;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
@@ -391,9 +392,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String resourceFile = prefix + selection;
 			if (resourceImage != null) {
 				resourceImage.dispose();
-				resourceImageData = null;
 				resourceImage = null;
 			}
+			resourceImageData = null;
 			File file = new File(resourceFile);
 			int canvasWidth = canvasRes.getBounds().width;
 			int canvasHeight = canvasRes.getBounds().height;
@@ -410,7 +411,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void openResourcePopupShell(final String resourceIdentifier) {
-		final Shell popupShell = new Shell(SWT.ON_TOP | SWT.RESIZE | SWT.CLOSE);
+		final Shell popupShell = new Shell(SWT.BORDER | SWT.RESIZE | SWT.CLOSE);
 		Label label = new Label(popupShell, SWT.NONE);
 		Display display = Display.getDefault();
 		Rectangle displayRect = display.getClientArea();
@@ -472,16 +473,16 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private String createResourceIdentifier(String resourceName) {
-		return runResultItem.getText() + RESOURCE_SEPARATOR_CHAR + resourceName;
+		return runResultItem.getResultFolder().getName() + RESOURCE_SEPARATOR_CHAR + resourceName;
 	}
 
 	private void updateProblemDetails() {
 		listResources.removeAll();
 		if (resourceImage != null) {
 			resourceImage.dispose();
-			resourceImageData = null;
 			resourceImage = null;
 		}
+		resourceImageData = null;
 		canvasRes.setBackgroundImage(null);
 
 		if (currentSelectedProblem == null) {
@@ -529,7 +530,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	@Override
 	public void dispose() {
 		getViewSite().getPage().removePostSelectionListener(this);
-		for (Shell shell : resourceShells.values()) {
+		Set<Shell> shells = new HashSet<>();
+		shells.addAll(resourceShells.values());
+		for (Shell shell : shells) {
 			shell.close();
 		}
 	}
@@ -600,13 +603,11 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		lblStatus.setText("");
 		textResult.setText("");
 		listResources.removeAll();
-		for (Shell shell : resourceShells.values()) {
-			shell.close();
-		}
+
 		if (resourceImage != null) {
 			resourceImage.dispose();
+			resourceImage = null;
 		}
-		resourceImage = null;
 		resourceImageData = null;
 		canvasRes.setBackgroundImage(null);
 	}
@@ -688,8 +689,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private String getCurrentResourceFolder() {
-		String projectRelativeRunPath = FileManager.DEFAULT_RESULTS_DIR_NAME + File.separator + runResultItem.getText();
-		IFolder folder = runResultItem.getProject().getFolder(projectRelativeRunPath);
+		IFolder folder = runResultItem.getResultFolder();
 		String currentRunFolder = folder.getLocation().toString() + "/";
 		String subDirPath = getSubDirPathForProblem(currentSelectedProblem);
 

@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.spotter.eclipse.ui.Activator;
@@ -201,12 +202,20 @@ public class DynamicSpotterRunJob extends Job {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
-				results.get(project.getName()).refreshChildren();
-
 				if (runException == null) {
-					DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
+					Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
+					SpotterProjectResults projectResultsNode = results.get(project.getName());
+					projectResultsNode.refreshChildren();
+					CommonViewer viewer = activator.getNavigatorViewer();
+					if (!viewer.isBusy()) {
+						viewer.refresh(projectResultsNode);
+						viewer.expandToLevel(projectResultsNode, 1);
+					}
+					DialogUtils.openAsyncInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
 				} else {
+					// remove the job id because the job failed
+					JobsContainer.removeJobId(project, jobId);
+
 					String exceptionMsg = runException.getLocalizedMessage();
 					if (exceptionMsg == null || exceptionMsg.isEmpty()) {
 						exceptionMsg = runException.getClass().getSimpleName();
