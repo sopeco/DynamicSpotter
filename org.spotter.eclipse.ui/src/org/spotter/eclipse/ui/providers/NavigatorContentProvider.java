@@ -16,6 +16,7 @@
 package org.spotter.eclipse.ui.providers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,6 +100,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		if (listenersRegistered && viewer != null) {
 			removeListeners();
 		}
+
 		Activator.getDefault().setNavigatorContentProvider(null);
 	}
 
@@ -119,7 +121,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	}
 
 	/**
-	 * Returns the common viewer currently associated with this content provider.
+	 * Returns the common viewer currently associated with this content
+	 * provider.
 	 * 
 	 * @return the currently associated viewer
 	 */
@@ -132,6 +135,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		viewer.removeSelectionChangedListener(projectSelectionListener);
 		viewer.getTree().removeKeyListener(keyListener);
 
+		Activator.getDefault().setSelectedProjects(Collections.<IProject> emptySet());
 		dblClickOpenListener = null;
 		projectSelectionListener = null;
 		keyListener = null;
@@ -230,7 +234,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	/**
 	 * Removes a project from the cache.
 	 * 
-	 * @param projectName the name of the project to remove
+	 * @param projectName
+	 *            the name of the project to remove
 	 */
 	public void removeCachedProject(String projectName) {
 		wrapperCache.remove(projectName);
@@ -271,7 +276,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				spotterProjectParent = createSpotterProjectParent(projects[i]);
 				wrapperCache.put(projects[i].getName(), spotterProjectParent);
 			}
-			
+
 			if (spotterProjectParent != null) {
 				list.add(spotterProjectParent);
 			} // else ignore the project
@@ -305,8 +310,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				result = new SpotterProjectParent(parentElement);
 			}
 		} catch (CoreException e) {
-			LOGGER.warn("Unable to resolve nature for project " + parentElement.getName() + ". Cause: {}",
-					e.getMessage());
+			LOGGER.warn("Unable to resolve nature for project " + parentElement.getName() + ". Cause: {}", e);
 			// Ignore and go to the next IProject
 		}
 
