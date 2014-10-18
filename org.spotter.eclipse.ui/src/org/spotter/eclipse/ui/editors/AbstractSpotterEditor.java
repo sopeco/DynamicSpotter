@@ -56,7 +56,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	/**
 	 * Error message for failure when saving.
 	 */
-	protected static final String ERR_MSG_SAVE = "Could not save file!\n\nReason: ";
+	protected static final String ERR_MSG_SAVE = "Could not save file! Cause: %s";
 	/**
 	 * Error message for failing to initialize editor.
 	 */
@@ -281,7 +281,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 				makeInputApplicable(input);
 				applicableOrRepaired = true;
 			} catch (UICoreException e) {
-				DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_MAKE_APPLICABLE_FAILED);
+				DialogUtils.handleError(ERR_MSG_MAKE_APPLICABLE_FAILED, e);
 			}
 		}
 		return applicableOrRepaired;

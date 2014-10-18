@@ -24,6 +24,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -85,12 +87,14 @@ public class DynamicSpotterRunJob extends Job {
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
-		// IAction gotoAction = new Action("Results") {
-		// public void run() {
-		// // TODO: show results in ResultsView
-		// }
-		// };
-		// setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+
+		IAction gotoAction = new Action("Results") {
+			public void run() {
+				// TODO: reveal run result node in the navigator
+			}
+		};
+
+		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
 		setPriority(LONG);
 		setUser(true);
 
@@ -131,7 +135,7 @@ public class DynamicSpotterRunJob extends Job {
 		if (client.getLastException() != null) {
 			if (client.isConnectionIssue()) {
 				DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
-				return new Status(Status.WARNING, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
+				return new Status(Status.OK, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
 			} else {
 				// job was cancelled on server-side due to an error
 				runException = client.getLastException();
@@ -192,7 +196,7 @@ public class DynamicSpotterRunJob extends Job {
 
 	private IStatus onUserCancelledJob(Exception exception) {
 		DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
-		return new Status(Status.CANCEL, Activator.PLUGIN_ID, Status.OK, MSG_CANCELLED, exception);
+		return new Status(Status.CANCEL, Activator.PLUGIN_ID, MSG_CANCELLED, exception);
 	}
 
 	private void onFinishedJob(final Exception runException) {

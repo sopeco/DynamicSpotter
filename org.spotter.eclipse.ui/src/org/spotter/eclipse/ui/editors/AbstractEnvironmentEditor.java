@@ -114,7 +114,8 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 
 			super.doSave(monitor);
 		} catch (Exception e) {
-			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
+			String message = String.format(ERR_MSG_SAVE, e.getMessage() == null ? "{}" : e.getMessage());
+			DialogUtils.handleError(message, e);
 		}
 	}
 

@@ -41,7 +41,6 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
 
-	private static final String DELETE_DLG_TITLE = "Delete Resources";
 	private static final String ELEMENT_TYPE_NAME = "Result Item";
 
 	private final ISpotterProjectElement parent;
@@ -177,8 +176,8 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			parent.refreshChildren();
 			Activator.getDefault().getNavigatorViewer().refresh(parent);
 		} catch (CoreException e) {
-			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
-			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));
+			String message = "Error while deleting result folder '" + resultFolder.getName() + "'!";
+			DialogUtils.handleError(message, e);
 		}
 	}
 

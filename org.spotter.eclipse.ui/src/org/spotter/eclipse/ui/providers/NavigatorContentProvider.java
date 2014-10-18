@@ -169,7 +169,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 					try {
 						handlerService.executeCommand(DeleteHandler.DELETE_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_DELETE, e.getMessage()));
+						DialogUtils.handleError(ERR_MSG_DELETE, e);
 					}
 				} else if (event.keyCode == SWT.F5) {
 					if (!commandService.getCommand(RefreshHandler.REFRESH_COMMAND_ID).isEnabled()) {
@@ -178,7 +178,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 					try {
 						handlerService.executeCommand(RefreshHandler.REFRESH_COMMAND_ID, null);
 					} catch (Exception e) {
-						DialogUtils.openError(DialogUtils.appendCause(ERR_MSG_REFRESH, e.getMessage()));
+						DialogUtils.handleError(ERR_MSG_REFRESH, e);
 					}
 				}
 			}

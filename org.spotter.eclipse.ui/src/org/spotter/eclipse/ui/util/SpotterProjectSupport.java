@@ -109,8 +109,8 @@ public final class SpotterProjectSupport {
 			addToProjectStructure(project, paths);
 		} catch (Exception e) {
 			// project creation failed
-			LOGGER.error(e.getMessage());
-			DialogUtils.openError(ERR_CREATE_PROJECT);
+			LOGGER.error(DialogUtils.appendCause(ERR_CREATE_PROJECT, e.toString()));
+			DialogUtils.handleError(ERR_CREATE_PROJECT, e);
 			project = null;
 		}
 

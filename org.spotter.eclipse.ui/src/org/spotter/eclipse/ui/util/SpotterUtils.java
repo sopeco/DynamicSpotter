@@ -204,9 +204,9 @@ public final class SpotterUtils {
 			try {
 				duplicatable.duplicate();
 			} catch (Exception e) {
-				String msg = String.format(ERR_MSG_DUPLICATE, duplicatable.toString());
-				LOGGER.error(DialogUtils.appendCause(msg, e.toString()));
-				DialogUtils.openError(DialogUtils.appendCause(msg, e.getMessage()));
+				String message = String.format(ERR_MSG_DUPLICATE, duplicatable.toString());
+				LOGGER.error(DialogUtils.appendCause(message, e.toString()));
+				DialogUtils.handleError(message, e);
 			}
 		}
 	}
@@ -224,9 +224,9 @@ public final class SpotterUtils {
 			try {
 				deletable.delete();
 			} catch (Exception e) {
-				String msg = String.format(ERR_MSG_DELETE, deletable.toString());
-				LOGGER.error(DialogUtils.appendCause(msg, e.toString()));
-				DialogUtils.openError(DialogUtils.appendCause(msg, e.getMessage()));
+				String message = String.format(ERR_MSG_DELETE, deletable.toString());
+				LOGGER.error(DialogUtils.appendCause(message, e.toString()));
+				DialogUtils.handleError(message, e);
 			}
 		}
 	}

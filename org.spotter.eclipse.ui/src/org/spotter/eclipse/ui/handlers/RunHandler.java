@@ -77,7 +77,7 @@ public class RunHandler extends AbstractHandler {
 		String spotterFilePath = spotterFile.getLocation().toString();
 
 		if (!spotterFile.exists()) {
-			DialogUtils.openError(DIALOG_TITLE, String.format(MSG_MISS_CONFIG, spotterFilePath));
+			DialogUtils.openWarning(DIALOG_TITLE, String.format(MSG_MISS_CONFIG, spotterFilePath));
 			return null;
 		}
 		if (client.isRunning(true)) {
@@ -108,7 +108,7 @@ public class RunHandler extends AbstractHandler {
 			jobDescription = createJobDescription(project);
 		} catch (UICoreException e) {
 			String msg = "Unable to read and parse all configuration files!";
-			DialogUtils.openError(DIALOG_TITLE, DialogUtils.appendCause(msg, e.getMessage()));
+			DialogUtils.handleError(DialogUtils.appendCause(msg, e.getMessage()), e);
 			return;
 		}
 		Long jobId = client.startDiagnosis(jobDescription);
