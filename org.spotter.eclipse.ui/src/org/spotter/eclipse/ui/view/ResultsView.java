@@ -641,7 +641,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 					SpotterProjectResults parent = (SpotterProjectResults) runResultItem.getParent();
 					parent.refreshChildren();
 				} catch (CoreException e) {
-					LOGGER.error("Error while deleting result folder. Cause: {}", e.toString());
+					LOGGER.error("Error while deleting result folder.", e);
 				}
 			}
 
@@ -652,24 +652,20 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		} catch (CoreException e) {
 			errorMsg = ERR_MSG_RES_REFRESH;
 			exception = e;
-			LOGGER.error(DialogUtils.appendCause(ERR_MSG_RES_REFRESH, e.getMessage()));
+			LOGGER.error(ERR_MSG_RES_REFRESH, e);
 		} catch (FileNotFoundException e) {
-			errorMsg = ERR_MSG_MISSING_SER_FILE + " (" + file.getLocation() + ")";
+			errorMsg = ERR_MSG_MISSING_SER_FILE;
 			exception = e;
 			LOGGER.error(DialogUtils.appendCause(ERR_MSG_MISSING_SER_FILE, e.getMessage()));
 		} catch (IOException | ClassNotFoundException e) {
 			errorMsg = String.format(ERR_MSG_PARSE_ERROR, file.getLocation());
 			exception = e;
-			LOGGER.error(errorMsg + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-		} catch (RuntimeException e) {
-			errorMsg = "Runtime blabla.";
-			exception = e;
+			LOGGER.error(errorMsg, e);
 		}
 
 		if (errorMsg != null) {
 			resultsContainer = null;
 			DialogUtils.handleError(errorMsg, exception);
-//			DialogUtils.openWarning(RESULTS_VIEW_TITLE, errorMsg);
 			setResult(null);
 		}
 

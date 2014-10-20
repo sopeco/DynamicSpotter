@@ -89,20 +89,22 @@ public final class RawHierarchyFactory {
 	 * </p>
 	 * 
 	 * @return the default hierarchy given by the configuration file or an empty
-	 *         root instance if file can not be parsed
+	 *         root instance if file can not be found or parsed
 	 */
 	public XPerformanceProblem createProblemHierarchyRoot() {
 		File file = new File(DEFAULT_HIERARCHY_FILENAME);
-		XPerformanceProblem root;
+		XPerformanceProblem root = null;
 		try {
 			root = parseHierarchyFile(DEFAULT_HIERARCHY_FILENAME);
-		} catch (FileNotFoundException | JAXBException e) {
-			LOGGER.info("Could not load the default hierarchy file '" + file.getAbsolutePath()
-					+ "', using empty hierarchy instead! Cause: {}", e.getMessage());
-			root = createEmptyHierarchy();
+		} catch (FileNotFoundException e) {
+			LOGGER.info("Could not find the default hierarchy file '" + file.getAbsolutePath()
+					+ "', using empty hierarchy instead!");
+		} catch (JAXBException e) {
+			LOGGER.warn("The default hierarchy file '" + file.getAbsolutePath()
+					+ "' cannot be parsed, using empty hierarchy instead! Cause: {}", e.getMessage());
 		}
 
-		return root;
+		return root != null ? root : createEmptyHierarchy();
 	}
 
 	/**

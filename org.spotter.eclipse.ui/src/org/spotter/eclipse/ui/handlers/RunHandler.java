@@ -107,8 +107,8 @@ public class RunHandler extends AbstractHandler {
 		try {
 			jobDescription = createJobDescription(project);
 		} catch (UICoreException e) {
-			String msg = "Unable to read and parse all configuration files!";
-			DialogUtils.handleError(DialogUtils.appendCause(msg, e.getMessage()), e);
+			String message = "Unable to read and parse all configuration files!";
+			DialogUtils.handleError(message, e);
 			return;
 		}
 		Long jobId = client.startDiagnosis(jobDescription);

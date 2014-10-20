@@ -67,8 +67,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 			SpotterProjectSupport.saveHierarchy(input.getFile(), input.getPerformanceProblemRoot());
 			super.doSave(monitor);
 		} catch (Exception e) {
-			String message = String.format(ERR_MSG_SAVE, e.getMessage() == null ? "{}" : e.getMessage());
-			DialogUtils.handleError(message, e);
+			DialogUtils.handleError(ERR_MSG_SAVE, e);
 		}
 	}
 

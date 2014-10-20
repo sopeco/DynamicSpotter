@@ -215,7 +215,7 @@ public class ServiceClientWrapper {
 			updateUrl(newHost, newPort);
 			return true;
 		} catch (BackingStoreException e) {
-			LOGGER.error("Saving Service Client settings failed. Cause: {}", e);
+			LOGGER.error("Saving Service Client settings failed.", e);
 			// restore old values
 			prefs.put(KEY_SERVICE_HOST, oldHost);
 			prefs.put(KEY_SERVICE_PORT, oldPort);
@@ -604,9 +604,9 @@ public class ServiceClientWrapper {
 			boolean warning) {
 		lastException = exception;
 		if (warning) {
-			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.getMessage());
+			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.toString());
 		} else {
-			LOGGER.error("{} request failed! Cause: {}", requestName, exception.getMessage());
+			LOGGER.error("{} request failed! Cause: {}", requestName, exception.toString());
 		}
 		if (silent) {
 			return;
@@ -625,7 +625,7 @@ public class ServiceClientWrapper {
 			if (warning) {
 				DialogUtils.openWarning(DIALOG_TITLE, fullMessage);
 			} else {
-				DialogUtils.handleError(fullMessage, exception);
+				DialogUtils.handleError(header, exception);
 			}
 		}
 	}

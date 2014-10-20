@@ -310,7 +310,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 				result = new SpotterProjectParent(parentElement);
 			}
 		} catch (CoreException e) {
-			LOGGER.warn("Unable to resolve nature for project " + parentElement.getName() + ". Cause: {}", e);
+			LOGGER.warn("Unable to resolve nature for project " + parentElement.getName() + ".", e);
 			// Ignore and go to the next IProject
 		}
 

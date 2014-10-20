@@ -52,11 +52,11 @@ public class LinkHelper implements ILinkHelper {
 		AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) anInput;
 		IProject correspondingProject = input.getProject();
 		String editorId = input.getEditorId();
-		
+
 		NavigatorContentProvider provider = Activator.getDefault().getNavigatorContentProvider();
 		CommonViewer viewer = provider.getViewer();
 		Object[] parentObjects = provider.getChildren(viewer.getInput());
-		
+
 		for (Object rawParent : parentObjects) {
 			ISpotterProjectElement parent = (ISpotterProjectElement) rawParent;
 			if (parent.getProject().equals(correspondingProject)) {
@@ -81,10 +81,10 @@ public class LinkHelper implements ILinkHelper {
 		if (!provider.hasChildren(parent)) {
 			return null;
 		}
-		
+
 		Object[] rawChildren = provider.getChildren(parent);
 		Activator.getDefault().getNavigatorViewer().refresh(parent);
-		
+
 		for (Object rawChild : rawChildren) {
 			ISpotterProjectElement element = (ISpotterProjectElement) rawChild;
 			if (rawChild instanceof IOpenableProjectElement) {
@@ -108,7 +108,7 @@ public class LinkHelper implements ILinkHelper {
 			parent = (ISpotterProjectElement) parent.getParent();
 			ancestorList.add(parent);
 		}
-		
+
 		for (int i = ancestorList.size() - 1; i >= 0; i--) {
 			viewer.expandToLevel(ancestorList.get(i), 1);
 		}
@@ -127,7 +127,7 @@ public class LinkHelper implements ILinkHelper {
 		ISpotterProjectElement element = (ISpotterProjectElement) rawElement;
 		IOpenableProjectElement openableElement = (IOpenableProjectElement) rawElement;
 		IProject project = element.getProject();
-		
+
 		for (IEditorReference reference : aPage.getEditorReferences()) {
 			try {
 				IEditorInput editorInput = reference.getEditorInput();
@@ -139,7 +139,7 @@ public class LinkHelper implements ILinkHelper {
 					}
 				}
 			} catch (PartInitException e) {
-				LOGGER.warn("Skipping editor reference: failed to retrieve related editor input");
+				LOGGER.warn("Skipping editor reference: failed to retrieve corresponding editor input");
 			}
 		}
 	}

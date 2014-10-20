@@ -16,14 +16,10 @@
 package org.spotter.eclipse.ui.model.xml;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +27,7 @@ import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.shared.environment.model.ObjectFactory;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
+import org.spotter.shared.util.JAXBUtil;
 
 /**
  * A factory to create empty instances of <code>XMeasurementEnvironment</code>
@@ -73,22 +70,15 @@ public final class MeasurementEnvironmentFactory {
 	 */
 	public XMeasurementEnvironment parseXMLFile(String fileName) throws UICoreException {
 		try {
-			FileReader fileReader = new FileReader(fileName);
-			JAXBContext jc = JAXBContext.newInstance(ObjectFactory.class.getPackage().getName());
-			Unmarshaller u = jc.createUnmarshaller();
-
-			@SuppressWarnings("unchecked")
-			XMeasurementEnvironment xRoot = ((JAXBElement<XMeasurementEnvironment>) u.unmarshal(fileReader)).getValue();
-
-			return xRoot;
+			return JAXBUtil.parseXMLFile(fileName, ObjectFactory.class.getPackage().getName());
 		} catch (FileNotFoundException e) {
-			String msg = "Could not find file '" + fileName + "'!";
-			LOGGER.error(msg + ", " + e.getMessage());
-			throw new UICoreException(msg, e);
+			String message = "Could not find file '" + fileName + "'!";
+			LOGGER.error(message);
+			throw new UICoreException(message, e);
 		} catch (JAXBException e) {
-			String msg = "Failed parsing measurement environment description file '" + fileName + "'";
-			LOGGER.error(msg + ", " + e.getMessage());
-			throw new UICoreException(msg, e);
+			String message = "Failed to parse measurement environment description file '" + fileName + "'!";
+			LOGGER.error(message + " Cause: {}", e.getMessage());
+			throw new UICoreException(message, e);
 		}
 	}
 

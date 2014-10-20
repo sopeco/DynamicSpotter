@@ -210,7 +210,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	private SpotterProjectRunResult processJobId(Long jobId, boolean connected, ServiceClientWrapper client,
 			JobsContainer jobsContainer, String resultsLocation, IProject iProject) {
 		if (connected && client.isRunning(true) && jobId.equals(client.getCurrentJobId())) {
-			LOGGER.debug("Ignore job " + jobId + " because it is currently running");
+			// Ignore this job because it is currently running
 			return null;
 		}
 
@@ -262,7 +262,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		} catch (Exception e) {
 			String message = "Error while saving fetched results for job " + jobId + "!";
 			DialogUtils.handleError(message, e);
-			LOGGER.error(DialogUtils.appendCause(message, e.toString()));
+			LOGGER.error(message, e);
 		}
 
 		return false;
@@ -286,7 +286,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		} catch (IOException e) {
 			String message = "An error occured while reading from input stream for job " + jobId + ", skipping job!";
 			DialogUtils.handleError(message, e);
-			LOGGER.error(DialogUtils.appendCause(message, e.toString()));
+			LOGGER.error(message, e);
 		}
 
 		return isEmptyStream ? null : resultsZipStream;

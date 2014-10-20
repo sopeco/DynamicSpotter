@@ -69,13 +69,13 @@ public final class HierarchyFactory {
 			XPerformanceProblem xRoot = RawHierarchyFactory.getInstance().parseHierarchyFile(fileName);
 			return xRoot;
 		} catch (FileNotFoundException e) {
-			String msg = "Could not find file '" + fileName + "'!";
-			LOGGER.error(msg + ", " + e.getMessage());
-			throw new UICoreException(msg, e);
+			String message = "Could not find file '" + fileName + "'!";
+			LOGGER.error(message);
+			throw new UICoreException(message, e);
 		} catch (JAXBException e) {
-			String msg = "Failed parsing performance problem hierarchy file '" + fileName + "'";
-			LOGGER.error(msg + ", " + e.getMessage());
-			throw new UICoreException(msg, e);
+			String message = "Failed to parse performance problem hierarchy file '" + fileName + "'!";
+			LOGGER.error(message + " Cause: {}", e.getMessage());
+			throw new UICoreException(message, e);
 		}
 	}
 
