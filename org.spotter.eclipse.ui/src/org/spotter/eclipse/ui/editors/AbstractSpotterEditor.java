@@ -56,7 +56,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	/**
 	 * Error message for failure when saving.
 	 */
-	protected static final String ERR_MSG_SAVE = "Could not save file!\n\nReason: ";
+	protected static final String ERR_MSG_SAVE = "Could not save file!";
 	/**
 	 * Error message for failing to initialize editor.
 	 */
@@ -217,7 +217,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 			// CompatibilityPart.create() after openEditor(...) is called,
 			// so a NullEditorInput page is shown, but when the exception
 			// could not be handled, it will be thrown again and returns here
-			LOGGER.error("Unhandled PartInitException = '" + e.getMessage() + "', " + ERR_MSG_INPUT_INVALID);
+			LOGGER.error("Unhandled PartInitException will be rethrown", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -270,18 +270,18 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 			try {
 				applicableOrRepaired = isInputApplicable(input);
 			} catch (Exception e) {
-				LOGGER.error("Failed parsing corrupted file '" + containedFile.getLocation() + "': " + e.getMessage());
 				applicableOrRepaired = false;
 			}
 		}
-		dialogQuestion = String.format(dialogQuestion, containedFile.getLocation(), containedFile.getProject()
-				.getName());
+		
+		String projectName = containedFile.getProject().getName();
+		dialogQuestion = String.format(dialogQuestion, containedFile.getLocation(), projectName);
 		if (!applicableOrRepaired && DialogUtils.openConfirm(TITLE_INPUT_INVALID, dialogQuestion)) {
 			try {
 				makeInputApplicable(input);
 				applicableOrRepaired = true;
 			} catch (UICoreException e) {
-				DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_MAKE_APPLICABLE_FAILED);
+				DialogUtils.handleError(ERR_MSG_MAKE_APPLICABLE_FAILED, e);
 			}
 		}
 		return applicableOrRepaired;

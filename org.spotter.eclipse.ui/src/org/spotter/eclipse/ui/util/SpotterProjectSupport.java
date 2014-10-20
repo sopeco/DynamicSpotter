@@ -109,8 +109,8 @@ public final class SpotterProjectSupport {
 			addToProjectStructure(project, paths);
 		} catch (Exception e) {
 			// project creation failed
-			LOGGER.error(e.getMessage());
-			DialogUtils.openError(ERR_CREATE_PROJECT);
+			LOGGER.error(ERR_CREATE_PROJECT, e);
+			DialogUtils.handleError(ERR_CREATE_PROJECT, e);
 			project = null;
 		}
 
@@ -220,11 +220,12 @@ public final class SpotterProjectSupport {
 			}
 		} catch (CoreException e) {
 			throw new UICoreException(ERR_WRITE_SPOTTER_CONF, e);
-		}
-		try {
-			source.close();
-		} catch (IOException e) {
-			LOGGER.error(ERR_CLOSE_STREAM);
+		} finally {
+			try {
+				source.close();
+			} catch (IOException e) {
+				LOGGER.error(ERR_CLOSE_STREAM);
+			}
 		}
 	}
 
@@ -365,7 +366,7 @@ public final class SpotterProjectSupport {
 				pluginPrefsRoot.flush();
 			}
 		} catch (BackingStoreException e) {
-			LOGGER.error("Error during removal of project preferences. Cause: {}", e);
+			LOGGER.error("Error during removal of project preferences.", e);
 		}
 	}
 
@@ -416,7 +417,7 @@ public final class SpotterProjectSupport {
 			prefs.flush();
 			return true;
 		} catch (BackingStoreException e) {
-			LOGGER.error("Saving expert mode enabled state failed. Cause: {}", e);
+			LOGGER.error("Saving expert mode enabled state failed.", e);
 			// restore old value
 			prefs.putBoolean(KEY_EXPERT_VIEW_ENABLED, oldValue);
 

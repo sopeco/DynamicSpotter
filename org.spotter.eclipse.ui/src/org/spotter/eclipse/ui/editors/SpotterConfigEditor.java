@@ -79,7 +79,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 
 			super.doSave(monitor);
 		} catch (Exception e) {
-			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_SAVE + e.getMessage());
+			DialogUtils.handleError(ERR_MSG_SAVE, e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		try {
 			properties = SpotterProjectSupport.getSpotterConfig(file);
 		} catch (UICoreException e) {
-			DialogUtils.openError(TITLE_ERR_DIALOG, ERR_MSG_INIT + "\n\nReason: " + e.getMessage());
+			DialogUtils.handleError(ERR_MSG_INIT, e);
 			return null;
 		}
 

@@ -16,6 +16,7 @@
 package org.spotter.eclipse.ui.view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,7 +112,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final String RESULTS_CONTENT_DESC_TEMPLATE = "DynamicSpotter Run '%s' of project '%s'";
 	private static final String RESULTS_EMPTY_CONTENT_DESC = "None selected.";
 	private static final String EMPTY_RESULTS = "No results selected.";
-	private static final String ERR_MSG_IO_ERROR = "An I/O error occured while reading the file '%s'.";
+	private static final String ERR_MSG_PARSE_ERROR = "An error occured while parsing the file '%s'.";
+	private static final String ERR_MSG_RES_REFRESH = "Error occured while refreshing resource!";
 	private static final String ERR_MSG_MISSING_REPORT = "Either file is missing or report is not set.";
 	private static final String ERR_MSG_MISSING_SER_FILE = "Could not find the spotter serialization file.";
 
@@ -590,9 +592,10 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
 					runResultItem.getProject().getName());
 			setContentDescription(contentDescription);
-			updateResultsContainer();
-			updateHierarchy();
-			updateReport();
+			if (updateResultsContainer()) {
+				updateHierarchy();
+				updateReport();
+			}
 		}
 	}
 
@@ -616,13 +619,14 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		textReport.setText(EMPTY_RESULTS);
 	}
 
-	private void updateResultsContainer() {
+	private boolean updateResultsContainer() {
 
 		IFile file = runResultItem.getResultFolder().getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
 		IFolder resultFolder = runResultItem.getResultFolder();
 
 		resultsContainer = null;
 		String errorMsg = null;
+		Exception exception = null;
 		try {
 			File containerFile = new File(file.getLocation().toString());
 			if (!containerFile.exists()) {
@@ -637,7 +641,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 					SpotterProjectResults parent = (SpotterProjectResults) runResultItem.getParent();
 					parent.refreshChildren();
 				} catch (CoreException e) {
-					LOGGER.error("Error while deleting result folder. Cause: {}", e.toString());
+					LOGGER.error("Error while deleting result folder.", e);
 				}
 			}
 
@@ -646,20 +650,26 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			}
 			resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
 		} catch (CoreException e) {
-			resultsContainer = null;
-			LOGGER.error(ERR_MSG_MISSING_SER_FILE + " " + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
-			errorMsg = ERR_MSG_MISSING_SER_FILE + " (" + file.getLocation() + ")";
+			errorMsg = ERR_MSG_RES_REFRESH;
+			exception = e;
+			LOGGER.error(ERR_MSG_RES_REFRESH, e);
+		} catch (FileNotFoundException e) {
+			errorMsg = ERR_MSG_MISSING_SER_FILE;
+			exception = e;
+			LOGGER.error(DialogUtils.appendCause(ERR_MSG_MISSING_SER_FILE, e.getMessage()));
 		} catch (IOException | ClassNotFoundException e) {
-			resultsContainer = null;
-			errorMsg = String.format(ERR_MSG_IO_ERROR, file.getLocation());
-			LOGGER.error(errorMsg + (e.getMessage() != null ? " (" + e.getMessage() + ")" : ""));
+			errorMsg = String.format(ERR_MSG_PARSE_ERROR, file.getLocation());
+			exception = e;
+			LOGGER.error(errorMsg, e);
 		}
 
 		if (errorMsg != null) {
 			resultsContainer = null;
-			DialogUtils.openWarning(RESULTS_VIEW_TITLE, errorMsg);
-			ResultsView.reset(resultFolder);
+			DialogUtils.handleError(errorMsg, exception);
+			setResult(null);
 		}
+
+		return errorMsg == null;
 	}
 
 	private void updateHierarchy() {

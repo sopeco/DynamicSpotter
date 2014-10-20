@@ -21,7 +21,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IDuplicatable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
@@ -44,7 +44,7 @@ public class DuplicateHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Activator activator = Activator.getDefault();
-		TreeViewer viewer = activator.getNavigatorViewer();
+		CommonViewer viewer = activator.getNavigatorViewer();
 		if (viewer == null) {
 			return null;
 		}
@@ -66,7 +66,7 @@ public class DuplicateHandler extends AbstractHandler {
 	@Override
 	public boolean isEnabled() {
 		Activator activator = Activator.getDefault();
-		TreeViewer viewer = activator.getNavigatorViewer();
+		CommonViewer viewer = activator.getNavigatorViewer();
 		if (viewer == null) {
 			return false;
 		}

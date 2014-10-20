@@ -168,9 +168,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 			try {
 				resDir.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
-				String msg = "Failed to refresh results directory. Cannot proceed to create child nodes!";
-				LOGGER.error(msg);
-				DialogUtils.openError(msg);
+				String message = "Failed to refresh results directory. Cannot proceed to create child nodes!";
+				DialogUtils.handleError(message, e);
 				return SpotterProjectParent.NO_CHILDREN;
 			}
 		}
@@ -211,7 +210,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	private SpotterProjectRunResult processJobId(Long jobId, boolean connected, ServiceClientWrapper client,
 			JobsContainer jobsContainer, String resultsLocation, IProject iProject) {
 		if (connected && client.isRunning(true) && jobId.equals(client.getCurrentJobId())) {
-			LOGGER.debug("Ignore job " + jobId + " because it is currently running");
+			// Ignore this job because it is currently running
 			return null;
 		}
 
@@ -261,9 +260,9 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 
 			return true;
 		} catch (Exception e) {
-			String msg = "Error while saving fetched results for job " + jobId + "!";
-			DialogUtils.openError(msg);
-			LOGGER.error(msg + " Cause: {}", e.toString());
+			String message = "Error while saving fetched results for job " + jobId + "!";
+			DialogUtils.handleError(message, e);
+			LOGGER.error(message, e);
 		}
 
 		return false;
@@ -285,9 +284,9 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 				DialogUtils.openWarning(msg);
 			}
 		} catch (IOException e) {
-			String msg = "An error occured while reading from input stream for job " + jobId + ", skipping job!";
-			DialogUtils.openError(msg);
-			LOGGER.error(msg + " Cause: {}", e.toString());
+			String message = "An error occured while reading from input stream for job " + jobId + ", skipping job!";
+			DialogUtils.handleError(message, e);
+			LOGGER.error(message, e);
 		}
 
 		return isEmptyStream ? null : resultsZipStream;

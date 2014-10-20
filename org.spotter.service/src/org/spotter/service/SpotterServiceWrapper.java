@@ -126,7 +126,7 @@ public class SpotterServiceWrapper {
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 					currentJobState = JobState.FINISHED;
 				} catch (Throwable e) {
-					LOGGER.error("Diagnosis failed: Error: {}", e);
+					LOGGER.error("Diagnosis failed!", e);
 					currentJobState = JobState.CANCELLED;
 					throw new RuntimeException(e);
 				} finally {
@@ -319,9 +319,9 @@ public class SpotterServiceWrapper {
 			configurationFile = fileManager.writeSpotterConfig(location, jobDescription.getDynamicSpotterConfig());
 			LOGGER.info("Storing configuration for diagnosis run #" + jobId + " in " + location);
 		} catch (IOException | JAXBException e) {
-			String msg = "Failed to create DS configuration.";
-			LOGGER.error(msg + " Cause: {}", e.toString());
-			throw new RuntimeException(msg);
+			String message = "Failed to create DS configuration.";
+			LOGGER.error(message, e);
+			throw new RuntimeException(message, e);
 		}
 
 		return configurationFile;
@@ -351,7 +351,7 @@ public class SpotterServiceWrapper {
 					fileInputStream = getZippedRunFolder(location);
 					LpeStreamUtils.pipe(fileInputStream, os);
 				} catch (IOException e) {
-					LOGGER.error("Error while streaming results data. Cause: {}", e.toString());
+					LOGGER.error("Error while streaming results data.", e);
 					throw new RuntimeException(e);
 				} finally {
 					try {
@@ -359,12 +359,13 @@ public class SpotterServiceWrapper {
 							fileInputStream.close();
 						}
 					} catch (IOException e) {
-						LOGGER.warn("Error while closing stream. Cause: {}", e.toString());
+						LOGGER.warn("Error while closing stream '{}'.", location);
 					}
 				}
 
 			} else {
-				LOGGER.warn("Expected to find 1 results folder, but found " + subdirs.length + "!");
+				LOGGER.warn("Expected to find only one results folder, but found " + subdirs.length
+						+ ", streaming nothing!");
 			}
 		}
 	}

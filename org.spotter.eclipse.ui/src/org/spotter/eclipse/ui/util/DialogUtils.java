@@ -15,11 +15,15 @@
  */
 package org.spotter.eclipse.ui.util;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
+import org.spotter.eclipse.ui.Activator;
 
 /**
  * An utility class for showing different kinds of message dialogs in the
@@ -114,6 +118,19 @@ public final class DialogUtils {
 	public static Shell getShell() {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		return window != null ? window.getShell() : null;
+	}
+
+	private static void handleStatus(final IStatus status) {
+		if (isUIThread()) {
+			StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK);
+		} else {
+			getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK);
+				}
+			});
+		}
 	}
 
 	/**
@@ -248,6 +265,22 @@ public final class DialogUtils {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Handles an error described by the given message using the
+	 * {@link StatusManager}. The method is safe to be called from a thread
+	 * which is not the UI thread.
+	 * 
+	 * @param message
+	 *            the message of the error
+	 * @param exception
+	 *            a low-level exception to be appended, or null if not
+	 *            applicable
+	 */
+	public static void handleError(final String message, final Throwable exception) {
+		IStatus status = new Status(Status.ERROR, Activator.PLUGIN_ID, message, exception);
+		handleStatus(status);
 	}
 
 	/**

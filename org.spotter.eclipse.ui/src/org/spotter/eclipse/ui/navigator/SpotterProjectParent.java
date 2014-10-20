@@ -177,9 +177,9 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			IProject duplicatedProject = project.getWorkspace().getRoot().getProject(duplicatedProjectName);
 			SpotterProjectSupport.updateSpotterConfig(duplicatedProject);
 		} catch (Exception e) {
-			String msg = "Error while copying project '" + project.getName() + "'!";
-			LOGGER.error(DialogUtils.appendCause(msg, e.getMessage()));
-			DialogUtils.openError(DUPLICATE_DLG_TITLE, msg);
+			String message = "Error while copying project '" + project.getName() + "'!";
+			LOGGER.error(message, e);
+			DialogUtils.handleError(message, e);
 		}
 	}
 

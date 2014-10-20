@@ -215,12 +215,12 @@ public class ServiceClientWrapper {
 			updateUrl(newHost, newPort);
 			return true;
 		} catch (BackingStoreException e) {
-			LOGGER.error("Saving Service Client settings failed. Cause: {}", e);
+			LOGGER.error("Saving Service Client settings failed.", e);
 			// restore old values
 			prefs.put(KEY_SERVICE_HOST, oldHost);
 			prefs.put(KEY_SERVICE_PORT, oldPort);
 
-			DialogUtils.openError(DIALOG_TITLE, MSG_FAIL_SAFE);
+			DialogUtils.handleError(MSG_FAIL_SAFE, e);
 		}
 		return false;
 	}
@@ -604,9 +604,9 @@ public class ServiceClientWrapper {
 			boolean warning) {
 		lastException = exception;
 		if (warning) {
-			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.getMessage());
+			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.toString());
 		} else {
-			LOGGER.error("{} request failed! Cause: {}", requestName, exception.getMessage());
+			LOGGER.error("{} request failed! Cause: {}", requestName, exception.toString());
 		}
 		if (silent) {
 			return;
@@ -616,16 +616,16 @@ public class ServiceClientWrapper {
 			showConnectionProblemMessage(requestErrorMsg, host, port, warning);
 		} else {
 			// illegal response state or server error
-			String msgHeader = "DS Service returned with an error!";
-			String errLocalMsg = exception.getLocalizedMessage();
-			if (errLocalMsg == null) {
-				errLocalMsg = "No exception message (" + exception.getClass().getName() + ")";
+			String header = "DS Service returned with an error!";
+			String message = exception.getMessage();
+			if (message == null) {
+				message = "Exception (" + exception.getClass().getName() + ") contains no message.";
 			}
-			String msg = msgHeader + "\n\n" + errLocalMsg;
+			String fullMessage = header + "\n\n" + message;
 			if (warning) {
-				DialogUtils.openWarning(DIALOG_TITLE, msg);
+				DialogUtils.openWarning(DIALOG_TITLE, fullMessage);
 			} else {
-				DialogUtils.openError(DIALOG_TITLE, msg);
+				DialogUtils.handleError(header, exception);
 			}
 		}
 	}

@@ -178,16 +178,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Sets the current project history elements.
-	 * 
-	 * @param projectHistoryElements
-	 *            the project history elements to set
-	 */
-	public void setProjectHistoryElements(Map<String, SpotterProjectResults> projectHistoryElements) {
-		this.projectHistoryElements = projectHistoryElements;
-	}
-
-	/**
 	 * @return the currently selected projects
 	 */
 	public Set<IProject> getSelectedProjects() {

@@ -26,6 +26,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.util.DialogUtils;
@@ -40,8 +42,9 @@ import org.spotter.eclipse.ui.view.ResultsView;
 public class SpotterProjectRunResult implements IOpenableProjectElement, IDeletable {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectRunResult.class);
 
-	private static final String DELETE_DLG_TITLE = "Delete Resources";
 	private static final String ELEMENT_TYPE_NAME = "Result Item";
 
 	private final ISpotterProjectElement parent;
@@ -177,8 +180,9 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			parent.refreshChildren();
 			Activator.getDefault().getNavigatorViewer().refresh(parent);
 		} catch (CoreException e) {
-			String msg = "Error while deleting result folder '" + resultFolder.getName() + "'!";
-			DialogUtils.openError(DELETE_DLG_TITLE, DialogUtils.appendCause(msg, e.getLocalizedMessage()));
+			String message = "Error while deleting result folder '" + resultFolder.getName() + "'!";
+			LOGGER.error(message, e);
+			DialogUtils.handleError(message, e);
 		}
 	}
 

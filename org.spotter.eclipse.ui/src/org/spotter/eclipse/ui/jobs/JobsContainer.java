@@ -192,7 +192,7 @@ public class JobsContainer implements Serializable {
 			LpeFileUtils.writeObject(fileName, jobsContainer);
 			return true;
 		} catch (IOException e) {
-			LOGGER.error("Error while writing JobsContainer. Cause: {}", e.toString());
+			LOGGER.error("Error while writing JobsContainer.", e);
 		}
 		return false;
 	}
