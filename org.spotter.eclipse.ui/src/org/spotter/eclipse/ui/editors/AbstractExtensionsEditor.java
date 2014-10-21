@@ -103,6 +103,7 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 		propertiesGroupViewer = new PropertiesGroupViewer(container, this);
 
 		extensionsGroupViewer.setPropertiesGroupViewer(propertiesGroupViewer);
+		getSite().setSelectionProvider(extensionsGroupViewer);
 
 		// define proportioning of configured components and properties group
 		container.setWeights(new int[] { 1, 2 });

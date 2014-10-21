@@ -20,9 +20,6 @@ import java.util.Iterator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
@@ -41,14 +38,11 @@ public class OpenHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Activator activator = Activator.getDefault();
-		TreeViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
+		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
+		if (iter == null) {
 			return null;
 		}
 
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		Iterator<?> iter = selection.iterator();
 		while (iter.hasNext()) {
 			SpotterUtils.openNavigatorElement(iter.next());
 		}
@@ -64,17 +58,10 @@ public class OpenHandler extends AbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
-		Activator activator = Activator.getDefault();
-		TreeViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
+		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
+		if (iter == null) {
 			return false;
 		}
-
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		if (selection.isEmpty()) {
-			return false;
-		}
-		Iterator<?> iter = selection.iterator();
 
 		while (iter.hasNext()) {
 			if (!(iter.next() instanceof IOpenableProjectElement)) {
