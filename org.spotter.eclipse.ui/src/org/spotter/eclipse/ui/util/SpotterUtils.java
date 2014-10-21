@@ -17,12 +17,17 @@ package org.spotter.eclipse.ui.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -169,6 +174,44 @@ public final class SpotterUtils {
 		}
 
 		Activator.getDefault().getNavigatorViewer().refresh();
+	}
+
+	/**
+	 * Returns the active workbench window's current selection if there exists
+	 * an active window. The selection may be <code>null</code> or empty.
+	 * <p>
+	 * Using the window's <code>ISelectionService</code> this method only
+	 * retrieves selections that stem from a previously set
+	 * <code>ISelectionProvider</code> in any of the window's parts.
+	 * </p>
+	 * 
+	 * @return the selection or <code>null</code> if none
+	 */
+	public static ISelection getActiveWindowSelection() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		return window == null ? null : window.getSelectionService().getSelection();
+	}
+
+	/**
+	 * Returns an iterator over the active workbench window's current selection
+	 * if there exists an active window which contains a non-empty
+	 * <code>IStructuredSelection</code>.
+	 * <p>
+	 * Using the window's <code>ISelectionService</code> this method only
+	 * retrieves selections that stem from a previously set
+	 * <code>ISelectionProvider</code> in any of the window's parts.
+	 * </p>
+	 * 
+	 * @return iterator over a non-empty selection or <code>null</code> if none
+	 */
+	public static Iterator<?> getActiveWindowStructuredSelectionIterator() {
+		ISelection selection = getActiveWindowSelection();
+
+		if (selection instanceof IStructuredSelection) {
+			return selection.isEmpty() ? null : ((IStructuredSelection) selection).iterator();
+		} else {
+			return null;
+		}
 	}
 
 	/**

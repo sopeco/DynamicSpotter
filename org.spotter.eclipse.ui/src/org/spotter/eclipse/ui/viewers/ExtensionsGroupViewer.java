@@ -25,7 +25,9 @@ import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -83,7 +85,7 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * @author Denis Knoepfle
  * 
  */
-public class ExtensionsGroupViewer {
+public class ExtensionsGroupViewer implements ISelectionProvider {
 
 	private static final int VIEWER_CONTROL_STYLE = SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL
 			| SWT.V_SCROLL;
@@ -162,6 +164,26 @@ public class ExtensionsGroupViewer {
 	 */
 	public void setFocus() {
 		viewerControl.setFocus();
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		extensionsViewer.addSelectionChangedListener(listener);
+	}
+
+	@Override
+	public ISelection getSelection() {
+		return extensionsViewer.getSelection();
+	}
+
+	@Override
+	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+		extensionsViewer.removeSelectionChangedListener(listener);
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		extensionsViewer.setSelection(selection);
 	}
 
 	/**
@@ -346,7 +368,7 @@ public class ExtensionsGroupViewer {
 			extensionsViewer.setSelection(new StructuredSelection(lastAdded));
 			editor.markDirty();
 		}
-		
+
 		if (previousFocusControl != null && !previousFocusControl.isFocusControl()) {
 			previousFocusControl.forceFocus();
 		}

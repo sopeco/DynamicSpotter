@@ -23,14 +23,8 @@ import java.util.Map;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IWorkbenchPartReference;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
-import org.eclipse.ui.navigator.CommonViewer;
-import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IDeletable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
@@ -55,14 +49,7 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		String activePartId = null;
-		if (window != null) {
-			IWorkbenchPartReference partRef = window.getPartService().getActivePartReference();
-			activePartId = partRef == null ? null : partRef.getId();
-		}
-		
-		Iterator<?> iter = getSelectionIterator(activePartId);
+		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
 		if (iter == null) {
 			return null;
 		}
@@ -107,8 +94,7 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 	private List<IDeletable> getSelectedDeletables() {
 		List<IDeletable> deletables = new ArrayList<>();
-
-		Iterator<?> iter = getSelectionIterator("foo.missing.id"); // TODO: give real id here
+		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
 		if (iter == null) {
 			return deletables;
 		}
@@ -137,21 +123,6 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 			}
 		}
 		return deletables;
-	}
-
-	private Iterator<?> getSelectionIterator(String partId) {
-		if (partId == null) {
-			return null;
-		}
-		
-		Activator activator = Activator.getDefault();
-		CommonViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
-			return null;
-		}
-
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		return selection.isEmpty() ? null : selection.iterator();
 	}
 
 }

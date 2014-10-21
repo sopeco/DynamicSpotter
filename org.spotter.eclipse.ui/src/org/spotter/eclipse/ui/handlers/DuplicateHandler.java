@@ -20,9 +20,8 @@ import java.util.Iterator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.navigator.CommonViewer;
-import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.IDuplicatable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
@@ -43,14 +42,11 @@ public class DuplicateHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Activator activator = Activator.getDefault();
-		CommonViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
+		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
+		if (iter == null) {
 			return null;
 		}
-
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		Iterator<?> iter = selection.iterator();
+		
 		while (iter.hasNext()) {
 			SpotterUtils.duplicateNavigatorElement(iter.next());
 		}
@@ -65,19 +61,18 @@ public class DuplicateHandler extends AbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
-		Activator activator = Activator.getDefault();
-		CommonViewer viewer = activator.getNavigatorViewer();
-		if (viewer == null) {
+		ISelection selection = SpotterUtils.getActiveWindowSelection();
+		if (!(selection instanceof IStructuredSelection)) {
 			return false;
 		}
 
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		if (selection.size() != 1) {
+		IStructuredSelection structSelection = (IStructuredSelection) selection;
+		if (structSelection.size() != 1) {
 			return false;
 		}
 
 		// check if selected element is duplicatable
-		Object element = selection.iterator().next();
+		Object element = structSelection.getFirstElement();
 		boolean isDuplicatable = (element instanceof IDuplicatable);
 
 		return isDuplicatable;
