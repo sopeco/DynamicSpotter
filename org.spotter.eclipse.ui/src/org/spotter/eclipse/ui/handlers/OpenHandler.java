@@ -20,7 +20,7 @@ import java.util.Iterator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
@@ -44,7 +44,7 @@ public class OpenHandler extends AbstractHandler {
 		}
 
 		while (iter.hasNext()) {
-			SpotterUtils.openNavigatorElement(iter.next());
+			SpotterUtils.openElement(iter.next());
 		}
 
 		return null;
@@ -64,7 +64,7 @@ public class OpenHandler extends AbstractHandler {
 		}
 
 		while (iter.hasNext()) {
-			if (!(iter.next() instanceof IOpenableProjectElement)) {
+			if (!(iter.next() instanceof IOpenable)) {
 				return false;
 			}
 		}

@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.LpeStreamUtils;
@@ -46,7 +45,7 @@ import org.spotter.shared.configuration.FileManager;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectResults implements ISpotterProjectElement {
+public class SpotterProjectResults extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
 
@@ -57,8 +56,6 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	private static final String LOADING_SUFFIX = " (loading...)";
 
 	private ISpotterProjectElement parent;
-	private ISpotterProjectElement[] children;
-	private Image image;
 	private boolean initialLoad;
 
 	/**
@@ -68,6 +65,7 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	 *            the parent element
 	 */
 	public SpotterProjectResults(ISpotterProjectElement parent) {
+		super(IMAGE_PATH);
 		this.parent = parent;
 		this.initialLoad = false;
 	}
@@ -82,15 +80,6 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 			suffix = hasChildren() ? "" : EMPTY_SUFFIX;
 		}
 		return ELEMENT_NAME + suffix;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
 	}
 
 	@Override
@@ -110,7 +99,6 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 			initialDeferredLoad();
 			return false;
 		}
-		// else we have already initialized them
 
 		return children.length > 0;
 	}
@@ -123,27 +111,6 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 	@Override
 	public IProject getProject() {
 		return parent.getProject();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectResults)) {
-			return false;
-		}
-		SpotterProjectResults other = (SpotterProjectResults) obj;
-		return getProject().equals(other.getProject());
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
-	}
-
-	/**
-	 * Recreates the children nodes.
-	 */
-	public void refreshChildren() {
-		children = initializeChildren(getProject());
 	}
 
 	private synchronized void initialDeferredLoad() {
@@ -161,7 +128,8 @@ public class SpotterProjectResults implements ISpotterProjectElement {
 		});
 	}
 
-	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
+	@Override
+	protected ISpotterProjectElement[] initializeChildren(IProject iProject) {
 		IFolder resDir = iProject.getFolder(FileManager.DEFAULT_RESULTS_DIR_NAME);
 
 		if (!resDir.isSynchronized(IResource.DEPTH_INFINITE)) {

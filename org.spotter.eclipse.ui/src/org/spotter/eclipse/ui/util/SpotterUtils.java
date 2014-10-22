@@ -31,9 +31,13 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
-import org.spotter.eclipse.ui.navigator.IDeletable;
-import org.spotter.eclipse.ui.navigator.IDuplicatable;
-import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
+import org.spotter.eclipse.ui.handlers.DeleteHandler;
+import org.spotter.eclipse.ui.handlers.DuplicateHandler;
+import org.spotter.eclipse.ui.handlers.IHandlerMediator;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
+import org.spotter.eclipse.ui.menu.IDeletable;
+import org.spotter.eclipse.ui.menu.IDuplicatable;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.shared.environment.model.XMConfiguration;
@@ -215,62 +219,91 @@ public final class SpotterUtils {
 	}
 
 	/**
-	 * Calls the <code>open()</code> method on the given element if it is
-	 * openable.
+	 * Calls the <code>open()</code> method on the given element's open handler
+	 * if it has one.
 	 * 
 	 * @param element
 	 *            the element to open
 	 */
-	public static void openNavigatorElement(Object element) {
-		if (element instanceof IOpenableProjectElement) {
-			IOpenableProjectElement openable = (IOpenableProjectElement) element;
-			try {
-				openable.open();
-			} catch (Exception e) {
-				String message = String.format(ERR_MSG_OPEN, openable.getText());
-				LOGGER.warn(message, e);
-				DialogUtils.openWarning(DialogUtils.appendCause(message, e.getMessage()));
+	public static void openElement(Object element) {
+		IHandlerMediator mediator = toHandlerMediator(element);
+		if (mediator != null) {
+			Object handler = mediator.getHandler(OpenHandler.OPEN_COMMAND_ID);
+			if (handler instanceof IOpenable) {
+				IOpenable openable = (IOpenable) handler;
+				try {
+					openable.open();
+				} catch (Exception e) {
+					String message = String.format(ERR_MSG_OPEN, openable.getElementName());
+					LOGGER.warn(message, e);
+					DialogUtils.openWarning(DialogUtils.appendCause(message, e.getMessage()));
+				}
 			}
 		}
 	}
 
 	/**
-	 * Calls the <code>duplicate()</code> method on the given element if it is
-	 * duplicatable.
+	 * Calls the <code>duplicate()</code> method on the given element's
+	 * duplicate handler if it has one.
 	 * 
 	 * @param element
 	 *            the element to duplicate
 	 */
-	public static void duplicateNavigatorElement(Object element) {
-		if (element instanceof IDuplicatable) {
-			IDuplicatable duplicatable = (IDuplicatable) element;
-			try {
-				duplicatable.duplicate();
-			} catch (Exception e) {
-				String message = String.format(ERR_MSG_DUPLICATE, duplicatable.toString());
-				LOGGER.error(message, e);
-				DialogUtils.handleError(message, e);
+	public static void duplicateElement(Object element) {
+		IHandlerMediator mediator = toHandlerMediator(element);
+		if (mediator != null) {
+			Object handler = mediator.getHandler(DuplicateHandler.DUPLICATE_COMMAND_ID);
+			if (handler instanceof IDuplicatable) {
+				IDuplicatable duplicatable = (IDuplicatable) handler;
+				try {
+					duplicatable.duplicate();
+				} catch (Exception e) {
+					String message = String.format(ERR_MSG_DUPLICATE, duplicatable.toString());
+					LOGGER.error(message, e);
+					DialogUtils.handleError(message, e);
+				}
 			}
 		}
 	}
 
 	/**
-	 * Calls the <code>delete()</code> method on the given element if it is
-	 * deletable.
+	 * Calls the <code>delete()</code> method on the given element's delete
+	 * handler if it has one.
 	 * 
 	 * @param element
 	 *            the element to delete
 	 */
-	public static void deleteNavigatorElement(Object element) {
-		if (element instanceof IDeletable) {
-			IDeletable deletable = (IDeletable) element;
-			try {
-				deletable.delete();
-			} catch (Exception e) {
-				String message = String.format(ERR_MSG_DELETE, deletable.toString());
-				LOGGER.error(message, e);
-				DialogUtils.handleError(message, e);
+	public static void deleteElement(Object element) {
+		IHandlerMediator mediator = toHandlerMediator(element);
+		if (mediator != null) {
+			Object handler = mediator.getHandler(DeleteHandler.DELETE_COMMAND_ID);
+			if (handler instanceof IDeletable) {
+				IDeletable deletable = (IDeletable) handler;
+				try {
+					deletable.delete();
+				} catch (Exception e) {
+					String message = String.format(ERR_MSG_DELETE, deletable.toString());
+					LOGGER.error(message, e);
+					DialogUtils.handleError(message, e);
+				}
 			}
+		}
+	}
+
+	/**
+	 * Returns the object casted to a <code>IHandlerMediator</code> if
+	 * supported.
+	 * 
+	 * @param element
+	 *            the element to cast
+	 * @return the object casted to <code>IHandlerMediator</code> or
+	 *         <code>null</code> if not possible
+	 */
+	public static IHandlerMediator toHandlerMediator(Object element) {
+		if (element instanceof IHandlerMediator) {
+			return (IHandlerMediator) element;
+		} else {
+			return null;
 		}
 	}
 

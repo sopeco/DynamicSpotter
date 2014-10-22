@@ -15,7 +15,7 @@
  */
 package org.spotter.eclipse.ui.listeners;
 
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 
 /**
  * A listener which is notified of structure modification or appearance change
@@ -34,7 +34,7 @@ public interface IItemChangedListener {
 	 * @param item
 	 *            the added item
 	 */
-	void childAdded(ExtensionItem parent, ExtensionItem item);
+	void childAdded(IExtensionItem parent, IExtensionItem item);
 
 	/**
 	 * Called when a child is removed.
@@ -44,7 +44,7 @@ public interface IItemChangedListener {
 	 * @param item
 	 *            the removed item
 	 */
-	void childRemoved(ExtensionItem parent, ExtensionItem item);
+	void childRemoved(IExtensionItem parent, IExtensionItem item);
 
 	/**
 	 * Called when the appearance of the item changed.
@@ -52,6 +52,6 @@ public interface IItemChangedListener {
 	 * @param item
 	 *            the changed item
 	 */
-	void appearanceChanged(ExtensionItem item);
+	void appearanceChanged(IExtensionItem item);
 
 }

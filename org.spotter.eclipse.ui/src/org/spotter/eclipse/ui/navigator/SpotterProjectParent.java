@@ -29,13 +29,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ProjectLocationSelectionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.handlers.DeleteHandler;
+import org.spotter.eclipse.ui.handlers.DuplicateHandler;
+import org.spotter.eclipse.ui.menu.IDeletable;
+import org.spotter.eclipse.ui.menu.IDuplicatable;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 
@@ -46,9 +49,8 @@ import org.spotter.eclipse.ui.util.SpotterProjectSupport;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectParent implements ISpotterProjectElement, IDeletable, IDuplicatable {
+public class SpotterProjectParent extends AbstractProjectElement {
 
-	public static final ISpotterProjectElement[] NO_CHILDREN = new ISpotterProjectElement[0];
 	public static final String IMAGE_PATH = "icons/ds_16.png"; //$NON-NLS-1$
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectParent.class);
@@ -60,8 +62,6 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			+ "Warning: Contents will be deleted from disk!";
 
 	private IProject project;
-	private ISpotterProjectElement[] children;
-	private Image image;
 
 	/**
 	 * Creates a new instance of this element.
@@ -70,39 +70,30 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 	 *            the associated project
 	 */
 	public SpotterProjectParent(IProject project) {
+		super(IMAGE_PATH);
 		this.project = project;
+		addHandler(DeleteHandler.DELETE_COMMAND_ID, new IDeletable() {
+			@Override
+			public String getElementTypeName() {
+				return ELEMENT_TYPE_NAME;
+			}
+
+			@Override
+			public void delete() {
+				SpotterProjectParent.this.delete();
+			}
+		});
+		addHandler(DuplicateHandler.DUPLICATE_COMMAND_ID, new IDuplicatable() {
+			@Override
+			public void duplicate() {
+				SpotterProjectParent.this.duplicate();
+			}
+		});
 	}
 
 	@Override
 	public String getText() {
 		return project.getName();
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
-	}
-
-	@Override
-	public Object[] getChildren() {
-		if (children == null) {
-			children = initializeChildren(project);
-		}
-		// else we have already initialized them
-
-		return children;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		if (children == null) {
-			children = initializeChildren(project);
-		}
-		return children.length > 0;
 	}
 
 	@Override
@@ -116,27 +107,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectParent)) {
-			return false;
-		}
-		SpotterProjectParent other = (SpotterProjectParent) obj;
-		return project.equals(other.project);
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
-	}
-
-	/**
-	 * Recreates the children nodes.
-	 */
-	public void refreshChildren() {
-		children = initializeChildren(getProject());
-	}
-
-	private ISpotterProjectElement[] initializeChildren(IProject project) {
+	protected ISpotterProjectElement[] initializeChildren(IProject project) {
 		List<ISpotterProjectElement> children = new ArrayList<>();
 
 		children.add(new SpotterProjectConfig(this));
@@ -150,8 +121,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 		return children.toArray(new ISpotterProjectElement[children.size()]);
 	}
 
-	@Override
-	public void duplicate() {
+	private void duplicate() {
 		IProject project = getProject();
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ProjectLocationSelectionDialog dialog = new ProjectLocationSelectionDialog(shell, project);
@@ -183,8 +153,7 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 		}
 	}
 
-	@Override
-	public void delete() {
+	private void delete() {
 		Activator activator = Activator.getDefault();
 		Set<IProject> projects = activator.getSelectedProjects();
 		if (projects.isEmpty()) {
@@ -219,11 +188,6 @@ public class SpotterProjectParent implements ISpotterProjectElement, IDeletable,
 			String errorMessage = createErrorMessage(projectsDeletionFailed, deletionErrorMessages);
 			DialogUtils.openError(DELETE_DLG_TITLE, errorMessage);
 		}
-	}
-
-	@Override
-	public String getElementTypeName() {
-		return ELEMENT_TYPE_NAME;
 	}
 
 	private String createErrorMessage(List<IProject> projects, List<String> detailErrorMessages) {

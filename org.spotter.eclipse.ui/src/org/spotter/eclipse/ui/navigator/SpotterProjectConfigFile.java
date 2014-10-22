@@ -17,11 +17,12 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.graphics.Image;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.SpotterConfigEditor;
 import org.spotter.eclipse.ui.editors.SpotterConfigEditorInput;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.shared.configuration.FileManager;
 
 /**
@@ -30,14 +31,14 @@ import org.spotter.shared.configuration.FileManager;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfigFile implements IOpenableProjectElement {
+public class SpotterProjectConfigFile extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/project.gif"; //$NON-NLS-1$
 
 	private static final String ELEMENT_NAME = "DynamicSpotter Config";
+	private static final String OPEN_ID = SpotterConfigEditor.ID;
 
 	private ISpotterProjectElement parent;
-	private Image image;
 
 	/**
 	 * Creates a new instance of this element.
@@ -46,31 +47,29 @@ public class SpotterProjectConfigFile implements IOpenableProjectElement {
 	 *            the parent element
 	 */
 	public SpotterProjectConfigFile(ISpotterProjectElement parent) {
+		super(IMAGE_PATH);
 		this.parent = parent;
+		addHandler(OpenHandler.OPEN_COMMAND_ID, new IOpenable() {
+			@Override
+			public void open() {
+				SpotterProjectConfigFile.this.open();
+			}
+
+			@Override
+			public String getOpenId() {
+				return OPEN_ID;
+			}
+
+			@Override
+			public String getElementName() {
+				return ELEMENT_NAME;
+			}
+		});
 	}
 
 	@Override
 	public String getText() {
 		return ELEMENT_NAME;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
-	}
-
-	@Override
-	public ISpotterProjectElement[] getChildren() {
-		return SpotterProjectParent.NO_CHILDREN;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		return false;
 	}
 
 	@Override
@@ -83,32 +82,12 @@ public class SpotterProjectConfigFile implements IOpenableProjectElement {
 		return parent.getProject();
 	}
 
-	@Override
-	public void open() {
+	private void open() {
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
 		IFile file = getProject().getFile(FileManager.SPOTTER_CONFIG_FILENAME);
-		AbstractSpotterEditor.openInstance(new SpotterConfigEditorInput(file), getOpenId());
-	}
-
-	@Override
-	public String getOpenId() {
-		return SpotterConfigEditor.ID;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectConfigFile)) {
-			return false;
-		}
-		SpotterProjectConfigFile other = (SpotterProjectConfigFile) obj;
-		return getProject().equals(other.getProject());
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
+		AbstractSpotterEditor.openInstance(new SpotterConfigEditorInput(file), OPEN_ID);
 	}
 
 }

@@ -17,7 +17,7 @@ package org.spotter.eclipse.ui.providers;
 
 import org.eclipse.swt.graphics.Image;
 import org.spotter.eclipse.ui.Activator;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
@@ -47,7 +47,7 @@ public class ResultExtensionsImageProvider extends SpotterExtensionsImageProvide
 	}
 
 	@Override
-	public Image getImage(ExtensionItem item) {
+	public Image getImage(IExtensionItem item) {
 		Object xmlModel = item.getModelWrapper().getXMLModel();
 		if (resultsContainer == null || !(xmlModel instanceof XPerformanceProblem)) {
 			return null;

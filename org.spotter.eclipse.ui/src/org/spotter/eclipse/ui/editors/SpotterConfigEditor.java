@@ -28,6 +28,7 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
 import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.model.xml.SpotterConfigModelWrapper;
 import org.spotter.eclipse.ui.util.DialogUtils;
@@ -104,7 +105,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		}
 
 		propertiesGroupViewer = new PropertiesGroupViewer(parent, this);
-		ExtensionItem inputModel = createInputModel(editorInput.getFile());
+		IExtensionItem inputModel = createInputModel(editorInput.getFile());
 		if (inputModel != null) {
 			propertiesGroupViewer.updateProperties(inputModel);
 		} else {
@@ -119,7 +120,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		}
 	}
 
-	private ExtensionItem createInputModel(IFile file) {
+	private IExtensionItem createInputModel(IFile file) {
 		Properties properties;
 		try {
 			properties = SpotterProjectSupport.getSpotterConfig(file);
@@ -129,7 +130,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		}
 
 		wrapper = new SpotterConfigModelWrapper(file.getProject().getName(), properties);
-		ExtensionItem inputModel = new ExtensionItem(wrapper);
+		IExtensionItem inputModel = new ExtensionItem(wrapper);
 		inputModel.setIgnoreConnection(true);
 
 		return new ExtensionItem(wrapper);

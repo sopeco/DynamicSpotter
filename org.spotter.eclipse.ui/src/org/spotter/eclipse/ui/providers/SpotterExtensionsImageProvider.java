@@ -16,7 +16,7 @@
 package org.spotter.eclipse.ui.providers;
 
 import org.eclipse.swt.graphics.Image;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 
 /**
  * Image provider used by {@link SpotterExtensionsLabelProvider} to get images
@@ -34,7 +34,7 @@ public class SpotterExtensionsImageProvider {
 	 *            the item the image is requested for
 	 * @return the image for the given extension item
 	 */
-	public Image getImage(ExtensionItem item) {
+	public Image getImage(IExtensionItem item) {
 		return item.getImage();
 	}
 

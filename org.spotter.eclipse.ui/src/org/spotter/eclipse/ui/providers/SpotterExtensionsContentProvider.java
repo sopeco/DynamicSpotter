@@ -21,19 +21,19 @@ import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.spotter.eclipse.ui.listeners.IItemChangedListener;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 
 /**
  * Content provider for extension items that can be used e.g. in a
  * <code>TableViewer</code> or <code>TreeViewer</code>. This content provider
- * expects input of type {@link ExtensionItem}.
+ * expects input of type {@link IExtensionItem}.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class SpotterExtensionsContentProvider implements ITreeContentProvider, IItemChangedListener {
 
-	private ExtensionItem extensionsInput;
+	private IExtensionItem extensionsInput;
 	private ColumnViewer viewer;
 
 	@Override
@@ -53,8 +53,8 @@ public class SpotterExtensionsContentProvider implements ITreeContentProvider, I
 			extensionsInput = null;
 		}
 		// register listener at new input
-		if (newInput instanceof ExtensionItem) {
-			extensionsInput = (ExtensionItem) newInput;
+		if (newInput instanceof IExtensionItem) {
+			extensionsInput = (IExtensionItem) newInput;
 			extensionsInput.addItemChangedListener(this);
 		}
 		this.viewer.refresh();
@@ -67,30 +67,30 @@ public class SpotterExtensionsContentProvider implements ITreeContentProvider, I
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof ExtensionItem) {
-			return ((ExtensionItem) parentElement).getItems();
+		if (parentElement instanceof IExtensionItem) {
+			return ((IExtensionItem) parentElement).getItems();
 		}
 		return new Object[0];
 	}
 
 	@Override
 	public Object getParent(Object element) {
-		if (element instanceof ExtensionItem) {
-			return ((ExtensionItem) element).getParent();
+		if (element instanceof IExtensionItem) {
+			return ((IExtensionItem) element).getParent();
 		}
 		return null;
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof ExtensionItem) {
-			return ((ExtensionItem) element).hasItems();
+		if (element instanceof IExtensionItem) {
+			return ((IExtensionItem) element).hasItems();
 		}
 		return false;
 	}
 
 	@Override
-	public void childAdded(ExtensionItem parent, ExtensionItem item) {
+	public void childAdded(IExtensionItem parent, IExtensionItem item) {
 		if (viewer == null) {
 			return;
 		}
@@ -104,7 +104,7 @@ public class SpotterExtensionsContentProvider implements ITreeContentProvider, I
 	}
 
 	@Override
-	public void childRemoved(ExtensionItem parent, ExtensionItem item) {
+	public void childRemoved(IExtensionItem parent, IExtensionItem item) {
 		if (viewer == null) {
 			return;
 		}
@@ -118,7 +118,7 @@ public class SpotterExtensionsContentProvider implements ITreeContentProvider, I
 	}
 
 	@Override
-	public void appearanceChanged(ExtensionItem item) {
+	public void appearanceChanged(IExtensionItem item) {
 		if (viewer != null) {
 			viewer.update(item, null);
 		}

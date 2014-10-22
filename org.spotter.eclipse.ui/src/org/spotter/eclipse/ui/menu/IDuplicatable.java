@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.eclipse.ui.navigator;
+package org.spotter.eclipse.ui.menu;
 
 /**
- * An interface for elements of the DynamicSpotter Project Navigator that can be
- * duplicated.
+ * An interface for elements that can be duplicated.
  * 
  * @author Denis Knoepfle
  * 

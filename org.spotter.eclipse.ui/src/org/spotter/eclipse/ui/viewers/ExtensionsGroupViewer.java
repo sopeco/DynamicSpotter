@@ -60,6 +60,7 @@ import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsContentProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
@@ -74,8 +75,8 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * <p>
  * The viewer looks best if placed within a composite with a
  * <code>FillLayout</code> or similar in order to use all the available space.
- * The viewer's content provider expects input of type {@link ExtensionItem} and
- * interprets it as root element. Depending on the input's
+ * The viewer's content provider expects input of type {@link IExtensionItem}
+ * and interprets it as root element. Depending on the input's
  * <code>isConnectionIgnored()</code> return value there will be a refresh
  * button to update the connection status of all elements. When a properties
  * group viewer is set, it will be updated when the selection of the extension
@@ -97,8 +98,8 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	private final AbstractExtensionsEditor editor;
 	private final boolean isHierarchical;
 	private final boolean ignoreConnection;
-	private final ExtensionItem extensionsInput;
-	private ExtensionItem currentSelectedExtension;
+	private final IExtensionItem extensionsInput;
+	private IExtensionItem currentSelectedExtension;
 	private PropertiesGroupViewer propertiesGroupViewer;
 
 	private Control viewerControl;
@@ -201,7 +202,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TableViewer createTableViewer(Composite parent, ExtensionItem input) {
+	public static TableViewer createTableViewer(Composite parent, IExtensionItem input) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -244,7 +245,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TreeViewer createTreeViewer(Composite parent, ExtensionItem input) {
+	public static TreeViewer createTreeViewer(Composite parent, IExtensionItem input) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -336,7 +337,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	 *            the extension item under which the newly created components
 	 *            will be added
 	 */
-	private void showAndHandleAddDialog(ExtensionItem parentItem) {
+	private void showAndHandleAddDialog(IExtensionItem parentItem) {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ExtensionMetaobject[] extensions = editor.getAvailableExtensions();
 		if (extensions == null) {
@@ -353,7 +354,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 			Object[] result = dialog.getResult();
 			IModelWrapper parentWrapper = parentItem.getModelWrapper();
 			Object xmlParent = parentWrapper == null ? null : parentWrapper.getXMLModel();
-			ExtensionItem lastAdded = null;
+			IExtensionItem lastAdded = null;
 			for (Object component : result) {
 				ExtensionMetaobject metaobject = (ExtensionMetaobject) component;
 				ExtensionItem item = processAddedComponent(xmlParent, metaobject);
@@ -455,7 +456,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 					if (isHierarchical && !btnAppendExtension.isEnabled()) {
 						btnAppendExtension.setEnabled(true);
 					}
-					currentSelectedExtension = (ExtensionItem) sel.getFirstElement();
+					currentSelectedExtension = (IExtensionItem) sel.getFirstElement();
 				} else {
 					if (isHierarchical) {
 						btnAppendExtension.setEnabled(false);
@@ -507,8 +508,8 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 		if (sel.isEmpty()) {
 			return;
 		}
-		ExtensionItem item = (ExtensionItem) sel.getFirstElement();
-		ExtensionItem parentItem = item.getParent();
+		IExtensionItem item = (IExtensionItem) sel.getFirstElement();
+		IExtensionItem parentItem = item.getParent();
 		int index = parentItem.getItemIndex(item);
 		if (index != -1) {
 			parentItem.removeItem(index);

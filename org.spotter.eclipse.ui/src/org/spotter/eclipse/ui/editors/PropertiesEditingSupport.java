@@ -36,7 +36,7 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.eclipse.ui.listeners.TextEditorErrorListener;
 import org.spotter.eclipse.ui.model.AbstractPropertyItem;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
 
 /**
@@ -269,7 +269,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 			}
 			if (tableItem.getValue() == null || !tableItem.getValue().equals(newValue)) {
 				tableItem.updateValue(newValue);
-				ExtensionItem inputModel = propertiesViewer.getInputModel();
+				IExtensionItem inputModel = propertiesViewer.getInputModel();
 				inputModel.propertyDirty(tableItem);
 				// we can assume that at this point inputModel is never null
 				if (desc.isMandatory()) {
