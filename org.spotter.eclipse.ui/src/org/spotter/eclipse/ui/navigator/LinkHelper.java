@@ -31,15 +31,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
-import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
+import org.spotter.eclipse.ui.handlers.IHandlerMediator;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * A helper class that links a selection in the Navigator to the corresponding
  * active editor and vice-versa if the "Link with Editor" option is enabled.
  * 
  * @author Denis Knoepfle
- *
+ * 
  */
 public class LinkHelper implements ILinkHelper {
 
@@ -88,9 +91,9 @@ public class LinkHelper implements ILinkHelper {
 
 		for (Object rawChild : rawChildren) {
 			ISpotterProjectElement element = (ISpotterProjectElement) rawChild;
-			if (rawChild instanceof IOpenableProjectElement) {
-				IOpenableProjectElement openableElement = (IOpenableProjectElement) rawChild;
-				if (editorId.equals(openableElement.getOpenId())) {
+			IOpenable openHandler = getOpenHandler(rawChild);
+			if (openHandler != null) {
+				if (editorId.equals(openHandler.getOpenId())) {
 					return element;
 				}
 			}
@@ -118,7 +121,8 @@ public class LinkHelper implements ILinkHelper {
 	@Override
 	public void activateEditor(IWorkbenchPage aPage, IStructuredSelection aSelection) {
 		Object rawElement = aSelection.getFirstElement();
-		if (!(rawElement instanceof ISpotterProjectElement) || !(rawElement instanceof IOpenableProjectElement)) {
+		IOpenable openHandler = getOpenHandler(rawElement);
+		if (!(rawElement instanceof ISpotterProjectElement) || openHandler == null) {
 			return;
 		}
 		if (!aPage.isEditorAreaVisible()) {
@@ -126,7 +130,6 @@ public class LinkHelper implements ILinkHelper {
 		}
 
 		ISpotterProjectElement element = (ISpotterProjectElement) rawElement;
-		IOpenableProjectElement openableElement = (IOpenableProjectElement) rawElement;
 		IProject project = element.getProject();
 
 		for (IEditorReference reference : aPage.getEditorReferences()) {
@@ -134,7 +137,7 @@ public class LinkHelper implements ILinkHelper {
 				IEditorInput editorInput = reference.getEditorInput();
 				if (editorInput instanceof AbstractSpotterEditorInput) {
 					AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) editorInput;
-					if (project.equals(input.getProject()) && input.getEditorId().equals(openableElement.getOpenId())) {
+					if (project.equals(input.getProject()) && input.getEditorId().equals(openHandler.getOpenId())) {
 						aPage.activate(reference.getEditor(true));
 						return;
 					}
@@ -143,6 +146,19 @@ public class LinkHelper implements ILinkHelper {
 				LOGGER.warn("Skipping editor reference: failed to retrieve corresponding editor input");
 			}
 		}
+	}
+
+	private IOpenable getOpenHandler(Object rawElement) {
+		IOpenable openHandler = null;
+		IHandlerMediator mediator = SpotterUtils.toHandlerMediator(rawElement);
+		if (mediator != null) {
+			Object handler = mediator.getHandler(OpenHandler.OPEN_COMMAND_ID);
+			if (handler instanceof IOpenable) {
+				openHandler = (IOpenable) handler;
+			}
+		}
+
+		return openHandler;
 	}
 
 }

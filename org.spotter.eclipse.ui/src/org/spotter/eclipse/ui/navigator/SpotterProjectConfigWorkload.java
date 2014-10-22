@@ -17,12 +17,12 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.graphics.Image;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.WorkloadEditor;
 import org.spotter.eclipse.ui.editors.WorkloadEditorInput;
-import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.shared.configuration.FileManager;
 
 /**
@@ -31,14 +31,14 @@ import org.spotter.shared.configuration.FileManager;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
+public class SpotterProjectConfigWorkload extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/workload-adapter.png"; //$NON-NLS-1$
 
 	private static final String ELEMENT_NAME = "Workload Satellite Adapter";
+	private static final String OPEN_ID = WorkloadEditor.ID;
 
 	private ISpotterProjectElement parent;
-	private Image image;
 
 	/**
 	 * Creates a new instance of this element.
@@ -47,31 +47,29 @@ public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
 	 *            the parent element
 	 */
 	public SpotterProjectConfigWorkload(ISpotterProjectElement parent) {
+		super(IMAGE_PATH);
 		this.parent = parent;
+		addHandler(OpenHandler.OPEN_COMMAND_ID, new IOpenable() {
+			@Override
+			public void open() {
+				SpotterProjectConfigWorkload.this.open();
+			}
+
+			@Override
+			public String getOpenId() {
+				return OPEN_ID;
+			}
+
+			@Override
+			public String getElementName() {
+				return ELEMENT_NAME;
+			}
+		});
 	}
 
 	@Override
 	public String getText() {
 		return ELEMENT_NAME;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
-	}
-
-	@Override
-	public ISpotterProjectElement[] getChildren() {
-		return SpotterProjectParent.NO_CHILDREN;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		return false;
 	}
 
 	@Override
@@ -84,32 +82,12 @@ public class SpotterProjectConfigWorkload implements IOpenableProjectElement {
 		return parent.getProject();
 	}
 
-	@Override
-	public void open() {
+	private void open() {
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
 		IFile file = getProject().getFile(FileManager.ENVIRONMENT_FILENAME);
-		AbstractSpotterEditor.openInstance(new WorkloadEditorInput(file), getOpenId());
-	}
-
-	@Override
-	public String getOpenId() {
-		return WorkloadEditor.ID;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectConfigWorkload)) {
-			return false;
-		}
-		SpotterProjectConfigWorkload other = (SpotterProjectConfigWorkload) obj;
-		return getProject().equals(other.getProject());
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
+		AbstractSpotterEditor.openInstance(new WorkloadEditorInput(file), OPEN_ID);
 	}
 
 }

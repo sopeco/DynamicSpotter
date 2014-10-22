@@ -15,6 +15,8 @@
  */
 package org.spotter.eclipse.ui.model;
 
+import org.spotter.eclipse.ui.handlers.DeleteHandler;
+import org.spotter.eclipse.ui.menu.IDeletable;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 
 /**
@@ -29,25 +31,44 @@ public class BasicEditorExtensionItemFactory implements IExtensionItemFactory {
 	@Override
 	public IExtensionItem createExtensionItem() {
 		IExtensionItem basicItem = new ExtensionItem();
-		return createEnhancedExtensionItem(basicItem);
+		enhanceExtensionItem(basicItem);
+		return basicItem;
 	}
 
 	@Override
 	public IExtensionItem createExtensionItem(IModelWrapper modelWrapper) {
 		IExtensionItem basicItem = new ExtensionItem(modelWrapper);
-		return createEnhancedExtensionItem(basicItem);
+		enhanceExtensionItem(basicItem);
+		return basicItem;
 	}
 
 	@Override
 	public IExtensionItem createExtensionItem(IExtensionItem parent, IModelWrapper modelWrapper) {
 		IExtensionItem basicItem = new ExtensionItem(parent, modelWrapper);
-		return createEnhancedExtensionItem(basicItem);
+		enhanceExtensionItem(basicItem);
+		return basicItem;
 	}
 
-	private IExtensionItem createEnhancedExtensionItem(IExtensionItem basicItem) {
-		IExtensionItem deletable = new ExtensionItemDeleteDecorator(basicItem);
+	private void enhanceExtensionItem(IExtensionItem basicItem) {
+		addDeleteHandler(basicItem);
+	}
 
-		return deletable;
+	private void addDeleteHandler(IExtensionItem basicItem) {
+		basicItem.addHandler(DeleteHandler.DELETE_COMMAND_ID, new IDeletable() {
+
+			private static final String ELEMENT_TYPE_NAME = "Extension Item";
+
+			@Override
+			public void delete() {
+				// TODO: implement delete here
+			}
+
+			@Override
+			public String getElementTypeName() {
+				return ELEMENT_TYPE_NAME;
+			}
+
+		});
 	}
 
 }

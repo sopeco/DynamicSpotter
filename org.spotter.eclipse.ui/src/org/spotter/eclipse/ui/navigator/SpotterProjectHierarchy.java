@@ -17,12 +17,12 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.graphics.Image;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.editors.HierarchyEditorInput;
-import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.shared.configuration.FileManager;
 
 /**
@@ -31,14 +31,14 @@ import org.spotter.shared.configuration.FileManager;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectHierarchy implements IOpenableProjectElement {
+public class SpotterProjectHierarchy extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/hierarchy.gif"; //$NON-NLS-1$
 
 	private static final String ELEMENT_NAME = "Hierarchy";
+	private static final String OPEN_ID = HierarchyEditor.ID;
 
 	private ISpotterProjectElement parent;
-	private Image image;
 
 	/**
 	 * Create the hierarchy node.
@@ -47,31 +47,29 @@ public class SpotterProjectHierarchy implements IOpenableProjectElement {
 	 *            The parent of this node
 	 */
 	public SpotterProjectHierarchy(ISpotterProjectElement parent) {
+		super(IMAGE_PATH);
 		this.parent = parent;
+		addHandler(OpenHandler.OPEN_COMMAND_ID, new IOpenable() {
+			@Override
+			public void open() {
+				SpotterProjectHierarchy.this.open();
+			}
+
+			@Override
+			public String getOpenId() {
+				return OPEN_ID;
+			}
+
+			@Override
+			public String getElementName() {
+				return ELEMENT_NAME;
+			}
+		});
 	}
 
 	@Override
 	public String getText() {
 		return ELEMENT_NAME;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
-	}
-
-	@Override
-	public ISpotterProjectElement[] getChildren() {
-		return SpotterProjectParent.NO_CHILDREN;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		return false;
 	}
 
 	@Override
@@ -84,32 +82,12 @@ public class SpotterProjectHierarchy implements IOpenableProjectElement {
 		return parent.getProject();
 	}
 
-	@Override
-	public void open() {
+	private void open() {
 		if (!Activator.getDefault().testServiceStatus(getProject().getName(), true)) {
 			return;
 		}
 		IFile file = getProject().getFile(FileManager.HIERARCHY_FILENAME);
-		AbstractSpotterEditor.openInstance(new HierarchyEditorInput(file), getOpenId());
-	}
-
-	@Override
-	public String getOpenId() {
-		return HierarchyEditor.ID;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectHierarchy)) {
-			return false;
-		}
-		SpotterProjectHierarchy other = (SpotterProjectHierarchy) obj;
-		return getProject().equals(other.getProject());
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
+		AbstractSpotterEditor.openInstance(new HierarchyEditorInput(file), OPEN_ID);
 	}
 
 }

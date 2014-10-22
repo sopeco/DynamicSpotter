@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.graphics.Image;
+import org.spotter.eclipse.ui.handlers.IHandlerMediator;
 
 /**
  * An interface for DynamicSpotter project elements of the DynamicSpotter
@@ -25,7 +26,12 @@ import org.eclipse.swt.graphics.Image;
  * @author Denis Knoepfle
  * 
  */
-public interface ISpotterProjectElement {
+public interface ISpotterProjectElement extends IHandlerMediator {
+
+	/**
+	 * No children.
+	 */
+	ISpotterProjectElement[] NO_CHILDREN = new ISpotterProjectElement[0];
 
 	/**
 	 * @return the text of this element
@@ -41,6 +47,11 @@ public interface ISpotterProjectElement {
 	 * @return the children elements of this element
 	 */
 	Object[] getChildren();
+
+	/**
+	 * Recreates the children nodes.
+	 */
+	void refreshChildren();
 
 	/**
 	 * @return whether this element has children

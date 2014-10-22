@@ -22,16 +22,17 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.handlers.DeleteHandler;
+import org.spotter.eclipse.ui.handlers.OpenHandler;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.menu.IDeletable;
-import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
+import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 
@@ -41,17 +42,17 @@ import org.spotter.eclipse.ui.view.ResultsView;
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectRunResult implements IOpenableProjectElement, IDeletable {
+public class SpotterProjectRunResult extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectRunResult.class);
 
 	private static final String ELEMENT_TYPE_NAME = "Result Item";
+	private static final String OPEN_ID = ResultsView.VIEW_ID;
 
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
-	private Image image;
 	private final long jobId;
 	private final long timestamp;
 	private final String elementName;
@@ -69,6 +70,7 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	 *            the result folder that is represented by this node
 	 */
 	public SpotterProjectRunResult(ISpotterProjectElement parent, long jobId, long timestamp, IFolder resultFolder) {
+		super(IMAGE_PATH);
 		this.parent = parent;
 		this.jobId = jobId;
 		this.timestamp = timestamp;
@@ -77,20 +79,47 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 		this.elementName = dateFormat.format(new Date(timestamp));
 
 		this.resultFolder = resultFolder;
+
+		addOpenHandler();
+		addDeleteHandler();
+	}
+
+	private void addOpenHandler() {
+		addHandler(OpenHandler.OPEN_COMMAND_ID, new IOpenable() {
+			@Override
+			public void open() {
+				SpotterProjectRunResult.this.open();
+			}
+
+			@Override
+			public String getOpenId() {
+				return OPEN_ID;
+			}
+
+			@Override
+			public String getElementName() {
+				return SpotterProjectRunResult.this.elementName;
+			}
+		});
+	}
+
+	private void addDeleteHandler() {
+		addHandler(DeleteHandler.DELETE_COMMAND_ID, new IDeletable() {
+			@Override
+			public String getElementTypeName() {
+				return ELEMENT_TYPE_NAME;
+			}
+
+			@Override
+			public void delete() {
+				SpotterProjectRunResult.this.delete();
+			}
+		});
 	}
 
 	@Override
 	public String getText() {
 		return elementName;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
 	}
 
 	/**
@@ -108,16 +137,6 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 	}
 
 	@Override
-	public ISpotterProjectElement[] getChildren() {
-		return SpotterProjectParent.NO_CHILDREN;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		return false;
-	}
-
-	@Override
 	public Object getParent() {
 		return parent;
 	}
@@ -127,20 +146,14 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 		return parent.getProject();
 	}
 
-	@Override
-	public void open() {
+	private void open() {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			ResultsView view = (ResultsView) page.showView(ResultsView.VIEW_ID);
+			ResultsView view = (ResultsView) page.showView(OPEN_ID);
 			view.setResult(this);
 		} catch (PartInitException e) {
-			throw new RuntimeException("Could not show view " + getOpenId(), e);
+			throw new RuntimeException("Could not show view " + OPEN_ID, e);
 		}
-	}
-
-	@Override
-	public String getOpenId() {
-		return ResultsView.VIEW_ID;
 	}
 
 	@Override
@@ -163,8 +176,7 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 		return result;
 	}
 
-	@Override
-	public void delete() {
+	private void delete() {
 		try {
 			if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
 				resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
@@ -186,11 +198,6 @@ public class SpotterProjectRunResult implements IOpenableProjectElement, IDeleta
 			LOGGER.error(message, e);
 			DialogUtils.handleError(message, e);
 		}
-	}
-
-	@Override
-	public String getElementTypeName() {
-		return ELEMENT_TYPE_NAME;
 	}
 
 }

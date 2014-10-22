@@ -16,24 +16,21 @@
 package org.spotter.eclipse.ui.navigator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.swt.graphics.Image;
-import org.spotter.eclipse.ui.Activator;
 
 /**
- * This is the parent element of all other configuration elements represents the configuration node.
+ * This is the parent element of all other configuration elements represents the
+ * configuration node.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class SpotterProjectConfig implements ISpotterProjectElement {
+public class SpotterProjectConfig extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/config.png"; //$NON-NLS-1$
-	
+
 	private static final String ELEMENT_NAME = "Configuration";
 
 	private ISpotterProjectElement parent;
-	private ISpotterProjectElement[] children;
-	private Image image;
 
 	/**
 	 * Creates a new instance of this element.
@@ -42,41 +39,13 @@ public class SpotterProjectConfig implements ISpotterProjectElement {
 	 *            the parent element
 	 */
 	public SpotterProjectConfig(ISpotterProjectElement parent) {
+		super(IMAGE_PATH);
 		this.parent = parent;
 	}
 
 	@Override
 	public String getText() {
 		return ELEMENT_NAME;
-	}
-
-	@Override
-	public Image getImage() {
-		if (image == null) {
-			image = Activator.getImage(IMAGE_PATH);
-		}
-
-		return image;
-	}
-
-	@Override
-	public ISpotterProjectElement[] getChildren() {
-		if (children == null) {
-			children = initializeChildren(getProject());
-		}
-		// else the children are just fine
-
-		return children;
-	}
-
-	@Override
-	public boolean hasChildren() {
-		if (children == null) {
-			children = initializeChildren(getProject());
-		}
-		// else we have already initialized them
-
-		return children.length > 0;
 	}
 
 	@Override
@@ -90,24 +59,9 @@ public class SpotterProjectConfig implements ISpotterProjectElement {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SpotterProjectConfig)) {
-			return false;
-		}
-		SpotterProjectConfig other = (SpotterProjectConfig) obj;
-		return getProject().equals(other.getProject());
-	}
-
-	@Override
-	public int hashCode() {
-		return getProject().getName().hashCode();
-	}
-
-	private ISpotterProjectElement[] initializeChildren(IProject iProject) {
-		ISpotterProjectElement[] children = new ISpotterProjectElement[] {
-				new SpotterProjectConfigFile(this),
-				new SpotterProjectConfigInstrumentation(this),
-				new SpotterProjectConfigMeasurement(this),
+	protected ISpotterProjectElement[] initializeChildren(IProject iProject) {
+		ISpotterProjectElement[] children = new ISpotterProjectElement[] { new SpotterProjectConfigFile(this),
+				new SpotterProjectConfigInstrumentation(this), new SpotterProjectConfigMeasurement(this),
 				new SpotterProjectConfigWorkload(this) };
 
 		return children;

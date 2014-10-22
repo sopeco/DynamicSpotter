@@ -15,16 +15,13 @@
  */
 package org.spotter.eclipse.ui.menu;
 
-import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
-
 /**
- * An extension interface for elements of the DynamicSpotter Project Navigator
- * that can be opened.
+ * An interface for elements that can be opened.
  * 
  * @author Denis Knoepfle
  * 
  */
-public interface IOpenableProjectElement extends ISpotterProjectElement {
+public interface IOpenable {
 
 	/**
 	 * Opens this element in an appropriate view.
@@ -38,5 +35,13 @@ public interface IOpenableProjectElement extends ISpotterProjectElement {
 	 * @return the necessary editor or view id
 	 */
 	String getOpenId();
+
+	/**
+	 * Returns the name of this element that should be used within the UI for
+	 * display purposes.
+	 * 
+	 * @return the name of this element
+	 */
+	String getElementName();
 
 }
