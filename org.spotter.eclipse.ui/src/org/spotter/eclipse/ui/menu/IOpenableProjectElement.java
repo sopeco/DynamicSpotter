@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.eclipse.ui.navigator;
+package org.spotter.eclipse.ui.menu;
+
+import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 
 /**
- * An interface for elements of the DynamicSpotter Project Navigator that can be
- * deleted.
+ * An extension interface for elements of the DynamicSpotter Project Navigator
+ * that can be opened.
  * 
  * @author Denis Knoepfle
  * 
  */
-public interface IDeletable {
+public interface IOpenableProjectElement extends ISpotterProjectElement {
 
 	/**
-	 * Deletes this element.
+	 * Opens this element in an appropriate view.
 	 */
-	void delete();
+	void open();
 
 	/**
-	 * Returns the name of this element type that should be used within the
-	 * label for the delete command.
+	 * Returns the id of the editor or view that is necessary to open this
+	 * element.
 	 * 
-	 * @return The name of this element type
+	 * @return the necessary editor or view id
 	 */
-	String getElementTypeName();
+	String getOpenId();
 
 }

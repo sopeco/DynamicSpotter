@@ -22,6 +22,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.InstrumentationEditor;
 import org.spotter.eclipse.ui.editors.InstrumentationEditorInput;
+import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
 import org.spotter.shared.configuration.FileManager;
 
 /**

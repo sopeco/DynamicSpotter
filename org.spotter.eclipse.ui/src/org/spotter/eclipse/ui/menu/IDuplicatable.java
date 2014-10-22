@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.eclipse.ui.navigator;
+package org.spotter.eclipse.ui.menu;
 
 /**
- * An extension interface for elements of the DynamicSpotter Project Navigator
- * that can be opened.
+ * An interface for elements of the DynamicSpotter Project Navigator that can be
+ * duplicated.
  * 
  * @author Denis Knoepfle
  * 
  */
-public interface IOpenableProjectElement extends ISpotterProjectElement {
+public interface IDuplicatable {
 
 	/**
-	 * Opens this element in an appropriate view.
+	 * Duplicates this element.
 	 */
-	void open();
-
-	/**
-	 * Returns the id of the editor or view that is necessary to open this
-	 * element.
-	 * 
-	 * @return the necessary editor or view id
-	 */
-	String getOpenId();
+	void duplicate();
 
 }

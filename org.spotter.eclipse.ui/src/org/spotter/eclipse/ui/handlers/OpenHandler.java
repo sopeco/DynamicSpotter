@@ -20,7 +20,7 @@ import java.util.Iterator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.spotter.eclipse.ui.navigator.IOpenableProjectElement;
+import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**

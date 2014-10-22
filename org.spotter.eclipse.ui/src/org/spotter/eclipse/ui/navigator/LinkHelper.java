@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.editors.AbstractSpotterEditorInput;
+import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
 import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
 
 /**

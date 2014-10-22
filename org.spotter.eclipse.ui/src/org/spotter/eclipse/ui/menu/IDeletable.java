@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.spotter.eclipse.ui.navigator;
+package org.spotter.eclipse.ui.menu;
 
 /**
  * An interface for elements of the DynamicSpotter Project Navigator that can be
- * duplicated.
+ * deleted.
  * 
  * @author Denis Knoepfle
  * 
  */
-public interface IDuplicatable {
+public interface IDeletable {
 
 	/**
-	 * Duplicates this element.
+	 * Deletes this element.
 	 */
-	void duplicate();
+	void delete();
+
+	/**
+	 * Returns the name of this element type that should be used within the
+	 * label for the delete command.
+	 * 
+	 * @return The name of this element type
+	 */
+	String getElementTypeName();
 
 }

@@ -36,6 +36,8 @@ import org.eclipse.ui.dialogs.ProjectLocationSelectionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
+import org.spotter.eclipse.ui.menu.IDeletable;
+import org.spotter.eclipse.ui.menu.IDuplicatable;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterProjectSupport;
 

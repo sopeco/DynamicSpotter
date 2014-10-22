@@ -25,7 +25,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
-import org.spotter.eclipse.ui.navigator.IDeletable;
+import org.spotter.eclipse.ui.menu.IDeletable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**

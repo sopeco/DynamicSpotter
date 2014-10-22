@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
+import org.spotter.eclipse.ui.menu.IDeletable;
+import org.spotter.eclipse.ui.menu.IOpenableProjectElement;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 

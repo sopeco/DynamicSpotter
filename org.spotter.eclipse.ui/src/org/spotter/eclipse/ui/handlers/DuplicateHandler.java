@@ -22,7 +22,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.spotter.eclipse.ui.navigator.IDuplicatable;
+import org.spotter.eclipse.ui.menu.IDuplicatable;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
