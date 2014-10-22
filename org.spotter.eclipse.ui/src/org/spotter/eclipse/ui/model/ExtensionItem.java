@@ -29,19 +29,20 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.system.LpeSystemUtils;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.handlers.HandlerMediatorHelper;
+import org.spotter.eclipse.ui.handlers.IHandlerMediator;
 import org.spotter.eclipse.ui.listeners.IItemChangedListener;
 import org.spotter.eclipse.ui.listeners.IItemPropertiesChangedListener;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
- * An item that represents an extension. The item can hold children items as
- * well and thus can be used for hierarchical trees as well.
+ * A basic implementation for an extension item.
  * 
  * @author Denis Knoepfle
  * 
  */
-public class ExtensionItem {
+public class ExtensionItem implements IExtensionItem {
 
 	private static final String MSG_CONN_PENDING = "Connection test pending...";
 	private static final String MSG_CONN_AVAILABLE = "Connection OK";
@@ -55,8 +56,9 @@ public class ExtensionItem {
 
 	private final List<IItemChangedListener> itemChangedListeners;
 	private final List<IItemPropertiesChangedListener> propertiesChangedListeners;
-	private final List<ExtensionItem> childrenItems;
-	private ExtensionItem parentItem;
+	private final IHandlerMediator handlerMediatorHelper;
+	private final List<IExtensionItem> childrenItems;
+	private IExtensionItem parentItem;
 	private final IModelWrapper modelWrapper;
 	private final Map<String, ConfigParameterDescription> remainingDescriptions;
 
@@ -96,10 +98,11 @@ public class ExtensionItem {
 	 * @param modelWrapper
 	 *            the model wrapper for this item
 	 */
-	public ExtensionItem(ExtensionItem parent, IModelWrapper modelWrapper) {
+	public ExtensionItem(IExtensionItem parent, IModelWrapper modelWrapper) {
 		this.itemChangedListeners = new ArrayList<IItemChangedListener>();
 		this.propertiesChangedListeners = new ArrayList<IItemPropertiesChangedListener>();
-		this.childrenItems = new ArrayList<ExtensionItem>();
+		this.handlerMediatorHelper = new HandlerMediatorHelper();
+		this.childrenItems = new ArrayList<IExtensionItem>();
 		this.parentItem = parent;
 
 		this.client = null;
@@ -125,9 +128,7 @@ public class ExtensionItem {
 		this.errorMsg = null;
 	}
 
-	/**
-	 * @return the text of this table item
-	 */
+	@Override
 	public String getText() {
 		if (modelWrapper == null) {
 			return "";
@@ -141,13 +142,7 @@ public class ExtensionItem {
 		}
 	}
 
-	/**
-	 * Returns the tool tip for this item. It contains the connection status of
-	 * the extension. When the connection is ignored the extension description
-	 * will be returned if available or an empty string otherwise.
-	 * 
-	 * @return the tool tip for this item
-	 */
+	@Override
 	public String getToolTip() {
 		if (ignoreConnection) {
 			return extensionDescription != null ? extensionDescription : "";
@@ -162,9 +157,7 @@ public class ExtensionItem {
 		return tooltip;
 	}
 
-	/**
-	 * @return the image of this table item
-	 */
+	@Override
 	public Image getImage() {
 		if (ignoreConnection) {
 			return null;
@@ -179,89 +172,47 @@ public class ExtensionItem {
 		return image;
 	}
 
-	/**
-	 * @return whether the connection of this item is irrelevant and is ignored
-	 */
+	@Override
 	public boolean isConnectionIgnored() {
 		return ignoreConnection;
 	}
 
-	/**
-	 * Set if connection status is ignored. If it is ignored calls to
-	 * {@link #updateConnectionStatus()} will have no effect.
-	 * 
-	 * @param ignoreConnection
-	 *            whether to ignore or not
-	 */
+	@Override
 	public void setIgnoreConnection(boolean ignoreConnection) {
 		this.ignoreConnection = ignoreConnection;
 	}
 
-	/**
-	 * @return the model wrapper that is used
-	 */
+	@Override
 	public IModelWrapper getModelWrapper() {
 		return modelWrapper;
 	}
 
-	/**
-	 * This method should be called whenever one of this item's properties has
-	 * been modified from outside this class, so that this item can reflect
-	 * changes properly and may notify its listeners if necessary.
-	 * 
-	 * @param propertyItem
-	 *            the affected property item
-	 */
+	@Override
 	public void propertyDirty(Object propertyItem) {
 		fireItemPropertyChanged(propertyItem);
 	}
 
-	/**
-	 * Adds a listener to this item that is notified when this item changes.
-	 * 
-	 * @param listener
-	 *            the listener to register
-	 */
+	@Override
 	public void addItemChangedListener(IItemChangedListener listener) {
 		itemChangedListeners.add(listener);
 	}
 
-	/**
-	 * Removes the given listener.
-	 * 
-	 * @param listener
-	 *            the listener to deregister
-	 */
+	@Override
 	public void removeItemChangedListener(IItemChangedListener listener) {
 		itemChangedListeners.remove(listener);
 	}
 
-	/**
-	 * Adds a listener to this item that is notified when the properties have
-	 * changed.
-	 * 
-	 * @param listener
-	 *            the listener to register
-	 */
+	@Override
 	public void addItemPropertiesChangedListener(IItemPropertiesChangedListener listener) {
 		propertiesChangedListeners.add(listener);
 	}
 
-	/**
-	 * Removes the given listener.
-	 * 
-	 * @param listener
-	 *            the listener to deregister
-	 */
+	@Override
 	public void removeItemPropertiesChangedListener(IItemPropertiesChangedListener listener) {
 		propertiesChangedListeners.remove(listener);
 	}
 
-	/**
-	 * Updates the connection status for this item asynchronously, thus this
-	 * method is non-blocking. If <code>setIgnoreConnection()</code> is set to
-	 * <code>true</code> the update has no effect.
-	 */
+	@Override
 	public void updateConnectionStatus() {
 		if (isConnectionIgnored() || modelWrapper == null) {
 			return;
@@ -285,13 +236,7 @@ public class ExtensionItem {
 		});
 	}
 
-	/**
-	 * Creates a new <code>XMConfiguration</code> using the given description
-	 * and adds it to the model's config list.
-	 * 
-	 * @param desc
-	 *            the description to retrieve key and initial value from
-	 */
+	@Override
 	public void addConfigParamUsingDescription(ConfigParameterDescription desc) {
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
 		if (xmConfigList == null) {
@@ -309,13 +254,7 @@ public class ExtensionItem {
 		fireItemAppearanceChanged();
 	}
 
-	/**
-	 * Removes the config param contained in the given item from the model's
-	 * config list.
-	 * 
-	 * @param item
-	 *            the config item containing the config param to remove
-	 */
+	@Override
 	public void removeConfigParam(ConfigParamPropertyItem item) {
 		if (modelWrapper.getConfig() != null) {
 			XMConfiguration conf = item.getXMConfig();
@@ -329,9 +268,7 @@ public class ExtensionItem {
 		}
 	}
 
-	/**
-	 * Removes all non-mandatory config parameters from the model's config list.
-	 */
+	@Override
 	public void removeNonMandatoryConfigParams() {
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
 		List<XMConfiguration> removeLater = new ArrayList<XMConfiguration>();
@@ -349,46 +286,26 @@ public class ExtensionItem {
 		}
 	}
 
-	/**
-	 * Must be called when this item is removed.
-	 */
+	@Override
 	public void removed() {
 		modelWrapper.removed();
 		// when this item is removed all of its children will be gone too
-		for (ExtensionItem child : childrenItems) {
+		for (IExtensionItem child : childrenItems) {
 			child.removed();
 		}
 	}
 
-	/**
-	 * Returns a specific item determined by its index.
-	 * 
-	 * @param index
-	 *            the index of the item
-	 * @return the item at the given position
-	 */
-	public ExtensionItem getItem(int index) {
+	@Override
+	public IExtensionItem getItem(int index) {
 		return childrenItems.get(index);
 	}
 
-	/**
-	 * Returns the index of the given item.
-	 * 
-	 * @param item
-	 *            the child item
-	 * @return index of the child item
-	 */
-	public int getItemIndex(ExtensionItem item) {
+	@Override
+	public int getItemIndex(IExtensionItem item) {
 		return childrenItems.lastIndexOf(item);
 	}
 
-	/**
-	 * Adds a new child item. The added item will have this item as parent and
-	 * inherits settings like <code>isConnectionIgnored()</code>.
-	 * 
-	 * @param item
-	 *            the item to add
-	 */
+	@Override
 	public void addItem(ExtensionItem item) {
 		childrenItems.add(item);
 		item.parentItem = this;
@@ -396,92 +313,66 @@ public class ExtensionItem {
 		fireItemChildAdded(this, item);
 	}
 
-	/**
-	 * Removes a child item at the given position.
-	 * 
-	 * @param index
-	 *            the index of the child to remove
-	 */
+	@Override
 	public void removeItem(int index) {
-		ExtensionItem item = childrenItems.remove(index);
+		IExtensionItem item = childrenItems.remove(index);
 		item.removed();
 		fireItemChildRemoved(this, item);
 	}
 
-	/**
-	 * Removes the given child item.
-	 * 
-	 * @param item
-	 *            the child item to remove
-	 */
-	public void removeItem(ExtensionItem item) {
+	@Override
+	public void removeItem(IExtensionItem item) {
 		childrenItems.remove(item);
 		item.removed();
 		fireItemChildRemoved(this, item);
 	}
 
-	/**
-	 * @return the children items of this item
-	 */
-	public ExtensionItem[] getItems() {
+	@Override
+	public IExtensionItem[] getItems() {
 		return childrenItems.toArray(new ExtensionItem[childrenItems.size()]);
 	}
 
-	/**
-	 * @return <code>true</code> if item has children, <code>false</code>
-	 *         otherwise
-	 */
+	@Override
 	public boolean hasItems() {
 		return !childrenItems.isEmpty();
 	}
 
-	/**
-	 * @return the number of children items
-	 */
+	@Override
 	public int getItemCount() {
 		return childrenItems.size();
 	}
 
-	/**
-	 * @return the parent item or <code>null</code> if this item is the root
-	 */
-	public ExtensionItem getParent() {
+	@Override
+	public IExtensionItem getParent() {
 		return parentItem;
 	}
 
-	/**
-	 * Convenience method to update the error message for all children items
-	 * recursively. The connection status will be set to erroneous with the
-	 * given error message.
-	 * 
-	 * @param errorMessage
-	 *            The error message to set
-	 */
+	@Override
+	public void setError(String errorMessage) {
+		if (errorMessage != null) {
+			this.connection = null;
+			this.errorMsg = errorMessage;
+		}
+	}
+
+	@Override
 	public void setChildrenError(String errorMessage) {
-		for (ExtensionItem item : childrenItems) {
-			item.connection = null;
-			item.errorMsg = errorMessage;
+		for (IExtensionItem item : childrenItems) {
+			item.setError(errorMessage);
 			item.fireItemAppearanceChanged();
 			item.setChildrenError(errorMessage);
 		}
 	}
 
-	/**
-	 * Convenience method to update the connection status for all children items
-	 * recursively.
-	 */
+	@Override
 	public void updateChildrenConnections() {
-		for (ExtensionItem item : childrenItems) {
+		for (IExtensionItem item : childrenItems) {
 			item.updateConnectionStatus();
 			item.updateChildrenConnections();
 		}
 	}
 
-	/**
-	 * @param key
-	 *            The key of the corresponding description
-	 * @return The description that suits the given key
-	 */
+	@Override
 	public ConfigParameterDescription getExtensionConfigParam(String key) {
 		if (paramsMap == null || hasCacheCleared()) {
 			initParamsMap();
@@ -499,41 +390,83 @@ public class ExtensionItem {
 		return lastCacheClearTime < clearTime;
 	}
 
-	/**
-	 * @return collection containing all non-used and non-mandatory
-	 *         configuration parameter descriptions that are editable
-	 */
+	@Override
 	public Collection<ConfigParameterDescription> getConfigurableExtensionConfigParams() {
 		return remainingDescriptions.values();
 	}
 
-	/**
-	 * A convenience method to check if there are configurable parameters left.
-	 * 
-	 * @return <code>true</code> if configurable parameters left, otherwise
-	 *         <code>false</code>
-	 */
+	@Override
 	public boolean hasConfigurableExtensionConfigParams() {
 		return !remainingDescriptions.isEmpty();
 	}
 
-	/**
-	 * Notifies <code>IItemChangedListener</code>s that this item's appearance
-	 * has changed. Call propagates to parent items recursively, so that their
-	 * listeners also get notified.
-	 */
+	@Override
 	public void fireItemAppearanceChanged() {
 		fireItemAppearanceChanged(this);
 	}
 
-	/**
-	 * Notifies <code>IItemPropertiesChangedListener</code>s that this item's
-	 * properties have changed.
-	 */
+	@Override
 	public void fireItemPropertiesChanged() {
 		for (IItemPropertiesChangedListener listener : propertiesChangedListeners) {
 			listener.propertiesChanged();
 		}
+	}
+
+	@Override
+	public void fireItemAppearanceChanged(IExtensionItem item) {
+		for (IItemChangedListener listener : itemChangedListeners) {
+			listener.appearanceChanged(item);
+		}
+		if (parentItem != null) {
+			parentItem.fireItemAppearanceChanged(item);
+		}
+	}
+
+	@Override
+	public void fireItemChildAdded(IExtensionItem parent, IExtensionItem item) {
+		for (IItemChangedListener listener : itemChangedListeners) {
+			listener.childAdded(parent, item);
+		}
+		if (parentItem != null) {
+			parentItem.fireItemChildAdded(parent, item);
+		}
+	}
+
+	@Override
+	public void fireItemChildRemoved(IExtensionItem parent, IExtensionItem item) {
+		for (IItemChangedListener listener : itemChangedListeners) {
+			listener.childRemoved(parent, item);
+		}
+		if (parentItem != null) {
+			parentItem.fireItemChildRemoved(parent, item);
+		}
+	}
+
+	private void fireItemPropertyRemoved(Object propertyItem) {
+		for (IItemPropertiesChangedListener listener : propertiesChangedListeners) {
+			listener.itemPropertyRemoved(propertyItem);
+		}
+	}
+
+	private void fireItemPropertyChanged(Object propertyItem) {
+		for (IItemPropertiesChangedListener listener : propertiesChangedListeners) {
+			listener.itemPropertyChanged(propertyItem);
+		}
+	}
+
+	/**
+	 * Fires an item appearance changed event using the UI-Thread. This helper
+	 * method can be used by non-UI-Threads to ensure that the listeners are
+	 * executing their code on the UI thread.
+	 */
+	private void fireItemAppearanceChangedOnUIThread() {
+		Display display = Display.getDefault();
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				fireItemAppearanceChanged();
+			}
+		});
 	}
 
 	private void initParamsMap() {
@@ -547,7 +480,7 @@ public class ExtensionItem {
 		for (ConfigParameterDescription desc : params) {
 			paramsMap.put(desc.getName(), desc);
 		}
-		
+
 		if (client != null) {
 			lastCacheClearTime = client.getLastClearTime();
 		}
@@ -591,61 +524,24 @@ public class ExtensionItem {
 		return configurable;
 	}
 
-	// Call propagates to parent items recursively
-	private void fireItemAppearanceChanged(ExtensionItem item) {
-		for (IItemChangedListener listener : itemChangedListeners) {
-			listener.appearanceChanged(item);
-		}
-		if (parentItem != null) {
-			parentItem.fireItemAppearanceChanged(item);
-		}
+	@Override
+	public boolean canHandle(String commandId) {
+		return handlerMediatorHelper.canHandle(commandId);
 	}
 
-	// Call propagates to parent items recursively.
-	private void fireItemChildAdded(ExtensionItem parent, ExtensionItem item) {
-		for (IItemChangedListener listener : itemChangedListeners) {
-			listener.childAdded(parent, item);
-		}
-		if (parentItem != null) {
-			parentItem.fireItemChildAdded(parent, item);
-		}
+	@Override
+	public Object getHandler(String commandId) {
+		return handlerMediatorHelper.getHandler(commandId);
 	}
 
-	// Call propagates to parent items recursively.
-	private void fireItemChildRemoved(ExtensionItem parent, ExtensionItem item) {
-		for (IItemChangedListener listener : itemChangedListeners) {
-			listener.childRemoved(parent, item);
-		}
-		if (parentItem != null) {
-			parentItem.fireItemChildRemoved(parent, item);
-		}
+	@Override
+	public void addHandler(String commandId, Object handler) {
+		handlerMediatorHelper.addHandler(commandId, handler);
 	}
 
-	private void fireItemPropertyRemoved(Object propertyItem) {
-		for (IItemPropertiesChangedListener listener : propertiesChangedListeners) {
-			listener.itemPropertyRemoved(propertyItem);
-		}
-	}
-
-	private void fireItemPropertyChanged(Object propertyItem) {
-		for (IItemPropertiesChangedListener listener : propertiesChangedListeners) {
-			listener.itemPropertyChanged(propertyItem);
-		}
-	}
-
-	/**
-	 * Fires an item appearance changed event using the UI-Thread. This helper
-	 * method can be used by non-UI-Threads to ensure that the listeners are
-	 * executing their code on the UI thread.
-	 */
-	private void fireItemAppearanceChangedOnUIThread() {
-		Display display = Display.getDefault();
-		display.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				fireItemAppearanceChanged();
-			}
-		});
+	@Override
+	public void removeHandler(String commandId) {
+		handlerMediatorHelper.removeHandler(commandId);
 	}
 
 }

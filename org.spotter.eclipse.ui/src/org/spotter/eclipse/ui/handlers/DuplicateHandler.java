@@ -48,7 +48,7 @@ public class DuplicateHandler extends AbstractHandler {
 		}
 		
 		while (iter.hasNext()) {
-			SpotterUtils.duplicateNavigatorElement(iter.next());
+			SpotterUtils.duplicateElement(iter.next());
 		}
 
 		return null;

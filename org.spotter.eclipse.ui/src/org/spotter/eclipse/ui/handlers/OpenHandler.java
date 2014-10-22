@@ -44,7 +44,7 @@ public class OpenHandler extends AbstractHandler {
 		}
 
 		while (iter.hasNext()) {
-			SpotterUtils.openNavigatorElement(iter.next());
+			SpotterUtils.openElement(iter.next());
 		}
 
 		return null;

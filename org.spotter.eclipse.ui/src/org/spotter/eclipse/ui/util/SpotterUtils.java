@@ -221,7 +221,7 @@ public final class SpotterUtils {
 	 * @param element
 	 *            the element to open
 	 */
-	public static void openNavigatorElement(Object element) {
+	public static void openElement(Object element) {
 		if (element instanceof IOpenableProjectElement) {
 			IOpenableProjectElement openable = (IOpenableProjectElement) element;
 			try {
@@ -241,7 +241,7 @@ public final class SpotterUtils {
 	 * @param element
 	 *            the element to duplicate
 	 */
-	public static void duplicateNavigatorElement(Object element) {
+	public static void duplicateElement(Object element) {
 		if (element instanceof IDuplicatable) {
 			IDuplicatable duplicatable = (IDuplicatable) element;
 			try {
@@ -261,7 +261,7 @@ public final class SpotterUtils {
 	 * @param element
 	 *            the element to delete
 	 */
-	public static void deleteNavigatorElement(Object element) {
+	public static void deleteElement(Object element) {
 		if (element instanceof IDeletable) {
 			IDeletable deletable = (IDeletable) element;
 			try {

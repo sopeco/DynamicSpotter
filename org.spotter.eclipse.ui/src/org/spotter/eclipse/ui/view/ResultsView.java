@@ -78,6 +78,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
@@ -360,7 +361,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 				currentSelectedProblem = null;
 				if (!sel.isEmpty()) {
-					ExtensionItem item = (ExtensionItem) sel.getFirstElement();
+					IExtensionItem item = (IExtensionItem) sel.getFirstElement();
 					Object problem = item.getModelWrapper().getXMLModel();
 					if (problem instanceof XPerformanceProblem) {
 						currentSelectedProblem = (XPerformanceProblem) problem;
@@ -673,7 +674,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateHierarchy() {
-		ExtensionItem input = null;
+		IExtensionItem input = null;
 
 		if (resultsContainer != null) {
 			XPerformanceProblem root = resultsContainer.getRootProblem();

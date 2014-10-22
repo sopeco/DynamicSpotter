@@ -23,8 +23,11 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
+import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
+import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItemFactory;
 import org.spotter.eclipse.ui.model.xml.HierarchyFactory;
 import org.spotter.eclipse.ui.model.xml.HierarchyModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
@@ -72,7 +75,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	}
 
 	@Override
-	public ExtensionItem getInitialExtensionsInput() {
+	public IExtensionItem getInitialExtensionsInput() {
 		if (problemRoot == null) {
 			HierarchyEditorInput editorInput = (HierarchyEditorInput) getEditorInput();
 			problemRoot = editorInput.getPerformanceProblemRoot();
@@ -133,9 +136,10 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	 *            The XML root problem model
 	 * @return an ExtensionItem containing the hierarchy
 	 */
-	public static ExtensionItem createPerformanceProblemHierarchy(String projectName, XPerformanceProblem rootProblem) {
+	public static IExtensionItem createPerformanceProblemHierarchy(String projectName, XPerformanceProblem rootProblem) {
 		IModelWrapper rootModel = new HierarchyModelWrapper(null, null, rootProblem);
-		ExtensionItem input = new ExtensionItem(rootModel);
+		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
+		IExtensionItem input = factory.createExtensionItem(rootModel);
 		input.setIgnoreConnection(true);
 
 		if (rootProblem.getProblem() == null) {
@@ -154,7 +158,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		return input;
 	}
 
-	private static void buildRecursiveTree(ServiceClientWrapper client, ExtensionItem parent,
+	private static void buildRecursiveTree(ServiceClientWrapper client, IExtensionItem parent,
 			XPerformanceProblem parentProblem, XPerformanceProblem problem) throws UICoreException {
 		String extName = problem.getExtensionName();
 

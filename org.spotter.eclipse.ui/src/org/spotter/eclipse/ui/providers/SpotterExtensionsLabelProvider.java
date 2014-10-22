@@ -17,12 +17,12 @@ package org.spotter.eclipse.ui.providers;
 
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 
 /**
  * Label provider for extension items that can be used e.g. in a
  * <code>TableViewer</code>. This label provider expects objects of type
- * {@link ExtensionItem}.
+ * {@link IExtensionItem}.
  * 
  * @author Denis Knoepfle
  * 
@@ -58,8 +58,8 @@ public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 	@Override
 	public String getToolTipText(Object element) {
 		String tooltip = null;
-		if (element instanceof ExtensionItem) {
-			tooltip = ((ExtensionItem) element).getToolTip();
+		if (element instanceof IExtensionItem) {
+			tooltip = ((IExtensionItem) element).getToolTip();
 		}
 		return tooltip;
 	}
@@ -82,8 +82,8 @@ public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 	@Override
 	public void update(ViewerCell cell) {
 		Object element = cell.getElement();
-		if (element != null && element instanceof ExtensionItem) {
-			ExtensionItem item = (ExtensionItem) element;
+		if (element != null && element instanceof IExtensionItem) {
+			IExtensionItem item = (IExtensionItem) element;
 			cell.setText(item.getText());
 			cell.setImage(imageProvider.getImage(item));
 		}

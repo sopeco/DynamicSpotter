@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Label;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
 import org.spotter.eclipse.ui.viewers.PropertiesGroupViewer;
@@ -51,7 +51,7 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	 * 
 	 * @return the initial extensions input
 	 */
-	public abstract ExtensionItem getInitialExtensionsInput();
+	public abstract IExtensionItem getInitialExtensionsInput();
 
 	/**
 	 * Returns extensions that suit this editor type wrapped in description

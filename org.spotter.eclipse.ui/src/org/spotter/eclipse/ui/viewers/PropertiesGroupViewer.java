@@ -54,7 +54,7 @@ import org.spotter.eclipse.ui.editors.AbstractSpotterEditor;
 import org.spotter.eclipse.ui.editors.PropertiesEditingSupport;
 import org.spotter.eclipse.ui.model.AbstractPropertyItem;
 import org.spotter.eclipse.ui.model.ConfigParamPropertyItem;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.providers.PropertiesContentProvider;
 import org.spotter.eclipse.ui.providers.PropertiesLabelProvider;
 import org.spotter.eclipse.ui.util.AbstractNameFormatter;
@@ -68,7 +68,7 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * <p>
  * The viewer looks best if placed within a composite with a
  * <code>FillLayout</code> or similar in order to use all the available space.
- * The viewer's content provider expects input of type {@link ExtensionItem}.
+ * The viewer's content provider expects input of type {@link IExtensionItem}.
  * The input model can be updated via {@link #updateProperties(ExtensionItem)}.
  * </p>
  * 
@@ -123,7 +123,7 @@ public class PropertiesGroupViewer {
 	}
 
 	private final AbstractSpotterEditor editor;
-	private ExtensionItem inputModel;
+	private IExtensionItem inputModel;
 	private AbstractNameFormatter nameFormatter;
 
 	private Table tblProperties;
@@ -163,7 +163,7 @@ public class PropertiesGroupViewer {
 	 * @param inputModel
 	 *            the new input model
 	 */
-	public void updateProperties(ExtensionItem inputModel) {
+	public void updateProperties(IExtensionItem inputModel) {
 		this.inputModel = inputModel;
 		propertiesTblViewer.setInput(inputModel);
 		boolean enabled = inputModel == null ? false : inputModel.hasConfigurableExtensionConfigParams();
@@ -180,7 +180,7 @@ public class PropertiesGroupViewer {
 	/**
 	 * @return the input model that is currently in use
 	 */
-	public ExtensionItem getInputModel() {
+	public IExtensionItem getInputModel() {
 		return inputModel;
 	}
 
@@ -250,7 +250,8 @@ public class PropertiesGroupViewer {
 				if (e.keyCode == SWT.TAB) {
 					int index = table.getSelectionIndex();
 					int shiftState = e.stateMask & SWT.SHIFT;
-					if (shiftState != 0 && index > 0 || shiftState == 0 && index >= 0 && index < table.getItemCount() - 1) {
+					if (shiftState != 0 && index > 0 || shiftState == 0 && index >= 0
+							&& index < table.getItemCount() - 1) {
 						e.doit = false;
 						if (shiftState != 0) {
 							// backwards

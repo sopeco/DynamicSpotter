@@ -21,8 +21,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
+import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItemFactory;
 import org.spotter.eclipse.ui.model.xml.EnvironmentModelWrapper;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.model.xml.MeasurementEnvironmentFactory;
@@ -63,9 +66,10 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	protected abstract void applyChanges(Object xmlModelRoot);
 
 	@Override
-	public ExtensionItem getInitialExtensionsInput() {
+	public IExtensionItem getInitialExtensionsInput() {
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
-		ExtensionItem input = new ExtensionItem();
+		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
+		IExtensionItem input = factory.createExtensionItem();
 
 		String projectName = getProject().getName();
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);

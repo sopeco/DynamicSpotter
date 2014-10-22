@@ -55,7 +55,7 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 		}
 
 		while (iter.hasNext()) {
-			SpotterUtils.deleteNavigatorElement(iter.next());
+			SpotterUtils.deleteElement(iter.next());
 		}
 
 		return null;

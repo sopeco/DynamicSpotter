@@ -192,7 +192,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				SpotterUtils.openNavigatorElement(sel.getFirstElement());
+				SpotterUtils.openElement(sel.getFirstElement());
 			}
 		};
 

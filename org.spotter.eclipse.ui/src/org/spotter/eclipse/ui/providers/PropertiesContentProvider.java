@@ -25,21 +25,21 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.listeners.IItemPropertiesChangedListener;
 import org.spotter.eclipse.ui.model.AbstractPropertyItem;
 import org.spotter.eclipse.ui.model.ConfigParamPropertyItem;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
  * Content provider for property items that can be used e.g. in a
  * <code>TableViewer</code>. This content provider expects input of type
- * {@link ExtensionItem}.
+ * {@link IExtensionItem}.
  * 
  * @author Denis Knoepfle
  * 
  */
 public class PropertiesContentProvider implements IStructuredContentProvider, IItemPropertiesChangedListener {
 
-	private ExtensionItem inputModel;
+	private IExtensionItem inputModel;
 	private AbstractTableViewer viewer;
 
 	@Override
@@ -59,8 +59,8 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 			inputModel = null;
 		}
 		// register listener at new input
-		if (newInput instanceof ExtensionItem) {
-			inputModel = (ExtensionItem) newInput;
+		if (newInput instanceof IExtensionItem) {
+			inputModel = (IExtensionItem) newInput;
 			inputModel.addItemPropertiesChangedListener(this);
 		}
 		this.viewer.refresh();
@@ -68,13 +68,13 @@ public class PropertiesContentProvider implements IStructuredContentProvider, II
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		if (!(inputElement instanceof ExtensionItem)) {
+		if (!(inputElement instanceof IExtensionItem)) {
 			return new Object[0];
 		}
-		ExtensionItem tableItem = (ExtensionItem) inputElement;
+		IExtensionItem tableItem = (IExtensionItem) inputElement;
 		IModelWrapper modelWrapper = tableItem.getModelWrapper();
 		List<XMConfiguration> xmConfigList = modelWrapper.getConfig();
-		
+
 		Object[] result = new Object[0];
 
 		if (xmConfigList != null) {
