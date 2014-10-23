@@ -306,9 +306,9 @@ public class ExtensionItem implements IExtensionItem {
 	}
 
 	@Override
-	public void addItem(ExtensionItem item) {
+	public void addItem(IExtensionItem item) {
 		childrenItems.add(item);
-		item.parentItem = this;
+		item.setParent(this);
 		item.setIgnoreConnection(ignoreConnection);
 		fireItemChildAdded(this, item);
 	}
@@ -329,7 +329,7 @@ public class ExtensionItem implements IExtensionItem {
 
 	@Override
 	public IExtensionItem[] getItems() {
-		return childrenItems.toArray(new ExtensionItem[childrenItems.size()]);
+		return childrenItems.toArray(new IExtensionItem[childrenItems.size()]);
 	}
 
 	@Override
@@ -340,6 +340,11 @@ public class ExtensionItem implements IExtensionItem {
 	@Override
 	public int getItemCount() {
 		return childrenItems.size();
+	}
+
+	@Override
+	public void setParent(IExtensionItem parent) {
+		this.parentItem = parent;
 	}
 
 	@Override

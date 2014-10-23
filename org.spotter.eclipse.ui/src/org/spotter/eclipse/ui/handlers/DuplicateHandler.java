@@ -46,7 +46,7 @@ public class DuplicateHandler extends AbstractHandler {
 		if (iter == null) {
 			return null;
 		}
-		
+
 		while (iter.hasNext()) {
 			SpotterUtils.duplicateElement(iter.next());
 		}
@@ -73,7 +73,8 @@ public class DuplicateHandler extends AbstractHandler {
 
 		// check if selected element is duplicatable
 		Object element = structSelection.getFirstElement();
-		boolean isDuplicatable = (element instanceof IDuplicatable);
+		Object duplicatable = SpotterUtils.toConcreteHandler(element, DUPLICATE_COMMAND_ID);
+		boolean isDuplicatable = (duplicatable instanceof IDuplicatable);
 
 		return isDuplicatable;
 	}

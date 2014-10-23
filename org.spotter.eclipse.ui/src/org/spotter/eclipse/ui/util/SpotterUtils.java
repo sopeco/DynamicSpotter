@@ -307,4 +307,25 @@ public final class SpotterUtils {
 		}
 	}
 
+	/**
+	 * Extracts a concrete handler from the element's handler mediator
+	 * associated with the given command id.
+	 * 
+	 * @param element
+	 *            the element to extract from
+	 * @param commandId
+	 *            the command to extract
+	 * @return the corresponding handler or <code>null</code>
+	 */
+	public static Object toConcreteHandler(Object element, String commandId) {
+		IHandlerMediator mediator = toHandlerMediator(element);
+		if (mediator != null) {
+			Object handler = mediator.getHandler(commandId);
+			if (handler != null) {
+				return handler;
+			}
+		}
+		return null;
+	}
+
 }

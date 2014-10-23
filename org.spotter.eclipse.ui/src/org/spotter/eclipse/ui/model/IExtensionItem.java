@@ -174,7 +174,7 @@ public interface IExtensionItem extends IHandlerMediator {
 	 * @param item
 	 *            the item to add
 	 */
-	void addItem(ExtensionItem item);
+	void addItem(IExtensionItem item);
 
 	/**
 	 * Removes a child item at the given position.
@@ -207,6 +207,14 @@ public interface IExtensionItem extends IHandlerMediator {
 	 * @return the number of children items
 	 */
 	int getItemCount();
+
+	/**
+	 * Sets the parent of this item.
+	 * 
+	 * @param parent
+	 *            the parent to set
+	 */
+	void setParent(IExtensionItem parent);
 
 	/**
 	 * @return the parent item or <code>null</code> if this item is the root

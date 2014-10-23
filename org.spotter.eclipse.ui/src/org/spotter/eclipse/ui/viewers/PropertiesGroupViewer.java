@@ -69,7 +69,7 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * The viewer looks best if placed within a composite with a
  * <code>FillLayout</code> or similar in order to use all the available space.
  * The viewer's content provider expects input of type {@link IExtensionItem}.
- * The input model can be updated via {@link #updateProperties(ExtensionItem)}.
+ * The input model can be updated via {@link #updateProperties(IExtensionItem)}.
  * </p>
  * 
  * @author Denis Knoepfle

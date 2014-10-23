@@ -157,7 +157,7 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	}
 
 	@Override
-	public void addItem(ExtensionItem item) {
+	public void addItem(IExtensionItem item) {
 		delegate.addItem(item);
 	}
 
@@ -184,6 +184,11 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	@Override
 	public int getItemCount() {
 		return delegate.getItemCount();
+	}
+
+	@Override
+	public void setParent(IExtensionItem parent) {
+		delegate.setParent(parent);
 	}
 
 	@Override

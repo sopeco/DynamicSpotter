@@ -22,7 +22,6 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
-import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.IExtensionItemFactory;
@@ -79,12 +78,12 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 			if (client.getExtensionConfigParamters(extName) == null) {
 				DialogUtils.openWarning(TITLE_ERR_DIALOG,
 						"Creating initial input failed. Cause: Missing information to fully initialize ExtensionItem");
-				return new ExtensionItem();
+				return factory.createExtensionItem();
 			}
 
 			ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
 			IModelWrapper wrapper = new EnvironmentModelWrapper(extension, envObjects, envObj);
-			input.addItem(new ExtensionItem(wrapper));
+			input.addItem(factory.createExtensionItem(wrapper));
 		}
 		return input;
 	}

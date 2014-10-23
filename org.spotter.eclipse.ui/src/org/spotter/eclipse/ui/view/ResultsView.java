@@ -77,8 +77,9 @@ import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.editors.HierarchyEditor;
-import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItemFactory;
+import org.spotter.eclipse.ui.model.ImmutableExtensionItemFactory;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
@@ -129,6 +130,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	private static final String RESOURCE_SEPARATOR_CHAR = "/";
 
+	private final IExtensionItemFactory extensionItemFactory;
+
 	private Group grpDetails;
 	private TreeViewer hierarchyTreeViewer;
 	private ResultExtensionsImageProvider imageProvider;
@@ -155,6 +158,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		this.client = null;
 		this.runResultItem = null;
 		this.resourceShells = new HashMap<>();
+		this.extensionItemFactory = new ImmutableExtensionItemFactory();
 	}
 
 	@Override
@@ -230,7 +234,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		parent.setLayout(new FillLayout());
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
-		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container, new ExtensionItem());
+		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container,
+				extensionItemFactory.createExtensionItem());
 		SpotterExtensionsLabelProvider labelProvider = (SpotterExtensionsLabelProvider) hierarchyTreeViewer
 				.getLabelProvider();
 		imageProvider = new ResultExtensionsImageProvider();
@@ -601,7 +606,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void resetHierarchy() {
-		hierarchyTreeViewer.setInput(new ExtensionItem());
+		hierarchyTreeViewer.setInput(extensionItemFactory.createExtensionItem());
 		lblProblemName.setText(LABEL_NONE_SELECTED);
 		lblDescription.setText("");
 		lblStatus.setText("");
@@ -685,7 +690,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 		imageProvider.setResultsContainer(resultsContainer);
 		if (input == null) {
-			input = new ExtensionItem();
+			input = extensionItemFactory.createExtensionItem();
 		}
 		hierarchyTreeViewer.setInput(input);
 		hierarchyTreeViewer.expandAll();
