@@ -103,18 +103,19 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 		while (iter.hasNext()) {
 			Object selectedElement = iter.next();
-			if (selectedElement instanceof IDeletable) {
+			Object deletable = SpotterUtils.toConcreteHandler(selectedElement, DELETE_COMMAND_ID);
+			if (deletable instanceof IDeletable) {
 				Class<?> clazz = selectedElement.getClass();
 				if (firstDeletableClazz == null) {
 					firstDeletableClazz = clazz;
-					deletables.add((IDeletable) selectedElement);
+					deletables.add((IDeletable) deletable);
 				} else if (!firstDeletableClazz.equals(clazz)) {
 					// only allow same types in one delete
 					deletables.clear();
 					return deletables;
 				} else {
 					// just add the element so it can be counted afterwards
-					deletables.add((IDeletable) selectedElement);
+					deletables.add((IDeletable) deletable);
 				}
 			} else {
 				// if any element not deletable return empty list

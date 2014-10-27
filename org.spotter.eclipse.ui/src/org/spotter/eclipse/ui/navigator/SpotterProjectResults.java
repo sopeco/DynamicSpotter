@@ -22,7 +22,9 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -53,10 +55,11 @@ public class SpotterProjectResults extends AbstractProjectElement {
 
 	private static final String ELEMENT_NAME = "Results";
 	private static final String EMPTY_SUFFIX = " (empty)";
-	private static final String LOADING_SUFFIX = " (loading...)";
+	private static final String PENDING_SUFFIX = " (pending...)";
 
 	private ISpotterProjectElement parent;
 	private boolean initialLoad;
+	private final Map<Long, SpotterProjectRunResult> jobIdToResultMapping;
 
 	/**
 	 * Creates a new instance of this element.
@@ -68,6 +71,7 @@ public class SpotterProjectResults extends AbstractProjectElement {
 		super(IMAGE_PATH);
 		this.parent = parent;
 		this.initialLoad = false;
+		this.jobIdToResultMapping = new HashMap<>();
 	}
 
 	@Override
@@ -75,7 +79,7 @@ public class SpotterProjectResults extends AbstractProjectElement {
 		String suffix;
 		if (children == null) {
 			initialDeferredLoad();
-			suffix = LOADING_SUFFIX;
+			suffix = PENDING_SUFFIX;
 		} else {
 			suffix = hasChildren() ? "" : EMPTY_SUFFIX;
 		}
@@ -113,6 +117,17 @@ public class SpotterProjectResults extends AbstractProjectElement {
 		return parent.getProject();
 	}
 
+	/**
+	 * Returns the corresponding run result item for the given job id.
+	 * 
+	 * @param jobId
+	 *            the job id the requested item refers to
+	 * @return the item corresponding to the given job id
+	 */
+	public SpotterProjectRunResult getRunResultForJobId(long jobId) {
+		return jobIdToResultMapping.get(jobId);
+	}
+
 	private synchronized void initialDeferredLoad() {
 		if (initialLoad) {
 			return;
@@ -146,6 +161,7 @@ public class SpotterProjectResults extends AbstractProjectElement {
 	}
 
 	private ISpotterProjectElement[] synchronizeRunResults(IProject iProject, String resultsLocation) {
+		jobIdToResultMapping.clear();
 		File res = new File(resultsLocation);
 		List<ISpotterProjectElement> elements = new ArrayList<>();
 		ServiceClientWrapper client = Activator.getDefault().getClient(iProject.getName());
@@ -168,6 +184,7 @@ public class SpotterProjectResults extends AbstractProjectElement {
 						resultsLocation, iProject);
 				if (runResult != null) {
 					elements.add(runResult);
+					jobIdToResultMapping.put(jobId, runResult);
 				}
 			}
 		}

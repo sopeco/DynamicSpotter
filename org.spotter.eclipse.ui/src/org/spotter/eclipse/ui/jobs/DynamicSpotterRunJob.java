@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.CommonViewer;
@@ -36,6 +37,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.handlers.RunHandler;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
+import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.status.DiagnosisProgress;
 import org.spotter.shared.status.SpotterProgress;
@@ -78,7 +80,7 @@ public class DynamicSpotterRunJob extends Job {
 	 * @param timestamp
 	 *            The timestamp when the job was initiated
 	 */
-	public DynamicSpotterRunJob(IProject project, long jobId, long timestamp) {
+	public DynamicSpotterRunJob(final IProject project, final long jobId, long timestamp) {
 		super("DynamicSpotter Diagnosis '" + project.getName() + "'");
 
 		this.project = project;
@@ -90,7 +92,7 @@ public class DynamicSpotterRunJob extends Job {
 
 		IAction gotoAction = new Action("Results") {
 			public void run() {
-				// TODO: reveal run result node in the navigator
+				revealResults();
 			}
 		};
 
@@ -216,6 +218,7 @@ public class DynamicSpotterRunJob extends Job {
 						viewer.expandToLevel(projectResultsNode, 1);
 					}
 					DialogUtils.openAsyncInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
+					revealResults();
 				} else {
 					// remove the job id because the job failed
 					JobsContainer.removeJobId(project, jobId);
@@ -229,6 +232,20 @@ public class DynamicSpotterRunJob extends Job {
 				}
 			}
 		});
+	}
+
+	private void revealResults() {
+		Activator activator = Activator.getDefault();
+		Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
+		SpotterProjectResults projectResultsNode = results.get(project.getName());
+		if (projectResultsNode != null) {
+			SpotterProjectRunResult runNode = projectResultsNode.getRunResultForJobId(jobId);
+			if (runNode != null) {
+				CommonViewer viewer = activator.getNavigatorViewer();
+				viewer.getControl().setFocus();
+				viewer.setSelection(new StructuredSelection(runNode), true);
+			}
+		}
 	}
 
 }

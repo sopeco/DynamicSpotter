@@ -64,7 +64,8 @@ public class OpenHandler extends AbstractHandler {
 		}
 
 		while (iter.hasNext()) {
-			if (!(iter.next() instanceof IOpenable)) {
+			Object openable = SpotterUtils.toConcreteHandler(iter.next(), OPEN_COMMAND_ID);
+			if (!(openable instanceof IOpenable)) {
 				return false;
 			}
 		}

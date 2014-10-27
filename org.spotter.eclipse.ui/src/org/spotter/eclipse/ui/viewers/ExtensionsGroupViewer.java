@@ -25,9 +25,7 @@ import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -58,9 +56,10 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
-import org.spotter.eclipse.ui.model.ExtensionItem;
+import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.model.IExtensionItemFactory;
 import org.spotter.eclipse.ui.model.xml.IModelWrapper;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsContentProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
@@ -86,7 +85,7 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * @author Denis Knoepfle
  * 
  */
-public class ExtensionsGroupViewer implements ISelectionProvider {
+public class ExtensionsGroupViewer {
 
 	private static final int VIEWER_CONTROL_STYLE = SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL
 			| SWT.V_SCROLL;
@@ -99,6 +98,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	private final boolean isHierarchical;
 	private final boolean ignoreConnection;
 	private final IExtensionItem extensionsInput;
+	private final IExtensionItemFactory extensionItemFactory;
 	private IExtensionItem currentSelectedExtension;
 	private PropertiesGroupViewer propertiesGroupViewer;
 
@@ -136,6 +136,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 		this.editor = editor;
 		this.isHierarchical = hierarchical;
 		this.extensionsInput = editor.getInitialExtensionsInput();
+		this.extensionItemFactory = new BasicEditorExtensionItemFactory();
 		this.ignoreConnection = extensionsInput == null ? true : extensionsInput.isConnectionIgnored();
 
 		createExtensionsGroup(parent);
@@ -150,7 +151,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 
 	/**
 	 * Sets the <code>PropertiesGroupViewer</code>. It will be updated via
-	 * {@link PropertiesGroupViewer#updateProperties(ExtensionItem)
+	 * {@link PropertiesGroupViewer#updateProperties(IExtensionItem)
 	 * updateProperties(ExtensionItem)} whenever a extension item is selected.
 	 * 
 	 * @param viewer
@@ -167,24 +168,11 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 		viewerControl.setFocus();
 	}
 
-	@Override
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		extensionsViewer.addSelectionChangedListener(listener);
-	}
-
-	@Override
-	public ISelection getSelection() {
-		return extensionsViewer.getSelection();
-	}
-
-	@Override
-	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-		extensionsViewer.removeSelectionChangedListener(listener);
-	}
-
-	@Override
-	public void setSelection(ISelection selection) {
-		extensionsViewer.setSelection(selection);
+	/**
+	 * @return the underlying viewer
+	 */
+	public ColumnViewer getViewer() {
+		return extensionsViewer;
 	}
 
 	/**
@@ -250,7 +238,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 			throw new IllegalArgumentException("parent must not be null");
 		}
 		if (input == null) {
-			throw new IllegalArgumentException("parent must not be null");
+			throw new IllegalArgumentException("input must not be null");
 		}
 		// configure tree layout
 		Composite treeExtensionsComp = new Composite(parent, SWT.NONE);
@@ -357,7 +345,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 			IExtensionItem lastAdded = null;
 			for (Object component : result) {
 				ExtensionMetaobject metaobject = (ExtensionMetaobject) component;
-				ExtensionItem item = processAddedComponent(xmlParent, metaobject);
+				IExtensionItem item = processAddedComponent(xmlParent, metaobject);
 				parentItem.addItem(item);
 				item.updateConnectionStatus();
 				lastAdded = item;
@@ -385,7 +373,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 	 * @return an <code>ExtensionItem</code> object that contains a suitable
 	 *         model wrapper
 	 */
-	private ExtensionItem processAddedComponent(Object xmlParent, ExtensionMetaobject extension) {
+	private IExtensionItem processAddedComponent(Object xmlParent, ExtensionMetaobject extension) {
 		IModelWrapper modelWrapper = editor.createModelWrapper(xmlParent, extension);
 		List<XMConfiguration> xmConfigList = new ArrayList<XMConfiguration>();
 
@@ -402,7 +390,7 @@ public class ExtensionsGroupViewer implements ISelectionProvider {
 		if (!xmConfigList.isEmpty()) {
 			modelWrapper.setConfig(xmConfigList);
 		}
-		return new ExtensionItem(modelWrapper);
+		return extensionItemFactory.createExtensionItem(modelWrapper);
 	}
 
 	private void addButtonListeners() {

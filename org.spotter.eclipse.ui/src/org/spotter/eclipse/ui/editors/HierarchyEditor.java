@@ -24,7 +24,6 @@ import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
 import org.spotter.eclipse.ui.editors.factory.ElementFactory;
 import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
-import org.spotter.eclipse.ui.model.ExtensionItem;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.IExtensionItemFactory;
@@ -148,18 +147,19 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		for (XPerformanceProblem problem : rootProblem.getProblem()) {
 			try {
-				buildRecursiveTree(client, input, rootProblem, problem);
+				buildRecursiveTree(client, factory, input, rootProblem, problem);
 			} catch (UICoreException e) {
 				DialogUtils.openWarning(TITLE_ERR_DIALOG,
 						"Creating performance problem hierarchy failed. Cause: " + e.getMessage());
-				return new ExtensionItem(rootModel);
+				return factory.createExtensionItem(rootModel);
 			}
 		}
 		return input;
 	}
 
-	private static void buildRecursiveTree(ServiceClientWrapper client, IExtensionItem parent,
-			XPerformanceProblem parentProblem, XPerformanceProblem problem) throws UICoreException {
+	private static void buildRecursiveTree(ServiceClientWrapper client, IExtensionItemFactory factory,
+			IExtensionItem parent, XPerformanceProblem parentProblem, XPerformanceProblem problem)
+			throws UICoreException {
 		String extName = problem.getExtensionName();
 
 		if (client.getExtensionConfigParamters(extName) == null) {
@@ -169,11 +169,11 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		String projectName = client.getProjectName();
 		ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
 		IModelWrapper wrapper = new HierarchyModelWrapper(extension, parentProblem.getProblem(), problem);
-		ExtensionItem child = new ExtensionItem(wrapper);
+		IExtensionItem child = factory.createExtensionItem(wrapper);
 		parent.addItem(child);
 		if (problem.getProblem() != null) {
 			for (XPerformanceProblem childProblem : problem.getProblem()) {
-				buildRecursiveTree(client, child, problem, childProblem);
+				buildRecursiveTree(client, factory, child, problem, childProblem);
 			}
 		}
 	}
