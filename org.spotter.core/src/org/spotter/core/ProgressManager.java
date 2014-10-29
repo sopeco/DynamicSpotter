@@ -126,7 +126,8 @@ public final class ProgressManager implements Runnable {
 		estimatedDuration = 0;
 		additionalDuration = 0;
 		initialEstimateConducted = false;
-		getSpotterProgress().setCurrentProblem(controller.getProblemId());
+		String currentProblem = controller == null ? null : controller.getProblemId();
+		getSpotterProgress().setCurrentProblem(currentProblem);
 	}
 
 	/**
