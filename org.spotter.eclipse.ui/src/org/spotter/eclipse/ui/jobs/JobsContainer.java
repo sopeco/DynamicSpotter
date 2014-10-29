@@ -18,6 +18,7 @@ package org.spotter.eclipse.ui.jobs;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.eclipse.core.resources.IProject;
 import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.shared.configuration.FileManager;
 
 /**
@@ -184,6 +186,33 @@ public class JobsContainer implements Serializable {
 			}
 		}
 		return jobsContainer;
+	}
+
+	/**
+	 * Tries to read the current job from the jobs container associated with the
+	 * given project. Returns the job id or <code>null</code> if not found.
+	 * 
+	 * @param client
+	 *            the client to use for the lookup
+	 * @param project
+	 *            the corresponding project
+	 * @return job id or <code>null</code>
+	 * @throws ConnectException
+	 *             if an connection error occurs during lookup
+	 */
+	public static Long readCurrentJob(ServiceClientWrapper client, IProject project) throws ConnectException {
+		JobsContainer container = readJobsContainer(project);
+
+		for (Long jobId : container.getJobIds()) {
+			boolean isRunning = client.isRunning(true);
+			if (isRunning && jobId.equals(client.getCurrentJobId())) {
+				return jobId;
+			} else if (!isRunning && client.isConnectionIssue()) {
+				throw new ConnectException("Lost connection during lookup of job ids.");
+			}
+		}
+
+		return null;
 	}
 
 	private static boolean writeJobsContainer(IProject project, JobsContainer jobsContainer) {

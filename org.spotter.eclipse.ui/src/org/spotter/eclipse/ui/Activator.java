@@ -15,14 +15,23 @@
  */
 package org.spotter.eclipse.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -60,6 +69,7 @@ public class Activator extends AbstractUIPlugin {
 	private Map<String, SpotterProjectResults> projectHistoryElements = new HashMap<>();
 	// The currently selected projects in the navigator
 	private Set<IProject> selectedProjects = new HashSet<IProject>();
+	private List<ISelectionChangedListener> projectSelectionListeners = new ArrayList<>();
 
 	/**
 	 * The constructor.
@@ -187,11 +197,47 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * Sets the currently selected projects.
 	 * 
+	 * @param source
+	 *            the source of the selection
 	 * @param selectedProjects
 	 *            the selected projects
 	 */
-	public void setSelectedProjects(Set<IProject> selectedProjects) {
+	public void setSelectedProjects(ISelectionProvider source, Set<IProject> selectedProjects) {
 		this.selectedProjects = selectedProjects;
+		ISelection selection = new StructuredSelection(selectedProjects.toArray());
+		final SelectionChangedEvent event = new SelectionChangedEvent(source, selection);
+		for (final ISelectionChangedListener listener : projectSelectionListeners) {
+			SafeRunner.run(new SafeRunnable() {
+				@Override
+				public void run() throws Exception {
+					listener.selectionChanged(event);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Adds a selection listener which will be notified when the project
+	 * selection changes. If an identical listener already exists, then nothing
+	 * happens.
+	 * 
+	 * @param listener
+	 *            the listener to add
+	 */
+	public void addProjectSelectionListener(ISelectionChangedListener listener) {
+		if (!projectSelectionListeners.contains(listener)) {
+			projectSelectionListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Removes a project selection listener.
+	 * 
+	 * @param listener
+	 *            the listener to remove
+	 */
+	public void removeProjectSelectionListener(ISelectionChangedListener listener) {
+		projectSelectionListeners.remove(listener);
 	}
 
 	/**

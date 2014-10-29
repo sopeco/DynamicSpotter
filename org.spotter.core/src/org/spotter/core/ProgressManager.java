@@ -126,6 +126,7 @@ public final class ProgressManager implements Runnable {
 		estimatedDuration = 0;
 		additionalDuration = 0;
 		initialEstimateConducted = false;
+		getSpotterProgress().setCurrentProblem(controller.getProblemId());
 	}
 
 	/**
@@ -288,7 +289,7 @@ public final class ProgressManager implements Runnable {
 			getSpotterProgress().getProblemProgressMapping().put(problemId, progress);
 		}
 	}
-	
+
 	/**
 	 * Updates the progress status.
 	 * 

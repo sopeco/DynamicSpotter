@@ -15,9 +15,7 @@
  */
 package org.spotter.eclipse.ui.jobs;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -67,8 +65,7 @@ public class DynamicSpotterRunJob extends Job {
 
 	private final IProject project;
 	private final long jobId;
-	private final Set<String> processedProblems;
-	private Map.Entry<String, DiagnosisProgress> currentProblem;
+	private String currentProblem;
 
 	/**
 	 * Create a new job for the given project and job id.
@@ -85,7 +82,6 @@ public class DynamicSpotterRunJob extends Job {
 
 		this.project = project;
 		this.jobId = jobId;
-		this.processedProblems = new HashSet<>();
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
@@ -108,7 +104,6 @@ public class DynamicSpotterRunJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		processedProblems.clear();
 		currentProblem = null;
 		monitor.beginTask("DynamicSpotter Diagnosis '" + project.getName() + "'", IProgressMonitor.UNKNOWN);
 		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
@@ -167,22 +162,11 @@ public class DynamicSpotterRunJob extends Job {
 			return;
 		}
 
-		for (Map.Entry<String, DiagnosisProgress> progressEntry : progressAll.entrySet()) {
-			String key = progressEntry.getKey();
-			if (processedProblems.contains(key)) {
-				if (currentProblem.getKey().equals(key)) {
-					currentProblem = progressEntry;
-				}
-			} else {
-				// the current problem under investigation changed
-				currentProblem = progressEntry;
-				processedProblems.add(currentProblem.getKey());
-			}
-		}
-		if (currentProblem != null) {
-			DiagnosisProgress progress = currentProblem.getValue();
+		currentProblem = spotterProgress.getCurrentProblem();
+		if (currentProblem != null && progressAll.containsKey(currentProblem)) {
+			DiagnosisProgress progress = progressAll.get(currentProblem);
 			String estimation = String.format("%.1f", HUNDRED_PERCENT * progress.getEstimatedProgress());
-			String keyHashTag = createKeyHashTag(currentProblem.getKey());
+			String keyHashTag = createKeyHashTag(currentProblem);
 			String problemName = progress.getName() + "-" + keyHashTag;
 			monitor.setTaskName(problemName + " (" + estimation + " %): " + progress.getStatus());
 		}

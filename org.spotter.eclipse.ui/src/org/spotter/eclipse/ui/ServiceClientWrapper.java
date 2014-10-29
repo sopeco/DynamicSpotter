@@ -66,6 +66,10 @@ public class ServiceClientWrapper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceClientWrapper.class);
 
+	private static enum HandlerStyle {
+		SILENT, LOG_ONLY, SHOW
+	}
+
 	private static final String DIALOG_TITLE = "DynamicSpotter Service Client";
 	private static final String ERR_MSG_CONN = "Connection to '%s' at port %s could not be established!";
 	private static final String MSG_FAIL_SAFE = "Error while storing preferences. Please try again.";
@@ -238,7 +242,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.startDiagnosis(jobDescription);
 		} catch (Exception e) {
-			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, false, false);
+			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
 	}
@@ -256,7 +260,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.requestResults(jobId);
 		} catch (Exception e) {
-			handleException("requestResults", MSG_REQU_RESULTS, e, false, false);
+			handleException("requestResults", MSG_REQU_RESULTS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
 	}
@@ -266,7 +270,7 @@ public class ServiceClientWrapper {
 	 * running, otherwise <code>false</code>.
 	 * 
 	 * @param silent
-	 *            <code>true</code> to disable dialog pop-up
+	 *            <code>true</code> to disable dialog pop-up and logging
 	 * @return <code>true</code> if currently running, otherwise
 	 *         <code>false</code>
 	 */
@@ -275,7 +279,8 @@ public class ServiceClientWrapper {
 		try {
 			return client.isRunning();
 		} catch (Exception e) {
-			handleException("isRunning", MSG_NO_STATUS, e, silent, true);
+			HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
+			handleException("isRunning", MSG_NO_STATUS, e, style, true);
 		}
 		return false;
 	}
@@ -292,7 +297,7 @@ public class ServiceClientWrapper {
 		try {
 			cachedSpotterConfParameters = client.getConfigurationParameters();
 		} catch (Exception e) {
-			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, false, false);
+			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, HandlerStyle.SHOW, false);
 		}
 		return cachedSpotterConfParameters;
 	}
@@ -339,7 +344,7 @@ public class ServiceClientWrapper {
 		List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();
 		for (String extName : extNames) {
 			// force caching and ignore invalid extensions
-			if (getExtensionConfigParamters(extName, true) == null) {
+			if (getExtensionConfigParamters(extName, HandlerStyle.LOG_ONLY) == null) {
 				continue;
 			}
 			list.add(new ExtensionMetaobject(projectName, extName));
@@ -367,7 +372,7 @@ public class ServiceClientWrapper {
 			extNames = client.getAvailableExtensions(extType);
 			cachedExtensionNames.put(extType, extNames);
 		} catch (Exception e) {
-			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, false, false);
+			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, HandlerStyle.SHOW, false);
 		}
 		return extNames;
 	}
@@ -380,10 +385,10 @@ public class ServiceClientWrapper {
 	 * @return the extension configuration parameters for the extension
 	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
-		return getExtensionConfigParamters(extName, false);
+		return getExtensionConfigParamters(extName, HandlerStyle.SHOW);
 	}
 
-	private Set<ConfigParameterDescription> getExtensionConfigParamters(String extName, boolean silent) {
+	private Set<ConfigParameterDescription> getExtensionConfigParamters(String extName, HandlerStyle style) {
 		lastException = null;
 		Set<ConfigParameterDescription> confParams = cachedExtensionConfParamters.get(extName);
 		if (confParams != null) {
@@ -397,7 +402,7 @@ public class ServiceClientWrapper {
 			cachedExtensionConfParamters.put(extName, confParams);
 			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
 		} catch (Exception e) {
-			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, silent, false);
+			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, style, false);
 		}
 		return confParams;
 	}
@@ -428,7 +433,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.getDefaultHierarchy();
 		} catch (Exception e) {
-			handleException("getDefaultHierarchy", MSG_NO_DEFAULT_HIER, e, true, true);
+			handleException("getDefaultHierarchy", MSG_NO_DEFAULT_HIER, e, HandlerStyle.LOG_ONLY, true);
 		}
 		return RawHierarchyFactory.getInstance().createEmptyHierarchy();
 	}
@@ -443,7 +448,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.getCurrentProgressReport();
 		} catch (Exception e) {
-			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, false, false);
+			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
 	}
@@ -458,7 +463,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.getCurrentJobId();
 		} catch (Exception e) {
-			handleException("getCurrentJobId", MSG_NO_STATUS, e, false, false);
+			handleException("getCurrentJobId", MSG_NO_STATUS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
 	}
@@ -482,7 +487,7 @@ public class ServiceClientWrapper {
 		try {
 			return client.testConnectionToSattelite(extName, host, port);
 		} catch (Exception e) {
-			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, false, false);
+			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, HandlerStyle.SHOW, false);
 		}
 		return false;
 	}
@@ -595,20 +600,26 @@ public class ServiceClientWrapper {
 	 *            included in the screen message in case of a connection issue.
 	 * @param exception
 	 *            The exception thrown in the request
-	 * @param silent
-	 *            <code>true</code> to disable a message dialog pop-up
+	 * @param style
+	 *            the style how the exception should be communicated
 	 * @param warning
 	 *            <code>true</code> for warning, <code>false</code> for error
 	 */
-	private void handleException(String requestName, String requestErrorMsg, Exception exception, boolean silent,
+	private void handleException(String requestName, String requestErrorMsg, Exception exception, HandlerStyle style,
 			boolean warning) {
 		lastException = exception;
+
+		if (style == HandlerStyle.SILENT) {
+			return;
+		}
+
 		if (warning) {
 			LOGGER.warn("{} request failed! Cause: {}", requestName, exception.toString());
 		} else {
 			LOGGER.error("{} request failed! Cause: {}", requestName, exception.toString());
 		}
-		if (silent) {
+
+		if (style == HandlerStyle.LOG_ONLY) {
 			return;
 		}
 

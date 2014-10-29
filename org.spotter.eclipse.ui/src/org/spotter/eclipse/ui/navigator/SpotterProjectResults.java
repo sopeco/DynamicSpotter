@@ -193,7 +193,7 @@ public class SpotterProjectResults extends AbstractProjectElement {
 	}
 
 	private SpotterProjectRunResult processJobId(Long jobId, boolean connected, ServiceClientWrapper client,
-			JobsContainer jobsContainer, String resultsLocation, IProject iProject) {
+			JobsContainer jobsContainer, String resultsLocation, IProject project) {
 		if (connected && client.isRunning(true) && jobId.equals(client.getCurrentJobId())) {
 			// Ignore this job because it is currently running
 			return null;
@@ -219,13 +219,33 @@ public class SpotterProjectResults extends AbstractProjectElement {
 			}
 		}
 
+		SpotterProjectRunResult runResult = null;
+
 		if (success) {
 			String projectRelativePath = FileManager.DEFAULT_RESULTS_DIR_NAME + "/" + formattedTimestamp;
-			IFolder folder = iProject.getFolder(projectRelativePath);
-			return new SpotterProjectRunResult(this, jobId, timestamp, folder);
-		} else {
-			return null;
+			IFolder folder = project.getFolder(projectRelativePath);
+			try {
+				if (!folder.isSynchronized(IResource.DEPTH_INFINITE)) {
+					folder.refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				if (folder.members().length != 0) {
+					runResult = new SpotterProjectRunResult(this, jobId, timestamp, folder);
+				} else {
+					JobsContainer.removeJobId(project, jobId);
+				}
+			} catch (CoreException e1) {
+				LOGGER.warn("An error occured while looking up folder members", e1);
+				try {
+					// in this case delete the folder so it can be fetched
+					// normally again next time
+					folder.delete(true, null);
+				} catch (CoreException e2) {
+					LOGGER.warn("An error occured while deleting folder", e2);
+				}
+			}
 		}
+
+		return runResult;
 	}
 
 	/*
