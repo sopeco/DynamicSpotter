@@ -135,7 +135,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		viewer.removeSelectionChangedListener(projectSelectionListener);
 		viewer.getTree().removeKeyListener(keyListener);
 
-		Activator.getDefault().setSelectedProjects(Collections.<IProject> emptySet());
+		Activator.getDefault().setSelectedProjects(viewer, Collections.<IProject> emptySet());
 		dblClickOpenListener = null;
 		projectSelectionListener = null;
 		keyListener = null;
@@ -224,7 +224,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 					}
 				}
 
-				Activator.getDefault().setSelectedProjects(selectedProjects);
+				Activator.getDefault().setSelectedProjects(viewer, selectedProjects);
 			}
 		};
 
