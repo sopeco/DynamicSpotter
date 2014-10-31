@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -49,6 +50,16 @@ import org.spotter.shared.status.SpotterProgress;
  * 
  */
 public class DynamicSpotterRunJob extends Job {
+
+	/**
+	 * The unique key used to set the job id property of this job.
+	 */
+	public static final QualifiedName JOB_ID_KEY = new QualifiedName(Activator.PLUGIN_ID, "jobId");
+	/**
+	 * The identifier used to identify this job as a member of the job family of
+	 * DS runs.
+	 */
+	public static final String DS_RUN_JOB_FAMILY = "org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob";
 
 	private static final String ICON_PATH = "icons/diagnosis.png"; //$NON-NLS-1$
 
@@ -93,6 +104,8 @@ public class DynamicSpotterRunJob extends Job {
 		};
 
 		setProperty(IProgressConstants.ACTION_PROPERTY, gotoAction);
+		setProperty(JOB_ID_KEY, String.valueOf(jobId));
+
 		setPriority(LONG);
 		setUser(true);
 
@@ -100,6 +113,20 @@ public class DynamicSpotterRunJob extends Job {
 			DialogUtils.openError(RunHandler.DIALOG_TITLE,
 					"There was an error when saving the job id. You may not access the results of the diagnosis run.");
 		}
+	}
+
+	/**
+	 * Returns <code>true</code> only if the family is {@link #DS_RUN_JOB_FAMILY}
+	 * , the family of DS run jobs.
+	 * 
+	 * @param family
+	 *            the job family identifier
+	 * @return <code>true</code> for DS run job family, <code>false</code>
+	 *         otherwise
+	 */
+	@Override
+	public boolean belongsTo(Object family) {
+		return DS_RUN_JOB_FAMILY.equals(family);
 	}
 
 	@Override
