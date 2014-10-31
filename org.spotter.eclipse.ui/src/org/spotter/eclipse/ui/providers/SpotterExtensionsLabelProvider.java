@@ -82,7 +82,7 @@ public class SpotterExtensionsLabelProvider extends CellLabelProvider {
 	@Override
 	public void update(ViewerCell cell) {
 		Object element = cell.getElement();
-		if (element != null && element instanceof IExtensionItem) {
+		if (element instanceof IExtensionItem) {
 			IExtensionItem item = (IExtensionItem) element;
 			cell.setText(item.getText());
 			cell.setImage(imageProvider.getImage(item));
