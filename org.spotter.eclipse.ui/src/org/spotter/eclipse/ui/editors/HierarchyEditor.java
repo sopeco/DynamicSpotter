@@ -19,6 +19,8 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.UICoreException;
@@ -52,8 +54,8 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	public static final String ID = "org.spotter.eclipse.ui.editors.hierarchy";
 
 	private static final String EDITOR_NAME = "Hierarchy";
-
 	private static final SpotterExtensionType EXTENSION_TYPE = SpotterExtensionType.DETECTION_EXTENSION;
+	private static final Logger LOGGER = LoggerFactory.getLogger(HierarchyEditor.class);
 
 	private XPerformanceProblem problemRoot;
 
@@ -81,7 +83,8 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		}
 
 		String projectName = getProject().getName();
-		return createPerformanceProblemHierarchy(projectName, problemRoot);
+		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
+		return createPerformanceProblemHierarchy(projectName, factory, problemRoot);
 	}
 
 	@Override
@@ -131,13 +134,15 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	 * 
 	 * @param projectName
 	 *            The name of the project the hierarchy is created for
+	 * @param factory
+	 *            The factory to use to create extension items
 	 * @param rootProblem
 	 *            The XML root problem model
 	 * @return an ExtensionItem containing the hierarchy
 	 */
-	public static IExtensionItem createPerformanceProblemHierarchy(String projectName, XPerformanceProblem rootProblem) {
+	public static IExtensionItem createPerformanceProblemHierarchy(String projectName, IExtensionItemFactory factory,
+			XPerformanceProblem rootProblem) {
 		IModelWrapper rootModel = new HierarchyModelWrapper(null, null, rootProblem);
-		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
 		IExtensionItem input = factory.createExtensionItem(rootModel);
 		input.setIgnoreConnection(true);
 
@@ -149,8 +154,9 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 			try {
 				buildRecursiveTree(client, factory, input, rootProblem, problem);
 			} catch (UICoreException e) {
-				DialogUtils.openWarning(TITLE_ERR_DIALOG,
-						"Creating performance problem hierarchy failed. Cause: " + e.getMessage());
+				String message = "Creating performance problem hierarchy failed.";
+				LOGGER.warn(message, e);
+				DialogUtils.openWarning(TITLE_ERR_DIALOG, DialogUtils.appendCause(message, e.getMessage()));
 				return factory.createExtensionItem(rootModel);
 			}
 		}

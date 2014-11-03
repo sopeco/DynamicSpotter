@@ -39,6 +39,7 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.status.DiagnosisProgress;
+import org.spotter.shared.status.DiagnosisStatus;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
@@ -116,8 +117,8 @@ public class DynamicSpotterRunJob extends Job {
 	}
 
 	/**
-	 * Returns <code>true</code> only if the family is {@link #DS_RUN_JOB_FAMILY}
-	 * , the family of DS run jobs.
+	 * Returns <code>true</code> only if the family is
+	 * {@link #DS_RUN_JOB_FAMILY}, the family of DS run jobs.
 	 * 
 	 * @param family
 	 *            the job family identifier
@@ -154,19 +155,16 @@ public class DynamicSpotterRunJob extends Job {
 			}
 		}
 
-		Exception runException = null;
+		monitor.done();
+		boolean isConnectionIssue = client.isConnectionIssue();
+		Exception runException = client.getLastRunException(true);
+		isConnectionIssue |= client.isConnectionIssue();
 
-		if (client.getLastException() != null) {
-			if (client.isConnectionIssue()) {
-				DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
-				return new Status(Status.OK, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
-			} else {
-				// job was cancelled on server-side due to an error
-				runException = client.getLastException();
-			}
+		if (isConnectionIssue) {
+			DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
+			return new Status(Status.OK, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
 		}
 
-		monitor.done();
 		onFinishedJob(runException);
 
 		// keep the finished job in the progress view only if
@@ -176,6 +174,49 @@ public class DynamicSpotterRunJob extends Job {
 			setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 		}
 		return Status.OK_STATUS;
+	}
+
+	/**
+	 * Creates a progress string representing the progress of the given problem.
+	 * 
+	 * @param spotterProgress
+	 *            the overall spotter progress to use for the lookup
+	 * @param problemId
+	 *            the id of the concrete problem to create the progress for
+	 * @param omitProblemName
+	 *            whether to omit the problem name in the resulting string
+	 * @return a progress string
+	 */
+	public static String createProgressString(SpotterProgress spotterProgress, String problemId, boolean omitProblemName) {
+		if (spotterProgress == null || problemId == null) {
+			return null;
+		}
+
+		DiagnosisProgress diagProgress = spotterProgress.getProgress(problemId);
+		String estimation = String.format("%.1f", HUNDRED_PERCENT * diagProgress.getEstimatedProgress());
+		String duration = String.valueOf(diagProgress.getEstimatedRemainingDuration());
+
+		String problemName = "";
+		if (!omitProblemName) {
+			String keyHashTag = createKeyHashTag(problemId);
+			problemName = diagProgress.getName() + "-" + keyHashTag + " ";
+		}
+
+		String estimates = " ";
+		if (!diagProgress.getStatus().equals(DiagnosisStatus.PENDING)) {
+			estimates = "(" + estimation + " %%, " + duration + "s remaining): ";
+		}
+
+		String progressString = problemName + estimates + diagProgress.getStatus();
+		return progressString;
+	}
+
+	private static String createKeyHashTag(String key) {
+		if (key.length() < KEY_HASH_LENGTH) {
+			return key;
+		} else {
+			return key.substring(0, KEY_HASH_LENGTH);
+		}
 	}
 
 	private void updateCurrentRun(ServiceClientWrapper client, IProgressMonitor monitor) {
@@ -191,19 +232,7 @@ public class DynamicSpotterRunJob extends Job {
 
 		currentProblem = spotterProgress.getCurrentProblem();
 		if (currentProblem != null && progressAll.containsKey(currentProblem)) {
-			DiagnosisProgress progress = progressAll.get(currentProblem);
-			String estimation = String.format("%.1f", HUNDRED_PERCENT * progress.getEstimatedProgress());
-			String keyHashTag = createKeyHashTag(currentProblem);
-			String problemName = progress.getName() + "-" + keyHashTag;
-			monitor.setTaskName(problemName + " (" + estimation + " %): " + progress.getStatus());
-		}
-	}
-
-	private String createKeyHashTag(String key) {
-		if (key.length() < KEY_HASH_LENGTH) {
-			return key;
-		} else {
-			return key.substring(0, KEY_HASH_LENGTH);
+			monitor.setTaskName(createProgressString(spotterProgress, currentProblem, false));
 		}
 	}
 

@@ -31,7 +31,7 @@ public class SpotterResult implements Serializable {
 
 	private final StringBuilder message = new StringBuilder();
 	private final List<String> resourceFiles = new ArrayList<>();
-	private final List<CallTree<StackTraceElement>> callTrees = new ArrayList<>();
+	private final List<ProblemOccurrence> problemOccurrences = new ArrayList<>();
 
 	private boolean detected = false;
 
@@ -64,7 +64,7 @@ public class SpotterResult implements Serializable {
 	}
 
 	/**
-	 * adds a message to the diagnosis text.
+	 * Adds a message to the diagnosis text.
 	 * 
 	 * @param msg
 	 *            message to be added
@@ -93,20 +93,22 @@ public class SpotterResult implements Serializable {
 	}
 
 	/**
-	 * Adds the call tree.
+	 * Adds the problem occurrence.
 	 * 
-	 * @param callTree
-	 *            call tree to add
+	 * @param problemOccurrence
+	 *            occurrence to add
 	 */
-	public void addStackTrace(CallTree<StackTraceElement> callTree) {
-		getCallTrees().add(callTree);
+	public void addProblemOccurrence(ProblemOccurrence problemOccurrence) {
+		getProblemOccurrences().add(problemOccurrence);
 	}
 
 	/**
-	 * @return the call trees
+	 * Returns the list of occurrences.
+	 * 
+	 * @return the problem occurrences
 	 */
-	public List<CallTree<StackTraceElement>> getCallTrees() {
-		return callTrees;
+	public List<ProblemOccurrence> getProblemOccurrences() {
+		return problemOccurrences;
 	}
 
 }

@@ -119,7 +119,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				executeExperiments();
 			}
 
-			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYSING);
+			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.ANALYZING);
 			return analyze(getResultManager().loadData());
 		} finally {
 			if (instrumented) {

@@ -181,6 +181,63 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	/**
+	 * Sets the run result to show.
+	 * 
+	 * @param runResultItem
+	 *            the run result item to set
+	 */
+	public void setResult(SpotterProjectRunResult runResultItem) {
+		this.runResultItem = runResultItem;
+		if (runResultItem != null) {
+			String projectName = runResultItem.getProject().getName();
+			this.client = Activator.getDefault().getClient(projectName);
+		} else {
+			this.client = null;
+		}
+		updateTabs();
+	}
+
+	/**
+	 * Returns the run result currently shown.
+	 * 
+	 * @return the run result currently shown or <code>null</code> if none
+	 */
+	public SpotterProjectRunResult getResult() {
+		return runResultItem;
+	}
+
+	@Override
+	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+		if (part == this) {
+			return;
+		}
+		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
+			Object first = ((IStructuredSelection) selection).getFirstElement();
+			if (first instanceof SpotterProjectRunResult) {
+				IFolder newFolder = ((SpotterProjectRunResult) first).getResultFolder();
+				if (getResult() == null || !getResult().getResultFolder().equals(newFolder)) {
+					setResult((SpotterProjectRunResult) first);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void setFocus() {
+		hierarchyTreeViewer.getTree().setFocus();
+	}
+
+	@Override
+	public void dispose() {
+		getViewSite().getPage().removePostSelectionListener(this);
+		Set<Shell> shells = new HashSet<>();
+		shells.addAll(resourceShells.values());
+		for (Shell shell : shells) {
+			shell.close();
+		}
+	}
+
+	/**
 	 * Resets the results view and deletes its contents if the given project
 	 * matches the current content's associated project. If <code>project</code>
 	 * is <code>null</code>, then the view is reset regardless of its current
@@ -563,60 +620,6 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		tabItem.setControl(textReport);
 	}
 
-	@Override
-	public void dispose() {
-		getViewSite().getPage().removePostSelectionListener(this);
-		Set<Shell> shells = new HashSet<>();
-		shells.addAll(resourceShells.values());
-		for (Shell shell : shells) {
-			shell.close();
-		}
-	}
-
-	@Override
-	public void setFocus() {
-		hierarchyTreeViewer.getTree().setFocus();
-	}
-
-	/**
-	 * Sets the run result to show.
-	 * 
-	 * @param runResultItem
-	 *            the run result item to set
-	 */
-	public void setResult(SpotterProjectRunResult runResultItem) {
-		this.runResultItem = runResultItem;
-		if (runResultItem != null) {
-			String projectName = runResultItem.getProject().getName();
-			this.client = Activator.getDefault().getClient(projectName);
-		} else {
-			this.client = null;
-		}
-		updateTabs();
-	}
-
-	/**
-	 * Returns the run result currently shown.
-	 * 
-	 * @return the run result currently shown or <code>null</code> if none
-	 */
-	public SpotterProjectRunResult getResult() {
-		return runResultItem;
-	}
-
-	@Override
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
-			Object first = ((IStructuredSelection) selection).getFirstElement();
-			if (first instanceof SpotterProjectRunResult) {
-				IFolder newFolder = ((SpotterProjectRunResult) first).getResultFolder();
-				if (getResult() == null || !getResult().getResultFolder().equals(newFolder)) {
-					setResult((SpotterProjectRunResult) first);
-				}
-			}
-		}
-	}
-
 	private void updateTabs() {
 		if (runResultItem == null) {
 			setContentDescription(RESULTS_EMPTY_CONTENT_DESC);
@@ -712,7 +715,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		if (resultsContainer != null) {
 			XPerformanceProblem root = resultsContainer.getRootProblem();
 			if (root != null) {
-				input = HierarchyEditor.createPerformanceProblemHierarchy(runResultItem.getProject().getName(), root);
+				String projectName = runResultItem.getProject().getName();
+				input = HierarchyEditor.createPerformanceProblemHierarchy(projectName, extensionItemFactory, root);
 			}
 		}
 

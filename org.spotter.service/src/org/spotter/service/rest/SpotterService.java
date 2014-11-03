@@ -17,6 +17,7 @@ package org.spotter.service.rest;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -80,11 +81,14 @@ public class SpotterService {
 	}
 
 	/**
-	 * Retrieves results from a Dynamic Spotter diagnosis that matches the given job id.
+	 * Retrieves results from a Dynamic Spotter diagnosis that matches the given
+	 * job id.
 	 * 
 	 * @param jobId
-	 *            the job id matching to the diagnosis run to fetch the results of
-	 * @return the results container for the given id or <code>null</code> if for the id no results exist
+	 *            the job id matching to the diagnosis run to fetch the results
+	 *            of
+	 * @return the results container for the given id or <code>null</code> if
+	 *         for the id no results exist
 	 */
 	@POST
 	@Path(ConfigKeys.SPOTTER_REST_REQU_RESULTS)
@@ -114,8 +118,6 @@ public class SpotterService {
 			Boolean isRunning = false;
 			switch (SpotterServiceWrapper.getInstance().getState()) {
 			case CANCELLED:
-				SpotterServiceWrapper.getInstance().checkForConcurrentExecutionException();
-				break;
 			case FINISHED:
 				isRunning = false;
 				break;
@@ -128,6 +130,34 @@ public class SpotterService {
 			}
 
 			return new SpotterServiceResponse<Boolean>(isRunning, ResponseStatus.OK);
+		} catch (Exception e) {
+			return createErrorResponse(e);
+		}
+	}
+
+	/**
+	 * 
+	 * @return the exception thrown during the last diagnosis run or
+	 *         <code>null</code> if none
+	 */
+	@GET
+	@Path(ConfigKeys.SPOTTER_REST_LAST_EXCEPTION)
+	@Produces(MediaType.APPLICATION_JSON)
+	public SpotterServiceResponse<Exception> getLastRunException() {
+		try {
+			Exception lastRunException = null;
+			switch (SpotterServiceWrapper.getInstance().getState()) {
+			case CANCELLED:
+				try {
+					SpotterServiceWrapper.getInstance().checkForConcurrentExecutionException();
+				} catch (InterruptedException | ExecutionException e) {
+					lastRunException = e;
+				}
+				break;
+			default:
+				break;
+			}
+			return new SpotterServiceResponse<>(lastRunException, ResponseStatus.OK);
 		} catch (Exception e) {
 			return createErrorResponse(e);
 		}
