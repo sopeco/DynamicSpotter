@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -35,14 +36,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.IExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ImmutableExtensionItemFactory;
 import org.spotter.eclipse.ui.providers.RunExtensionsImageProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
+import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
-import org.spotter.shared.status.DiagnosisProgress;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
@@ -115,8 +118,12 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			parent.setLayout(new FillLayout());
 		}
 
-		label = new Label(parent, SWT.WRAP);
-		createTreeViewer(parent);
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(WidgetUtils.createGridLayout(1));
+
+		label = new Label(composite, SWT.WRAP);
+		label.setLayoutData(new GridData(SWT.TOP, SWT.FILL, true, false));
+		createTreeViewer(composite);
 
 		Activator.getDefault().addProjectSelectionListener(this);
 		LpeSystemUtils.submitTask(new ViewUpdater());
@@ -131,7 +138,19 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 				super.update(cell);
 				Object element = cell.getElement();
 				if (element instanceof IExtensionItem) {
-					cell.setText(cell.getText() + " some status 97%%");
+					String suffix = "";
+					if (spotterProgress != null) {
+						Object xmlModel = ((IExtensionItem) element).getModelWrapper().getXMLModel();
+						if (xmlModel instanceof XPerformanceProblem) {
+							String problemId = ((XPerformanceProblem) xmlModel).getUniqueId();
+							String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress,
+									problemId, true);
+							if (progressString != null) {
+								suffix = " " + progressString;
+							}
+						}
+					}
+					cell.setText(cell.getText() + suffix);
 				}
 			}
 		};
@@ -157,6 +176,10 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 	}
 
 	private void updateView() {
+		if (isDisposed) {
+			return;
+		}
+
 		Set<IProject> selected = Activator.getDefault().getSelectedProjects();
 		String description;
 		if (selected.isEmpty()) {
@@ -175,7 +198,8 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 	}
 
 	private void updateContent(IProject project) {
-		ServiceClientWrapper client = Activator.getDefault().getClient(project.getName());
+		final String projectName = project.getName();
+		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		boolean hasClientConnection = client.testConnection(false);
 		boolean hasConnectionErrorOccured = false;
 		Long jobId = null;
@@ -194,21 +218,21 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			clear();
 			label.setText("Currently no running diagnosis.");
 		} else {
+			// TODO: get rootProblem of current diagnosis
+			// IExtensionItem input =
+			// HierarchyEditor.createPerformanceProblemHierarchy(projectName,
+			// extensionItemFactory, rootProblem);
+			// treeViewer.setInput(input) if the same input is not already set!
 			label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
 			spotterProgress = client.getCurrentProgressReport();
-			String problemId = spotterProgress.getCurrentProblem();
+			String problemId = spotterProgress == null ? null : spotterProgress.getCurrentProblem();
+			String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId, false);
 
-			if (problemId != null) {
-				DiagnosisProgress progress = spotterProgress.getProgress(problemId);
-				if (progress != null) {
-					final float hundred = 100.0f;
-					String estimation = String.format("%.1f", hundred * progress.getEstimatedProgress());
-					String problemName = progress.getName();
-					label.setText(label.getText() + "\n" + problemName + " (" + estimation + " %): "
-							+ progress.getStatus());
-				}
+			if (progressString != null) {
+				label.setText(label.getText() + " " + progressString);
 			}
 		}
+		label.getParent().layout();
 	}
 
 	private void clear() {

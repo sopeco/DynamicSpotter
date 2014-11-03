@@ -114,15 +114,15 @@ public class ProgressManagerTest {
 				.getProgress(PROBLEM_ID).getEstimatedProgress());
 
 		String newMessage = "a message text";
-		ProgressManager.getInstance().updateProgressStatus(PROBLEM_ID, DiagnosisStatus.ANALYSING, newMessage);
+		ProgressManager.getInstance().updateProgressStatus(PROBLEM_ID, DiagnosisStatus.ANALYZING, newMessage);
 
-		Assert.assertEquals(DiagnosisStatus.ANALYSING, progress.getProgress(PROBLEM_ID).getStatus());
+		Assert.assertEquals(DiagnosisStatus.ANALYZING, progress.getProgress(PROBLEM_ID).getStatus());
 		Assert.assertEquals(newMessage, progress.getProgress(PROBLEM_ID).getCurrentProgressMessage());
 
 		String newMessage2 = "another text";
 		ProgressManager.getInstance().updateProgressMessage(PROBLEM_ID, newMessage2);
 
-		Assert.assertEquals(DiagnosisStatus.ANALYSING, progress.getProgress(PROBLEM_ID).getStatus());
+		Assert.assertEquals(DiagnosisStatus.ANALYZING, progress.getProgress(PROBLEM_ID).getStatus());
 		Assert.assertEquals(newMessage2, progress.getProgress(PROBLEM_ID).getCurrentProgressMessage());
 
 		ProgressManager.getInstance().reset();

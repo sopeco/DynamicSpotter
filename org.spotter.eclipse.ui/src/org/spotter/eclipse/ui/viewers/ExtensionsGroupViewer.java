@@ -41,6 +41,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -224,7 +225,9 @@ public class ExtensionsGroupViewer {
 	 * provider and SpotterExtensionsLabelProvider as label provider.
 	 * 
 	 * @param parent
-	 *            The parent composite. Must not be <code>null</code>.
+	 *            The parent composite. Must not be <code>null</code>. It is
+	 *            recommended to use a {@link GridLayout} on the parent or at
+	 *            least a layout that has set the <i>fill flag</i>.
 	 * @param input
 	 *            The input of the viewer. Must not be <code>null</code>.
 	 * 
@@ -242,7 +245,9 @@ public class ExtensionsGroupViewer {
 		}
 		// configure tree layout
 		Composite treeExtensionsComp = new Composite(parent, SWT.NONE);
-		treeExtensionsComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		if (parent.getLayout() instanceof GridLayout) {
+			treeExtensionsComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		}
 		TreeColumnLayout treeExtensionsColLayout = new TreeColumnLayout();
 		treeExtensionsComp.setLayout(treeExtensionsColLayout);
 		// create tree

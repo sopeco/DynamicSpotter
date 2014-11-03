@@ -25,50 +25,61 @@ public enum DiagnosisStatus {
 	/**
 	 * not yet analyzed.
 	 */
-	PENDING,
+	PENDING("pending"),
 	/**
 	 * diagnosis finished and corresponding problem detected.
 	 */
-	DETECTED,
+	DETECTED("detected"),
 	/**
 	 * diagnosis finished but corresponding problem not detected.
 	 */
-	NOT_DETECTED,
+	NOT_DETECTED("not detected"),
 	/**
 	 * ramp-up phase of the experimentation phase.
 	 */
-	EXPERIMENTING_RAMP_UP,
+	EXPERIMENTING_RAMP_UP("experimenting ramp-up"),
 
 	/**
 	 * cool-down phase of the experimentation phase.
 	 */
-	EXPERIMENTING_COOL_DOWN,
+	EXPERIMENTING_COOL_DOWN("experimenting cool-down"),
 	/**
 	 * measurement phase of the experimentation phase.
 	 */
-	EXPERIMENTING_STABLE_PHASE,
+	EXPERIMENTING_STABLE_PHASE("experimenting stable phase"),
 	/**
 	 * analysis is progress.
 	 */
-	ANALYSING,
+	ANALYZING("analyzing"),
 	/**
 	 * initialization in progress.
 	 */
-	INITIALIZING,
+	INITIALIZING("initializing"),
 	/**
 	 * warm-up phase of the system under test.
 	 */
-	WARM_UP,
+	WARM_UP("warm-up"),
 	/**
 	 * instrumentation phase in progress.
 	 */
-	INSTRUMENTING,
+	INSTRUMENTING("instrumenting"),
 	/**
 	 * reversion of instrumentation.
 	 */
-	UNINSTRUMENTING,
+	UNINSTRUMENTING("uninstrumenting"),
 	/**
 	 * data collection in progress.
 	 */
-	COLLECTING_DATA
+	COLLECTING_DATA("collecting data");
+
+	private final String readableStatus;
+
+	DiagnosisStatus(String readableStatus) {
+		this.readableStatus = readableStatus;
+	}
+
+	@Override
+	public String toString() {
+		return readableStatus;
+	}
 }
