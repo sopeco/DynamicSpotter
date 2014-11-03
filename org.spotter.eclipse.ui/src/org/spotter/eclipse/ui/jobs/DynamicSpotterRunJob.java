@@ -116,8 +116,8 @@ public class DynamicSpotterRunJob extends Job {
 	}
 
 	/**
-	 * Returns <code>true</code> only if the family is {@link #DS_RUN_JOB_FAMILY}
-	 * , the family of DS run jobs.
+	 * Returns <code>true</code> only if the family is
+	 * {@link #DS_RUN_JOB_FAMILY}, the family of DS run jobs.
 	 * 
 	 * @param family
 	 *            the job family identifier
@@ -154,19 +154,16 @@ public class DynamicSpotterRunJob extends Job {
 			}
 		}
 
-		Exception runException = null;
+		monitor.done();
+		boolean isConnectionIssue = client.isConnectionIssue();
+		Exception runException = client.getLastRunException(true);
+		isConnectionIssue |= client.isConnectionIssue();
 
-		if (client.getLastException() != null) {
-			if (client.isConnectionIssue()) {
-				DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
-				return new Status(Status.OK, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
-			} else {
-				// job was cancelled on server-side due to an error
-				runException = client.getLastException();
-			}
+		if (isConnectionIssue) {
+			DialogUtils.openWarning(RunHandler.DIALOG_TITLE, MSG_LOST_CONNECTION);
+			return new Status(Status.OK, Activator.PLUGIN_ID, Status.OK, MSG_LOST_CONNECTION, null);
 		}
 
-		monitor.done();
 		onFinishedJob(runException);
 
 		// keep the finished job in the progress view only if

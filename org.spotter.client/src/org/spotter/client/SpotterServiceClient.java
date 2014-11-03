@@ -121,12 +121,40 @@ public class SpotterServiceClient {
 	}
 
 	/**
-	 * @return true if Spotter Diagnostics is currently running
+	 * Returns whether the Spotter Diagnostics is currently running. If the
+	 * method returns <code>false</code> either the last run has finished
+	 * successfully or the run had been canceled. For the second case the last
+	 * exception thrown during that run can be requested via
+	 * {@link #getLastRunException}.
+	 * 
+	 * @return <code>true</code> if Spotter Diagnostics is currently running,
+	 *         <code>false</code> otherwise
 	 */
 	public synchronized boolean isRunning() {
 		SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_IS_RUNNING).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Boolean>>() {
+				});
+		switch (response.getStatus()) {
+		case OK:
+			return response.getPayload();
+		case SERVER_ERROR:
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
+		case INVALID_STATE:
+		default:
+			throw new IllegalStateException("Illegal response state!");
+		}
+	}
+
+	/**
+	 * 
+	 * @return the exception thrown during the last diagnosis run or
+	 *         <code>null</code> if none
+	 */
+	public synchronized Exception getLastRunException() {
+		SpotterServiceResponse<Exception> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_LAST_EXCEPTION).accept(MediaType.APPLICATION_JSON)
+				.get(new GenericType<SpotterServiceResponse<Exception>>() {
 				});
 		switch (response.getStatus()) {
 		case OK:

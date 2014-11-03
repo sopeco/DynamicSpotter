@@ -118,6 +118,18 @@ public class SpotterServiceTest {
 		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
 		Assert.assertFalse(rb.getPayload());
 	}
+
+	/**
+	 * Tests the {@link SpotterService#getLastRunException()} method.
+	 */
+	@Test
+	public void testGetLastRunException() {
+		SpotterServiceResponse<Exception> rb;
+		
+		rb = ss.getLastRunException();
+		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
+		Assert.assertNull(rb.getPayload());
+	}
 	
 	/**
 	 * Tests the {@link SpotterService#getConfigurationParameters()} method.

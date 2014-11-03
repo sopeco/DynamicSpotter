@@ -101,6 +101,12 @@ public class SpotterServiceClientTest {
 		boolean status = ssc.isRunning();
 		Assert.assertEquals(false, status);
 	}
+
+	@Test
+	public void testGetLastRunException() {
+		Exception exception = ssc.getLastRunException();
+		Assert.assertNull(exception);
+	}
 	
 	@Test
 	public void testGetAvailableExtensions() {
