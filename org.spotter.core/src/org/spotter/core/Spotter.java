@@ -44,6 +44,7 @@ import org.spotter.core.workload.WorkloadAdapterBroker;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.configuration.ConfigCheck;
 import org.spotter.shared.configuration.ConfigKeys;
+import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
@@ -62,6 +63,8 @@ public final class Spotter {
 
 	private static Spotter instance;
 
+	private ResultsContainer resultsContainer;
+
 	/**
 	 * 
 	 * @return singleton instance
@@ -77,7 +80,7 @@ public final class Spotter {
 	 * Constructor.
 	 */
 	private Spotter() {
-
+		resultsContainer = new ResultsContainer();
 	}
 
 	/**
@@ -116,8 +119,8 @@ public final class Spotter {
 	public synchronized void startDiagnosis(String configurationFile, long timestamp) throws InstrumentationException,
 			MeasurementException, WorkloadException {
 
+		resultsContainer = new ResultsContainer();
 		GlobalConfiguration.reinitialize(configurationFile);
-		ResultsContainer resultsContainer = new ResultsContainer();
 		try {
 			GlobalConfiguration.getInstance().putProperty(ConfigKeys.PPD_RUN_TIMESTAMP, String.valueOf(timestamp));
 			ConfigCheck.checkConfiguration();
@@ -128,6 +131,7 @@ public final class Spotter {
 			HierarchyModelInterpreter hierarchyModelInterpreter = new HierarchyModelInterpreter(problem);
 			problem = hierarchyModelInterpreter.next();
 
+			ProgressManager.getInstance().reset();
 			ProgressManager.getInstance().start();
 
 			while (problem != null) {
@@ -153,6 +157,7 @@ public final class Spotter {
 			resultsContainer.setReport(report);
 			serializeResults(resultsContainer);
 			ResultBlackboard.getInstance().reset();
+			resultsContainer.reset();
 		}
 
 	}
@@ -219,7 +224,7 @@ public final class Spotter {
 	private void serializeResults(ResultsContainer resultsContainer) {
 		String outputFile = GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR)
 				+ ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
-		
+
 		try {
 			LpeFileUtils.writeObject(outputFile, resultsContainer);
 			LOGGER.info("Serialized results to the following file: {}", outputFile);
@@ -233,6 +238,13 @@ public final class Spotter {
 	 */
 	public SpotterProgress getProgress() {
 		return ProgressManager.getInstance().getSpotterProgress();
+	}
+
+	/**
+	 * @return the current root problem, may be <code>null</code>
+	 */
+	public XPerformanceProblem getCurrentRootProblem() {
+		return resultsContainer.getRootProblem();
 	}
 
 	/**

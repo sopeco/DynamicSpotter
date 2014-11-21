@@ -88,4 +88,13 @@ public class ResultsContainer implements Serializable {
 		this.report = report;
 	}
 
+	/**
+	 * Resets all data.
+	 */
+	public void reset() {
+		resultsMap = null;
+		rootProblem = null;
+		report = null;
+	}
+
 }

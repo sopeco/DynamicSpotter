@@ -95,7 +95,7 @@ public final class ProgressManager implements Runnable {
 	}
 
 	/**
-	 * Stops execution of the updater.
+	 * Starts execution of the updater.
 	 */
 	public synchronized void start() {
 		managingTask = LpeSystemUtils.submitTask(this);
