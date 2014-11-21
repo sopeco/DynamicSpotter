@@ -151,6 +151,7 @@ public final class ConfigKeys {
 	public static final String SPOTTER_REST_EXTENSION_PARAMETERS = "extensionParameters";
 	public static final String SPOTTER_REST_DEFAULT_HIERARCHY = "defaultHierarchy";
 	public static final String SPOTTER_REST_CURRENT_JOB = "currentJob";
+	public static final String SPOTTER_REST_CURRENT_ROOT_PROBLEM = "currentRootProblem";
 	public static final String SPOTTER_REST_CURRENT_PROGRESS = "currentProgress";
 	public static final String SPOTTER_REST_TEST_SATELLITE_CONNECTION = "testSatelliteConnection";
 	public static final String SPOTTER_REST_TEST_CONNECTION = "testConnection";

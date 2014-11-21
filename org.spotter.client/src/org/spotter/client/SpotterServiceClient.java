@@ -301,6 +301,27 @@ public class SpotterServiceClient {
 		}
 	}
 
+	/**
+	 * Returns the root problem of the currently running job.
+	 * 
+	 * @return the root problem
+	 */
+	public XPerformanceProblem getCurrentRootProblem() {
+		SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+				.path(ConfigKeys.SPOTTER_REST_CURRENT_ROOT_PROBLEM).accept(MediaType.APPLICATION_JSON)
+				.get(new GenericType<SpotterServiceResponse<XPerformanceProblem>>() {
+				});
+		switch (response.getStatus()) {
+		case OK:
+			return response.getPayload();
+		case SERVER_ERROR:
+			throw new RuntimeException("Server error: " + response.getErrorMessage());
+		case INVALID_STATE:
+		default:
+			throw new IllegalStateException("Illegal response state!");
+		}
+	}
+
 	@Override
 	protected void finalize() throws Throwable {
 		client.destroy();

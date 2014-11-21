@@ -490,6 +490,24 @@ public class ServiceClientWrapper {
 	}
 
 	/**
+	 * Returns the root problem of the currently running job.
+	 * 
+	 * @param silent
+	 *            <code>true</code> to disable dialog pop-up and logging
+	 * @return the root problem
+	 */
+	public XPerformanceProblem getCurrentRootProblem(boolean silent) {
+		lastClientException = null;
+		try {
+			return client.getCurrentRootProblem();
+		} catch (Exception e) {
+			HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
+			handleException("getCurrentRootProblem", MSG_NO_STATUS, e, style, false);
+		}
+		return null;
+	}
+
+	/**
 	 * Tests connection to the satellite specified by the given extension name,
 	 * host and port. If extension is not a satellite this method returns
 	 * <code>false</code>!
