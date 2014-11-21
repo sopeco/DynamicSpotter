@@ -37,6 +37,16 @@ public class RunExtensionsImageProvider extends SpotterExtensionsImageProvider {
 
 	private SpotterProgress spotterProgress;
 
+	/**
+	 * Sets the spotter progress.
+	 * 
+	 * @param spotterProgress
+	 *            the spotter progress to set
+	 */
+	public void setSpotterProgress(SpotterProgress spotterProgress) {
+		this.spotterProgress = spotterProgress;
+	}
+
 	@Override
 	public Image getImage(IExtensionItem item) {
 		Object xmlModel = item.getModelWrapper().getXMLModel();
@@ -46,7 +56,7 @@ public class RunExtensionsImageProvider extends SpotterExtensionsImageProvider {
 
 		XPerformanceProblem problem = (XPerformanceProblem) xmlModel;
 		String id = problem.getUniqueId();
-		DiagnosisProgress diagnosisProgress = spotterProgress.getProgress(id);
+		DiagnosisProgress diagnosisProgress = spotterProgress == null ? null : spotterProgress.getProgress(id);
 		if (diagnosisProgress == null) {
 			return IMG_PENDING;
 		} else {

@@ -17,6 +17,7 @@ package org.spotter.eclipse.ui.util;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * An utility class for widgets and layouts in the DynamicSpotter Eclipse UI.
@@ -85,6 +86,38 @@ public final class WidgetUtils {
 		fillLayout.spacing = DEFAULT_VERTICAL_SPACING;
 
 		return fillLayout;
+	}
+
+	/**
+	 * Causes the <code>run()</code> method of the runnable to be invoked
+	 * synchronously on the UI-thread using the given display. If the display is
+	 * <code>null</code> or disposed nothing happens.
+	 * 
+	 * @param display
+	 *            the display to invoke the runnable on
+	 * @param runnable
+	 *            the runnable to invoke
+	 */
+	public static void submitSyncExec(Display display, Runnable runnable) {
+		if (display != null && !display.isDisposed()) {
+			display.syncExec(runnable);
+		}
+	}
+
+	/**
+	 * Causes the <code>run()</code> method of the runnable to be invoked
+	 * asynchronously on the UI-thread using the given display. If the display
+	 * is <code>null</code> or disposed nothing happens.
+	 * 
+	 * @param display
+	 *            the display to invoke the runnable on
+	 * @param runnable
+	 *            the runnable to invoke
+	 */
+	public static void submitAsyncExec(Display display, Runnable runnable) {
+		if (display != null && !display.isDisposed()) {
+			display.syncExec(runnable);
+		}
 	}
 
 }

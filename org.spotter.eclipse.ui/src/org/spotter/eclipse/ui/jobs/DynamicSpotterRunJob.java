@@ -225,7 +225,7 @@ public class DynamicSpotterRunJob extends Job {
 
 		String estimates = " ";
 		if (!diagProgress.getStatus().equals(DiagnosisStatus.PENDING)) {
-			estimates = "(" + estimation + " %%, " + duration + "s remaining): ";
+			estimates = "(" + estimation + " %, " + duration + "s remaining): ";
 		}
 
 		String progressString = problemName + estimates + diagProgress.getStatus();
