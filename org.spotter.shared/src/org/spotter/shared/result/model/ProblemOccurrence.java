@@ -1,5 +1,6 @@
 package org.spotter.shared.result.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,10 +11,11 @@ import java.util.List;
  * @author Denis Knoepfle
  * 
  */
-public class ProblemOccurrence {
+public class ProblemOccurrence implements Serializable {
 
+	private static final long serialVersionUID = 7564579221553780427L;
 	private final List<String> resourceFiles;
-	private final Object rootCauseLocation;
+	private final Serializable rootCauseLocation;
 	private String message;
 
 	/**
@@ -27,7 +29,7 @@ public class ProblemOccurrence {
 	 * @param message
 	 *            An optional message describing the occurrence.
 	 */
-	public ProblemOccurrence(Object rootCauseLocation, String message) {
+	public ProblemOccurrence(Serializable rootCauseLocation, String message) {
 		if (rootCauseLocation == null) {
 			throw new IllegalArgumentException("the root cause location must not be null");
 		}
@@ -44,7 +46,7 @@ public class ProblemOccurrence {
 	 *            occurrence. This might be of any kind e.g. a method, a class
 	 *            or a stack trace element.
 	 */
-	public ProblemOccurrence(Object rootCauseLocation) {
+	public ProblemOccurrence(Serializable rootCauseLocation) {
 		this(rootCauseLocation, "");
 	}
 
