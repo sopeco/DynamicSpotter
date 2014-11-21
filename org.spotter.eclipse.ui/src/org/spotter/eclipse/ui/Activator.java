@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.providers.NavigatorContentProvider;
 
@@ -102,6 +103,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		imageRegistry = null;
+		JobsContainer.cancelAllRunningJobsSilently();
 		super.stop(context);
 	}
 

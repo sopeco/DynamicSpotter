@@ -205,6 +205,15 @@ public class SpotterServiceWrapper {
 	}
 
 	/**
+	 * Returns the root problem of the currently running job.
+	 * 
+	 * @return the root problem
+	 */
+	public XPerformanceProblem getCurrentRootProblem() {
+		return Spotter.getInstance().getCurrentRootProblem();
+	}
+
+	/**
 	 * 
 	 * @return list of configuration parameter descriptions for Spotter
 	 *         configuration.

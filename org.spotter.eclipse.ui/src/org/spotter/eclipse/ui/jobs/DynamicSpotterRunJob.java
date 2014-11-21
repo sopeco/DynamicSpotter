@@ -78,6 +78,8 @@ public class DynamicSpotterRunJob extends Job {
 	private final IProject project;
 	private final long jobId;
 	private String currentProblem;
+	// determines whether a cancellation will be silent or reported to the user
+	private boolean silentCancel;
 
 	/**
 	 * Create a new job for the given project and job id.
@@ -94,6 +96,7 @@ public class DynamicSpotterRunJob extends Job {
 
 		this.project = project;
 		this.jobId = jobId;
+		this.silentCancel = false;
 
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, ICON_PATH);
 		setProperty(IProgressConstants.ICON_PROPERTY, imageDescriptor);
@@ -114,6 +117,24 @@ public class DynamicSpotterRunJob extends Job {
 			DialogUtils.openError(RunHandler.DIALOG_TITLE,
 					"There was an error when saving the job id. You may not access the results of the diagnosis run.");
 		}
+	}
+
+	/**
+	 * @return <code>true</code> if cancellation is silent, otherwise
+	 *         <code>false</code>
+	 */
+	public boolean isSilentCancel() {
+		return silentCancel;
+	}
+
+	/**
+	 * Sets whether cancellation is silent or reported to the user.
+	 * 
+	 * @param silentCancel
+	 *            <code>true</code> for silent, otherwise <code>false</code>
+	 */
+	public void setSilentCancel(boolean silentCancel) {
+		this.silentCancel = silentCancel;
 	}
 
 	/**
@@ -204,7 +225,7 @@ public class DynamicSpotterRunJob extends Job {
 
 		String estimates = " ";
 		if (!diagProgress.getStatus().equals(DiagnosisStatus.PENDING)) {
-			estimates = "(" + estimation + " %%, " + duration + "s remaining): ";
+			estimates = "(" + estimation + " %, " + duration + "s remaining): ";
 		}
 
 		String progressString = problemName + estimates + diagProgress.getStatus();
@@ -237,6 +258,10 @@ public class DynamicSpotterRunJob extends Job {
 	}
 
 	private IStatus onUserCancelledJob(Exception exception) {
+		if (silentCancel) {
+			return Status.OK_STATUS;
+		}
+
 		DialogUtils.openInformation(RunHandler.DIALOG_TITLE, MSG_CANCELLED);
 		return new Status(Status.CANCEL, Activator.PLUGIN_ID, MSG_CANCELLED, exception);
 	}

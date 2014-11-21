@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +42,11 @@ import org.spotter.shared.configuration.FileManager;
  */
 public class JobsContainer implements Serializable {
 
+	private static final long serialVersionUID = 2080735292582582198L;
 	private static final Object jobMonitor = new Object();
+	private static final Map<Long, DynamicSpotterRunJob> runningJobs = new HashMap<>();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JobsContainer.class);
-
-	private static final long serialVersionUID = 2437447304864394397L;
 
 	private final Set<Long> jobIds = new HashSet<>();
 	private final Map<Long, Long> timestamps = new HashMap<>();
@@ -213,6 +216,47 @@ public class JobsContainer implements Serializable {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Convenience method to add running jobs that will be automatically
+	 * cancelled silently if the plug-in is shutting down and they are still
+	 * running.
+	 * 
+	 * @param jobId
+	 *            the job id of the job
+	 * @param job
+	 *            the job to add
+	 */
+	public static void addRunningJob(final long jobId, DynamicSpotterRunJob job) {
+		// automatically remove the job when it's done
+		job.addJobChangeListener(new JobChangeAdapter() {
+			@Override
+			public void done(IJobChangeEvent event) {
+				synchronized (jobMonitor) {
+					runningJobs.remove(jobId);
+				}
+			}
+		});
+
+		synchronized (jobMonitor) {
+			runningJobs.put(jobId, job);
+		}
+	}
+
+	/**
+	 * Convenience method to cancel all jobs silently that has been previously
+	 * added with {@link #addRunningJob}, e.g. when shutting down the plug-in.
+	 * But regardless if a job of the diagnosis family had been added all of
+	 * these will be cancelled anyway.
+	 */
+	public static void cancelAllRunningJobsSilently() {
+		synchronized (jobMonitor) {
+			for (DynamicSpotterRunJob job : runningJobs.values()) {
+				job.setSilentCancel(true);
+			}
+			Job.getJobManager().cancel(DynamicSpotterRunJob.DS_RUN_JOB_FAMILY);
+		}
 	}
 
 	private static boolean writeJobsContainer(IProject project, JobsContainer jobsContainer) {

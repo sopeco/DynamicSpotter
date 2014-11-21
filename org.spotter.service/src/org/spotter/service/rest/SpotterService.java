@@ -274,6 +274,23 @@ public class SpotterService {
 	}
 
 	/**
+	 * Returns the root problem of the currently running job.
+	 * 
+	 * @return the root problem
+	 */
+	@GET
+	@Path(ConfigKeys.SPOTTER_REST_CURRENT_ROOT_PROBLEM)
+	@Produces(MediaType.APPLICATION_JSON)
+	public SpotterServiceResponse<XPerformanceProblem> getCurrentRootProblem() {
+		try {
+			XPerformanceProblem rootProblem = SpotterServiceWrapper.getInstance().getCurrentRootProblem();
+			return new SpotterServiceResponse<XPerformanceProblem>(rootProblem, ResponseStatus.OK);
+		} catch (Exception e) {
+			return createErrorResponse(e);
+		}
+	}
+
+	/**
 	 * Tests connection to the satellite specified by the given extension name,
 	 * host and port. If extension is not a satellite this method returns false!
 	 * 

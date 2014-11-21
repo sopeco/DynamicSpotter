@@ -25,6 +25,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.jobs.DynamicSpotterRunJob;
 import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.model.IExtensionItem;
@@ -71,27 +74,26 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 	private boolean isDisposed;
 	private Label label;
 	private TreeViewer treeViewer;
+	private Display display;
+	private long currentViewerInputJobId;
 	private SpotterProgress spotterProgress;
+
+	private RunExtensionsImageProvider runExtensionsImageProvider;
 
 	private class ViewUpdater implements Runnable {
 
 		@Override
 		public void run() {
-			while (!isDisposed) {
+			while (!isDisposed && !display.isDisposed()) {
 				try {
 					Thread.sleep(SLEEP_TIME_MILLIS);
 				} catch (InterruptedException e) {
 					LOGGER.warn("View Updater was interrupted");
 				}
 				try {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							updateView();
-						}
-					});
+					updateView();
 				} catch (SWTException e) {
-					LOGGER.debug("Stop view updater as view is already disposed (" + e.getMessage() + ")");
+					LOGGER.debug("stop view updater as view is already disposed", e);
 					break;
 				}
 			}
@@ -106,6 +108,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		this.extensionItemFactory = new ImmutableExtensionItemFactory();
 		this.isDisposed = false;
 		this.spotterProgress = null;
+		this.currentViewerInputJobId = 0;
 	}
 
 	@Override
@@ -125,7 +128,18 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		label.setLayoutData(new GridData(SWT.TOP, SWT.FILL, true, false));
 		createTreeViewer(composite);
 
+		DisposeListener disposeListener = new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				isDisposed = true;
+			}
+		};
+
+		label.addDisposeListener(disposeListener);
+		treeViewer.getTree().addDisposeListener(disposeListener);
+
 		Activator.getDefault().addProjectSelectionListener(this);
+		this.display = label.getDisplay();
 		LpeSystemUtils.submitTask(new ViewUpdater());
 	}
 
@@ -138,24 +152,30 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 				super.update(cell);
 				Object element = cell.getElement();
 				if (element instanceof IExtensionItem) {
-					String suffix = "";
-					if (spotterProgress != null) {
-						Object xmlModel = ((IExtensionItem) element).getModelWrapper().getXMLModel();
-						if (xmlModel instanceof XPerformanceProblem) {
-							String problemId = ((XPerformanceProblem) xmlModel).getUniqueId();
-							String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress,
-									problemId, true);
-							if (progressString != null) {
-								suffix = " " + progressString;
-							}
-						}
-					}
+					String suffix = createSpotterProgressSuffix(element);
 					cell.setText(cell.getText() + suffix);
 				}
 			}
+
+			private String createSpotterProgressSuffix(Object element) {
+				String suffix = "";
+				if (spotterProgress != null) {
+					Object xmlModel = ((IExtensionItem) element).getModelWrapper().getXMLModel();
+					if (xmlModel instanceof XPerformanceProblem) {
+						String problemId = ((XPerformanceProblem) xmlModel).getUniqueId();
+						String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId,
+								true);
+						if (progressString != null) {
+							suffix = " " + progressString;
+						}
+					}
+				}
+				return suffix;
+			}
 		};
 
-		labelProvider.setImageProvider(new RunExtensionsImageProvider());
+		runExtensionsImageProvider = new RunExtensionsImageProvider();
+		labelProvider.setImageProvider(runExtensionsImageProvider);
 		treeViewer.setLabelProvider(labelProvider);
 	}
 
@@ -181,7 +201,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		}
 
 		Set<IProject> selected = Activator.getDefault().getSelectedProjects();
-		String description;
+		final String description;
 		if (selected.isEmpty()) {
 			description = ACTIVE_RUN_EMPTY_CONTENT_DESC;
 			clear();
@@ -194,7 +214,12 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			clear();
 		}
 
-		setContentDescription(description);
+		WidgetUtils.submitSyncExec(display, new Runnable() {
+			@Override
+			public void run() {
+				setContentDescription(description);
+			}
+		});
 	}
 
 	private void updateContent(IProject project) {
@@ -213,30 +238,85 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		}
 
 		if (!hasClientConnection || hasConnectionErrorOccured) {
-			label.setText("No connection to DS service. Try again later.");
+			WidgetUtils.submitSyncExec(display, new Runnable() {
+				@Override
+				public void run() {
+					label.setText("No connection to DS service. Try again later.");
+				}
+			});
 		} else if (jobId == null) {
 			clear();
-			label.setText("Currently no running diagnosis.");
+			WidgetUtils.submitSyncExec(display, new Runnable() {
+				@Override
+				public void run() {
+					label.setText("Currently no running diagnosis.");
+				}
+			});
 		} else {
-			// TODO: get rootProblem of current diagnosis
-			// IExtensionItem input =
-			// HierarchyEditor.createPerformanceProblemHierarchy(projectName,
-			// extensionItemFactory, rootProblem);
-			// treeViewer.setInput(input) if the same input is not already set!
-			label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
-			spotterProgress = client.getCurrentProgressReport();
-			String problemId = spotterProgress == null ? null : spotterProgress.getCurrentProblem();
-			String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId, false);
-
-			if (progressString != null) {
-				label.setText(label.getText() + " " + progressString);
-			}
+			updateDiagnosisData(jobId, client, projectName);
 		}
-		label.getParent().layout();
+		WidgetUtils.submitSyncExec(display, new Runnable() {
+			@Override
+			public void run() {
+				label.getParent().layout();
+			}
+		});
+	}
+
+	private void updateDiagnosisData(final long jobId, ServiceClientWrapper client, String projectName) {
+		if (jobId != currentViewerInputJobId) {
+			runExtensionsImageProvider.setSpotterProgress(null);
+			LOGGER.debug("Try to fetch current root problem...");
+			XPerformanceProblem rootProblem = client.getCurrentRootProblem(false);
+			if (rootProblem == null) {
+				LOGGER.warn("Cannot fetch root problem!");
+				WidgetUtils.submitSyncExec(display, new Runnable() {
+					@Override
+					public void run() {
+						label.setText("Cannot fetch root problem!");
+						treeViewer.setInput(null);
+					}
+				});
+				return;
+			}
+			LOGGER.info("Fetched root problem!");
+			final IExtensionItem input = HierarchyEditor.createPerformanceProblemHierarchy(projectName,
+					extensionItemFactory, rootProblem);
+			WidgetUtils.submitSyncExec(display, new Runnable() {
+				@Override
+				public void run() {
+					treeViewer.setInput(input);
+				}
+			});
+			currentViewerInputJobId = jobId;
+		}
+
+		spotterProgress = client.getCurrentProgressReport();
+		runExtensionsImageProvider.setSpotterProgress(spotterProgress);
+		String problemId = spotterProgress == null ? null : spotterProgress.getCurrentProblem();
+		final String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId, false);
+
+		WidgetUtils.submitSyncExec(display, new Runnable() {
+			@Override
+			public void run() {
+				label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
+
+				if (progressString != null) {
+					label.setText(label.getText() + " " + progressString);
+				}
+				treeViewer.refresh();
+			}
+		});
 	}
 
 	private void clear() {
-		label.setText("");
+		WidgetUtils.submitSyncExec(display, new Runnable() {
+			@Override
+			public void run() {
+				label.setText("");
+				treeViewer.setInput(null);
+			}
+		});
 	}
 
 }
