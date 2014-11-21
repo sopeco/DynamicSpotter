@@ -153,7 +153,9 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 				Object element = cell.getElement();
 				if (element instanceof IExtensionItem) {
 					String suffix = createSpotterProgressSuffix(element);
-					cell.setText(cell.getText() + suffix);
+					if (!suffix.isEmpty()) {
+						cell.setText(cell.getText() + suffix);
+					}
 				}
 			}
 
@@ -166,7 +168,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 						String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId,
 								true);
 						if (progressString != null) {
-							suffix = " " + progressString;
+							suffix = progressString;
 						}
 					}
 				}
@@ -266,10 +268,9 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 	private void updateDiagnosisData(final long jobId, ServiceClientWrapper client, String projectName) {
 		if (jobId != currentViewerInputJobId) {
 			runExtensionsImageProvider.setSpotterProgress(null);
-			LOGGER.debug("Try to fetch current root problem...");
 			XPerformanceProblem rootProblem = client.getCurrentRootProblem(false);
 			if (rootProblem == null) {
-				LOGGER.warn("Cannot fetch root problem!");
+				LOGGER.warn("Cannot fetch root problem!", client.getLastClientException());
 				WidgetUtils.submitSyncExec(display, new Runnable() {
 					@Override
 					public void run() {
@@ -279,7 +280,6 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 				});
 				return;
 			}
-			LOGGER.info("Fetched root problem!");
 			final IExtensionItem input = HierarchyEditor.createPerformanceProblemHierarchy(projectName,
 					extensionItemFactory, rootProblem);
 			WidgetUtils.submitSyncExec(display, new Runnable() {
@@ -293,17 +293,11 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 
 		spotterProgress = client.getCurrentProgressReport();
 		runExtensionsImageProvider.setSpotterProgress(spotterProgress);
-		String problemId = spotterProgress == null ? null : spotterProgress.getCurrentProblem();
-		final String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress, problemId, false);
 
 		WidgetUtils.submitSyncExec(display, new Runnable() {
 			@Override
 			public void run() {
 				label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
-
-				if (progressString != null) {
-					label.setText(label.getText() + " " + progressString);
-				}
 				treeViewer.refresh();
 			}
 		});

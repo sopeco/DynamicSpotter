@@ -220,12 +220,12 @@ public class DynamicSpotterRunJob extends Job {
 		String problemName = "";
 		if (!omitProblemName) {
 			String keyHashTag = createKeyHashTag(problemId);
-			problemName = diagProgress.getName() + "-" + keyHashTag + " ";
+			problemName = diagProgress.getName() + "-" + keyHashTag;
 		}
 
-		String estimates = " ";
+		String estimates = ": ";
 		if (!diagProgress.getStatus().equals(DiagnosisStatus.PENDING)) {
-			estimates = "(" + estimation + " %, " + duration + "s remaining): ";
+			estimates = " (" + estimation + " %, " + duration + "s remaining): ";
 		}
 
 		String progressString = problemName + estimates + diagProgress.getStatus();
