@@ -138,20 +138,25 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 				super.update(cell);
 				Object element = cell.getElement();
 				if (element instanceof IExtensionItem) {
-					String suffix = "";
-					if (spotterProgress != null) {
-						Object xmlModel = ((IExtensionItem) element).getModelWrapper().getXMLModel();
-						if (xmlModel instanceof XPerformanceProblem) {
-							String problemId = ((XPerformanceProblem) xmlModel).getUniqueId();
-							String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress,
-									problemId, true);
-							if (progressString != null) {
-								suffix = " " + progressString;
-							}
-						}
-					}
+					String suffix = createSpotterProgressSuffix(element);
 					cell.setText(cell.getText() + suffix);
 				}
+			}
+			
+			private String createSpotterProgressSuffix(Object element) {
+				String suffix = "";
+				if (spotterProgress != null) {
+					Object xmlModel = ((IExtensionItem) element).getModelWrapper().getXMLModel();
+					if (xmlModel instanceof XPerformanceProblem) {
+						String problemId = ((XPerformanceProblem) xmlModel).getUniqueId();
+						String progressString = DynamicSpotterRunJob.createProgressString(spotterProgress,
+								problemId, true);
+						if (progressString != null) {
+							suffix = " " + progressString;
+						}
+					}
+				}
+				return suffix;
 			}
 		};
 
