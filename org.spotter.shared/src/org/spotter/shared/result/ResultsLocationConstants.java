@@ -31,6 +31,7 @@ public final class ResultsLocationConstants {
 	}
 
 	public static final String TXT_REPORT_FILE_NAME = "SpotterReport.txt";
+	public static final String TXT_DIAGNOSIS_ERROR_FILE_NAME = "error.txt";
 	public static final String RESULTS_SERIALIZATION_FILE_NAME = "results.ser";
 	public static final String CSV_SUB_DIR = "csv";
 	public static final String RESULT_RESOURCES_SUB_DIR = "result-details";
