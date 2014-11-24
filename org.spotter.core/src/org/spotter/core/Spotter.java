@@ -64,6 +64,7 @@ public final class Spotter {
 	private static Spotter instance;
 
 	private ResultsContainer resultsContainer;
+	private String diagnosisResultFolder;
 
 	/**
 	 * 
@@ -81,6 +82,7 @@ public final class Spotter {
 	 */
 	private Spotter() {
 		resultsContainer = new ResultsContainer();
+		diagnosisResultFolder = null;
 	}
 
 	/**
@@ -124,6 +126,7 @@ public final class Spotter {
 		try {
 			GlobalConfiguration.getInstance().putProperty(ConfigKeys.PPD_RUN_TIMESTAMP, String.valueOf(timestamp));
 			ConfigCheck.checkConfiguration();
+			diagnosisResultFolder = GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR);
 			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
 				initializeMeasurementEnvironment();
 			}
@@ -148,14 +151,14 @@ public final class Spotter {
 				ResultBlackboard.getInstance().putResult(problem, result);
 				problem = hierarchyModelInterpreter.next();
 			}
-		} finally {
-			ProgressManager.getInstance().stop();
-			long durationMillis = ((System.currentTimeMillis() - timestamp));
 
+			long durationMillis = ((System.currentTimeMillis() - timestamp));
 			resultsContainer.setResultsMap(ResultBlackboard.getInstance().getResults());
 			String report = printResults(durationMillis);
 			resultsContainer.setReport(report);
 			serializeResults(resultsContainer);
+		} finally {
+			ProgressManager.getInstance().stop();
 			ResultBlackboard.getInstance().reset();
 			resultsContainer.reset();
 		}
@@ -199,8 +202,7 @@ public final class Spotter {
 		builder.append(ResultBlackboard.getInstance().toString());
 		String resultString = builder.toString();
 
-		String outputFile = GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR)
-				+ ResultsLocationConstants.TXT_REPORT_FILE_NAME;
+		String outputFile = diagnosisResultFolder + ResultsLocationConstants.TXT_REPORT_FILE_NAME;
 
 		try {
 			FileWriter fstream = new FileWriter(outputFile);
@@ -222,8 +224,7 @@ public final class Spotter {
 	 *            container with the collected results to serialize
 	 */
 	private void serializeResults(ResultsContainer resultsContainer) {
-		String outputFile = GlobalConfiguration.getInstance().getProperty(ConfigKeys.RESULT_DIR)
-				+ ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
+		String outputFile = diagnosisResultFolder + ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME;
 
 		try {
 			LpeFileUtils.writeObject(outputFile, resultsContainer);
@@ -238,6 +239,13 @@ public final class Spotter {
 	 */
 	public SpotterProgress getProgress() {
 		return ProgressManager.getInstance().getSpotterProgress();
+	}
+
+	/**
+	 * @return the current diagnosis result folder
+	 */
+	public String getDiagnosisResultFolder() {
+		return diagnosisResultFolder;
 	}
 
 	/**

@@ -19,6 +19,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.util.DialogUtils;
 
@@ -29,12 +31,23 @@ import org.spotter.eclipse.ui.util.DialogUtils;
  * @author Denis Knoepfle
  * 
  */
-public class ClearCacheHandler extends AbstractHandler {
+public class ClearCacheHandler extends AbstractHandler implements ISelectionChangedListener {
 
 	/**
 	 * The id of the corresponding clear cache command.
 	 */
 	public static final String CLEAR_CACHE_COMMAND_ID = "org.spotter.eclipse.ui.commands.clearCache";
+
+	private boolean isEnabled;
+
+	/**
+	 * Constructor.
+	 */
+	public ClearCacheHandler() {
+		super();
+		selectionChanged(null);
+		Activator.getDefault().addProjectSelectionListener(this);
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -53,7 +66,17 @@ public class ClearCacheHandler extends AbstractHandler {
 
 	@Override
 	public boolean isEnabled() {
-		return !Activator.getDefault().getSelectedProjects().isEmpty();
+		return isEnabled;
+	}
+
+	@Override
+	public void dispose() {
+		Activator.getDefault().removeProjectSelectionListener(this);
+	}
+
+	@Override
+	public void selectionChanged(SelectionChangedEvent event) {
+		this.isEnabled = !Activator.getDefault().getSelectedProjects().isEmpty();
 	}
 
 }

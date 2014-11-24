@@ -19,8 +19,6 @@ import java.net.ConnectException;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
@@ -58,7 +56,7 @@ import org.spotter.shared.status.SpotterProgress;
  * @author Denis Knoepfle
  * 
  */
-public class ActiveRunView extends ViewPart implements ISelectionChangedListener {
+public class ActiveRunView extends ViewPart {
 
 	public static final String VIEW_ID = "org.spotter.eclipse.ui.view.activeRunView";
 
@@ -138,7 +136,6 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		label.addDisposeListener(disposeListener);
 		treeViewer.getTree().addDisposeListener(disposeListener);
 
-		Activator.getDefault().addProjectSelectionListener(this);
 		this.display = label.getDisplay();
 		LpeSystemUtils.submitTask(new ViewUpdater());
 	}
@@ -188,13 +185,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 
 	@Override
 	public void dispose() {
-		Activator.getDefault().removeProjectSelectionListener(this);
 		this.isDisposed = true;
-	}
-
-	@Override
-	public void selectionChanged(SelectionChangedEvent event) {
-		updateView();
 	}
 
 	private void updateView() {

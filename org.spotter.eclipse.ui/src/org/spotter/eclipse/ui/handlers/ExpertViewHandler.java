@@ -23,7 +23,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
@@ -42,7 +44,7 @@ import org.spotter.eclipse.ui.util.SpotterUtils;
  * @author Denis Knoepfle
  * 
  */
-public class ExpertViewHandler extends AbstractHandler implements IElementUpdater {
+public class ExpertViewHandler extends AbstractHandler implements IElementUpdater, ISelectionChangedListener {
 
 	/**
 	 * The id of the corresponding expert view command.
@@ -56,6 +58,16 @@ public class ExpertViewHandler extends AbstractHandler implements IElementUpdate
 
 	private ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(
 			ICommandService.class);
+	private boolean isEnabled;
+
+	/**
+	 * Constructor.
+	 */
+	public ExpertViewHandler() {
+		super();
+		selectionChanged(null);
+		Activator.getDefault().addProjectSelectionListener(this);
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -95,7 +107,7 @@ public class ExpertViewHandler extends AbstractHandler implements IElementUpdate
 	 */
 	@Override
 	public boolean isEnabled() {
-		return Activator.getDefault().getSelectedProjects().size() == 1;
+		return isEnabled;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -143,6 +155,11 @@ public class ExpertViewHandler extends AbstractHandler implements IElementUpdate
 		}
 
 		return state;
+	}
+
+	@Override
+	public void selectionChanged(SelectionChangedEvent event) {
+		this.isEnabled = Activator.getDefault().getSelectedProjects().size() == 1;
 	}
 
 }
