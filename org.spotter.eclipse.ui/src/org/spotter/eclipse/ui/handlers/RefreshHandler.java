@@ -21,6 +21,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 
@@ -31,12 +33,23 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
  * @author Denis Knoepfle
  * 
  */
-public class RefreshHandler extends AbstractHandler {
+public class RefreshHandler extends AbstractHandler implements ISelectionChangedListener {
 
 	/**
 	 * The id of the refresh command.
 	 */
 	public static final String REFRESH_COMMAND_ID = "org.spotter.eclipse.ui.commands.refresh";
+
+	private boolean isEnabled;
+
+	/**
+	 * Constructor.
+	 */
+	public RefreshHandler() {
+		super();
+		selectionChanged(null);
+		Activator.getDefault().addProjectSelectionListener(this);
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -64,7 +77,12 @@ public class RefreshHandler extends AbstractHandler {
 	 */
 	@Override
 	public boolean isEnabled() {
-		return !Activator.getDefault().getSelectedProjects().isEmpty();
+		return isEnabled;
+	}
+
+	@Override
+	public void selectionChanged(SelectionChangedEvent event) {
+		this.isEnabled = !Activator.getDefault().getSelectedProjects().isEmpty();
 	}
 
 }

@@ -18,6 +18,8 @@ package org.spotter.eclipse.ui.handlers;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.spotter.eclipse.ui.Activator;
@@ -30,12 +32,23 @@ import org.spotter.eclipse.ui.dialogs.ServiceClientSettingsDialog;
  * @author Denis Knoepfle
  * 
  */
-public class ServiceClientSettingsHandler extends AbstractHandler {
+public class ServiceClientSettingsHandler extends AbstractHandler implements ISelectionChangedListener {
 
 	/**
 	 * The id of the corresponding service client settings command.
 	 */
 	public static final String CLIENT_SETTINGS_COMMAND_ID = "org.spotter.eclipse.ui.commands.serviceClientSettings";
+
+	private boolean isEnabled;
+
+	/**
+	 * Constructor.
+	 */
+	public ServiceClientSettingsHandler() {
+		super();
+		selectionChanged(null);
+		Activator.getDefault().addProjectSelectionListener(this);
+	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -55,7 +68,12 @@ public class ServiceClientSettingsHandler extends AbstractHandler {
 
 	@Override
 	public boolean isEnabled() {
-		return Activator.getDefault().getSelectedProjects().size() == 1;
+		return isEnabled;
+	}
+
+	@Override
+	public void selectionChanged(SelectionChangedEvent event) {
+		this.isEnabled = Activator.getDefault().getSelectedProjects().size() == 1;
 	}
 
 }
