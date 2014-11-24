@@ -216,7 +216,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			clear();
 		}
 
-		WidgetUtils.submitSyncExec(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 			@Override
 			public void run() {
 				setContentDescription(description);
@@ -240,7 +240,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		}
 
 		if (!hasClientConnection || hasConnectionErrorOccured) {
-			WidgetUtils.submitSyncExec(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 				@Override
 				public void run() {
 					label.setText("No connection to DS service. Try again later.");
@@ -248,7 +248,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			});
 		} else if (jobId == null) {
 			clear();
-			WidgetUtils.submitSyncExec(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 				@Override
 				public void run() {
 					label.setText("Currently no running diagnosis.");
@@ -257,7 +257,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		} else {
 			updateDiagnosisData(jobId, client, projectName);
 		}
-		WidgetUtils.submitSyncExec(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 			@Override
 			public void run() {
 				label.getParent().layout();
@@ -271,7 +271,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			XPerformanceProblem rootProblem = client.getCurrentRootProblem(false);
 			if (rootProblem == null) {
 				LOGGER.warn("Cannot fetch root problem!", client.getLastClientException());
-				WidgetUtils.submitSyncExec(display, new Runnable() {
+				WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 					@Override
 					public void run() {
 						label.setText("Cannot fetch root problem!");
@@ -282,7 +282,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 			}
 			final IExtensionItem input = HierarchyEditor.createPerformanceProblemHierarchy(projectName,
 					extensionItemFactory, rootProblem);
-			WidgetUtils.submitSyncExec(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 				@Override
 				public void run() {
 					treeViewer.setInput(input);
@@ -294,7 +294,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 		spotterProgress = client.getCurrentProgressReport();
 		runExtensionsImageProvider.setSpotterProgress(spotterProgress);
 
-		WidgetUtils.submitSyncExec(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 			@Override
 			public void run() {
 				label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
@@ -304,7 +304,7 @@ public class ActiveRunView extends ViewPart implements ISelectionChangedListener
 	}
 
 	private void clear() {
-		WidgetUtils.submitSyncExec(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
 			@Override
 			public void run() {
 				label.setText("");

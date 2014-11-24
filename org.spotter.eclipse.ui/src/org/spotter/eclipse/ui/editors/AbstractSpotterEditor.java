@@ -273,7 +273,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 				applicableOrRepaired = false;
 			}
 		}
-		
+
 		String projectName = containedFile.getProject().getName();
 		dialogQuestion = String.format(dialogQuestion, containedFile.getLocation(), projectName);
 		if (!applicableOrRepaired && DialogUtils.openConfirm(TITLE_INPUT_INVALID, dialogQuestion)) {
