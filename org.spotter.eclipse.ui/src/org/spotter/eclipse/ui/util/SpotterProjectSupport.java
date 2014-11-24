@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -275,6 +276,9 @@ public final class SpotterProjectSupport {
 		if (file.exists()) {
 			InputStream fileContents = null;
 			try {
+				if (!file.isSynchronized(IResource.DEPTH_ZERO)) {
+					file.refreshLocal(IResource.DEPTH_ZERO, null);
+				}
 				// will throw CoreException on failure
 				fileContents = file.getContents();
 
