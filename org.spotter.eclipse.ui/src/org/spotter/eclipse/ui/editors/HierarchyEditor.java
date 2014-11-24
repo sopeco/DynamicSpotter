@@ -124,7 +124,9 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 
 	@Override
 	protected void makeInputApplicable(AbstractSpotterEditorInput input) throws UICoreException {
-		XPerformanceProblem problem = Activator.getDefault().getClient(getProject().getName()).getDefaultHierarchy();
+		String projectName = input.getProject().getName();
+		XPerformanceProblem problem = Activator.getDefault().getClient(projectName).getDefaultHierarchy();
+
 		SpotterProjectSupport.saveHierarchy(input.getFile(), problem);
 	}
 

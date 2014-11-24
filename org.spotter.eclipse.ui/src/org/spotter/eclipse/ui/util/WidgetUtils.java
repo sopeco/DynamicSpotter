@@ -15,9 +15,12 @@
  */
 package org.spotter.eclipse.ui.util;
 
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An utility class for widgets and layouts in the DynamicSpotter Eclipse UI.
@@ -31,6 +34,8 @@ public final class WidgetUtils {
 	public static final int DEFAULT_MARGIN_HEIGHT = 10;
 	public static final int DEFAULT_VERTICAL_SPACING = 6;
 	public static final int DEFAULT_HORIZONTAL_SPACING = 6;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(WidgetUtils.class);
 
 	private WidgetUtils() {
 	}
@@ -91,16 +96,27 @@ public final class WidgetUtils {
 	/**
 	 * Causes the <code>run()</code> method of the runnable to be invoked
 	 * synchronously on the UI-thread using the given display. If the display is
-	 * <code>null</code> or disposed nothing happens.
+	 * <code>null</code> or disposed nothing happens. Any SWTException in the
+	 * runnable will terminate the runnable but further will only be logged.
 	 * 
 	 * @param display
 	 *            the display to invoke the runnable on
 	 * @param runnable
 	 *            the runnable to invoke
 	 */
-	public static void submitSyncExec(Display display, Runnable runnable) {
+	public static void submitSyncExecIgnoreDisposed(Display display, final Runnable runnable) {
 		if (display != null && !display.isDisposed()) {
-			display.syncExec(runnable);
+			Runnable safeRunnable = new Runnable() {
+				@Override
+				public void run() {
+					try {
+						runnable.run();
+					} catch (SWTException e) {
+						LOGGER.info("runnable terminated due to SWTException");
+					}
+				}
+			};
+			display.syncExec(safeRunnable);
 		}
 	}
 
