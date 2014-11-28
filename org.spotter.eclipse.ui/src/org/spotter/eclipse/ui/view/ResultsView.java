@@ -214,9 +214,13 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
 			Object first = ((IStructuredSelection) selection).getFirstElement();
 			if (first instanceof SpotterProjectRunResult) {
-				IFolder newFolder = ((SpotterProjectRunResult) first).getResultFolder();
+				SpotterProjectRunResult runResult = (SpotterProjectRunResult) first;
+				if (runResult.isErroneous()) {
+					return;
+				}
+				IFolder newFolder = runResult.getResultFolder();
 				if (getResult() == null || !getResult().getResultFolder().equals(newFolder)) {
-					setResult((SpotterProjectRunResult) first);
+					setResult(runResult);
 				}
 			}
 		}

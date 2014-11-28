@@ -19,6 +19,7 @@ import org.eclipse.swt.SWTException;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,44 +96,37 @@ public final class WidgetUtils {
 
 	/**
 	 * Causes the <code>run()</code> method of the runnable to be invoked
-	 * synchronously on the UI-thread using the given display. If the display is
-	 * <code>null</code> or disposed nothing happens. Any SWTException in the
-	 * runnable will terminate the runnable but further will only be logged.
+	 * synchronously on the UI-thread using the main control's display but only
+	 * if neither the main control nor the attached display are disposed. Any
+	 * SWTException in the runnable will terminate the runnable but further will
+	 * only be logged.
 	 * 
-	 * @param display
-	 *            the display to invoke the runnable on
+	 * @param controlWidget
+	 *            the main control widget whose display will be used
 	 * @param runnable
 	 *            the runnable to invoke
 	 */
-	public static void submitSyncExecIgnoreDisposed(Display display, final Runnable runnable) {
-		if (display != null && !display.isDisposed()) {
-			Runnable safeRunnable = new Runnable() {
-				@Override
-				public void run() {
-					try {
-						runnable.run();
-					} catch (SWTException e) {
-						LOGGER.info("runnable terminated due to SWTException");
-					}
-				}
-			};
-			display.syncExec(safeRunnable);
-		}
-	}
+	public static void submitSyncExecIgnoreDisposed(final Widget controlWidget, final Runnable runnable) {
+		final Display display = controlWidget != null ? controlWidget.getDisplay() : null;
+		Runnable safeRunnable = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					boolean isControlValid = controlWidget != null && !controlWidget.isDisposed();
+					boolean isDisplayValid = !display.isDisposed();
 
-	/**
-	 * Causes the <code>run()</code> method of the runnable to be invoked
-	 * asynchronously on the UI-thread using the given display. If the display
-	 * is <code>null</code> or disposed nothing happens.
-	 * 
-	 * @param display
-	 *            the display to invoke the runnable on
-	 * @param runnable
-	 *            the runnable to invoke
-	 */
-	public static void submitAsyncExec(Display display, Runnable runnable) {
+					boolean isSafeToRun = isDisplayValid && isControlValid;
+
+					if (isSafeToRun) {
+						runnable.run();
+					}
+				} catch (SWTException e) {
+					LOGGER.debug("runnable terminated due to SWTException", e);
+				}
+			}
+		};
 		if (display != null && !display.isDisposed()) {
-			display.syncExec(runnable);
+			display.syncExec(safeRunnable);
 		}
 	}
 

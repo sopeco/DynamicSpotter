@@ -273,21 +273,18 @@ public class DynamicSpotterRunJob extends Job {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (runException == null) {
-					Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
-					SpotterProjectResults projectResultsNode = results.get(project.getName());
-					projectResultsNode.refreshChildren();
-					CommonViewer viewer = activator.getNavigatorViewer();
-					if (!viewer.isBusy()) {
-						viewer.refresh(projectResultsNode);
-						viewer.expandToLevel(projectResultsNode, 1);
-					}
-					DialogUtils.openAsyncInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
-					revealResults();
-				} else {
-					// remove the job id because the job failed
-					JobsContainer.removeJobId(project, jobId);
+				Map<String, SpotterProjectResults> results = activator.getProjectHistoryElements();
+				SpotterProjectResults projectResultsNode = results.get(project.getName());
+				projectResultsNode.refreshChildren();
+				CommonViewer viewer = activator.getNavigatorViewer();
+				if (!viewer.isBusy()) {
+					viewer.refresh(projectResultsNode);
+					viewer.expandToLevel(projectResultsNode, 1);
+				}
 
+				if (runException == null) {
+					DialogUtils.openAsyncInformation(RunHandler.DIALOG_TITLE, MSG_RUN_FINISH);
+				} else {
 					String exceptionMsg = runException.getLocalizedMessage();
 					if (exceptionMsg == null || exceptionMsg.isEmpty()) {
 						exceptionMsg = runException.getClass().getSimpleName();
@@ -295,6 +292,8 @@ public class DynamicSpotterRunJob extends Job {
 					String msg = DialogUtils.appendCause(MSG_RUN_ERROR, exceptionMsg, true);
 					DialogUtils.openWarning(RunHandler.DIALOG_TITLE, msg);
 				}
+
+				revealResults();
 			}
 		});
 	}
