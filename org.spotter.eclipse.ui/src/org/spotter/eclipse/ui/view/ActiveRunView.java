@@ -298,6 +298,7 @@ public class ActiveRunView extends ViewPart {
 			public void run() {
 				label.setText("");
 				treeViewer.setInput(null);
+				currentViewerInputJobId = 0;
 			}
 		});
 	}
