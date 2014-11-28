@@ -31,13 +31,22 @@ public abstract class AbstractProjectElement implements ISpotterProjectElement {
 
 	private final IHandlerMediator handlerMediatorHelper = new HandlerMediatorHelper();
 	private final String className;
-	private final String imagePath;
+	private String imagePath;
 	private Image image;
 
 	protected ISpotterProjectElement[] children;
 
 	/**
 	 * Creates a new element.
+	 */
+	public AbstractProjectElement() {
+		this.className = getClass().getName();
+		this.imagePath = null;
+	}
+
+	/**
+	 * Creates a new element which will use the given image path to create an
+	 * image.
 	 * 
 	 * @param imagePath
 	 *            a path to the image representing the element
@@ -45,6 +54,26 @@ public abstract class AbstractProjectElement implements ISpotterProjectElement {
 	public AbstractProjectElement(String imagePath) {
 		this.className = getClass().getName();
 		this.imagePath = imagePath;
+	}
+
+	/**
+	 * Returns the image path.
+	 * 
+	 * @return the image path
+	 */
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	/**
+	 * Sets the image path and updates the image using this path.
+	 * 
+	 * @param imagePath
+	 *            the path to the image
+	 */
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+		this.image = null;
 	}
 
 	@Override

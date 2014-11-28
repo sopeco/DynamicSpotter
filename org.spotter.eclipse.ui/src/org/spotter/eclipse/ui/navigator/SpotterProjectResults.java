@@ -210,8 +210,8 @@ public class SpotterProjectResults extends AbstractProjectElement {
 		boolean success = runFolder.exists();
 
 		if (!success && connected) {
-			// try to fetch data from server
-			InputStream resultsZipStream = fetchResultsZipStream(client, jobId.toString());
+			// as the data is missing try to fetch it again from the server
+			InputStream resultsZipStream = fetchResultsZipStream(client, project, jobId);
 
 			if (resultsZipStream != null) {
 				String zipFileName = runFolderName + "/" + jobId + ".tmp";
@@ -231,6 +231,8 @@ public class SpotterProjectResults extends AbstractProjectElement {
 				if (folder.members().length != 0) {
 					runResult = new SpotterProjectRunResult(this, jobId, timestamp, folder);
 				} else {
+					// there are no files after successful fetch, so remove job
+					// id completely
 					JobsContainer.removeJobId(project, jobId);
 				}
 			} catch (CoreException e1) {
@@ -274,21 +276,23 @@ public class SpotterProjectResults extends AbstractProjectElement {
 	}
 
 	/*
-	 * Tries to fetch the input stream from the server, but returns null if it's
-	 * empty.
+	 * Tries to fetch the input stream from the server, but returns null and
+	 * removes the job if it's empty.
 	 */
-	private InputStream fetchResultsZipStream(ServiceClientWrapper client, String jobId) {
-		InputStream resultsZipStream = client.requestResults(jobId);
+	private InputStream fetchResultsZipStream(ServiceClientWrapper client, IProject project, Long jobId) {
+		InputStream resultsZipStream = client.requestResults(jobId.toString());
 		boolean isEmptyStream = true;
 
 		try {
 			if (resultsZipStream != null && resultsZipStream.available() > 0) {
 				isEmptyStream = false;
 			} else {
-				String msg = "Received empty input stream for job " + jobId + ", skipping job!";
+				String msg = "Received empty input stream for job " + jobId + ", removing job!";
+				JobsContainer.removeJobId(project, jobId);
 				DialogUtils.openWarning(msg);
 			}
 		} catch (IOException e) {
+			resultsZipStream = null;
 			String message = "An error occured while reading from input stream for job " + jobId + ", skipping job!";
 			DialogUtils.handleError(message, e);
 			LOGGER.error(message, e);

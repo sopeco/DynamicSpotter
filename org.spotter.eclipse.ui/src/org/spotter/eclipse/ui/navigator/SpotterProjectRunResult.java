@@ -15,16 +15,19 @@
  */
 package org.spotter.eclipse.ui.navigator;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -35,6 +38,7 @@ import org.spotter.eclipse.ui.menu.IDeletable;
 import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
+import org.spotter.shared.result.ResultsLocationConstants;
 
 /**
  * An element that represents a run result node.
@@ -45,14 +49,17 @@ import org.spotter.eclipse.ui.view.ResultsView;
 public class SpotterProjectRunResult extends AbstractProjectElement {
 
 	public static final String IMAGE_PATH = "icons/results.gif"; //$NON-NLS-1$
+	public static final String ERROR_IMAGE_PATH = "icons/exclamation.png"; //$NON-NLS-1$
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectRunResult.class);
 
 	private static final String ELEMENT_TYPE_NAME = "Result Item";
 	private static final String OPEN_ID = ResultsView.VIEW_ID;
+	private static final String TXT_OPEN_ID = EditorsUI.DEFAULT_TEXT_EDITOR_ID;
 
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
+	private boolean isErroneous;
 	private final long jobId;
 	private final long timestamp;
 	private final String elementName;
@@ -70,7 +77,8 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	 *            the result folder that is represented by this node
 	 */
 	public SpotterProjectRunResult(ISpotterProjectElement parent, long jobId, long timestamp, IFolder resultFolder) {
-		super(IMAGE_PATH);
+		super();
+
 		this.parent = parent;
 		this.jobId = jobId;
 		this.timestamp = timestamp;
@@ -79,9 +87,25 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		this.elementName = dateFormat.format(new Date(timestamp));
 
 		this.resultFolder = resultFolder;
+		String errorFilePath = resultFolder.getFile(ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME)
+				.getLocation().toString();
+		this.isErroneous = new File(errorFilePath).exists();
+		if (isErroneous) {
+			setImagePath(ERROR_IMAGE_PATH);
+		} else {
+			setImagePath(IMAGE_PATH);
+		}
 
 		addOpenHandler();
 		addDeleteHandler();
+	}
+
+	/**
+	 * @return <code>true</code> if erroneous diagnosis, otherwise
+	 *         <code>false</code>
+	 */
+	public boolean isErroneous() {
+		return isErroneous;
 	}
 
 	private void addOpenHandler() {
@@ -93,7 +117,7 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 
 			@Override
 			public String getOpenId() {
-				return OPEN_ID;
+				return SpotterProjectRunResult.this.getOpenId();
 			}
 
 			@Override
@@ -146,13 +170,27 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		return parent.getProject();
 	}
 
+	private String getOpenId() {
+		return isErroneous ? TXT_OPEN_ID : OPEN_ID;
+	}
+
 	private void open() {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
-			ResultsView view = (ResultsView) page.showView(OPEN_ID);
-			view.setResult(this);
-		} catch (PartInitException e) {
-			throw new RuntimeException("Could not show view " + OPEN_ID, e);
+			if (isErroneous) {
+				if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
+					resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+				}
+				IFile file = resultFolder.getFile(ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME);
+				page.openEditor(new FileEditorInput(file), getOpenId());
+			} else {
+				ResultsView view = (ResultsView) page.showView(getOpenId());
+				view.setResult(this);
+			}
+		} catch (CoreException e) {
+			String message = "Could not open view part " + getOpenId();
+			LOGGER.error(message, e);
+			throw new RuntimeException(message, e);
 		}
 	}
 
