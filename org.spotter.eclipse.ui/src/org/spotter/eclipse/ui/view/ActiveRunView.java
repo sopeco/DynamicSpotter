@@ -28,8 +28,8 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.ViewPart;
 import org.lpe.common.util.system.LpeSystemUtils;
 import org.slf4j.Logger;
@@ -72,7 +72,6 @@ public class ActiveRunView extends ViewPart {
 	private boolean isDisposed;
 	private Label label;
 	private TreeViewer treeViewer;
-	private Display display;
 	private long currentViewerInputJobId;
 	private SpotterProgress spotterProgress;
 
@@ -82,16 +81,16 @@ public class ActiveRunView extends ViewPart {
 
 		@Override
 		public void run() {
-			while (!isDisposed && !display.isDisposed()) {
+			while (!isDisposed) {
 				try {
 					Thread.sleep(SLEEP_TIME_MILLIS);
 				} catch (InterruptedException e) {
-					LOGGER.warn("View Updater was interrupted");
+					LOGGER.warn("ViewUpdater was interrupted");
 				}
 				try {
 					updateView();
 				} catch (SWTException e) {
-					LOGGER.debug("stop view updater as view is already disposed", e);
+					LOGGER.debug("stop view updater as view is already disposed");
 					break;
 				}
 			}
@@ -136,7 +135,6 @@ public class ActiveRunView extends ViewPart {
 		label.addDisposeListener(disposeListener);
 		treeViewer.getTree().addDisposeListener(disposeListener);
 
-		this.display = label.getDisplay();
 		LpeSystemUtils.submitTask(new ViewUpdater());
 	}
 
@@ -207,7 +205,8 @@ public class ActiveRunView extends ViewPart {
 			clear();
 		}
 
-		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+		Shell shell = getSite() == null ? null : getSite().getShell();
+		WidgetUtils.submitSyncExecIgnoreDisposed(shell, new Runnable() {
 			@Override
 			public void run() {
 				setContentDescription(description);
@@ -231,7 +230,7 @@ public class ActiveRunView extends ViewPart {
 		}
 
 		if (!hasClientConnection || hasConnectionErrorOccured) {
-			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 				@Override
 				public void run() {
 					label.setText("No connection to DS service. Try again later.");
@@ -239,7 +238,7 @@ public class ActiveRunView extends ViewPart {
 			});
 		} else if (jobId == null) {
 			clear();
-			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 				@Override
 				public void run() {
 					label.setText("Currently no running diagnosis.");
@@ -248,7 +247,7 @@ public class ActiveRunView extends ViewPart {
 		} else {
 			updateDiagnosisData(jobId, client, projectName);
 		}
-		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 			@Override
 			public void run() {
 				label.getParent().layout();
@@ -261,8 +260,7 @@ public class ActiveRunView extends ViewPart {
 			runExtensionsImageProvider.setSpotterProgress(null);
 			XPerformanceProblem rootProblem = client.getCurrentRootProblem(false);
 			if (rootProblem == null) {
-				LOGGER.warn("Cannot fetch root problem!", client.getLastClientException());
-				WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+				WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 					@Override
 					public void run() {
 						label.setText("Cannot fetch root problem!");
@@ -273,7 +271,7 @@ public class ActiveRunView extends ViewPart {
 			}
 			final IExtensionItem input = HierarchyEditor.createPerformanceProblemHierarchy(projectName,
 					extensionItemFactory, rootProblem);
-			WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+			WidgetUtils.submitSyncExecIgnoreDisposed(treeViewer.getControl(), new Runnable() {
 				@Override
 				public void run() {
 					treeViewer.setInput(input);
@@ -285,7 +283,7 @@ public class ActiveRunView extends ViewPart {
 		spotterProgress = client.getCurrentProgressReport();
 		runExtensionsImageProvider.setSpotterProgress(spotterProgress);
 
-		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 			@Override
 			public void run() {
 				label.setText("Diagnosis with job id '" + jobId + "' is in progress!");
@@ -295,7 +293,7 @@ public class ActiveRunView extends ViewPart {
 	}
 
 	private void clear() {
-		WidgetUtils.submitSyncExecIgnoreDisposed(display, new Runnable() {
+		WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 			@Override
 			public void run() {
 				label.setText("");
