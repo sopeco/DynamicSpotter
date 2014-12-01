@@ -121,10 +121,16 @@ public class RunHandler extends AbstractHandler implements ISelectionChangedList
 		try {
 			jobDescription = createJobDescription(project);
 		} catch (UICoreException e) {
-			String message = "Unable to read and parse all configuration files!";
+			String message = "Problem while parsing configuration files!";
 			DialogUtils.handleError(message, e);
 			return;
 		}
+
+		if (!checkJobDescription(jobDescription)) {
+			DialogUtils.openWarning("The hierarchy must not be empty!");
+			return;
+		}
+
 		Long jobId = client.startDiagnosis(jobDescription);
 		if (jobId != null && jobId != 0) {
 			DynamicSpotterRunJob job = new DynamicSpotterRunJob(project, jobId, System.currentTimeMillis());
@@ -134,6 +140,14 @@ public class RunHandler extends AbstractHandler implements ISelectionChangedList
 			String msg = String.format(MSG_RUNTIME_ERROR, "Could not retrieve a valid job id!");
 			DialogUtils.openError(DIALOG_TITLE, msg);
 		}
+	}
+
+	private boolean checkJobDescription(JobDescription jobDescription) {
+		XPerformanceProblem hierarchy = jobDescription.getHierarchy();
+		if (hierarchy == null || hierarchy.getProblem() == null || hierarchy.getProblem().isEmpty()) {
+			return false;
+		}
+		return true;
 	}
 
 	private JobDescription createJobDescription(IProject project) throws UICoreException {

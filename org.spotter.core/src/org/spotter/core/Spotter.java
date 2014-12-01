@@ -183,6 +183,10 @@ public final class Spotter {
 
 		PerformanceProblem problem = HierarchyFactory.getInstance().createPerformanceProblemHierarchy(
 				hierarchyFileName, resultsContainer);
+		if (problem.getChildren().isEmpty()) {
+			throw new IllegalArgumentException(
+					"The performance problem hierarchy file does not contain at least one problem!");
+		}
 		return problem;
 	}
 
