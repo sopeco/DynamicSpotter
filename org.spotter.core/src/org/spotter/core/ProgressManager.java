@@ -266,7 +266,7 @@ public final class ProgressManager implements Runnable {
 	 * @param estimatedRemainingDuration
 	 *            estimated remaining duration in seconds
 	 */
-	private void updateProgress(String problemId, double estimatedProgress, long estimatedRemainingDuration) {
+	public void updateProgress(String problemId, double estimatedProgress, long estimatedRemainingDuration) {
 		if (getSpotterProgress().getProblemProgressMapping().containsKey(problemId)) {
 			getSpotterProgress().getProblemProgressMapping().get(problemId).setEstimatedProgress(estimatedProgress);
 			getSpotterProgress().getProblemProgressMapping().get(problemId)

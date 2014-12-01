@@ -17,7 +17,10 @@ package org.spotter.core.config.interpretation;
 
 import java.util.LinkedList;
 
+import org.spotter.core.ProgressManager;
 import org.spotter.core.result.ResultBlackboard;
+import org.spotter.shared.result.model.SpotterResult;
+import org.spotter.shared.status.DiagnosisStatus;
 
 /**
  * The hierarchy model interpreter traverses the performance problem hierarchy
@@ -83,7 +86,8 @@ public class HierarchyModelInterpreter {
 
 	/**
 	 * If the current problem under examination has been detected, add its
-	 * children to the list of problems to be examined
+	 * children to the list of problems to be examined. If it has not been
+	 * detected, mark its children recursively as not detected as well.
 	 */
 	private void addChildrenOfDetectedProblem() {
 
@@ -92,7 +96,29 @@ public class HierarchyModelInterpreter {
 				for (PerformanceProblem child : currentProblem.getChildren()) {
 					problemsToBeExamined.offerLast(child);
 				}
+			} else {
+				addNotDetectedChildrenRecursively(currentProblem);
 			}
+		}
+	}
+
+	/**
+	 * Marks all children of parent recursively as not detected.
+	 * 
+	 * @param parent
+	 *            the parent problem to start with
+	 */
+	private void addNotDetectedChildrenRecursively(PerformanceProblem parent) {
+		for (PerformanceProblem child : parent.getChildren()) {
+
+			ProgressManager.getInstance().updateProgressStatus(child.getUniqueId(), DiagnosisStatus.NOT_DETECTED);
+			ProgressManager.getInstance().updateProgress(child.getUniqueId(), 1, 0);
+			SpotterResult result = new SpotterResult();
+			result.setDetected(false);
+			ResultBlackboard.getInstance().putResult(child, result);
+
+			addNotDetectedChildrenRecursively(child);
+
 		}
 	}
 
