@@ -268,23 +268,30 @@ public final class SpotterUtils {
 
 	/**
 	 * Calls the <code>delete()</code> method on the given element's delete
-	 * handler if it has one.
+	 * handler if it has one. Expects elements of the same type.
 	 * 
-	 * @param element
-	 *            the element to delete
+	 * @param elements
+	 *            the elements to delete
 	 */
-	public static void deleteElement(Object element) {
-		IHandlerMediator mediator = toHandlerMediator(element);
+	public static void deleteElements(Object[] elements) {
+		if (elements == null || elements.length == 0) {
+			return;
+		}
+		IHandlerMediator mediator = toHandlerMediator(elements[0]);
 		if (mediator != null) {
 			Object handler = mediator.getHandler(DeleteHandler.DELETE_COMMAND_ID);
 			if (handler instanceof IDeletable) {
 				IDeletable deletable = (IDeletable) handler;
-				try {
-					deletable.delete();
-				} catch (Exception e) {
-					String message = String.format(ERR_MSG_DELETE, deletable.toString());
-					LOGGER.error(message, e);
-					DialogUtils.handleError(message, e);
+				if (deletable.showConfirmationDialog(elements)) {
+					for (Object element : elements) {
+						try {
+							doDeleteElement(element);
+						} catch (CoreException e) {
+							String message = String.format(ERR_MSG_DELETE, element.toString());
+							LOGGER.error(message, e);
+							DialogUtils.handleError(message, e);
+						}
+					}
 				}
 			}
 		}
@@ -326,6 +333,12 @@ public final class SpotterUtils {
 			}
 		}
 		return null;
+	}
+
+	private static void doDeleteElement(Object element) throws CoreException {
+		IHandlerMediator mediator = toHandlerMediator(element);
+		IDeletable deletable = (IDeletable) mediator.getHandler(DeleteHandler.DELETE_COMMAND_ID);
+		deletable.delete();
 	}
 
 }

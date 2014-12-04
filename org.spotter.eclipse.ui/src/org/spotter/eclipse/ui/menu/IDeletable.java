@@ -15,6 +15,8 @@
  */
 package org.spotter.eclipse.ui.menu;
 
+import org.eclipse.core.runtime.CoreException;
+
 /**
  * An interface for elements that can be deleted.
  * 
@@ -24,9 +26,17 @@ package org.spotter.eclipse.ui.menu;
 public interface IDeletable {
 
 	/**
-	 * Deletes this element.
+	 * Title for delete dialogs.
 	 */
-	void delete();
+	String DELETE_DLG_TITLE = "Delete";
+
+	/**
+	 * Deletes this element.
+	 * 
+	 * @throws CoreException
+	 *             if error occurs during deletion
+	 */
+	void delete() throws CoreException;
 
 	/**
 	 * Returns the name of this element type that should be used within the
@@ -35,5 +45,16 @@ public interface IDeletable {
 	 * @return The name of this element type
 	 */
 	String getElementTypeName();
+
+	/**
+	 * Opens a confirmation dialog to delete the given elements which are
+	 * assumed to be of the same type as this element.
+	 * 
+	 * @param elements
+	 *            the elements the confirmation is done for
+	 * @return <code>true</code> to proceed with deletion, <code>false</code>
+	 *         otherwise
+	 */
+	boolean showConfirmationDialog(Object[] elements);
 
 }

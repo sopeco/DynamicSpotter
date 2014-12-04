@@ -57,6 +57,9 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	private static final String OPEN_ID = ResultsView.VIEW_ID;
 	private static final String TXT_OPEN_ID = EditorsUI.DEFAULT_TEXT_EDITOR_ID;
 
+	private static final String MSG_SINGLE = "Are you sure you want to delete the result '%s'?";
+	private static final String MSG_MULTI = "Are you sure you want to delete these %d elements?";
+
 	private final ISpotterProjectElement parent;
 	private final IFolder resultFolder;
 	private boolean isErroneous;
@@ -138,6 +141,11 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 			public void delete() {
 				SpotterProjectRunResult.this.delete();
 			}
+
+			@Override
+			public boolean showConfirmationDialog(Object[] elements) {
+				return SpotterProjectRunResult.this.showConfirmationDialog(elements);
+			}
 		});
 	}
 
@@ -214,6 +222,18 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		return result;
 	}
 
+	private boolean showConfirmationDialog(Object[] elements) {
+		String prompt;
+		if (elements.length > 1) {
+			prompt = createMultiMessage(elements.length);
+		} else {
+			prompt = createSingleMessage();
+		}
+
+		boolean confirm = DialogUtils.openConfirm(IDeletable.DELETE_DLG_TITLE, prompt);
+		return confirm;
+	}
+
 	private void delete() {
 		try {
 			if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
@@ -236,6 +256,14 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 			LOGGER.error(message, e);
 			DialogUtils.handleError(message, e);
 		}
+	}
+
+	private String createSingleMessage() {
+		return String.format(MSG_SINGLE, getText());
+	}
+
+	private String createMultiMessage(int count) {
+		return String.format(MSG_MULTI, count);
 	}
 
 }
