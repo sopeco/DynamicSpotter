@@ -68,6 +68,12 @@ public class BasicEditorExtensionItemFactory implements IExtensionItemFactory {
 				return ELEMENT_TYPE_NAME;
 			}
 
+			@Override
+			public boolean showConfirmationDialog(Object[] elements) {
+				// TODO: implement confirmation here
+				return false;
+			}
+
 		});
 	}
 

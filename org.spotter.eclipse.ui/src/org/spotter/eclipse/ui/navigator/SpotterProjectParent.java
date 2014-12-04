@@ -17,10 +17,7 @@ package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -34,7 +31,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ProjectLocationSelectionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.handlers.DeleteHandler;
 import org.spotter.eclipse.ui.handlers.DuplicateHandler;
 import org.spotter.eclipse.ui.menu.IDeletable;
@@ -56,7 +52,6 @@ public class SpotterProjectParent extends AbstractProjectElement {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterProjectParent.class);
 	private static final String ELEMENT_TYPE_NAME = "Project";
 	private static final String DUPLICATE_DLG_TITLE = "Duplicate Project";
-	private static final String DELETE_DLG_TITLE = "Delete Resources";
 	private static final String MSG_SINGLE = "Are you sure you want to remove project '%s' from the workspace?\n\nWarning: Contents will be deleted from disk!";
 	private static final String MSG_MULTI = "Are you sure you want to remove the following projects from the workspace?\n\n%s\n\n"
 			+ "Warning: Contents will be deleted from disk!";
@@ -79,8 +74,17 @@ public class SpotterProjectParent extends AbstractProjectElement {
 			}
 
 			@Override
-			public void delete() {
+			public void delete() throws CoreException {
 				SpotterProjectParent.this.delete();
+			}
+
+			@Override
+			public boolean showConfirmationDialog(Object[] elements) {
+				Class<?> clazz = SpotterProjectParent.this.getClass();
+				if (elements == null || elements.length == 0 || !elements[0].getClass().equals(clazz)) {
+					throw new IllegalArgumentException();
+				}
+				return SpotterProjectParent.this.showConfirmationDialog(elements);
 			}
 		});
 		addHandler(DuplicateHandler.DUPLICATE_COMMAND_ID, new IDuplicatable() {
@@ -122,7 +126,6 @@ public class SpotterProjectParent extends AbstractProjectElement {
 	}
 
 	private void duplicate() {
-		IProject project = getProject();
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		ProjectLocationSelectionDialog dialog = new ProjectLocationSelectionDialog(shell, project);
 		dialog.setTitle(DUPLICATE_DLG_TITLE);
@@ -153,70 +156,40 @@ public class SpotterProjectParent extends AbstractProjectElement {
 		}
 	}
 
-	private void delete() {
-		Activator activator = Activator.getDefault();
-		Set<IProject> projects = activator.getSelectedProjects();
-		if (projects.isEmpty()) {
-			return;
-		}
-
+	private boolean showConfirmationDialog(Object[] elements) {
 		String prompt;
-		if (projects.size() > 1) {
-			prompt = createMultiMessage(projects);
+		if (elements.length > 1) {
+			prompt = createMultiMessage(elements);
 		} else {
-			prompt = createSingleMessage(projects.iterator().next());
+			prompt = createSingleMessage();
 		}
 
-		boolean confirm = DialogUtils.openConfirm(DELETE_DLG_TITLE, prompt);
-		if (!confirm) {
-			return;
-		}
+		boolean confirm = DialogUtils.openConfirm(IDeletable.DELETE_DLG_TITLE, prompt);
+		return confirm;
+	}
 
-		List<IProject> projectsDeletionFailed = new ArrayList<>();
-		List<String> deletionErrorMessages = new ArrayList<>();
-		while (!projects.isEmpty()) {
-			IProject project = projects.iterator().next();
-			try {
-				SpotterProjectSupport.deleteProject(project);
-			} catch (CoreException e) {
-				projectsDeletionFailed.add(project);
-				deletionErrorMessages.add(e.getMessage());
+	private void delete() throws CoreException {
+		SpotterProjectSupport.deleteProject(project);
+	}
+
+	private String concatProjectNames(Object[] elements) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < elements.length; i++) {
+			IProject project = ((SpotterProjectParent) elements[0]).getProject();
+			sb.append("'" + project.getName() + "'");
+			if (i < elements.length - 1) {
+				sb.append(", ");
 			}
-			projects.remove(project);
-		}
-		if (!projectsDeletionFailed.isEmpty()) {
-			String errorMessage = createErrorMessage(projectsDeletionFailed, deletionErrorMessages);
-			DialogUtils.openError(DELETE_DLG_TITLE, errorMessage);
-		}
-	}
-
-	private String createErrorMessage(List<IProject> projects, List<String> detailErrorMessages) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Error while deleting project(s): ");
-		sb.append(concatProjectNames(projects) + "!\n");
-
-		for (String errMsg : detailErrorMessages) {
-			sb.append("\nCause: " + errMsg);
 		}
 		return sb.toString();
 	}
 
-	private String concatProjectNames(Collection<IProject> projects) {
-		Iterator<IProject> iterator = projects.iterator();
-		StringBuilder sb = new StringBuilder();
-		sb.append("'" + iterator.next().getName() + "'");
-		while (iterator.hasNext()) {
-			sb.append(", '" + iterator.next().getName() + "'");
-		}
-		return sb.toString();
-	}
-
-	private String createSingleMessage(IProject project) {
+	private String createSingleMessage() {
 		return String.format(MSG_SINGLE, project.getName());
 	}
 
-	private String createMultiMessage(Collection<IProject> projects) {
-		return String.format(MSG_MULTI, concatProjectNames(projects));
+	private String createMultiMessage(Object[] elements) {
+		return String.format(MSG_MULTI, concatProjectNames(elements));
 	}
 
 }

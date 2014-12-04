@@ -23,6 +23,8 @@ import java.util.Map;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 import org.spotter.eclipse.ui.menu.IDeletable;
@@ -49,22 +51,22 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
-		if (iter == null) {
-			return null;
-		}
-
-		while (iter.hasNext()) {
-			SpotterUtils.deleteElement(iter.next());
+		ISelection selection = SpotterUtils.getActiveWindowSelection();
+		
+		if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
+			Object[] elements = ((IStructuredSelection) selection).toArray();
+			SpotterUtils.deleteElements(elements);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Only allow deletion if just elements are selected that are deletable.
+	 * Only allow deletion if the selection contains just deletable elements of
+	 * the same type.
 	 * 
-	 * @return <code>true</code> if only deletable elements are selected
+	 * @return <code>true</code> if only deletable elements of same type are
+	 *         selected
 	 */
 	@Override
 	public boolean isEnabled() {
@@ -92,6 +94,7 @@ public class DeleteHandler extends AbstractHandler implements IElementUpdater {
 		return label;
 	}
 
+	// returns deletable elements of same type that are selected or empty list
 	private List<IDeletable> getSelectedDeletables() {
 		List<IDeletable> deletables = new ArrayList<>();
 		Iterator<?> iter = SpotterUtils.getActiveWindowStructuredSelectionIterator();
