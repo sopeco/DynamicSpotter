@@ -274,22 +274,10 @@
             name="Open">
       </command>
       <command
-            defaultHandler="org.spotter.eclipse.ui.handlers.DeleteHandler"
-            description="Delete the selected elements"
-            id="org.spotter.eclipse.ui.commands.delete"
-            name="Delete">
-      </command>
-      <command
             defaultHandler="org.spotter.eclipse.ui.handlers.DuplicateHandler"
             description="Duplicate the selected element"
             id="org.spotter.eclipse.ui.commands.duplicate"
             name="Duplicate">
-      </command>
-      <command
-            defaultHandler="org.spotter.eclipse.ui.handlers.RefreshHandler"
-            description="Refresh elements"
-            id="org.spotter.eclipse.ui.commands.refresh"
-            name="Refresh">
       </command>
       <command
             defaultHandler="org.spotter.eclipse.ui.handlers.RunHandler"
@@ -326,11 +314,9 @@
             allPopups="false"
             locationURI="toolbar:org.eclipse.debug.ui.launchActionSet">
          <command
-               commandId="org.spotter.eclipse.ui.commands.run"
-               icon="icons/run.gif"
+               commandId="org.eclipse.debug.ui.commands.RunLast"
                label="Run DynamicSpotter"
-               style="push"
-               tooltip="Run selected DynamicSpotter Project">
+               style="push">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -346,11 +332,9 @@
             allPopups="false"
             locationURI="menu:org.eclipse.ui.run">
          <command
-               commandId="org.spotter.eclipse.ui.commands.run"
-               icon="icons/run.gif"
+               commandId="org.eclipse.debug.ui.commands.RunLast"
                label="Run DynamicSpotter"
-               style="push"
-               tooltip="Run selected DynamicSpotter Project">
+               style="push">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -383,11 +367,9 @@
                visible="true">
          </separator>
          <command
-               commandId="org.spotter.eclipse.ui.commands.delete"
-               icon="icons/delete.png"
+               commandId="org.eclipse.ui.edit.delete"
                label="Delete"
-               style="push"
-               tooltip="Delete the selected elements">
+               style="push">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.duplicate"
@@ -401,19 +383,14 @@
                visible="true">
          </separator>
          <command
-               commandId="org.spotter.eclipse.ui.commands.refresh"
-               disabledIcon="icons/refresh_nav_disabled.gif"
-               icon="icons/refresh_nav_enabled.gif"
+               commandId="org.eclipse.ui.file.refresh"
                label="Refresh"
-               style="push"
-               tooltip="Refresh elements">
+               style="push">
          </command>
          <command
-               commandId="org.spotter.eclipse.ui.commands.run"
-               icon="icons/run.gif"
+               commandId="org.eclipse.debug.ui.commands.RunLast"
                label="Run DynamicSpotter"
-               style="push"
-               tooltip="Run selected DynamicSpotter Project">
+               style="push">
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.clearCache"
@@ -444,6 +421,21 @@
             </visibleWhen>
          </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.spotter.eclipse.ui.handlers.DeleteHandler"
+            commandId="org.eclipse.ui.edit.delete">
+      </handler>
+      <handler
+            class="org.spotter.eclipse.ui.handlers.RefreshHandler"
+            commandId="org.eclipse.ui.file.refresh">
+      </handler>
+      <handler
+            class="org.spotter.eclipse.ui.handlers.RunHandler"
+            commandId="org.eclipse.debug.ui.commands.RunLast">
+      </handler>
    </extension>
 
 </plugin>

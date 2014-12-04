@@ -40,26 +40,16 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ProjectNature;
-import org.spotter.eclipse.ui.handlers.DeleteHandler;
-import org.spotter.eclipse.ui.handlers.RefreshHandler;
 import org.spotter.eclipse.ui.navigator.FixedOrderViewerComparator;
 import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
-import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
@@ -73,16 +63,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NavigatorContentProvider.class);
 
-	private static final String ERR_MSG_DELETE = "An error occured while trying to access the delete command!";
-	private static final String ERR_MSG_REFRESH = "An error occured while trying to access the refresh command!";
-
 	private static final Object[] NO_CHILDREN = {};
 	private final Map<String, Object> wrapperCache = new HashMap<String, Object>();
 	private CommonViewer viewer;
 	private boolean listenersRegistered;
 	private IDoubleClickListener dblClickOpenListener;
 	private ISelectionChangedListener projectSelectionListener;
-	private KeyListener keyListener;
 
 	/**
 	 * Creates a new content provider. Registers the newly created instance as
@@ -133,58 +119,20 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	private void removeListeners() {
 		viewer.removeDoubleClickListener(dblClickOpenListener);
 		viewer.removeSelectionChangedListener(projectSelectionListener);
-		viewer.getTree().removeKeyListener(keyListener);
 
 		Activator.getDefault().setSelectedProjects(viewer, Collections.<IProject> emptySet());
 		dblClickOpenListener = null;
 		projectSelectionListener = null;
-		keyListener = null;
 		listenersRegistered = false;
 	}
 
 	private void registerListeners() {
 		dblClickOpenListener = createDblClickOpenListener();
 		projectSelectionListener = createProjectSelectionListener();
-		keyListener = createKeyListener();
 
-		viewer.getTree().addKeyListener(keyListener);
 		viewer.addDoubleClickListener(dblClickOpenListener);
 		viewer.addSelectionChangedListener(projectSelectionListener);
 		listenersRegistered = true;
-	}
-
-	private KeyListener createKeyListener() {
-		KeyListener listener = new KeyAdapter() {
-			private IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
-					IHandlerService.class);
-			private ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(
-					ICommandService.class);
-
-			@Override
-			public void keyPressed(KeyEvent event) {
-				if (event.keyCode == SWT.DEL) {
-					if (!commandService.getCommand(DeleteHandler.DELETE_COMMAND_ID).isEnabled()) {
-						return;
-					}
-					try {
-						handlerService.executeCommand(DeleteHandler.DELETE_COMMAND_ID, null);
-					} catch (Exception e) {
-						DialogUtils.handleError(ERR_MSG_DELETE, e);
-					}
-				} else if (event.keyCode == SWT.F5) {
-					if (!commandService.getCommand(RefreshHandler.REFRESH_COMMAND_ID).isEnabled()) {
-						return;
-					}
-					try {
-						handlerService.executeCommand(RefreshHandler.REFRESH_COMMAND_ID, null);
-					} catch (Exception e) {
-						DialogUtils.handleError(ERR_MSG_REFRESH, e);
-					}
-				}
-			}
-		};
-
-		return listener;
 	}
 
 	private IDoubleClickListener createDblClickOpenListener() {
