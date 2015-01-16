@@ -28,6 +28,8 @@ import org.lpe.common.util.LpeSupportedTypes;
  */
 public final class ConfigKeys {
 
+	public static final double DEFAULT_PERFORMANCE_REQUIREMENT_CONFIDENCE = 0.99;
+	public static final int DEFAULT_PERFORMANCE_REQUIREMENT_THRESHOLD = 1000;
 	private static final int _10 = 10;
 	public static final int DEFAULT_SUT_WARMUP_DURATION = 180;
 
@@ -59,7 +61,9 @@ public final class ConfigKeys {
 	public static final String WORKLOAD_MAXUSERS = "org.spotter.workload.maxusers";
 
 	public static final String PPD_RUN_TIMESTAMP = "org.spotter.run.timestamp";
-
+	
+	public static final String PERFORMANCE_REQUIREMENT_THRESHOLD = "org.spotter.performanceRequirementThreshold";
+	public static final String PERFORMANCE_REQUIREMENT_CONFIDENCE = "org.spotter.performanceRequirementConfidence";
 	/**
 	 * Defines how many users per interval (
 	 * {@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are put into the system. The
@@ -254,6 +258,31 @@ public final class ConfigKeys {
 						+ "directly. (Instrumentation of an unloaded class would fail.)");
 		return parameter;
 	}
+	
+	private static ConfigParameterDescription getPerfRequirementThreshold() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(PERFORMANCE_REQUIREMENT_THRESHOLD,
+				LpeSupportedTypes.Integer);
+		parameter.setMandatory(true);
+		parameter.setDefaultValue(String.valueOf(DEFAULT_PERFORMANCE_REQUIREMENT_THRESHOLD));
+		parameter
+				.setDescription("Specifies the global threshold for the performance requirement in milliseconds. "
+						+ "Services of the target system that exceed that threshold are "
+						+ "considered as performance problems.)");
+		return parameter;
+	}
+	
+	private static ConfigParameterDescription getPerfRequirementConfidence() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(PERFORMANCE_REQUIREMENT_CONFIDENCE,
+				LpeSupportedTypes.Double);
+		parameter.setMandatory(true);
+		parameter.setDefaultValue(String.valueOf(DEFAULT_PERFORMANCE_REQUIREMENT_CONFIDENCE));
+		parameter
+				.setDescription("Specifies the confidence for the global performance requirement threshold. "
+						+ "Value between 0 (= 0%) and 1 (= 100%)."
+						+ "This value determines how many performance violation outliers are allowed "
+						+ "without that a performance problem is detected.");
+		return parameter;
+	}
 
 	/**
 	 * 
@@ -270,6 +299,8 @@ public final class ConfigKeys {
 		configParameters.add(getOmitExperimentParameter());
 		configParameters.add(getDummyDataParameter());
 		configParameters.add(getPreWarumupDuration());
+		configParameters.add(getPerfRequirementThreshold());
+		configParameters.add(getPerfRequirementConfidence());
 		return configParameters;
 	}
 }

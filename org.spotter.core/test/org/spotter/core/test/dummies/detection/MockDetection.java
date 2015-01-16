@@ -42,7 +42,7 @@ public class MockDetection extends AbstractDetectionController {
 
 	@Override
 	protected void executeExperiments() throws InstrumentationException, MeasurementException, WorkloadException {
-		executeDefaultExperimentSeries(this.getClass(), NUM_EXPERIMENTS,
+		executeDefaultExperimentSeries(this, NUM_EXPERIMENTS,
 				new InstrumentationDescriptionBuilder().build());
 	}
 

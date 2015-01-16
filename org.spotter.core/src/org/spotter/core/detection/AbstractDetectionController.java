@@ -159,8 +159,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 * and increases the load from one experiment to the next until the maximum
 	 * number of users is reached.
 	 * 
-	 * @param detectionControllerClass
-	 *            class of the detection controller executing the experiments
+	 * @param detectionController
+	 *            the detection controller executing the experiments
 	 * @param numExperimentSteps
 	 *            number of experiment steps to execute
 	 * @param instDescription
@@ -172,9 +172,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 * @throws WorkloadException
 	 *             if load cannot be generated properly
 	 */
-	protected void executeDefaultExperimentSeries(Class<? extends IDetectionController> detectionControllerClass,
-			int numExperimentSteps, InstrumentationDescription instDescription) throws InstrumentationException,
-			MeasurementException, WorkloadException {
+	protected void executeDefaultExperimentSeries(IDetectionController detectionController, int numExperimentSteps,
+			InstrumentationDescription instDescription) throws InstrumentationException, MeasurementException,
+			WorkloadException {
 
 		instrumentApplication(instDescription);
 
@@ -182,7 +182,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				.getProperties(), ConfigKeys.WORKLOAD_MAXUSERS, null));
 
 		if (numExperimentSteps <= 1) {
-			runExperiment(detectionControllerClass, maxUsers);
+			runExperiment(detectionController, maxUsers);
 		} else {
 			double dMinUsers = MIN_NUM_USERS;
 			double dMaxUsers = maxUsers;
@@ -191,12 +191,12 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			// if we have the same number of maximum and minimum users, then we
 			// have only one experiment run
 			if (dStep <= 0.0 + EPSILON) {
-				runExperiment(detectionControllerClass, MIN_NUM_USERS);
+				runExperiment(detectionController, MIN_NUM_USERS);
 			} else {
 
 				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSILON); dUsers += dStep) {
 					int numUsers = new Double(dUsers).intValue();
-					runExperiment(detectionControllerClass, numUsers);
+					runExperiment(detectionController, numUsers);
 				}
 
 			}
@@ -251,8 +251,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	/**
 	 * Runs a single experiment.
 	 * 
-	 * @param detectionControllerClass
-	 *            class of the detection controller running the analysis
+	 * @param detectionController
+	 *            the detection controller running the analysis
 	 * @param numUsers
 	 *            number of user to use for the load of this experiment
 	 * @throws WorkloadException
@@ -260,10 +260,10 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 * @throws MeasurementException
 	 *             if data collection fails
 	 */
-	protected void runExperiment(Class<? extends IDetectionController> detectionControllerClass, int numUsers)
-			throws WorkloadException, MeasurementException {
+	protected void runExperiment(IDetectionController detectionController, int numUsers) throws WorkloadException,
+			MeasurementException {
 
-		LOGGER.info("{} started experiment with {} users ...", detectionControllerClass.getSimpleName(), numUsers);
+		LOGGER.info("{} detection controller started experiment with {} users ...", detectionController.getProvider().getName(), numUsers);
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
 		LoadConfig lConfig = new LoadConfig();
 		lConfig.setNumUsers(numUsers);
