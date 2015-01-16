@@ -133,7 +133,7 @@ public final class Spotter {
 			PerformanceProblem problem = retrieveRootPerformanceProblem(resultsContainer);
 			HierarchyModelInterpreter hierarchyModelInterpreter = new HierarchyModelInterpreter(problem);
 			problem = hierarchyModelInterpreter.next();
-
+			AbstractDetectionController.sutWarmedUp = false;
 			ProgressManager.getInstance().reset();
 			ProgressManager.getInstance().start();
 
@@ -265,11 +265,13 @@ public final class Spotter {
 	 */
 	private void initializeMeasurementEnvironment() throws InstrumentationException, MeasurementException,
 			WorkloadException {
-		initInstrumentationController();
+		if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
+			initInstrumentationController();
 
-		initMeasurementController();
+			initMeasurementController();
 
-		initWorkloadAdapter();
+			initWorkloadAdapter();
+		}
 	}
 
 	private void initWorkloadAdapter() throws WorkloadException {

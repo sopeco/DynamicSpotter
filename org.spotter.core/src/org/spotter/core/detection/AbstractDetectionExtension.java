@@ -30,7 +30,7 @@ import org.spotter.shared.configuration.ConfigKeys;
  */
 public abstract class AbstractDetectionExtension implements IDetectionExtension {
 
-	protected static final String REUSE_EXPERIMENTS_FROM_PARENT = "reuseExperimentsFromParent";
+	public static final String REUSE_EXPERIMENTS_FROM_PARENT = "reuseExperimentsFromParent";
 
 	private final Set<ConfigParameterDescription> configParameters;
 
@@ -41,7 +41,9 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 
 		configParameters = new HashSet<ConfigParameterDescription>();
 		configParameters.add(createIsDetectableParameter());
-		configParameters.add(createReuseExperimentsParameter());
+		if (this.createExtensionArtifact() instanceof IExperimentReuser) {
+			configParameters.add(createReuseExperimentsParameter());
+		}
 		initializeConfigurationParameters();
 	}
 

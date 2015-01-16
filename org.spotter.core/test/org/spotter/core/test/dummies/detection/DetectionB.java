@@ -18,13 +18,15 @@ package org.spotter.core.test.dummies.detection;
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.DatasetCollection;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.detection.AbstractDetectionController;
 import org.spotter.core.detection.IDetectionController;
+import org.spotter.core.detection.IExperimentReuser;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.result.model.SpotterResult;
 
-public class DetectionB extends AbstractDetectionController {
+public class DetectionB extends AbstractDetectionController implements IExperimentReuser {
 
 	public DetectionB(IExtension<IDetectionController> provider) {
 		super(provider);
@@ -51,6 +53,12 @@ public class DetectionB extends AbstractDetectionController {
 		SpotterResult result = new SpotterResult();
 		result.setDetected(false);
 		return result;
+	}
+
+	@Override
+	public InstrumentationDescription getInstrumentationDescription() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

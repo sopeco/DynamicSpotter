@@ -31,7 +31,6 @@ import junit.framework.Assert;
 
 import org.aim.api.exceptions.InstrumentationException;
 import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.measurement.MeasurementData;
 import org.aim.api.measurement.dataset.Parameter;
 import org.aim.api.measurement.utils.RecordCSVWriter;
 import org.junit.After;
@@ -164,16 +163,20 @@ public class AbstractDetectionControllerTest {
 		LpeFileUtils.createDir(tempDir.getAbsolutePath());
 		return tempDir.getAbsolutePath();
 	}
-	
-	private void preGenerateData(String dataDir, final DummyMeasurement dMeasurement) throws MeasurementException {
-		for(int i = 1; i <= MockDetection.NUM_EXPERIMENTS; i++){
+
+	private void preGenerateData(String dataDir, final DummyMeasurement dMeasurement, String controllerName)
+			throws MeasurementException {
+		for (int i = 1; i <= MockDetection.NUM_EXPERIMENTS; i++) {
 			try {
 				StringBuilder pathBuilder = new StringBuilder(dataDir);
-
+				pathBuilder.append(controllerName);
+				pathBuilder.append(System.getProperty("file.separator"));
+				pathBuilder.append("csv");
+				pathBuilder.append(System.getProperty("file.separator"));
 				pathBuilder.append(String.valueOf(i));
 				pathBuilder.append(System.getProperty("file.separator"));
 				final String path = pathBuilder.toString();
-			
+
 				final PipedOutputStream outStream = new PipedOutputStream();
 				final PipedInputStream inStream = new PipedInputStream(outStream);
 
@@ -227,19 +230,20 @@ public class AbstractDetectionControllerTest {
 	}
 
 	@Test
-	public void testWithoutExperiments() throws InstrumentationException, MeasurementException, WorkloadException, IOException {
+	public void testWithoutExperiments() throws InstrumentationException, MeasurementException, WorkloadException,
+			IOException {
 		String dataDir = tempDir.getAbsolutePath() + System.getProperty("file.separator") + "data"
 				+ System.getProperty("file.separator");
-		
+
 		final DummyMeasurement dMeasurement = new DummyMeasurement(null);
+
 		
-		preGenerateData(dataDir, dMeasurement);
-		
-		
+
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_EXPERIMENTS, "true");
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.DUMMY_EXPERIMENT_DATA, dataDir);
 		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
+		preGenerateData(dataDir, dMeasurement, "MockDetection-" + detectionController.getProblemId().hashCode());
 		SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
 
@@ -248,5 +252,4 @@ public class AbstractDetectionControllerTest {
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_EXPERIMENTS, "false");
 	}
 
-	
 }

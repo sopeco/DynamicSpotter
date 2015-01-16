@@ -87,7 +87,7 @@ public class HierarchyTest {
 		Assert.assertEquals(1, problemA.getConfiguration().size());
 		uniqueIds.add(problemA.getUniqueId());
 		Assert.assertTrue(problemA.getDetectionController() instanceof DetectionA);
-		Assert.assertEquals(3, problemA.getDetectionController().getProvider().getConfigParameters().size());
+		Assert.assertEquals(2, problemA.getDetectionController().getProvider().getConfigParameters().size());
 		boolean foundParameter = false;
 		for(ConfigParameterDescription cpd : problemA.getDetectionController().getProvider().getConfigParameters()){
 			if(cpd.getName().equals("test.parameter")){
@@ -105,6 +105,7 @@ public class HierarchyTest {
 		Assert.assertEquals(0, problemB.getChildren().size());
 		Assert.assertNotNull(problemB.getConfiguration());
 		Assert.assertEquals(1, problemB.getConfiguration().size());
+		Assert.assertEquals(2, problemB.getDetectionController().getProvider().getConfigParameters().size());
 		uniqueIds.add(problemB.getUniqueId());
 		Assert.assertTrue(problemB.getDetectionController() instanceof DetectionB);
 

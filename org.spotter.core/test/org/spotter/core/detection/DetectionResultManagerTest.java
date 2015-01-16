@@ -51,13 +51,13 @@ import com.xeiam.xchart.ChartBuilder;
 public class DetectionResultManagerTest {
 	private static final String CONTROLLER_NAME = "testController";
 	private String baseDir = "";
-	private static final String PARENT_DIR = System.getProperty("file.separator") + "parent";
-	private static final String DATA_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-" + CONTROLLER_NAME.hashCode()
-			+ System.getProperty("file.separator") + ResultsLocationConstants.CSV_SUB_DIR
+	private static final String PARENT_DIR =  "parent";
+	private static final String DATA_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-"
+			+ CONTROLLER_NAME.hashCode() + System.getProperty("file.separator") + ResultsLocationConstants.CSV_SUB_DIR
 			+ System.getProperty("file.separator");
-	private static final String RESOURCES_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-" + CONTROLLER_NAME.hashCode()
-			+ System.getProperty("file.separator") + ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR
-			+ System.getProperty("file.separator");
+	private static final String RESOURCES_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-"
+			+ CONTROLLER_NAME.hashCode() + System.getProperty("file.separator")
+			+ ResultsLocationConstants.RESULT_RESOURCES_SUB_DIR + System.getProperty("file.separator");
 	private File tempDir;
 
 	@BeforeClass
@@ -88,18 +88,23 @@ public class DetectionResultManagerTest {
 				baseDir + System.getProperty("file.separator"));
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
 		drManager.setProblemId(CONTROLLER_NAME);
-		drManager.setParentDataDir(baseDir + PARENT_DIR);
+		drManager.setParentIdentifier(PARENT_DIR);
 		Assert.assertEquals(baseDir + DATA_DIR, drManager.getDataPath());
 		Assert.assertEquals(baseDir + DATA_DIR, drManager.getDataPath());
 		Assert.assertEquals(baseDir + RESOURCES_DIR, drManager.getAdditionalResourcesPath());
 		Assert.assertEquals(baseDir + RESOURCES_DIR, drManager.getAdditionalResourcesPath());
 
 		drManager.overwriteDataPath("anotherPath");
-		Assert.assertEquals("anotherPath", drManager.getDataPath());
+		String newPath = "anotherPath" + System.getProperty("file.separator") + CONTROLLER_NAME + "-"
+				+ CONTROLLER_NAME.hashCode() + System.getProperty("file.separator") + "csv"
+				+ System.getProperty("file.separator");
+		Assert.assertEquals(newPath, drManager.getDataPath());
 		Assert.assertEquals(baseDir + RESOURCES_DIR, drManager.getAdditionalResourcesPath());
 
 		drManager.useParentDataDir();
-		Assert.assertEquals(baseDir + PARENT_DIR, drManager.getDataPath());
+		Assert.assertEquals(
+				baseDir + System.getProperty("file.separator") + PARENT_DIR + System.getProperty("file.separator") + "csv"
+						+ System.getProperty("file.separator"), drManager.getDataPath());
 		Assert.assertEquals(baseDir + RESOURCES_DIR, drManager.getAdditionalResourcesPath());
 	}
 

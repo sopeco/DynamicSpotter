@@ -61,6 +61,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	private static final int MIN_NUM_USERS = 1;
 	protected static final String NUMBER_OF_USERS_KEY = "numUsers";
 	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
+	public static boolean sutWarmedUp = false;
 
 	private static int getSUTWarmUpDuration() {
 		return GlobalConfiguration.getInstance().getPropertyAsInteger(ConfigKeys.PREWARUMUP_DURATION,
@@ -75,7 +76,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	private final DetectionResultManager resultManager;
 
 	private boolean instrumented = false;
-	private boolean sutWarmedUp = false;
+
 	private Properties problemDetectionConfiguration = new Properties();
 
 	private List<IExperimentReuser> experimentReuser;
@@ -98,21 +99,29 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	@Override
 	public SpotterResult analyzeProblem() throws InstrumentationException, MeasurementException, WorkloadException {
 		try {
-			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
+			if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false) && !sutWarmedUp) {
 
 				ProgressManager.getInstance().addAdditionalDuration(getSUTWarmUpDuration());
 			}
 
 			ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INITIALIZING);
 			ProgressManager.getInstance().setProblemName(getProblemId(), getProvider().getName());
+			boolean reuser = Boolean.parseBoolean(this.getProblemDetectionConfiguration().getProperty(
+					AbstractDetectionExtension.REUSE_EXPERIMENTS_FROM_PARENT, "false"));
+			boolean omitExperiments = GlobalConfiguration.getInstance().getPropertyAsBoolean(
+					ConfigKeys.OMIT_EXPERIMENTS, false);
 
-			if (GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_EXPERIMENTS, false)) {
+			if (omitExperiments & reuser) {
+				resultManager.useOverwrittenParentDataDir(GlobalConfiguration.getInstance().getProperty(
+						ConfigKeys.DUMMY_EXPERIMENT_DATA));
+			} else if (omitExperiments & !reuser) {
 				resultManager.overwriteDataPath(GlobalConfiguration.getInstance().getProperty(
 						ConfigKeys.DUMMY_EXPERIMENT_DATA));
-			} else if (this instanceof IExperimentReuser) {
+			} else if (!omitExperiments & reuser) {
 				resultManager.useParentDataDir();
-			} else {
-				if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)) {
+			} else if (!omitExperiments & !reuser) {
+				if (!GlobalConfiguration.getInstance().getPropertyAsBoolean(ConfigKeys.OMIT_WARMUP, false)
+						&& !sutWarmedUp) {
 					warmUpSUT();
 				}
 
@@ -263,7 +272,8 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	protected void runExperiment(IDetectionController detectionController, int numUsers) throws WorkloadException,
 			MeasurementException {
 
-		LOGGER.info("{} detection controller started experiment with {} users ...", detectionController.getProvider().getName(), numUsers);
+		LOGGER.info("{} detection controller started experiment with {} users ...", detectionController.getProvider()
+				.getName(), numUsers);
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.EXPERIMENTING_RAMP_UP);
 		LoadConfig lConfig = new LoadConfig();
 		lConfig.setNumUsers(numUsers);
