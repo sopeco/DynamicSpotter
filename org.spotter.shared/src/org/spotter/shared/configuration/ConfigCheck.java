@@ -215,15 +215,29 @@ public final class ConfigCheck {
 
 	private static String correctFileSeparator(String key, boolean isDirectory) {
 		String path = GlobalConfiguration.getInstance().getProperty(key);
-		path = LpeStringUtils.correctFileSeparator(path);
-
-		if (isDirectory) {
-			if (!path.endsWith(System.getProperty("file.separator"))) {
-				path += System.getProperty("file.separator");
-			}
-		}
+		path = correctFileName(path, isDirectory);
 		GlobalConfiguration.getInstance().putProperty(key, path);
 		return path;
+	}
+
+	/**
+	 * Corrects the given file name. Sets proper file separators, etc.
+	 * 
+	 * @param fileName
+	 *            filename to correct
+	 * @param isDirectory
+	 *            indicates whether the specified file is a directory
+	 * @return corrected file name
+	 */
+	public static String correctFileName(String fileName, boolean isDirectory) {
+		fileName = LpeStringUtils.correctFileSeparator(fileName);
+
+		if (isDirectory) {
+			if (!fileName.endsWith(System.getProperty("file.separator"))) {
+				fileName += System.getProperty("file.separator");
+			}
+		}
+		return fileName;
 	}
 
 }

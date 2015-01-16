@@ -16,6 +16,7 @@
 package org.spotter.core.config.interpretation;
 
 import org.lpe.common.extension.ExtensionRegistry;
+import org.spotter.core.detection.AbstractDetectionExtension;
 import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.detection.IDetectionExtension;
 import org.spotter.core.detection.IExperimentReuser;
@@ -94,10 +95,15 @@ public final class HierarchyFactory {
 		for (PerformanceProblem problem : rootProblem.getAllDEscendingProblems()) {
 			IDetectionController controller = problem.getDetectionController();
 			for (PerformanceProblem child : problem.getChildren()) {
-				IDetectionController childController = child.getDetectionController();
-				if (childController instanceof IExperimentReuser) {
-					controller.addExperimentReuser((IExperimentReuser) childController);
-					childController.getResultManager().setParentDataDir(controller.getResultManager().getDataPath());
+				if (child.isDetectable()) {
+					IDetectionController childController = child.getDetectionController();
+					boolean reuser = Boolean.parseBoolean(childController.getProblemDetectionConfiguration()
+							.getProperty(AbstractDetectionExtension.REUSE_EXPERIMENTS_FROM_PARENT, "false"));
+					if (reuser) {
+						controller.addExperimentReuser((IExperimentReuser) childController);
+						childController.getResultManager().setParentIdentifier(
+								controller.getResultManager().getControllerIdentifier());
+					}
 				}
 			}
 		}
