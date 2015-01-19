@@ -26,6 +26,7 @@ import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterUtils;
+import org.spotter.eclipse.ui.view.ResultsView;
 
 /**
  * A handler for the edit label command which edits the label of the element.
@@ -52,6 +53,7 @@ public class EditLabelHandler extends AbstractHandler {
 		if (dialog.open() == Window.OK) {
 			runResult.updateElementLabel(dialog.getValue());
 			Activator.getDefault().getNavigatorViewer().refresh(runResult);
+			ResultsView.updateContentDescription();
 		}
 
 		return null;

@@ -250,6 +250,20 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	/**
+	 * Updates the content description string of the results view.
+	 */
+	public static void updateContentDescription() {
+		for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
+			for (IWorkbenchPage page : window.getPages()) {
+				ResultsView resultsView = (ResultsView) page.findView(ResultsView.VIEW_ID);
+				if (resultsView != null) {
+					resultsView.setContentDescription(resultsView.createContentDescription());
+				}
+			}
+		}
+	}
+
+	/**
 	 * Resets the results view and deletes its contents if the given project
 	 * matches the current content's associated project. If <code>project</code>
 	 * is <code>null</code>, then the view is reset regardless of its current
@@ -679,21 +693,26 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	}
 
 	private void updateTabs() {
+		setContentDescription(createContentDescription());
 		if (runResultItem == null) {
-			setContentDescription(RESULTS_EMPTY_CONTENT_DESC);
 			resetHierarchy();
 			resetReport();
 			resetAnnotation();
-		} else {
-			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
-					runResultItem.getProject().getName());
-			setContentDescription(contentDescription);
-			if (updateResultsContainer()) {
-				updateHierarchy();
-				updateReport();
-				updateAnnotation();
-			}
+		} else if (updateResultsContainer()) {
+			updateHierarchy();
+			updateReport();
+			updateAnnotation();
 		}
+	}
+
+	private String createContentDescription() {
+		String desc = RESULTS_EMPTY_CONTENT_DESC;
+		if (runResultItem != null) {
+			String itemText = runResultItem.getText();
+			String projectName = runResultItem.getProject().getName();
+			desc = String.format(RESULTS_CONTENT_DESC_TEMPLATE, itemText, projectName);
+		}
+		return desc;
 	}
 
 	private void resetHierarchy() {
