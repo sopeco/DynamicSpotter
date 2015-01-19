@@ -276,6 +276,7 @@ public class ActiveRunView extends ViewPart {
 				@Override
 				public void run() {
 					treeViewer.setInput(input);
+					treeViewer.expandAll();
 				}
 			});
 			currentViewerInputJobId = jobId;
