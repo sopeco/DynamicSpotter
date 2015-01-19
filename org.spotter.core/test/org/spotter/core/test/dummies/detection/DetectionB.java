@@ -38,7 +38,7 @@ public class DetectionB extends AbstractDetectionController implements IExperime
 	}
 
 	@Override
-	protected void executeExperiments() throws InstrumentationException, MeasurementException, WorkloadException {
+	public void executeExperiments() throws InstrumentationException, MeasurementException, WorkloadException {
 		
 
 	}

@@ -55,12 +55,12 @@ import org.spotter.shared.status.DiagnosisStatus;
  */
 public abstract class AbstractDetectionController extends AbstractExtensionArtifact implements IDetectionController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectionController.class);
-	private static final double EPSILON = 0.5;
+	public static final double EPSILON = 0.5;
 	public static final long SECOND = 1000L;
 
 	private static final int MIN_NUM_USERS = 1;
-	protected static final String NUMBER_OF_USERS_KEY = "numUsers";
-	protected static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
+	public static final String NUMBER_OF_USERS_KEY = "numUsers";
+	public static final String EXPERIMENT_STEPS_KEY = "numExperimentSteps";
 	public static boolean sutWarmedUp = false;
 
 	private static int getSUTWarmUpDuration() {
@@ -350,19 +350,6 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		this.problemId = problemId;
 		resultManager.setProblemId(problemId);
 	}
-
-	/**
-	 * Triggers heuristic specific experiment execution.
-	 * 
-	 * @throws InstrumentationException
-	 *             if instrumentation fails
-	 * @throws MeasurementException
-	 *             if measurement data cannot be collected
-	 * @throws WorkloadException
-	 *             if load cannot be generated properly
-	 */
-	protected abstract void executeExperiments() throws InstrumentationException, MeasurementException,
-			WorkloadException;
 
 	/**
 	 * Analyzes the given measurement data.
