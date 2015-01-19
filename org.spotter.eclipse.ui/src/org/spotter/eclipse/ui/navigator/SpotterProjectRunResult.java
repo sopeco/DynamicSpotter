@@ -16,6 +16,7 @@
 package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,6 +29,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -39,6 +41,7 @@ import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.result.ResultsLocationConstants;
+import org.spotter.shared.result.model.ResultsContainer;
 
 /**
  * An element that represents a run result node.
@@ -66,6 +69,7 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	private final long jobId;
 	private final long timestamp;
 	private final String elementName;
+	private String elementLabel;
 
 	/**
 	 * Creates a new instance of this element.
@@ -86,9 +90,6 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		this.jobId = jobId;
 		this.timestamp = timestamp;
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd (HH:mm:ss)");
-		this.elementName = dateFormat.format(new Date(timestamp));
-
 		this.resultFolder = resultFolder;
 		String errorFilePath = resultFolder.getFile(ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME)
 				.getLocation().toString();
@@ -98,6 +99,10 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		} else {
 			setImagePath(IMAGE_PATH);
 		}
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd (HH:mm:ss)");
+		this.elementName = dateFormat.format(new Date(timestamp));
+		readElementLabel();
 
 		addOpenHandler();
 		addDeleteHandler();
@@ -151,7 +156,11 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 
 	@Override
 	public String getText() {
-		return elementName;
+		if (elementLabel != null && !elementLabel.isEmpty()) {
+			return elementName + " " + elementLabel;
+		} else {
+			return elementName;
+		}
 	}
 
 	/**
@@ -176,6 +185,72 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	@Override
 	public IProject getProject() {
 		return parent.getProject();
+	}
+
+	/**
+	 * Updates the label. This also updates the corresponding results container.
+	 * 
+	 * @param label
+	 *            the new label
+	 */
+	public synchronized void updateElementLabel(String label) {
+		ResultsContainer container = readResultsContainer();
+		if (container != null) {
+			String oldLabel = container.getLabel();
+			container.setLabel(label);
+			if (writeResultsContainer(container)) {
+				this.elementLabel = label;
+			} else {
+				container.setLabel(oldLabel);
+			}
+		}
+	}
+
+	/**
+	 * @return the label of this element if any
+	 */
+	public String getElementLabel() {
+		return elementLabel;
+	}
+
+	/**
+	 * Reads the corresponding container and updates the label.
+	 */
+	private void readElementLabel() {
+		ResultsContainer container = readResultsContainer();
+		String label = null;
+		if (container != null) {
+			label = container.getLabel();
+		}
+		this.elementLabel = label;
+	}
+
+	private ResultsContainer readResultsContainer() {
+		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+		ResultsContainer resultsContainer = null;
+		File containerFile = new File(resFile.getLocation().toString());
+		if (containerFile.exists()) {
+			try {
+				resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
+			} catch (ClassNotFoundException | IOException e) {
+				LOGGER.debug("Cannot read results container " + containerFile);
+			}
+		}
+		return resultsContainer;
+	}
+
+	private boolean writeResultsContainer(ResultsContainer container) {
+		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+		File containerFile = new File(resFile.getLocation().toString());
+		try {
+			LpeFileUtils.writeObject(containerFile.getAbsolutePath(), container);
+		} catch (IOException e) {
+			String message = "Error while writing results container!";
+			LOGGER.debug(message, e);
+			DialogUtils.handleError(message, e);
+			return false;
+		}
+		return true;
 	}
 
 	private String getOpenId() {

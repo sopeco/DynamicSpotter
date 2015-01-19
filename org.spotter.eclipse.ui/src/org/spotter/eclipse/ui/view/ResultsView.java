@@ -662,8 +662,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	private boolean updateResultsContainer() {
 
-		IFile file = runResultItem.getResultFolder().getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
 		IFolder resultFolder = runResultItem.getResultFolder();
+		IFile file = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
 
 		resultsContainer = null;
 		String errorMsg = null;
