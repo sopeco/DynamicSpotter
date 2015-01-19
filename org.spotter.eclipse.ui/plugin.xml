@@ -286,6 +286,12 @@
             name="Run">
       </command>
       <command
+            defaultHandler="org.spotter.eclipse.ui.handlers.EditLabelHandler"
+            description="Edit the label"
+            id="org.spotter.eclipse.ui.commands.editLabel"
+            name="Edit Label">
+      </command>
+      <command
             defaultHandler="org.spotter.eclipse.ui.handlers.ClearCacheHandler"
             description="Clear cache containing data retrieved from DS Service"
             id="org.spotter.eclipse.ui.commands.clearCache"
@@ -391,6 +397,16 @@
                commandId="org.eclipse.debug.ui.commands.RunLast"
                label="Run DynamicSpotter"
                style="push">
+         </command>
+         <command
+               commandId="org.spotter.eclipse.ui.commands.editLabel"
+               icon="icons/edit-label.png"
+               label="Edit Label"
+               style="push"
+               tooltip="Edit the label">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
          </command>
          <command
                commandId="org.spotter.eclipse.ui.commands.clearCache"

@@ -37,8 +37,10 @@ import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.menu.IDeletable;
 import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.result.ResultsLocationConstants;
+import org.spotter.shared.result.model.ResultsContainer;
 
 /**
  * An element that represents a run result node.
@@ -66,6 +68,7 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	private final long jobId;
 	private final long timestamp;
 	private final String elementName;
+	private String elementLabel;
 
 	/**
 	 * Creates a new instance of this element.
@@ -86,9 +89,6 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		this.jobId = jobId;
 		this.timestamp = timestamp;
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd (HH:mm:ss)");
-		this.elementName = dateFormat.format(new Date(timestamp));
-
 		this.resultFolder = resultFolder;
 		String errorFilePath = resultFolder.getFile(ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME)
 				.getLocation().toString();
@@ -98,6 +98,10 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 		} else {
 			setImagePath(IMAGE_PATH);
 		}
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd (HH:mm:ss)");
+		this.elementName = dateFormat.format(new Date(timestamp));
+		readElementLabel();
 
 		addOpenHandler();
 		addDeleteHandler();
@@ -151,7 +155,11 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 
 	@Override
 	public String getText() {
-		return elementName;
+		if (elementLabel != null && !elementLabel.isEmpty()) {
+			return elementName + " " + elementLabel;
+		} else {
+			return elementName;
+		}
 	}
 
 	/**
@@ -176,6 +184,44 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	@Override
 	public IProject getProject() {
 		return parent.getProject();
+	}
+
+	/**
+	 * Updates the label. This also updates the corresponding results container.
+	 * 
+	 * @param label
+	 *            the new label
+	 */
+	public synchronized void updateElementLabel(String label) {
+		ResultsContainer container = SpotterUtils.readResultsContainer(resultFolder);
+		if (container != null) {
+			String oldLabel = container.getLabel();
+			container.setLabel(label);
+			if (SpotterUtils.writeResultsContainer(resultFolder, container)) {
+				this.elementLabel = label;
+			} else {
+				container.setLabel(oldLabel);
+			}
+		}
+	}
+
+	/**
+	 * @return the label of this element if any
+	 */
+	public String getElementLabel() {
+		return elementLabel;
+	}
+
+	/**
+	 * Reads the corresponding container and updates the label.
+	 */
+	private void readElementLabel() {
+		ResultsContainer container = SpotterUtils.readResultsContainer(resultFolder);
+		String label = null;
+		if (container != null) {
+			label = container.getLabel();
+		}
+		this.elementLabel = label;
 	}
 
 	private String getOpenId() {

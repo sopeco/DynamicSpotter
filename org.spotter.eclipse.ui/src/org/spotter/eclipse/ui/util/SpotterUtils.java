@@ -15,6 +15,8 @@
  */
 package org.spotter.eclipse.ui.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,11 +25,13 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -41,6 +45,8 @@ import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.navigator.ISpotterProjectElement;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.shared.environment.model.XMConfiguration;
+import org.spotter.shared.result.ResultsLocationConstants;
+import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.util.JAXBUtil;
 
 /**
@@ -86,6 +92,51 @@ public final class SpotterUtils {
 		} else {
 			file.create(source, true, null);
 		}
+	}
+
+	/**
+	 * Reads the results container within the given result folder. In case of
+	 * failure <code>null</code> will be returned.
+	 * 
+	 * @param resultFolder
+	 *            the result folder to read from
+	 * @return the read container or <code>null</code>
+	 */
+	public static ResultsContainer readResultsContainer(IFolder resultFolder) {
+		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+		ResultsContainer resultsContainer = null;
+		File containerFile = new File(resFile.getLocation().toString());
+		if (containerFile.exists()) {
+			try {
+				resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
+			} catch (ClassNotFoundException | IOException e) {
+				LOGGER.debug("Cannot read results container " + containerFile);
+			}
+		}
+		return resultsContainer;
+	}
+
+	/**
+	 * Writes the container to the given result folder.
+	 * 
+	 * @param resultFolder
+	 *            the result folder to write to
+	 * @param container
+	 *            the container to be written
+	 * @return <code>true</code> on success, <code>false</code> otherwise
+	 */
+	public static boolean writeResultsContainer(IFolder resultFolder, ResultsContainer container) {
+		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
+		File containerFile = new File(resFile.getLocation().toString());
+		try {
+			LpeFileUtils.writeObject(containerFile.getAbsolutePath(), container);
+		} catch (IOException e) {
+			String message = "Error while writing results container!";
+			LOGGER.error(message, e);
+			DialogUtils.handleError(message, e);
+			return false;
+		}
+		return true;
 	}
 
 	/**
