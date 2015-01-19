@@ -58,6 +58,7 @@ public class DetectionResultManager {
 	private String controllerName;
 	private String problemId;
 	private int resultCount = 0;
+	private int additionalResourceCount = 0;
 
 	/**
 	 * Constructor.
@@ -218,9 +219,10 @@ public class DetectionResultManager {
 	 *            corresponding result object
 	 */
 	public void storeImageChartResource(Chart chart, String fileName, SpotterResult spotterResult) {
+		additionalResourceCount++;
 		fileName = fileName.replace("<", "_");
 		fileName = fileName.replace(">", "_");
-		String resourceName = fileName + ".png";
+		String resourceName = additionalResourceCount + "-" + fileName + ".png";
 		String filePath = getAdditionalResourcesPath() + resourceName;
 		try {
 			// using savePNGWithDPI method results in the problem, that the file
@@ -243,12 +245,12 @@ public class DetectionResultManager {
 	 *            input stream representing the text resource
 	 */
 	public void storeTextResource(final String fileName, final SpotterResult spotterResult, final InputStream inStream) {
-
+		additionalResourceCount++;
 		Future<?> future = LpeSystemUtils.submitTask(new Runnable() {
 
 			@Override
 			public void run() {
-				String resourceName = fileName + ".txt";
+				String resourceName = additionalResourceCount + "-" + fileName + ".txt";
 				String filePath = getAdditionalResourcesPath() + resourceName;
 				BufferedWriter bWriter = null;
 				BufferedReader bReader = null;

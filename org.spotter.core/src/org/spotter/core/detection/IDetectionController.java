@@ -95,4 +95,16 @@ public interface IDetectionController extends IExtensionArtifact {
 	 * @return duration of experiments
 	 */
 	long getExperimentSeriesDuration();
+
+	/**
+	 * Triggers heuristic specific experiment execution.
+	 * 
+	 * @throws InstrumentationException
+	 *             if instrumentation fails
+	 * @throws MeasurementException
+	 *             if measurement data cannot be collected
+	 * @throws WorkloadException
+	 *             if load cannot be generated properly
+	 */
+	void executeExperiments() throws InstrumentationException, MeasurementException, WorkloadException;
 }
