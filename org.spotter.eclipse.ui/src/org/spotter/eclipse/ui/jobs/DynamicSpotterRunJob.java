@@ -39,7 +39,6 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.shared.status.DiagnosisProgress;
-import org.spotter.shared.status.DiagnosisStatus;
 import org.spotter.shared.status.SpotterProgress;
 
 /**
@@ -224,8 +223,17 @@ public class DynamicSpotterRunJob extends Job {
 		}
 
 		String estimates = ": ";
-		if (!diagProgress.getStatus().equals(DiagnosisStatus.PENDING)) {
+
+		switch (diagProgress.getStatus()) {
+		case PENDING:
+			break;
+		case DETECTED:
+		case NOT_DETECTED:
+			estimates = " (100.0 %, 0s remaining): ";
+			break;
+		default:
 			estimates = " (" + estimation + " %, " + duration + "s remaining): ";
+			break;
 		}
 
 		String progressString = problemName + estimates + diagProgress.getStatus();
