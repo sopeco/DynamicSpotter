@@ -230,6 +230,7 @@ public class ActiveRunView extends ViewPart {
 		}
 
 		if (!hasClientConnection || hasConnectionErrorOccured) {
+			clear();
 			WidgetUtils.submitSyncExecIgnoreDisposed(label, new Runnable() {
 				@Override
 				public void run() {
