@@ -41,6 +41,8 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -57,6 +59,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -88,6 +91,7 @@ import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.providers.ResultExtensionsImageProvider;
 import org.spotter.eclipse.ui.providers.SpotterExtensionsLabelProvider;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
@@ -129,6 +133,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	private static final String TAB_HIERARCHY_NAME = "Hierarchy";
 	private static final String TAB_REPORT_NAME = "Report";
+	private static final String TAB_ANNOTATION_NAME = "Annotations";
 
 	private static final String RESOURCE_SEPARATOR_CHAR = "/";
 
@@ -138,6 +143,8 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private TreeViewer hierarchyTreeViewer;
 	private ResultExtensionsImageProvider imageProvider;
 	private Text textReport;
+	private Text textAnnotation;
+	private Button btnSaveAnnotation;
 	private Label lblProblemName;
 	private Label lblStatus;
 	private Label lblDescription;
@@ -176,6 +183,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		TabFolder folder = new TabFolder(parent, SWT.NONE);
 		createHierarchyTab(folder);
 		createReportTab(folder);
+		createAnnotationTab(folder);
 
 		getViewSite().getPage().addPostSelectionListener(this);
 	}
@@ -624,11 +632,58 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		tabItem.setControl(textReport);
 	}
 
+	private void createAnnotationTab(TabFolder folder) {
+		TabItem tabItem = new TabItem(folder, SWT.NONE);
+		tabItem.setText(TAB_ANNOTATION_NAME);
+
+		Composite parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(WidgetUtils.createGridLayout(1, true));
+
+		btnSaveAnnotation = new Button(parent, SWT.PUSH);
+		btnSaveAnnotation.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
+		btnSaveAnnotation.setText("Save Changes");
+		btnSaveAnnotation.setEnabled(false);
+		btnSaveAnnotation.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (runResultItem != null && resultsContainer != null) {
+					String oldAnnotation = textAnnotation.getText();
+					resultsContainer.setAnnotation(textAnnotation.getText());
+					if (SpotterUtils.writeResultsContainer(runResultItem.getResultFolder(), resultsContainer)) {
+						btnSaveAnnotation.setEnabled(false);
+					} else {
+						resultsContainer.setAnnotation(oldAnnotation);
+					}
+				}
+			}
+		});
+
+		Group group = new Group(parent, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		group.setLayout(new FillLayout());
+
+		textAnnotation = new Text(group, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		textAnnotation.setText("");
+		textAnnotation.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (resultsContainer != null && !btnSaveAnnotation.isEnabled()) {
+					btnSaveAnnotation.setEnabled(true);
+				}
+			}
+		});
+
+		tabItem.setControl(parent);
+	}
+
 	private void updateTabs() {
 		if (runResultItem == null) {
 			setContentDescription(RESULTS_EMPTY_CONTENT_DESC);
 			resetHierarchy();
 			resetReport();
+			resetAnnotation();
 		} else {
 			String contentDescription = String.format(RESULTS_CONTENT_DESC_TEMPLATE, runResultItem.getText(),
 					runResultItem.getProject().getName());
@@ -636,6 +691,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			if (updateResultsContainer()) {
 				updateHierarchy();
 				updateReport();
+				updateAnnotation();
 			}
 		}
 	}
@@ -658,6 +714,11 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 
 	private void resetReport() {
 		textReport.setText(EMPTY_RESULTS);
+	}
+
+	private void resetAnnotation() {
+		textAnnotation.setText("");
+		btnSaveAnnotation.setEnabled(false);
 	}
 
 	private boolean updateResultsContainer() {
@@ -738,6 +799,15 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		} else {
 			textReport.setText(ERR_MSG_MISSING_REPORT);
 		}
+	}
+
+	private void updateAnnotation() {
+		if (resultsContainer != null && resultsContainer.getAnnotation() != null) {
+			textAnnotation.setText(resultsContainer.getAnnotation());
+		} else {
+			textAnnotation.setText("");
+		}
+		btnSaveAnnotation.setEnabled(false);
 	}
 
 	private String getCurrentResourceFolder() {

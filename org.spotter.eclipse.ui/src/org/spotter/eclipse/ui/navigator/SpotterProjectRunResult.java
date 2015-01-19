@@ -16,7 +16,6 @@
 package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,7 +28,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.part.FileEditorInput;
-import org.lpe.common.util.LpeFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
@@ -39,6 +37,7 @@ import org.spotter.eclipse.ui.jobs.JobsContainer;
 import org.spotter.eclipse.ui.menu.IDeletable;
 import org.spotter.eclipse.ui.menu.IOpenable;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.eclipse.ui.view.ResultsView;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
@@ -194,11 +193,11 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	 *            the new label
 	 */
 	public synchronized void updateElementLabel(String label) {
-		ResultsContainer container = readResultsContainer();
+		ResultsContainer container = SpotterUtils.readResultsContainer(resultFolder);
 		if (container != null) {
 			String oldLabel = container.getLabel();
 			container.setLabel(label);
-			if (writeResultsContainer(container)) {
+			if (SpotterUtils.writeResultsContainer(resultFolder, container)) {
 				this.elementLabel = label;
 			} else {
 				container.setLabel(oldLabel);
@@ -217,40 +216,12 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 	 * Reads the corresponding container and updates the label.
 	 */
 	private void readElementLabel() {
-		ResultsContainer container = readResultsContainer();
+		ResultsContainer container = SpotterUtils.readResultsContainer(resultFolder);
 		String label = null;
 		if (container != null) {
 			label = container.getLabel();
 		}
 		this.elementLabel = label;
-	}
-
-	private ResultsContainer readResultsContainer() {
-		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
-		ResultsContainer resultsContainer = null;
-		File containerFile = new File(resFile.getLocation().toString());
-		if (containerFile.exists()) {
-			try {
-				resultsContainer = (ResultsContainer) LpeFileUtils.readObject(containerFile);
-			} catch (ClassNotFoundException | IOException e) {
-				LOGGER.debug("Cannot read results container " + containerFile);
-			}
-		}
-		return resultsContainer;
-	}
-
-	private boolean writeResultsContainer(ResultsContainer container) {
-		IFile resFile = resultFolder.getFile(ResultsLocationConstants.RESULTS_SERIALIZATION_FILE_NAME);
-		File containerFile = new File(resFile.getLocation().toString());
-		try {
-			LpeFileUtils.writeObject(containerFile.getAbsolutePath(), container);
-		} catch (IOException e) {
-			String message = "Error while writing results container!";
-			LOGGER.debug(message, e);
-			DialogUtils.handleError(message, e);
-			return false;
-		}
-		return true;
 	}
 
 	private String getOpenId() {
