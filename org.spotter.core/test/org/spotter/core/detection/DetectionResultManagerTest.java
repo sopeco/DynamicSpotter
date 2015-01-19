@@ -51,7 +51,7 @@ import com.xeiam.xchart.ChartBuilder;
 public class DetectionResultManagerTest {
 	private static final String CONTROLLER_NAME = "testController";
 	private String baseDir = "";
-	private static final String PARENT_DIR =  "parent";
+	private static final String PARENT_DIR = "parent";
 	private static final String DATA_DIR = System.getProperty("file.separator") + CONTROLLER_NAME + "-"
 			+ CONTROLLER_NAME.hashCode() + System.getProperty("file.separator") + ResultsLocationConstants.CSV_SUB_DIR
 			+ System.getProperty("file.separator");
@@ -103,8 +103,8 @@ public class DetectionResultManagerTest {
 
 		drManager.useParentDataDir();
 		Assert.assertEquals(
-				baseDir + System.getProperty("file.separator") + PARENT_DIR + System.getProperty("file.separator") + "csv"
-						+ System.getProperty("file.separator"), drManager.getDataPath());
+				baseDir + System.getProperty("file.separator") + PARENT_DIR + System.getProperty("file.separator")
+						+ "csv" + System.getProperty("file.separator"), drManager.getDataPath());
 		Assert.assertEquals(baseDir + RESOURCES_DIR, drManager.getAdditionalResourcesPath());
 	}
 
@@ -150,9 +150,10 @@ public class DetectionResultManagerTest {
 		drManager.storeImageChartResource(chart, fileName, result);
 
 		Assert.assertEquals(1, result.getResourceFiles().size());
-		Assert.assertEquals(fileName + ".png", result.getResourceFiles().get(0));
+		String file = "1-" + fileName + ".png";
+		Assert.assertEquals(file, result.getResourceFiles().get(0));
 
-		File pngFile = new File(baseDir + RESOURCES_DIR + fileName + ".png");
+		File pngFile = new File(baseDir + RESOURCES_DIR + file);
 		Assert.assertTrue(pngFile.isFile());
 		Assert.assertTrue(pngFile.exists());
 	}
@@ -193,9 +194,10 @@ public class DetectionResultManagerTest {
 		drManager.storeTextResource(fileName, result, inStream);
 
 		Assert.assertEquals(1, result.getResourceFiles().size());
-		Assert.assertEquals(fileName + ".txt", result.getResourceFiles().get(0));
+		String file = "1-" + fileName + ".txt";
+		Assert.assertEquals(file, result.getResourceFiles().get(0));
 
-		File txtFile = new File(baseDir + RESOURCES_DIR + fileName + ".txt");
+		File txtFile = new File(baseDir + RESOURCES_DIR + file);
 		Assert.assertTrue(txtFile.isFile());
 		Assert.assertTrue(txtFile.exists());
 	}
