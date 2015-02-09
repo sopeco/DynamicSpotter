@@ -64,6 +64,9 @@ public final class ConfigKeys {
 	
 	public static final String PERFORMANCE_REQUIREMENT_THRESHOLD = "org.spotter.performanceRequirementThreshold";
 	public static final String PERFORMANCE_REQUIREMENT_CONFIDENCE = "org.spotter.performanceRequirementConfidence";
+	
+	public static final String SYSTEM_NODE_ROLE_APP = "org.spotter.systemnode.role.app";
+	public static final String SYSTEM_NODE_ROLE_DB = "org.spotter.systemnode.role.db";
 	/**
 	 * Defines how many users per interval (
 	 * {@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are put into the system. The
@@ -284,6 +287,26 @@ public final class ConfigKeys {
 		return parameter;
 	}
 
+	private static ConfigParameterDescription getRoleAppParameter() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(SYSTEM_NODE_ROLE_APP,
+				LpeSupportedTypes.String);
+		parameter.setMandatory(true);
+		parameter.setASet(true);
+		parameter
+				.setDescription("Specifies a list of nodes (host-names) that constitute a application server.");
+		return parameter;
+	}
+	
+	private static ConfigParameterDescription getRoleDBParameter() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(SYSTEM_NODE_ROLE_DB,
+				LpeSupportedTypes.String);
+		parameter.setMandatory(true);
+		parameter.setASet(true);
+		parameter
+				.setDescription("Specifies a list of nodes (host-names) that constitute a database server.");
+		return parameter;
+	}
+	
 	/**
 	 * 
 	 * @return returns a set of configuration parameters of Dynamic Spotter.
@@ -301,6 +324,8 @@ public final class ConfigKeys {
 		configParameters.add(getPreWarumupDuration());
 		configParameters.add(getPerfRequirementThreshold());
 		configParameters.add(getPerfRequirementConfidence());
+		configParameters.add(getRoleAppParameter());
+		configParameters.add(getRoleDBParameter());
 		return configParameters;
 	}
 }
