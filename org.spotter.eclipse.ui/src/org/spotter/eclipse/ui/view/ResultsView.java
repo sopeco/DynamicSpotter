@@ -122,7 +122,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final String ERR_MSG_PARSE_ERROR = "An error occured while parsing the file '%s'.";
 	private static final String ERR_MSG_RES_REFRESH = "Error occured while refreshing resource!";
 	private static final String ERR_MSG_MISSING_REPORT = "Either file is missing or report is not set.";
-	private static final String ERR_MSG_MISSING_SER_FILE = "Could not find the spotter serialization file.";
+	private static final String ERR_MSG_MISSING_SER_FILE = "Could not find the spotter serialization file related with result '%s'.";
 
 	private static final String LABEL_NONE_SELECTED = "<none selected>";
 	private static final String LABEL_DETECTED = "Detected";
@@ -775,9 +775,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			exception = e;
 			LOGGER.error(ERR_MSG_RES_REFRESH, e);
 		} catch (FileNotFoundException e) {
-			errorMsg = ERR_MSG_MISSING_SER_FILE;
+			errorMsg = String.format(ERR_MSG_MISSING_SER_FILE, runResultItem.getText());
 			exception = e;
-			LOGGER.error(DialogUtils.appendCause(ERR_MSG_MISSING_SER_FILE, e.getMessage()));
+			LOGGER.error(DialogUtils.appendCause(errorMsg, e.getMessage()));
 		} catch (IOException | ClassNotFoundException e) {
 			errorMsg = String.format(ERR_MSG_PARSE_ERROR, file.getLocation());
 			exception = e;
