@@ -86,6 +86,11 @@ public class SpotterProjectParent extends AbstractProjectElement {
 				}
 				return SpotterProjectParent.this.showConfirmationDialog(elements);
 			}
+
+			@Override
+			public void delete(Object[] elements) throws CoreException {
+				SpotterProjectParent.this.delete(elements);
+			}
 		});
 		addHandler(DuplicateHandler.DUPLICATE_COMMAND_ID, new IDuplicatable() {
 			@Override
@@ -170,6 +175,12 @@ public class SpotterProjectParent extends AbstractProjectElement {
 
 	private void delete() throws CoreException {
 		SpotterProjectSupport.deleteProject(project);
+	}
+
+	private void delete(Object[] elements) throws CoreException {
+		for (Object element : elements) {
+			((SpotterProjectParent) element).delete();
+		}
 	}
 
 	private String concatProjectNames(Object[] elements) {

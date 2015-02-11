@@ -64,6 +64,11 @@ public class BasicEditorExtensionItemFactory implements IExtensionItemFactory {
 			}
 
 			@Override
+			public void delete(Object[] elements) {
+				// TODO: implement delete here
+			}
+
+			@Override
 			public String getElementTypeName() {
 				return ELEMENT_TYPE_NAME;
 			}
