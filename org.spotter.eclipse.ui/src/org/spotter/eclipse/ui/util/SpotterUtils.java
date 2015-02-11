@@ -59,7 +59,7 @@ public final class SpotterUtils {
 
 	private static final String ERR_MSG_OPEN = "Error while opening element '%s'!";
 	private static final String ERR_MSG_DUPLICATE = "Error while duplicating element '%s'!";
-	private static final String ERR_MSG_DELETE = "Error while deleting element '%s'!";
+	private static final String ERR_MSG_DELETE = "Error while deleting!";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotterUtils.class);
 
@@ -318,8 +318,8 @@ public final class SpotterUtils {
 	}
 
 	/**
-	 * Calls the <code>delete()</code> method on the given element's delete
-	 * handler if it has one. Expects elements of the same type.
+	 * Calls the delete method on the given element's delete handler if it has
+	 * one. Expects elements of the same type.
 	 * 
 	 * @param elements
 	 *            the elements to delete
@@ -334,14 +334,15 @@ public final class SpotterUtils {
 			if (handler instanceof IDeletable) {
 				IDeletable deletable = (IDeletable) handler;
 				if (deletable.showConfirmationDialog(elements)) {
-					for (Object element : elements) {
-						try {
-							doDeleteElement(element);
-						} catch (CoreException e) {
-							String message = String.format(ERR_MSG_DELETE, element.toString());
-							LOGGER.error(message, e);
-							DialogUtils.handleError(message, e);
+					try {
+						if (elements.length == 1) {
+							deletable.delete();
+						} else {
+							deletable.delete(elements);
 						}
+					} catch (CoreException e) {
+						LOGGER.error(ERR_MSG_DELETE, e);
+						DialogUtils.handleError(ERR_MSG_DELETE, e);
 					}
 				}
 			}
@@ -384,12 +385,6 @@ public final class SpotterUtils {
 			}
 		}
 		return null;
-	}
-
-	private static void doDeleteElement(Object element) throws CoreException {
-		IHandlerMediator mediator = toHandlerMediator(element);
-		IDeletable deletable = (IDeletable) mediator.getHandler(DeleteHandler.DELETE_COMMAND_ID);
-		deletable.delete();
 	}
 
 }

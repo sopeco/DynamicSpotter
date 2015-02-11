@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -163,6 +164,28 @@ public class JobsContainer implements Serializable {
 		synchronized (JobsContainer.jobMonitor) {
 			JobsContainer jobsContainer = readJobsContainer(project);
 			jobsContainer.removeJobId(jobId);
+			success = writeJobsContainer(project, jobsContainer);
+		}
+		return success;
+	}
+
+	/**
+	 * Removes all given job ids for the project at once. Only requires one read
+	 * and one write call.
+	 * 
+	 * @param project
+	 *            the project the ids belong to
+	 * @param jobIds
+	 *            the ids to remove
+	 * @return <code>true</code> on success, otherwise <code>false</code>
+	 */
+	public static boolean removeJobIds(IProject project, List<Long> jobIds) {
+		boolean success = false;
+		synchronized (JobsContainer.jobMonitor) {
+			JobsContainer jobsContainer = readJobsContainer(project);
+			for (Long jobId : jobIds) {
+				jobsContainer.removeJobId(jobId);
+			}
 			success = writeJobsContainer(project, jobsContainer);
 		}
 		return success;

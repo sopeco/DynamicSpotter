@@ -39,6 +39,18 @@ public interface IDeletable {
 	void delete() throws CoreException;
 
 	/**
+	 * Deletes all elements which are expected to be of the same class as the
+	 * implementing class. Clients should prefer this method over single
+	 * deletions due to performance reasons.
+	 * 
+	 * @param elements
+	 *            the elements to delete
+	 * @throws CoreException
+	 *             if error occurs during deletion
+	 */
+	void delete(Object[] elements) throws CoreException;
+
+	/**
 	 * Returns the name of this element type that should be used within the
 	 * label for the delete command.
 	 * 

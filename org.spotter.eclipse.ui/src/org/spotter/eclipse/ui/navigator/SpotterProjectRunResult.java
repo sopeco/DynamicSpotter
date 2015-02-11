@@ -17,7 +17,9 @@ package org.spotter.eclipse.ui.navigator;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -144,6 +146,11 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 			@Override
 			public void delete() {
 				SpotterProjectRunResult.this.delete();
+			}
+
+			@Override
+			public void delete(Object[] elements) throws CoreException {
+				SpotterProjectRunResult.this.delete(elements);
 			}
 
 			@Override
@@ -293,15 +300,50 @@ public class SpotterProjectRunResult extends AbstractProjectElement {
 				DialogUtils
 						.openError("There was an error while updating the project's job ids. The results of the corresponding id will be fetched again.");
 			}
-			// update navigator viewer
-			SpotterProjectResults parent = (SpotterProjectResults) getParent();
-			parent.refreshChildren();
-			Activator.getDefault().getNavigatorViewer().refresh(parent);
+
+			updateNavigatorViewer();
 		} catch (CoreException e) {
 			String message = "Error while deleting result folder '" + resultFolder.getName() + "'!";
 			LOGGER.error(message, e);
 			DialogUtils.handleError(message, e);
 		}
+	}
+
+	private void singleDelete(SpotterProjectRunResult runResult, List<Long> jobIds) {
+		IFolder resultFolder = runResult.getResultFolder();
+		try {
+			if (!resultFolder.isSynchronized(IResource.DEPTH_INFINITE)) {
+				resultFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+			}
+
+			ResultsView.reset(resultFolder);
+			resultFolder.delete(true, null);
+			jobIds.add(runResult.jobId);
+		} catch (CoreException e) {
+			String message = "Error while deleting result folder '" + resultFolder.getName() + "'!";
+			LOGGER.error(message, e);
+			DialogUtils.handleError(message, e);
+		}
+	}
+
+	private void delete(Object[] elements) {
+		List<Long> jobIds = new ArrayList<>();
+		for (Object element : elements) {
+			SpotterProjectRunResult runResult = (SpotterProjectRunResult) element;
+			singleDelete(runResult, jobIds);
+		}
+
+		if (!JobsContainer.removeJobIds(getProject(), jobIds)) {
+			DialogUtils
+					.openError("There was an error while updating the project's job ids. The results of the corresponding ids will be fetched again.");
+		}
+		updateNavigatorViewer();
+	}
+
+	private void updateNavigatorViewer() {
+		SpotterProjectResults parent = (SpotterProjectResults) getParent();
+		parent.refreshChildren();
+		Activator.getDefault().getNavigatorViewer().refresh(parent);
 	}
 
 	private String createSingleMessage() {
