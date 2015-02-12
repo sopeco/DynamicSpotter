@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.MeasurementData;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtensionArtifact;
 
 /**
@@ -31,10 +32,27 @@ import org.lpe.common.extension.IExtensionArtifact;
  * 
  */
 public interface IMeasurementAdapter extends IExtensionArtifact {
+	/**
+	 * Prepares monitoring with given description.
+	 * 
+	 * @param monitoringDescription
+	 *            description
+	 * @throws MeasurementException
+	 */
+	void prepareMonitoring(InstrumentationDescription monitoringDescription) throws MeasurementException;
+
+	/**
+	 * Resets monitoring
+	 * 
+	 * @throws MeasurementException
+	 */
+	void resetMonitoring() throws MeasurementException;
 
 	/**
 	 * Enables monitoring or measurement data collection.
 	 * 
+	 * @param monitoringDescription
+	 *            description what to monitor
 	 * @throws MeasurementException
 	 *             thrown if monitoring fails
 	 */
@@ -119,13 +137,13 @@ public interface IMeasurementAdapter extends IExtensionArtifact {
 	 *            the controller relative time of the experiment start
 	 */
 	void setControllerRelativeTime(long relativeTime);
-	
+
 	/**
 	 * 
 	 * @param path
-	 * 			the path where the report file is to be stored
+	 *            the path where the report file is to be stored
 	 * @throws MeasurementException
-	 * 			thrown if storing fails
+	 *             thrown if storing fails
 	 */
 	void storeReport(String path) throws MeasurementException;
 }

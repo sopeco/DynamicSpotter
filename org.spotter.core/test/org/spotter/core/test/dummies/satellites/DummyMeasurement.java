@@ -28,6 +28,7 @@ import org.aim.api.measurement.AbstractRecord;
 import org.aim.api.measurement.MeasurementData;
 import org.aim.artifacts.records.CPUUtilizationRecord;
 import org.aim.artifacts.records.ResponseTimeRecord;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.measurement.AbstractMeasurementAdapter;
 
@@ -119,6 +120,20 @@ public class DummyMeasurement extends AbstractMeasurementAdapter{
 	@Override
 	public void storeReport(String path) throws MeasurementException {
 		reportStored=true;
+	}
+
+
+	@Override
+	public void prepareMonitoring(InstrumentationDescription monitoringDescription) throws MeasurementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void resetMonitoring() throws MeasurementException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

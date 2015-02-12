@@ -39,7 +39,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
+import org.lpe.common.util.NumericPairList;
 import org.lpe.common.util.system.LpeSystemUtils;
+import org.spotter.core.chartbuilder.XChartBuilder;
 import org.spotter.core.test.dummies.satellites.DummyMeasurement;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.result.ResultsLocationConstants;
@@ -132,22 +134,20 @@ public class DetectionResultManagerTest {
 
 	@Test
 	public void testChartStorage() throws IOException {
-		ChartBuilder chartBuilder = new ChartBuilder();
-		chartBuilder.width(100);
-		chartBuilder.height(100);
-		chartBuilder.title("title");
-		chartBuilder.xAxisTitle("Experiment time ");
-		chartBuilder.yAxisTitle("y-axis");
-		Chart chart = chartBuilder.build();
-		double[] x = { 1.0, 2.0, 3.0 };
-		double[] y = { 1.0, 2.0, 3.0 };
-		chart.addSeries("Test Series", x, y);
+
+		XChartBuilder chartBuilder = new XChartBuilder();
+		chartBuilder.startChart("a", "b", "c");
+		NumericPairList<Double, Double> pairList = new NumericPairList<>();
+		pairList.add(1.0,2.0);
+		pairList.add(2.0,5.0);
+		pairList.add(3.0,7.0);
+		chartBuilder.addScatterSeries(pairList, "test");
 		DetectionResultManager drManager = new DetectionResultManager(CONTROLLER_NAME);
 		drManager.setProblemId(CONTROLLER_NAME);
 		String fileName = "chart";
 		SpotterResult result = new SpotterResult();
 		result.setDetected(true);
-		drManager.storeImageChartResource(chart, fileName, result);
+		drManager.storeImageChartResource(chartBuilder, fileName, result);
 
 		Assert.assertEquals(1, result.getResourceFiles().size());
 		String file = "1-" + fileName + ".png";

@@ -186,6 +186,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			WorkloadException {
 
 		instrumentApplication(instDescription);
+		measurementController.prepareMonitoring(instDescription);
 
 		int maxUsers = Integer.parseInt(LpeStringUtils.getPropertyOrFail(GlobalConfiguration.getInstance()
 				.getProperties(), ConfigKeys.WORKLOAD_MAXUSERS, null));
@@ -210,7 +211,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 			}
 		}
-
+		measurementController.resetMonitoring();
 		uninstrumentApplication();
 
 	}

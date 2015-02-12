@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.aim.api.exceptions.MeasurementException;
 import org.aim.api.measurement.AbstractRecord;
 import org.aim.api.measurement.MeasurementData;
+import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.system.LpeSystemUtils;
 
@@ -261,6 +262,21 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	public void storeReport(String path) throws MeasurementException {
 		for (IMeasurementAdapter controller : controllers) {
 			controller.storeReport(path);
+		}
+	}
+
+	@Override
+	public void prepareMonitoring(InstrumentationDescription monitoringDescription) throws MeasurementException {
+		for (IMeasurementAdapter controller : controllers) {
+			controller.prepareMonitoring(monitoringDescription);
+		}
+
+	}
+
+	@Override
+	public void resetMonitoring() throws MeasurementException {
+		for (IMeasurementAdapter controller : controllers) {
+			controller.resetMonitoring();
 		}
 	}
 
