@@ -36,14 +36,14 @@ import org.aim.api.measurement.utils.RecordCSVWriter;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.system.LpeSystemUtils;
+import org.spotter.core.chartbuilder.AnalysisChartBuilder;
+import org.spotter.core.chartbuilder.RChartBuilder;
+import org.spotter.core.chartbuilder.XChartBuilder;
 import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.shared.configuration.ConfigCheck;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.SpotterResult;
-
-import com.xeiam.xchart.BitmapEncoder;
-import com.xeiam.xchart.Chart;
 
 /**
  * Manages the storage of results for a detection controller.
@@ -211,26 +211,26 @@ public class DetectionResultManager {
 	/**
 	 * Stores a xChart image.
 	 * 
-	 * @param chart
+	 * @param chartchartBuilder
 	 *            chart to store
 	 * @param fileName
 	 *            file name of the image
 	 * @param spotterResult
 	 *            corresponding result object
 	 */
-	public void storeImageChartResource(Chart chart, String fileName, SpotterResult spotterResult) {
+	public void storeImageChartResource(AnalysisChartBuilder chartBuilder, String fileName, SpotterResult spotterResult) {
 		additionalResourceCount++;
 		fileName = fileName.replace("<", "_");
 		fileName = fileName.replace(">", "_");
-		String resourceName = additionalResourceCount + "-" + fileName + ".png";
-		String filePath = getAdditionalResourcesPath() + resourceName;
-		try {
-			// using savePNGWithDPI method results in the problem, that the file
-			// is not released (is blocked)
-			BitmapEncoder.savePNG(chart, filePath);
-		} catch (IOException e) {
-			throw new RuntimeException();
+		String resourceName = additionalResourceCount + "-" + fileName;
+
+		if (chartBuilder instanceof XChartBuilder) {
+			resourceName = resourceName + ".png";
+		} else if (chartBuilder instanceof RChartBuilder) {
+			resourceName = resourceName + ".pdf";
 		}
+		String filePath = getAdditionalResourcesPath() + resourceName;
+		chartBuilder.build(filePath);
 		spotterResult.addResourceFile(resourceName);
 	}
 

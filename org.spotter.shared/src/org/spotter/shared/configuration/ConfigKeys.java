@@ -67,6 +67,12 @@ public final class ConfigKeys {
 	
 	public static final String SYSTEM_NODE_ROLE_APP = "org.spotter.systemnode.role.app";
 	public static final String SYSTEM_NODE_ROLE_DB = "org.spotter.systemnode.role.db";
+	
+	
+	public static final String CHART_BUILDER_KEY = "chart.builder";
+	public static final String CHART_BUILDER_XCHART = "XChart";
+	public static final String CHART_BUILDER_RCHART = "R Charts";
+	
 	/**
 	 * Defines how many users per interval (
 	 * {@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are put into the system. The
@@ -307,6 +313,20 @@ public final class ConfigKeys {
 		return parameter;
 	}
 	
+	private static ConfigParameterDescription createChartBuilderParameter() {
+		ConfigParameterDescription scopeParameter = new ConfigParameterDescription(CHART_BUILDER_KEY,
+				LpeSupportedTypes.String);
+
+		Set<String> scopeOptions = new HashSet<>();
+		scopeOptions.add(CHART_BUILDER_XCHART);
+		scopeOptions.add(CHART_BUILDER_RCHART);
+		scopeParameter.setOptions(scopeOptions);
+		scopeParameter.setDefaultValue(CHART_BUILDER_XCHART);
+		scopeParameter.setDescription("This parameter determines the strategy, "
+				+ "for creating charts.");
+		return scopeParameter;
+	}
+	
 	/**
 	 * 
 	 * @return returns a set of configuration parameters of Dynamic Spotter.
@@ -326,6 +346,7 @@ public final class ConfigKeys {
 		configParameters.add(getPerfRequirementConfidence());
 		configParameters.add(getRoleAppParameter());
 		configParameters.add(getRoleDBParameter());
+		configParameters.add(createChartBuilderParameter());
 		return configParameters;
 	}
 }
