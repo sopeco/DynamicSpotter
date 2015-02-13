@@ -198,23 +198,4 @@ public class XChartBuilder extends AnalysisChartBuilder{
 		scatterSeries.setMarkerColor(COLORS[seriesCounter % COLORS.length]);
 		seriesCounter++;
 	}
-
-	@Override
-	public void addTimeSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
-		addScatterSeries(valuePairs, seriesTitle);
-		
-	}
-
-	@Override
-	public void addTimeSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
-		addLineSeries(valuePairs, seriesTitle);
-		
-	}
-
-	@Override
-	public void addTimeSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			List<Number> errors, String seriesTitle) {
-		addScatterSeriesWithErrorBars(valuePairs, errors, seriesTitle);
-		
-	}
 }

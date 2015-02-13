@@ -21,9 +21,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	private static final String EMPTY_PLOT = "plot(c(), c(), main=plotTitle, "
 			+ "xlab=xLabel, ylab=yLabel, type=\"n\",ylim=yRange,xlim=xRange,cex.lab=1.4,cex.axis=1.5)\n";
 
-	private String title = "";
-	private String xLabel = "";
-	private String yLabel = "";
+	
 	private StringBuilder scriptBuilder = new StringBuilder();
 	private StringBuilder legendLinesBuilder = null;
 	private StringBuilder legendPointsBuilder = null;
@@ -178,13 +176,13 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	@Override
 	public void addScatterSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
 			List<Number> errors, String seriesTitle) {
-		
+
 		NumericPairList<Double, Double> minPairs = new NumericPairList<>();
 		NumericPairList<Double, Double> maxPairs = new NumericPairList<>();
 		int i = 0;
-		for(NumericPair<? extends Number, ? extends Number> pair:valuePairs){
-			minPairs.add(pair.getKey().doubleValue(),pair.getValue().doubleValue()-errors.get(i).doubleValue());
-			maxPairs.add(pair.getKey().doubleValue(),pair.getValue().doubleValue()+errors.get(i).doubleValue());
+		for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+			minPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() - errors.get(i).doubleValue());
+			maxPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() + errors.get(i).doubleValue());
 			i++;
 		}
 		updateAxisRanges(minPairs);
@@ -360,66 +358,13 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	private void finishLegend() {
-		legendNamesBuilder.append(")");
-		legendPointsBuilder.append(")");
-		legendLinesBuilder.append(")");
-	}
-
-	@Override
-	public void addTimeSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
-		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs);
-		addScatterSeries(scaledPairs, seriesTitle);
+		if (legendNamesBuilder != null) {
+			legendNamesBuilder.append(")");
+			legendPointsBuilder.append(")");
+			legendLinesBuilder.append(")");
+		}
 
 	}
+
 	
-	@Override
-	public void addTimeSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs, List<Number> errors, String seriesTitle) {
-		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs);
-		addScatterSeriesWithErrorBars(scaledPairs, errors, seriesTitle);
-
-	}
-
-	@Override
-	public void addTimeSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
-		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs);
-		addLineSeries(scaledPairs, seriesTitle);
-
-	}
-
-	private NumericPairList<Double, Double> scaleSeries(NumericPairList<? extends Number, ? extends Number> valuePairs) {
-		double maxTime = valuePairs.getKeyMax().doubleValue();
-		String unit = "[ms]";
-		double scale = 1.0;
-		if (maxTime / 1000.0 > 2.0) {
-			unit = "[s]";
-			maxTime = maxTime / 1000.0;
-			scale = scale / 1000.0;
-			if (maxTime / 60.0 > 2.0) {
-				unit = "[min]";
-				maxTime = maxTime / 60.0;
-				scale = scale / 60.0;
-				if (maxTime / 60.0 > 2.0) {
-					unit = "[h]";
-					maxTime = maxTime / 60.0;
-					scale = scale / 60.0;
-				}
-			}
-		}
-		if (xLabel.contains("[")) {
-			xLabel = xLabel.substring(0, xLabel.lastIndexOf("["));
-			xLabel = xLabel.trim();
-		}
-		xLabel += " " + unit;
-		NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
-		if (!unit.equals("[ms]")) {
-			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
-				scaledPairs.add(pair.getKey().doubleValue()* scale, pair.getValue().doubleValue() );
-			}
-		} else {
-			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
-				scaledPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() );
-			}
-		}
-		return scaledPairs;
-	}
 }

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.lpe.common.config.GlobalConfiguration;
+import org.lpe.common.util.NumericPair;
 import org.lpe.common.util.NumericPairList;
 import org.spotter.shared.configuration.ConfigKeys;
 
@@ -39,6 +40,9 @@ public abstract class AnalysisChartBuilder {
 	protected double xMax = Double.MIN_VALUE;
 	protected double yMin = Double.MAX_VALUE;
 	protected double yMax = Double.MIN_VALUE;
+	protected String title = "";
+	protected String xLabel = "";
+	protected String yLabel = "";
 
 	abstract public void startChart(String title, String xLabel, String yLabel);
 
@@ -66,11 +70,7 @@ public abstract class AnalysisChartBuilder {
 	abstract public void addHorizontalLine(double yValue, String seriesTitle);
 
 	abstract public void addVerticalLine(double xValue, String seriesTitle);
-	
-	abstract public void addTimeSeries(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			String seriesTitle);
-	abstract public void addTimeSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			String seriesTitle);
+
 
 	protected void updateAxisRanges(NumericPairList<? extends Number, ? extends Number> valuePairs) {
 		double tmpXMin = valuePairs.getKeyMin().doubleValue();
@@ -102,6 +102,97 @@ public abstract class AnalysisChartBuilder {
 		}
 	}
 
-	abstract public void addTimeSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			List<Number> errors, String seriesTitle);
+	
+	public double addTimeSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
+		double scale = getScale(valuePairs);
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addScatterSeries(scaledPairs, seriesTitle);
+		return scale;
+	}
+
+	public double addTimeSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			List<Number> errors, String seriesTitle) {
+		double scale = getScale(valuePairs);
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addScatterSeriesWithErrorBars(scaledPairs, errors, seriesTitle);
+		return scale;
+	}
+
+	public double addTimeSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			String seriesTitle) {
+		double scale = getScale(valuePairs);
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addLineSeries(scaledPairs, seriesTitle);
+		return scale;
+	}
+	
+	public void addFixScaledTimeSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle, double scale) {
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addScatterSeries(scaledPairs, seriesTitle);
+	}
+
+	public void addFixScaledTimeSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			List<Number> errors, String seriesTitle, double scale) {
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addScatterSeriesWithErrorBars(scaledPairs, errors, seriesTitle);
+	}
+
+	public void addFixScaledTimeSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			String seriesTitle, double scale) {
+		NumericPairList<Double, Double> scaledPairs = scaleSeries(valuePairs,scale);
+		addLineSeries(scaledPairs, seriesTitle);
+	}
+
+	private double getScale(NumericPairList<? extends Number, ? extends Number> valuePairs) {
+		double maxTime = valuePairs.getKeyMax().doubleValue();
+		double scale = 1.0;
+		if (maxTime / 1000.0 > 2.0) {
+			maxTime = maxTime / 1000.0;
+			scale = scale / 1000.0;
+			if (maxTime / 60.0 > 2.0) {
+				maxTime = maxTime / 60.0;
+				scale = scale / 60.0;
+				if (maxTime / 60.0 > 2.0) {
+					maxTime = maxTime / 60.0;
+					scale = scale / 60.0;
+				}
+			}
+		}
+		return scale;
+	}
+
+	private NumericPairList<Double, Double> scaleSeries(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			double scale) {
+		double maxTime = valuePairs.getKeyMax().doubleValue();
+		String unit = "[ms]";
+		double[] scales = new double[3];
+		scales[0] = 0.0011;
+		scales[1] = 0.00002;
+		scales[2] = 0.0000003;
+
+		if (scale < scales[0]) {
+			unit = "[s]";
+		} else if (scale < scales[1]) {
+			unit = "[min]";
+		} else if (scale < scales[2]) {
+			unit = "[h]";
+		}
+
+		if (xLabel.contains("[")) {
+			xLabel = xLabel.substring(0, xLabel.lastIndexOf("["));
+			xLabel = xLabel.trim();
+		}
+		xLabel += " " + unit;
+		NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
+		if (!unit.equals("[ms]")) {
+			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+				scaledPairs.add(pair.getKey().doubleValue() * scale, pair.getValue().doubleValue());
+			}
+		} else {
+			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+				scaledPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue());
+			}
+		}
+		return scaledPairs;
+	}
 }
