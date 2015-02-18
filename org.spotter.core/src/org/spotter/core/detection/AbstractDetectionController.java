@@ -186,7 +186,6 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 			WorkloadException {
 
 		instrumentApplication(instDescription);
-		measurementController.prepareMonitoring(instDescription);
 
 		int maxUsers = Integer.parseInt(LpeStringUtils.getPropertyOrFail(GlobalConfiguration.getInstance()
 				.getProperties(), ConfigKeys.WORKLOAD_MAXUSERS, null));
@@ -211,7 +210,7 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 
 			}
 		}
-		measurementController.resetMonitoring();
+
 		uninstrumentApplication();
 
 	}
@@ -225,8 +224,11 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 *            instrumentation state of the target application
 	 * @throws InstrumentationException
 	 *             if instrumentation fails
+	 * @throws MeasurementException
+	 *             if instrumentation fails
 	 */
-	protected void instrumentApplication(InstrumentationDescription instDescription) throws InstrumentationException {
+	protected void instrumentApplication(InstrumentationDescription instDescription) throws InstrumentationException,
+			MeasurementException {
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.INSTRUMENTING);
 		long instrumentationStart = System.currentTimeMillis();
 
@@ -236,7 +238,9 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		for (IExperimentReuser reuser : experimentReuser) {
 			descriptionBuilder.appendOtherDescription(reuser.getInstrumentationDescription());
 		}
-		getInstrumentationController().instrument(descriptionBuilder.build());
+		InstrumentationDescription aggregatedDescription = descriptionBuilder.build();
+		getInstrumentationController().instrument(aggregatedDescription);
+		measurementController.prepareMonitoring(aggregatedDescription);
 		instrumented = true;
 		ProgressManager.getInstance().addAdditionalDuration(
 				(System.currentTimeMillis() - instrumentationStart) / SECOND);
@@ -248,11 +252,14 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 	 * 
 	 * @throws InstrumentationException
 	 *             if reversion fails
+	 * @throws MeasurementException
+	 *             if reversion fails
 	 */
-	protected void uninstrumentApplication() throws InstrumentationException {
+	protected void uninstrumentApplication() throws InstrumentationException, MeasurementException {
 		ProgressManager.getInstance().updateProgressStatus(getProblemId(), DiagnosisStatus.UNINSTRUMENTING);
 		long uninstrumentationStart = System.currentTimeMillis();
 		getInstrumentationController().uninstrument();
+		measurementController.resetMonitoring();
 		instrumented = false;
 		ProgressManager.getInstance().addAdditionalDuration(
 				(System.currentTimeMillis() - uninstrumentationStart) / SECOND);
