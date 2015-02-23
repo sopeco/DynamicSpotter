@@ -30,6 +30,13 @@
 			<artifactId>jersey-bundle</artifactId>
 			<version>1.17.1</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.8.8</version>
+		</dependency>
+		
 
 		<dependency>
 			<groupId>org.spotter</groupId>

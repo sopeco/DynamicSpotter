@@ -36,6 +36,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -494,12 +495,36 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 			boolean isCanvasVisible = canvasWidth > 0 && canvasHeight > 0;
 
 			if (isCanvasVisible) {
+				boolean loadSuccessful = false;
 				if (file.exists()) {
-					resourceImageData = new ImageData(resourceFile);
-					int width = Math.min(canvasWidth, resourceImageData.width);
-					int height = Math.min(canvasHeight, resourceImageData.height);
-					resourceImage = new Image(canvasRes.getDisplay(), resourceImageData.scaledTo(width, height));
-				} else {
+					try {
+						resourceImageData = new ImageData(resourceFile);
+						int width = Math.min(canvasWidth, resourceImageData.width);
+						int height = Math.min(canvasHeight, resourceImageData.height);
+						resourceImage = new Image(canvasRes.getDisplay(), resourceImageData.scaledTo(width, height));
+						loadSuccessful = true;
+					} catch (SWTException e) {
+						String message = "Could not load the resource!";
+						String cause;
+						switch (e.code) {
+						case SWT.ERROR_IO:
+							cause = "I/O exception occured";
+							break;
+						case SWT.ERROR_INVALID_IMAGE:
+							cause = "Image file contains invalid data";
+							break;
+						case SWT.ERROR_UNSUPPORTED_FORMAT:
+							cause = "Image file contains an unsupported or unrecognized format";
+							break;
+						default:
+							cause = "unknown";
+							break;
+						}
+						DialogUtils.openError(DialogUtils.appendCause(message, cause, true));
+						LOGGER.error(DialogUtils.appendCause(message, cause, false), e);
+					}
+				}
+				if (!loadSuccessful) {
 					// draw "not available image" picture using GC
 					final Display display = canvasRes.getDisplay();
 					final Rectangle bounds = canvasRes.getBounds();
