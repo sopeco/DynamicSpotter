@@ -18,10 +18,6 @@ package org.spotter.eclipse.ui.view;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -36,38 +32,19 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
@@ -86,7 +63,6 @@ import org.spotter.eclipse.ui.editors.HierarchyEditor;
 import org.spotter.eclipse.ui.model.IExtensionItem;
 import org.spotter.eclipse.ui.model.IExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ImmutableExtensionItemFactory;
-import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.navigator.SpotterProjectResults;
 import org.spotter.eclipse.ui.navigator.SpotterProjectRunResult;
 import org.spotter.eclipse.ui.providers.ResultExtensionsImageProvider;
@@ -95,6 +71,7 @@ import org.spotter.eclipse.ui.util.DialogUtils;
 import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.eclipse.ui.util.WidgetUtils;
 import org.spotter.eclipse.ui.viewers.ExtensionsGroupViewer;
+import org.spotter.eclipse.ui.viewers.ResourceViewer;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 import org.spotter.shared.result.ResultsLocationConstants;
 import org.spotter.shared.result.model.ResultsContainer;
@@ -113,7 +90,6 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResultsView.class);
 
 	private static final String RESULTS_VIEW_TITLE = "Results";
-	private static final String DLG_RESOURCE_TITLE = "Resource '%s' (%s)";
 	private static final int RESOURCES_LIST_RATIO = 45;
 	private static final int RESOURCES_CANVAS_RATIO = 55;
 
@@ -130,13 +106,10 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private static final String LABEL_NOT_DETECTED = "Not Detected";
 	private static final String LABEL_NO_LOOKUP = "The corresponding result could not be looked up. (erroneous analysis)";
 	private static final String LABEL_NO_INFO = "No description available.";
-	private static final String NOT_AVAILABLE_IMG_TEXT = "not available";
 
 	private static final String TAB_HIERARCHY_NAME = "Hierarchy";
 	private static final String TAB_REPORT_NAME = "Report";
 	private static final String TAB_ANNOTATION_NAME = "Annotations";
-
-	private static final String RESOURCE_SEPARATOR_CHAR = "/";
 
 	private final IExtensionItemFactory extensionItemFactory;
 
@@ -151,10 +124,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	private Label lblDescription;
 	private Text textResult;
 	private List listResources;
-	private Canvas canvasRes;
-	private Map<String, Shell> resourceShells;
-	private ImageData resourceImageData;
-	private Image resourceImage;
+	private ResourceViewer resourceViewer;
 
 	private ServiceClientWrapper client;
 	private SpotterProjectRunResult runResultItem;
@@ -167,7 +137,6 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	public ResultsView() {
 		this.client = null;
 		this.runResultItem = null;
-		this.resourceShells = new HashMap<>();
 		this.extensionItemFactory = new ImmutableExtensionItemFactory();
 	}
 
@@ -243,11 +212,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	@Override
 	public void dispose() {
 		getViewSite().getPage().removePostSelectionListener(this);
-		Set<Shell> shells = new HashSet<>();
-		shells.addAll(resourceShells.values());
-		for (Shell shell : shells) {
-			shell.close();
-		}
+		resourceViewer.dispose();
 	}
 
 	/**
@@ -387,62 +352,9 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		SashForm sashResources = new SashForm(grpResources, SWT.HORIZONTAL | SWT.SMOOTH);
 
 		listResources = new List(sashResources, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		canvasRes = new Canvas(sashResources, SWT.NONE);
+		resourceViewer = new ResourceViewer(sashResources);
 
 		sashResources.setWeights(new int[] { RESOURCES_LIST_RATIO, RESOURCES_CANVAS_RATIO });
-		addCanvasListeners();
-	}
-
-	private void addCanvasListeners() {
-		canvasRes.addMouseTrackListener(new MouseTrackAdapter() {
-			private Shell shell;
-			private Cursor savedCursor;
-
-			@Override
-			public void mouseEnter(MouseEvent e) {
-				if (resourceImage != null) {
-					shell = canvasRes.getShell();
-					if (shell != null) {
-						savedCursor = shell.getCursor();
-						Cursor zoomCursor = Display.getDefault().getSystemCursor(SWT.CURSOR_HAND);
-						shell.setCursor(zoomCursor);
-					}
-				}
-			}
-
-			@Override
-			public void mouseExit(MouseEvent e) {
-				if (shell != null) {
-					if (!shell.isDisposed()) {
-						shell.setCursor(savedCursor);
-					}
-					shell = null;
-				}
-				savedCursor = null;
-			}
-		});
-
-		canvasRes.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				if (resourceImageData != null && listResources.getSelectionCount() > 0) {
-					String resourceName = listResources.getSelection()[0];
-					String resourceIdentifier = createResourceIdentifier(resourceName);
-					if (resourceShells.containsKey(resourceIdentifier)) {
-						resourceShells.get(resourceIdentifier).setFocus();
-					} else {
-						openResourcePopupShell(e.display, resourceIdentifier);
-					}
-				}
-			}
-		});
-
-		canvasRes.addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
-				updateCanvasImage();
-			}
-		});
 	}
 
 	private void addSelectionListeners() {
@@ -474,160 +386,21 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		listResources.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				updateCanvasImage();
-			}
-		});
-	}
-
-	private void updateCanvasImage() {
-		if (listResources.getSelectionCount() > 0) {
-			String selection = listResources.getSelection()[0];
-			String prefix = getCurrentResourceFolder();
-			String resourceFile = prefix + selection;
-			if (resourceImage != null) {
-				resourceImage.dispose();
-				resourceImage = null;
-			}
-			resourceImageData = null;
-			File file = new File(resourceFile);
-			int canvasWidth = canvasRes.getBounds().width;
-			int canvasHeight = canvasRes.getBounds().height;
-			boolean isCanvasVisible = canvasWidth > 0 && canvasHeight > 0;
-
-			if (isCanvasVisible) {
-				boolean loadSuccessful = false;
-				if (file.exists()) {
-					try {
-						resourceImageData = new ImageData(resourceFile);
-						int width = Math.min(canvasWidth, resourceImageData.width);
-						int height = Math.min(canvasHeight, resourceImageData.height);
-						resourceImage = new Image(canvasRes.getDisplay(), resourceImageData.scaledTo(width, height));
-						loadSuccessful = true;
-					} catch (SWTException e) {
-						String message = "Could not load the resource!";
-						String cause;
-						switch (e.code) {
-						case SWT.ERROR_IO:
-							cause = "I/O exception occured";
-							break;
-						case SWT.ERROR_INVALID_IMAGE:
-							cause = "Image file contains invalid data";
-							break;
-						case SWT.ERROR_UNSUPPORTED_FORMAT:
-							cause = "Image file contains an unsupported or unrecognized format";
-							break;
-						default:
-							cause = "unknown";
-							break;
-						}
-						DialogUtils.openError(DialogUtils.appendCause(message, cause, true));
-						LOGGER.error(DialogUtils.appendCause(message, cause, false), e);
-					}
-				}
-				if (!loadSuccessful) {
-					// draw "not available image" picture using GC
-					final Display display = canvasRes.getDisplay();
-					final Rectangle bounds = canvasRes.getBounds();
-					resourceImage = new Image(display, bounds);
-					drawNotAvailableImage(resourceImage, display, bounds);
-				}
-			}
-
-			canvasRes.setBackgroundImage(resourceImage);
-		}
-	}
-
-	private void drawNotAvailableImage(Image image, Display display, Rectangle bounds) {
-		GC gc = new GC(image);
-		gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		gc.setForeground(display.getSystemColor(SWT.COLOR_RED));
-
-		gc.fillRectangle(0, 0, bounds.width, bounds.height);
-		gc.drawLine(0, 0, bounds.width, bounds.height);
-		gc.drawLine(0, bounds.height, bounds.width, 0);
-
-		final int flags = SWT.DRAW_TRANSPARENT;
-		Point textExtent = gc.textExtent(NOT_AVAILABLE_IMG_TEXT, flags);
-
-		int x = (bounds.width - textExtent.x) / 2;
-		int y = bounds.height - textExtent.y;
-		gc.drawText(NOT_AVAILABLE_IMG_TEXT, x, y, flags);
-		gc.dispose();
-	}
-
-	private void openResourcePopupShell(final Display display, final String resourceIdentifier) {
-		final Shell popupShell = new Shell(SWT.BORDER | SWT.RESIZE | SWT.CLOSE);
-		Label label = new Label(popupShell, SWT.NONE);
-		Rectangle clientArea = display.getPrimaryMonitor().getClientArea();
-
-		final Image image = new Image(display, createScaledImageData(clientArea));
-		label.setImage(image);
-
-		popupShell.setLayout(new FillLayout());
-		popupShell.setImage(Activator.getImage(SpotterProjectParent.IMAGE_PATH));
-		String projectName = runResultItem.getProject().getName();
-		popupShell.setText(String.format(DLG_RESOURCE_TITLE, resourceIdentifier, projectName));
-		popupShell.pack();
-
-		Rectangle shellRect = popupShell.getBounds();
-		int x = clientArea.x + (clientArea.width - shellRect.width) / 2;
-		int y = clientArea.y + (clientArea.height - shellRect.height) / 2;
-		popupShell.setLocation(x, y);
-
-		popupShell.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.ESC) {
-					popupShell.close();
+				if (listResources.getSelectionCount() == 0) {
+					resourceViewer.clear();
+				} else {
+					String selection = listResources.getSelection()[0];
+					String prefix = getCurrentResourceFolder();
+					String resourceFile = prefix + selection;
+					resourceViewer.setResource(resourceFile, runResultItem.getProject().getName());
 				}
 			}
 		});
-		popupShell.addShellListener(new ShellAdapter() {
-			@Override
-			public void shellClosed(ShellEvent e) {
-				image.dispose();
-				resourceShells.remove(resourceIdentifier);
-			}
-		});
-
-		resourceShells.put(resourceIdentifier, popupShell);
-		popupShell.open();
-	}
-
-	private ImageData createScaledImageData(Rectangle clientArea) {
-		int width = resourceImageData.width;
-		int height = resourceImageData.height;
-		int maxImageWidth = clientArea.width;
-		int maxImageHeight = clientArea.height;
-
-		int scaledWidth = Math.min(width, maxImageWidth);
-		int scaledHeight = Math.min(height, maxImageHeight);
-		float wFactor = ((float) scaledWidth) / width;
-		float hFactor = ((float) scaledHeight) / height;
-		boolean scaleToFitWidth = wFactor <= hFactor;
-		if (scaleToFitWidth) {
-			width = scaledWidth;
-			height *= wFactor;
-		} else {
-			width *= hFactor;
-			height = scaledHeight;
-		}
-
-		return resourceImageData.scaledTo(width, height);
-	}
-
-	private String createResourceIdentifier(String resourceName) {
-		return runResultItem.getResultFolder().getName() + RESOURCE_SEPARATOR_CHAR + resourceName;
 	}
 
 	private void updateProblemDetails() {
 		listResources.removeAll();
-		if (resourceImage != null) {
-			resourceImage.dispose();
-			resourceImage = null;
-		}
-		resourceImageData = null;
-		canvasRes.setBackgroundImage(null);
+		resourceViewer.clear();
 
 		if (currentSelectedProblem == null) {
 			lblProblemName.setText(LABEL_NONE_SELECTED);
@@ -747,13 +520,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		lblStatus.setText("");
 		textResult.setText("");
 		listResources.removeAll();
-
-		if (resourceImage != null) {
-			resourceImage.dispose();
-			resourceImage = null;
-		}
-		resourceImageData = null;
-		canvasRes.setBackgroundImage(null);
+		resourceViewer.clear();
 	}
 
 	private void resetReport() {
