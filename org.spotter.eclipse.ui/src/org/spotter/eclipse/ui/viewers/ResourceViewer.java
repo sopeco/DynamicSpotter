@@ -15,13 +15,18 @@
  */
 package org.spotter.eclipse.ui.viewers;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.ControlAdapter;
@@ -50,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.navigator.SpotterProjectParent;
 import org.spotter.eclipse.ui.util.DialogUtils;
+import org.spotter.eclipse.ui.util.ImageUtils;
 
 /**
  * A resource viewer which offers the possibility to view different types of
@@ -66,6 +72,9 @@ public class ResourceViewer {
 
 	private static final String NOT_AVAILABLE_IMG_TEXT = "not available";
 	private static final String DLG_RESOURCE_TITLE = "Resource '%s'%s";
+	private static final String PDF_EXTENSION = "pdf";
+	private static final int PDF_IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
+	private static final int PDF_VIEW_RESOLUTION = 96; // [dpi]
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceViewer.class);
 
@@ -148,7 +157,7 @@ public class ResourceViewer {
 			boolean loadSuccessful = false;
 			if (file.exists()) {
 				try {
-					resourceImageData = new ImageData(resourceFile);
+					resourceImageData = loadImageData(resourceFile);
 					int width = Math.min(canvasWidth, resourceImageData.width);
 					int height = Math.min(canvasHeight, resourceImageData.height);
 					resourceImage = new Image(canvas.getDisplay(), resourceImageData.scaledTo(width, height));
@@ -184,6 +193,39 @@ public class ResourceViewer {
 		}
 
 		canvas.setBackgroundImage(resourceImage);
+	}
+
+	private ImageData loadImageData(String resourceFile) {
+		File file = new File(resourceFile);
+		Path path = file.toPath().getFileName();
+		String name = path == null ? null : path.toString();
+		if (name == null) {
+			return new ImageData(resourceFile);
+		}
+		int index = name.lastIndexOf('.');
+		String extension = index == -1 ? null : name.substring(index + 1);
+
+		if (PDF_EXTENSION.equalsIgnoreCase(extension)) {
+			return createImageDataFromPdf(resourceFile);
+		} else {
+			return new ImageData(resourceFile);
+		}
+	}
+
+	// creates image data from the first page of the pdf file
+	private ImageData createImageDataFromPdf(String resourceFile) {
+		try {
+			PDDocument document = PDDocument.load(resourceFile);
+			@SuppressWarnings("unchecked")
+			List<PDPage> pages = document.getDocumentCatalog().getAllPages();
+			if (pages.isEmpty()) {
+				throw new SWTException(SWT.ERROR_INVALID_IMAGE);
+			}
+			BufferedImage bufferedImage = pages.get(0).convertToImage(PDF_IMAGE_TYPE, PDF_VIEW_RESOLUTION);
+			return ImageUtils.convertToImageData(bufferedImage);
+		} catch (IOException e) {
+			throw new SWTException(SWT.ERROR_IO);
+		}
 	}
 
 	private void addCanvasListeners() {
@@ -225,9 +267,14 @@ public class ResourceViewer {
 	}
 
 	private void resizeCanvasImage() {
-		if (resourceImageData == null) {
+		if (resourceFile == null) {
 			return;
-		} else if (resourceImage != null) {
+		} else if (resourceImageData == null) {
+			setResource(resourceFile, projectName);
+			return;
+		}
+
+		if (resourceImage != null) {
 			resourceImage.dispose();
 		}
 		int canvasWidth = canvas.getBounds().width;
@@ -263,7 +310,7 @@ public class ResourceViewer {
 		Label label = new Label(popupShell, SWT.NONE);
 		Rectangle clientArea = display.getPrimaryMonitor().getClientArea();
 
-		final Image image = new Image(display, createScaledImageData(clientArea));
+		final Image image = new Image(display, ImageUtils.clampToClientArea(clientArea, resourceImageData));
 		label.setImage(image);
 
 		popupShell.setLayout(new FillLayout());
@@ -298,28 +345,6 @@ public class ResourceViewer {
 
 		resourceShells.put(resourceFile, popupShell);
 		popupShell.open();
-	}
-
-	private ImageData createScaledImageData(Rectangle clientArea) {
-		int width = resourceImageData.width;
-		int height = resourceImageData.height;
-		int maxImageWidth = clientArea.width;
-		int maxImageHeight = clientArea.height;
-
-		int scaledWidth = Math.min(width, maxImageWidth);
-		int scaledHeight = Math.min(height, maxImageHeight);
-		float wFactor = ((float) scaledWidth) / width;
-		float hFactor = ((float) scaledHeight) / height;
-		boolean scaleToFitWidth = wFactor <= hFactor;
-		if (scaleToFitWidth) {
-			width = scaledWidth;
-			height *= wFactor;
-		} else {
-			width *= hFactor;
-			height = scaledHeight;
-		}
-
-		return resourceImageData.scaledTo(width, height);
 	}
 
 }
