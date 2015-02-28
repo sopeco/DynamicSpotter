@@ -102,7 +102,7 @@ public class ActiveRunView extends ViewPart {
 	 * The constructor.
 	 */
 	public ActiveRunView() {
-		this.extensionItemFactory = new ImmutableExtensionItemFactory();
+		this.extensionItemFactory = new ImmutableExtensionItemFactory(null);
 		this.isDisposed = false;
 		this.spotterProgress = null;
 		this.currentViewerInputJobId = 0;
@@ -139,7 +139,7 @@ public class ActiveRunView extends ViewPart {
 	}
 
 	private void createTreeViewer(Composite parent) {
-		treeViewer = ExtensionsGroupViewer.createTreeViewer(parent, extensionItemFactory.createExtensionItem());
+		treeViewer = ExtensionsGroupViewer.createTreeViewer(parent, extensionItemFactory.createExtensionItem(), false);
 
 		SpotterExtensionsLabelProvider labelProvider = new SpotterExtensionsLabelProvider() {
 			@Override

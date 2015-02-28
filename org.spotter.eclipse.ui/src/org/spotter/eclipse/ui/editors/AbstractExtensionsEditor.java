@@ -97,7 +97,7 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
 		// first part: configured components group
-		extensionsGroupViewer = new ExtensionsGroupViewer(container, this, supportsHierarchicalExtensionItems());
+		extensionsGroupViewer = new ExtensionsGroupViewer(container, this, supportsHierarchicalExtensionItems(), true);
 
 		// second part: properties group
 		propertiesGroupViewer = new PropertiesGroupViewer(container, this);

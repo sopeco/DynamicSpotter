@@ -77,6 +77,11 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * @return The name of the editor
 	 */
 	protected abstract String getEditorName();
+	
+	/**
+	 * @return The id of the editor
+	 */
+	public abstract String getEditorId();
 
 	/**
 	 * Implementing editors should create a suitable editor input and return it.

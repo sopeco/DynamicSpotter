@@ -137,7 +137,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 	public ResultsView() {
 		this.client = null;
 		this.runResultItem = null;
-		this.extensionItemFactory = new ImmutableExtensionItemFactory();
+		this.extensionItemFactory = new ImmutableExtensionItemFactory(null);
 	}
 
 	@Override
@@ -286,7 +286,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
 		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container,
-				extensionItemFactory.createExtensionItem());
+				extensionItemFactory.createExtensionItem(), false);
 		SpotterExtensionsLabelProvider labelProvider = (SpotterExtensionsLabelProvider) hierarchyTreeViewer
 				.getLabelProvider();
 		imageProvider = new ResultExtensionsImageProvider();

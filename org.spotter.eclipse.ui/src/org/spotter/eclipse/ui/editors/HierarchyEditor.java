@@ -63,6 +63,11 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	protected String getEditorName() {
 		return EDITOR_NAME;
 	}
+	
+	@Override
+	public String getEditorId() {
+		return ID;
+	}
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -83,7 +88,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		}
 
 		String projectName = getProject().getName();
-		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
+		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
 		return createPerformanceProblemHierarchy(projectName, factory, problemRoot);
 	}
 

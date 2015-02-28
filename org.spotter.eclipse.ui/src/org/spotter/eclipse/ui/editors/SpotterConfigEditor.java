@@ -59,6 +59,11 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 	protected String getEditorName() {
 		return EDITOR_NAME;
 	}
+	
+	@Override
+	public String getEditorId() {
+		return ID;
+	}
 
 	@Override
 	protected AbstractSpotterEditorInput createEditorInput(IFile file) {
@@ -106,7 +111,7 @@ public class SpotterConfigEditor extends AbstractSpotterEditor {
 		}
 
 		propertiesGroupViewer = new PropertiesGroupViewer(parent, this);
-		IExtensionItemFactory factory = new ImmutableExtensionItemFactory();
+		IExtensionItemFactory factory = new ImmutableExtensionItemFactory(getEditorId());
 		IExtensionItem inputModel = createInputModel(editorInput.getFile(), factory);
 		if (inputModel != null) {
 			propertiesGroupViewer.updateProperties(inputModel);

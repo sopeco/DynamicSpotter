@@ -67,7 +67,7 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	@Override
 	public IExtensionItem getInitialExtensionsInput() {
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
-		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory();
+		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
 		IExtensionItem input = factory.createExtensionItem();
 
 		String projectName = getProject().getName();
