@@ -45,6 +45,11 @@ public class MeasurementEditor extends AbstractEnvironmentEditor {
 	protected String getEditorName() {
 		return EDITOR_NAME;
 	}
+	
+	@Override
+	public String getEditorId() {
+		return ID;
+	}
 
 	@Override
 	protected void applyChanges(Object xmlModelRoot) {

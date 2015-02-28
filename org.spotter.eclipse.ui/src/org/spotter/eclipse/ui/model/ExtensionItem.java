@@ -62,6 +62,7 @@ public class ExtensionItem implements IExtensionItem {
 	private final IModelWrapper modelWrapper;
 	private final Map<String, ConfigParameterDescription> remainingDescriptions;
 
+	private final String editorId;
 	private ServiceClientWrapper client;
 	private long lastCacheClearTime;
 	private Map<String, ConfigParameterDescription> paramsMap;
@@ -73,9 +74,12 @@ public class ExtensionItem implements IExtensionItem {
 
 	/**
 	 * Creates an extension item with no children and no model.
+	 * 
+	 * @param editorId
+	 *            the id of the editor this extension is assigned to
 	 */
-	public ExtensionItem() {
-		this(null, null);
+	public ExtensionItem(String editorId) {
+		this(null, null, editorId);
 	}
 
 	/**
@@ -85,9 +89,11 @@ public class ExtensionItem implements IExtensionItem {
 	 * 
 	 * @param modelWrapper
 	 *            the model wrapper
+	 * @param editorId
+	 *            the id of the editor this extension is assigned to
 	 */
-	public ExtensionItem(IModelWrapper modelWrapper) {
-		this(null, modelWrapper);
+	public ExtensionItem(IModelWrapper modelWrapper, String editorId) {
+		this(null, modelWrapper, editorId);
 	}
 
 	/**
@@ -97,14 +103,17 @@ public class ExtensionItem implements IExtensionItem {
 	 *            the parent of this item
 	 * @param modelWrapper
 	 *            the model wrapper for this item
+	 * @param editorId
+	 *            the id of the editor this extension is assigned to
 	 */
-	public ExtensionItem(IExtensionItem parent, IModelWrapper modelWrapper) {
+	public ExtensionItem(IExtensionItem parent, IModelWrapper modelWrapper, String editorId) {
 		this.itemChangedListeners = new ArrayList<IItemChangedListener>();
 		this.propertiesChangedListeners = new ArrayList<IItemPropertiesChangedListener>();
 		this.handlerMediatorHelper = new HandlerMediatorHelper();
 		this.childrenItems = new ArrayList<IExtensionItem>();
 		this.parentItem = parent;
 
+		this.editorId = editorId;
 		this.client = null;
 		this.lastCacheClearTime = 0;
 		this.modelWrapper = modelWrapper;
@@ -170,6 +179,17 @@ public class ExtensionItem implements IExtensionItem {
 			image = connection ? IMG_CONN_AVAILABLE : IMG_CONN_UNAVAILABLE;
 		}
 		return image;
+	}
+
+	@Override
+	public String getEditorId() {
+		return editorId;
+	}
+
+	@Override
+	public String toString() {
+		String text = getText();
+		return text.isEmpty() ? "ExtensionItem {no model}" : text;
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -29,6 +30,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -36,6 +38,8 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -56,6 +60,8 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
 import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
+import org.spotter.eclipse.ui.dnd.ExtensionDragListener;
+import org.spotter.eclipse.ui.dnd.ExtensionDropListener;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
 import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
@@ -110,19 +116,6 @@ public class ExtensionsGroupViewer {
 	private Button btnAddExtension, btnAppendExtension, btnRemoveExtension, btnRefreshExtensions;
 
 	/**
-	 * Creates a non-hierarchical extensions group viewer under the given parent
-	 * which is associated with the provided editor.
-	 * 
-	 * @param parent
-	 *            the parent of this viewer
-	 * @param editor
-	 *            the associated editor
-	 */
-	public ExtensionsGroupViewer(Composite parent, AbstractExtensionsEditor editor) {
-		this(parent, editor, false);
-	}
-
-	/**
 	 * Creates an extensions group viewer under the given parent which is
 	 * associated with the provided editor.
 	 * 
@@ -132,15 +125,18 @@ public class ExtensionsGroupViewer {
 	 *            the associated editor
 	 * @param hierarchical
 	 *            determines whether extension items can have children
+	 * @param dragAndDropSupport
+	 *            determines whether drag 'n drop is supported
 	 */
-	public ExtensionsGroupViewer(Composite parent, AbstractExtensionsEditor editor, boolean hierarchical) {
+	public ExtensionsGroupViewer(Composite parent, AbstractExtensionsEditor editor, boolean hierarchical,
+			boolean dragAndDropSupport) {
 		this.editor = editor;
 		this.isHierarchical = hierarchical;
 		this.extensionsInput = editor.getInitialExtensionsInput();
-		this.extensionItemFactory = new BasicEditorExtensionItemFactory();
+		this.extensionItemFactory = new BasicEditorExtensionItemFactory(editor.getEditorId());
 		this.ignoreConnection = extensionsInput == null ? true : extensionsInput.isConnectionIgnored();
 
-		createExtensionsGroup(parent);
+		createExtensionsGroup(parent, dragAndDropSupport);
 		addButtonListeners();
 		addSelectionListeners();
 		addKeyListeners();
@@ -185,13 +181,15 @@ public class ExtensionsGroupViewer {
 	 *            The parent composite. Must not be <code>null</code>.
 	 * @param input
 	 *            The input of the viewer. Must not be <code>null</code>.
+	 * @param dragAndDropSupport
+	 *            Determines whether drag 'n drop is supported.
 	 * 
 	 * @return the created table viewer
 	 * 
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TableViewer createTableViewer(Composite parent, IExtensionItem input) {
+	public static TableViewer createTableViewer(Composite parent, IExtensionItem input, boolean dragAndDropSupport) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -212,6 +210,10 @@ public class ExtensionsGroupViewer {
 		ColumnViewerToolTipSupport.enableFor(tableViewer, ToolTip.NO_RECREATE);
 		TableViewerColumn extensionsColumn = new TableViewerColumn(tableViewer, SWT.NONE);
 		tblExtensionsColLayout.setColumnData(extensionsColumn.getColumn(), new ColumnWeightData(1));
+
+		if (dragAndDropSupport) {
+			addDragAndDropSupport(tableViewer, input.getEditorId());
+		}
 		tableViewer.setContentProvider(new SpotterExtensionsContentProvider());
 		tableViewer.setLabelProvider(new SpotterExtensionsLabelProvider());
 		tableViewer.setInput(input);
@@ -230,13 +232,15 @@ public class ExtensionsGroupViewer {
 	 *            least a layout that has set the <i>fill flag</i>.
 	 * @param input
 	 *            The input of the viewer. Must not be <code>null</code>.
+	 * @param dragAndDropSupport
+	 *            Determines whether drag 'n drop is supported.
 	 * 
 	 * @return the created table viewer
 	 * 
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TreeViewer createTreeViewer(Composite parent, IExtensionItem input) {
+	public static TreeViewer createTreeViewer(Composite parent, IExtensionItem input, boolean dragAndDropSupport) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -259,6 +263,10 @@ public class ExtensionsGroupViewer {
 		ColumnViewerToolTipSupport.enableFor(treeViewer, ToolTip.NO_RECREATE);
 		TreeViewerColumn extensionsColumn = new TreeViewerColumn(treeViewer, SWT.NONE);
 		treeExtensionsColLayout.setColumnData(extensionsColumn.getColumn(), new ColumnWeightData(1));
+
+		if (dragAndDropSupport) {
+			addDragAndDropSupport(treeViewer, input.getEditorId());
+		}
 		treeViewer.setContentProvider(new SpotterExtensionsContentProvider());
 		treeViewer.setLabelProvider(new SpotterExtensionsLabelProvider());
 		treeViewer.setInput(input);
@@ -266,12 +274,20 @@ public class ExtensionsGroupViewer {
 		return treeViewer;
 	}
 
-	private void createExtensionsGroup(Composite container) {
+	private static void addDragAndDropSupport(StructuredViewer viewer, String editorId) {
+		final int operations = DND.DROP_MOVE | DND.DROP_COPY;
+		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer.getTransfer() };
+
+		viewer.addDragSupport(operations, transferTypes, new ExtensionDragListener(viewer));
+		viewer.addDropSupport(operations, transferTypes, new ExtensionDropListener(viewer, editorId));
+	}
+
+	private void createExtensionsGroup(Composite container, boolean dragAndDropSupport) {
 		Group grpConfiguredComponents = new Group(container, SWT.NONE);
 		grpConfiguredComponents.setText("configured components");
 		grpConfiguredComponents.setLayout(WidgetUtils.createGridLayout(2));
 
-		extensionsViewer = createViewerControl(grpConfiguredComponents);
+		extensionsViewer = createViewerControl(grpConfiguredComponents, dragAndDropSupport);
 		viewerControl = extensionsViewer.getControl();
 
 		Composite buttonComp = new Composite(grpConfiguredComponents, SWT.NONE);
@@ -286,13 +302,13 @@ public class ExtensionsGroupViewer {
 		createButtons(buttonComp);
 	}
 
-	private ColumnViewer createViewerControl(Composite parent) {
+	private ColumnViewer createViewerControl(Composite parent, boolean dragAndDropSupport) {
 		if (isHierarchical) {
-			extensionsTreeViewer = createTreeViewer(parent, extensionsInput);
+			extensionsTreeViewer = createTreeViewer(parent, extensionsInput, dragAndDropSupport);
 			extensionsTreeViewer.expandAll();
 			return extensionsTreeViewer;
 		} else {
-			extensionsTblViewer = createTableViewer(parent, extensionsInput);
+			extensionsTblViewer = createTableViewer(parent, extensionsInput, dragAndDropSupport);
 			return extensionsTblViewer;
 		}
 	}
@@ -497,7 +513,7 @@ public class ExtensionsGroupViewer {
 	 * Removes the selected extension.
 	 */
 	private void removeSelectedExtension() {
-		StructuredSelection sel = (StructuredSelection) extensionsViewer.getSelection();
+		IStructuredSelection sel = (IStructuredSelection) extensionsViewer.getSelection();
 		if (sel.isEmpty()) {
 			return;
 		}

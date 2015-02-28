@@ -80,6 +80,11 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	public Image getImage() {
 		return delegate.getImage();
 	}
+	
+	@Override
+	public String getEditorId() {
+		return delegate.getEditorId();
+	}
 
 	@Override
 	public boolean isConnectionIgnored() {

@@ -53,6 +53,11 @@ public interface IExtensionItem extends IHandlerMediator {
 	Image getImage();
 
 	/**
+	 * @return the id of the editor this extension is assigned to
+	 */
+	String getEditorId();
+
+	/**
 	 * @return whether the connection of this item is irrelevant and is ignored
 	 */
 	boolean isConnectionIgnored();
