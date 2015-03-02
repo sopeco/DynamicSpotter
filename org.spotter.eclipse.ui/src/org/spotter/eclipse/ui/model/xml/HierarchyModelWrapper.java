@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui.model.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
@@ -33,7 +34,7 @@ import org.spotter.shared.hierarchy.model.XPerformanceProblem;
  */
 public class HierarchyModelWrapper extends AbstractModelWrapper {
 
-	private final List<XPerformanceProblem> modelContainingList;
+	private List<XPerformanceProblem> modelContainingList;
 	private final XPerformanceProblem wrappedModel;
 
 	/**
@@ -55,12 +56,14 @@ public class HierarchyModelWrapper extends AbstractModelWrapper {
 
 	@Override
 	public List<XMConfiguration> getConfig() {
-		return wrappedModel.getConfig();
+		return wrappedModel != null ? wrappedModel.getConfig() : null;
 	}
 
 	@Override
 	public void setConfig(List<XMConfiguration> config) {
-		wrappedModel.setConfig(config);
+		if (wrappedModel != null) {
+			wrappedModel.setConfig(config);
+		}
 	}
 
 	@Override
@@ -68,10 +71,49 @@ public class HierarchyModelWrapper extends AbstractModelWrapper {
 		return wrappedModel;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setXMLModelContainingList(List<?> modelContainingList) {
+		this.modelContainingList = (List<XPerformanceProblem>) modelContainingList;
+	}
+
+	@Override
+	public List<?> getChildren() {
+		if (wrappedModel.getProblem() == null) {
+			wrappedModel.setProblem(new ArrayList<XPerformanceProblem>());
+		}
+		return wrappedModel.getProblem();
+	}
+
+	@Override
+	public void added() {
+		if (modelContainingList != null && wrappedModel != null && !modelContainingList.contains(wrappedModel)) {
+			modelContainingList.add(wrappedModel);
+		}
+	}
+
 	@Override
 	public void removed() {
 		if (modelContainingList != null && wrappedModel != null) {
 			modelContainingList.remove(wrappedModel);
+		}
+	}
+
+	@Override
+	public void moved(int destinationIndex) {
+		if (modelContainingList == null || wrappedModel == null) {
+			return;
+		}
+
+		int index = modelContainingList.lastIndexOf(wrappedModel);
+		if (index != -1 && index != destinationIndex && destinationIndex >= 0
+				&& destinationIndex < modelContainingList.size()) {
+			modelContainingList.remove(wrappedModel);
+			if (destinationIndex < modelContainingList.size()) {
+				modelContainingList.add(destinationIndex, wrappedModel);
+			} else {
+				modelContainingList.add(wrappedModel);
+			}
 		}
 	}
 

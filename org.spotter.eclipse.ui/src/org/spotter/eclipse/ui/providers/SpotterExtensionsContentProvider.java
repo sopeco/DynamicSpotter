@@ -94,10 +94,9 @@ public class SpotterExtensionsContentProvider implements ITreeContentProvider, I
 		if (viewer == null) {
 			return;
 		}
-		if (viewer instanceof AbstractTableViewer) {
-			((AbstractTableViewer) viewer).add(item);
-		} else if (viewer instanceof AbstractTreeViewer) {
-			((AbstractTreeViewer) viewer).add(parent, item);
+
+		if (parent != null) {
+			viewer.refresh(parent);
 		} else {
 			viewer.refresh();
 		}

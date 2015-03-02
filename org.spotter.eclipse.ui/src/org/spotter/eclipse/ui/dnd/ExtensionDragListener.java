@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
+import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
 
 /**
  * A drag listener for {@link org.spotter.eclipse.ui.model.IExtensionItem}.
@@ -29,16 +30,22 @@ import org.eclipse.swt.dnd.DragSourceListener;
  */
 public class ExtensionDragListener implements DragSourceListener {
 
+	public static final String VIEWER_IS_DRAG_SOURCE_PROPERTY = "isDragSource";
+
 	private final StructuredViewer viewer;
+	private final AbstractExtensionsEditor editor;
 
 	/**
 	 * Creates a new drag listener for the given viewer.
 	 * 
 	 * @param viewer
 	 *            the viewer this listener is attached to
+	 * @param editor
+	 *            the underlying editor if any or <code>null</code>
 	 */
-	public ExtensionDragListener(StructuredViewer viewer) {
+	public ExtensionDragListener(StructuredViewer viewer, AbstractExtensionsEditor editor) {
 		this.viewer = viewer;
+		this.editor = editor;
 	}
 
 	@Override
@@ -46,6 +53,7 @@ public class ExtensionDragListener implements DragSourceListener {
 		event.doit = !viewer.getSelection().isEmpty();
 		if (event.doit) {
 			LocalSelectionTransfer.getTransfer().setSelection(viewer.getSelection());
+			viewer.setData(VIEWER_IS_DRAG_SOURCE_PROPERTY, Boolean.TRUE);
 		}
 	}
 
@@ -56,13 +64,24 @@ public class ExtensionDragListener implements DragSourceListener {
 
 	@Override
 	public void dragFinished(DragSourceEvent event) {
+		viewer.setData(VIEWER_IS_DRAG_SOURCE_PROPERTY, null);
+		boolean isDropTarget = isThisViewerDropTarget();
+		viewer.setData(ExtensionDropListener.VIEWER_IS_DROP_TARGET_PROPERTY, null);
 		if (!event.doit || event.detail == DND.DROP_NONE) {
 			return;
 		}
-		
-		//if (event.detail == DND.DROP_MOVE) {
+
+		if (event.detail == DND.DROP_MOVE && !isDropTarget) {
 			// TODO: remove the drag source from the model
-		//}
+			if (editor != null) {
+				editor.markDirty();
+			}
+		}
+	}
+
+	private boolean isThisViewerDropTarget() {
+		Object isDropTargetProperty = viewer.getData(ExtensionDropListener.VIEWER_IS_DROP_TARGET_PROPERTY);
+		return isDropTargetProperty instanceof Boolean && (Boolean) isDropTargetProperty;
 	}
 
 }

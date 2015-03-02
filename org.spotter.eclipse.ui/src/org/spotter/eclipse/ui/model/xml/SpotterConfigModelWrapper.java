@@ -93,6 +93,16 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 		return null;
 	}
 
+	@Override
+	public void setXMLModelContainingList(List<?> modelContainingList) {
+		// nothing to do
+	}
+
+	@Override
+	public List<?> getChildren() {
+		return null;
+	}
+
 	/**
 	 * Returns the <code>ConfigParameterDescription</code>s from {@link Spotter}
 	 * .
@@ -111,7 +121,18 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 	}
 
 	@Override
+	public void added() {
+		// nothing to do
+	}
+
+	@Override
 	public void removed() {
+		// nothing to do
+	}
+
+	@Override
+	public void moved(int destinationIndex) {
+		// nothing to do
 	}
 
 }

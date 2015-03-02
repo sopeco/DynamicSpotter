@@ -117,7 +117,7 @@ public class ExtensionItem implements IExtensionItem {
 		this.client = null;
 		this.lastCacheClearTime = 0;
 		this.modelWrapper = modelWrapper;
-		if (modelWrapper == null) {
+		if (modelWrapper == null || modelWrapper.getXMLModel() == null) {
 			this.remainingDescriptions = new HashMap<String, ConfigParameterDescription>();
 		} else {
 			String projectName = modelWrapper.getProjectName();
@@ -139,11 +139,14 @@ public class ExtensionItem implements IExtensionItem {
 
 	@Override
 	public String getText() {
-		if (modelWrapper == null) {
+		if (modelWrapper == null || modelWrapper.getXMLModel() == null) {
 			return "";
 		}
 		String customName = modelWrapper.getName();
 		String extensionName = modelWrapper.getExtensionName();
+		if (extensionName == null) {
+			extensionName = "unnamed extension";
+		}
 		if (customName != null && !customName.isEmpty()) {
 			return customName + " (" + extensionName + ")";
 		} else {
@@ -307,11 +310,12 @@ public class ExtensionItem implements IExtensionItem {
 	}
 
 	@Override
-	public void removed() {
+	public void removed(boolean propagate) {
 		modelWrapper.removed();
-		// when this item is removed all of its children will be gone too
-		for (IExtensionItem child : childrenItems) {
-			child.removed();
+		if (propagate) {
+			for (IExtensionItem child : childrenItems) {
+				child.removed(propagate);
+			}
 		}
 	}
 
@@ -327,23 +331,58 @@ public class ExtensionItem implements IExtensionItem {
 
 	@Override
 	public void addItem(IExtensionItem item) {
-		childrenItems.add(item);
-		item.setParent(this);
-		item.setIgnoreConnection(ignoreConnection);
+		doAddItem(item);
 		fireItemChildAdded(this, item);
 	}
 
 	@Override
-	public void removeItem(int index) {
+	public void addItem(int index, IExtensionItem item) {
+		doAddItem(item);
+		if (!moveItem(item, index)) {
+			fireItemChildAdded(this, item);
+		}
+	}
+
+	private void doAddItem(IExtensionItem item) {
+		childrenItems.add(item);
+		item.setParent(this);
+		item.setIgnoreConnection(ignoreConnection);
+		if (getModelWrapper() != null) {
+			List<?> modelContainingList = getModelWrapper().getChildren();
+			item.getModelWrapper().setXMLModelContainingList(modelContainingList);
+		}
+		item.getModelWrapper().added();
+	}
+
+	@Override
+	public boolean moveItem(IExtensionItem item, int destinationIndex) {
+		boolean success = false;
+		int index = getItemIndex(item);
+		if (index != -1 && index != destinationIndex && destinationIndex >= 0 && destinationIndex < getItemCount()) {
+			childrenItems.remove(index);
+			if (destinationIndex < getItemCount()) {
+				childrenItems.add(destinationIndex, item);
+			} else {
+				childrenItems.add(item);
+			}
+			item.getModelWrapper().moved(destinationIndex);
+			fireItemChildAdded(this, item);
+			success = true;
+		}
+		return success;
+	}
+
+	@Override
+	public void removeItem(int index, boolean propagate) {
 		IExtensionItem item = childrenItems.remove(index);
-		item.removed();
+		item.removed(propagate);
 		fireItemChildRemoved(this, item);
 	}
 
 	@Override
-	public void removeItem(IExtensionItem item) {
+	public void removeItem(IExtensionItem item, boolean propgate) {
 		childrenItems.remove(item);
-		item.removed();
+		item.removed(propgate);
 		fireItemChildRemoved(this, item);
 	}
 
@@ -370,6 +409,19 @@ public class ExtensionItem implements IExtensionItem {
 	@Override
 	public IExtensionItem getParent() {
 		return parentItem;
+	}
+
+	@Override
+	public boolean hasParent(IExtensionItem parent) {
+		if (getParent() != null) {
+			if (getParent().equals(parent)) {
+				return true;
+			} else {
+				return getParent().hasParent(parent);
+			}
+		}
+
+		return false;
 	}
 
 	@Override

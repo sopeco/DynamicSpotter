@@ -181,6 +181,8 @@ public class ExtensionsGroupViewer {
 	 *            The parent composite. Must not be <code>null</code>.
 	 * @param input
 	 *            The input of the viewer. Must not be <code>null</code>.
+	 * @param editor
+	 *            The underlying editor if any or <code>null</code>.
 	 * @param dragAndDropSupport
 	 *            Determines whether drag 'n drop is supported.
 	 * 
@@ -189,7 +191,8 @@ public class ExtensionsGroupViewer {
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TableViewer createTableViewer(Composite parent, IExtensionItem input, boolean dragAndDropSupport) {
+	public static TableViewer createTableViewer(Composite parent, IExtensionItem input,
+			AbstractExtensionsEditor editor, boolean dragAndDropSupport) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -212,7 +215,7 @@ public class ExtensionsGroupViewer {
 		tblExtensionsColLayout.setColumnData(extensionsColumn.getColumn(), new ColumnWeightData(1));
 
 		if (dragAndDropSupport) {
-			addDragAndDropSupport(tableViewer, input.getEditorId());
+			addDragAndDropSupport(tableViewer, editor, false);
 		}
 		tableViewer.setContentProvider(new SpotterExtensionsContentProvider());
 		tableViewer.setLabelProvider(new SpotterExtensionsLabelProvider());
@@ -232,6 +235,8 @@ public class ExtensionsGroupViewer {
 	 *            least a layout that has set the <i>fill flag</i>.
 	 * @param input
 	 *            The input of the viewer. Must not be <code>null</code>.
+	 * @param editor
+	 *            The underlying editor if any or <code>null</code>.
 	 * @param dragAndDropSupport
 	 *            Determines whether drag 'n drop is supported.
 	 * 
@@ -240,7 +245,8 @@ public class ExtensionsGroupViewer {
 	 * @see SpotterExtensionsContentProvider
 	 * @see SpotterExtensionsLabelProvider
 	 */
-	public static TreeViewer createTreeViewer(Composite parent, IExtensionItem input, boolean dragAndDropSupport) {
+	public static TreeViewer createTreeViewer(Composite parent, IExtensionItem input, AbstractExtensionsEditor editor,
+			boolean dragAndDropSupport) {
 		if (parent == null) {
 			throw new IllegalArgumentException("parent must not be null");
 		}
@@ -265,7 +271,7 @@ public class ExtensionsGroupViewer {
 		treeExtensionsColLayout.setColumnData(extensionsColumn.getColumn(), new ColumnWeightData(1));
 
 		if (dragAndDropSupport) {
-			addDragAndDropSupport(treeViewer, input.getEditorId());
+			addDragAndDropSupport(treeViewer, editor, true);
 		}
 		treeViewer.setContentProvider(new SpotterExtensionsContentProvider());
 		treeViewer.setLabelProvider(new SpotterExtensionsLabelProvider());
@@ -274,12 +280,13 @@ public class ExtensionsGroupViewer {
 		return treeViewer;
 	}
 
-	private static void addDragAndDropSupport(StructuredViewer viewer, String editorId) {
+	private static void addDragAndDropSupport(StructuredViewer viewer, AbstractExtensionsEditor editor,
+			boolean hierarchical) {
 		final int operations = DND.DROP_MOVE | DND.DROP_COPY;
 		Transfer[] transferTypes = new Transfer[] { LocalSelectionTransfer.getTransfer() };
 
-		viewer.addDragSupport(operations, transferTypes, new ExtensionDragListener(viewer));
-		viewer.addDropSupport(operations, transferTypes, new ExtensionDropListener(viewer, editorId));
+		viewer.addDragSupport(operations, transferTypes, new ExtensionDragListener(viewer, editor));
+		viewer.addDropSupport(operations, transferTypes, new ExtensionDropListener(viewer, editor, hierarchical));
 	}
 
 	private void createExtensionsGroup(Composite container, boolean dragAndDropSupport) {
@@ -304,11 +311,11 @@ public class ExtensionsGroupViewer {
 
 	private ColumnViewer createViewerControl(Composite parent, boolean dragAndDropSupport) {
 		if (isHierarchical) {
-			extensionsTreeViewer = createTreeViewer(parent, extensionsInput, dragAndDropSupport);
+			extensionsTreeViewer = createTreeViewer(parent, extensionsInput, editor, dragAndDropSupport);
 			extensionsTreeViewer.expandAll();
 			return extensionsTreeViewer;
 		} else {
-			extensionsTblViewer = createTableViewer(parent, extensionsInput, dragAndDropSupport);
+			extensionsTblViewer = createTableViewer(parent, extensionsInput, editor, dragAndDropSupport);
 			return extensionsTblViewer;
 		}
 	}
@@ -521,7 +528,7 @@ public class ExtensionsGroupViewer {
 		IExtensionItem parentItem = item.getParent();
 		int index = parentItem.getItemIndex(item);
 		if (index != -1) {
-			parentItem.removeItem(index);
+			parentItem.removeItem(index, true);
 			if (parentItem.hasItems()) {
 				// parent still has items left, so select next child
 				index = Math.min(index, parentItem.getItemCount() - 1);

@@ -63,7 +63,7 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	protected String getEditorName() {
 		return EDITOR_NAME;
 	}
-	
+
 	@Override
 	public String getEditorId() {
 		return ID;
@@ -113,7 +113,6 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		if (container.getProblem() == null) {
 			container.setProblem(new ArrayList<XPerformanceProblem>());
 		}
-		container.getProblem().add(problem);
 		return new HierarchyModelWrapper(extensionComponent, container.getProblem(), problem);
 	}
 

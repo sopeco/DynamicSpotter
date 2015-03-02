@@ -171,7 +171,7 @@ public final class SpotterUtils {
 	 *         found
 	 */
 	public static String extractConfigValue(List<XMConfiguration> config, String key) {
-		if (config != null) {
+		if (config != null && key != null) {
 			for (XMConfiguration xmConfig : config) {
 				if (key.equals(xmConfig.getKey())) {
 					return xmConfig.getValue();

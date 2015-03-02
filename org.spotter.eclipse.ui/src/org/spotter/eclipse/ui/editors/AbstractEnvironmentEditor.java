@@ -68,7 +68,7 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	public IExtensionItem getInitialExtensionsInput() {
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
 		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
-		IExtensionItem input = factory.createExtensionItem();
+		IExtensionItem input = factory.createExtensionItem(new EnvironmentModelWrapper(envObjects));
 
 		String projectName = getProject().getName();
 		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
@@ -100,7 +100,6 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
 		XMeasurementEnvObject envObject = new XMeasurementEnvObject();
 		envObject.setExtensionName(extensionComponent.getExtensionName());
-		envObjects.add(envObject);
 		return new EnvironmentModelWrapper(extensionComponent, envObjects, envObject);
 	}
 
