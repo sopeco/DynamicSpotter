@@ -79,6 +79,19 @@ public interface IModelWrapper {
 	Object getXMLModel();
 
 	/**
+	 * Sets the list of siblings.
+	 * 
+	 * @param modelContainingList
+	 *            the list of siblings to set
+	 */
+	void setXMLModelContainingList(List<?> modelContainingList);
+
+	/**
+	 * @return the children of this model if it has any
+	 */
+	List<?> getChildren();
+
+	/**
 	 * @return the configuration parameter descriptions that belong to the
 	 *         associated extension
 	 */
@@ -97,8 +110,21 @@ public interface IModelWrapper {
 	Boolean testConnection() throws Exception;
 
 	/**
+	 * Must be called when this model is added.
+	 */
+	void added();
+
+	/**
 	 * Must be called when this model is removed.
 	 */
 	void removed();
+
+	/**
+	 * Must be called when this model is moved.
+	 * 
+	 * @param destinationIndex
+	 *            index where this model is moved to
+	 */
+	void moved(int destinationIndex);
 
 }

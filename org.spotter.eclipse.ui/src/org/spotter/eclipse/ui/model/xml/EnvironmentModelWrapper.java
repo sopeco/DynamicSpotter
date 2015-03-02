@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui.model.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
@@ -30,8 +31,9 @@ import org.spotter.shared.environment.model.XMeasurementEnvObject;
  */
 public class EnvironmentModelWrapper extends AbstractModelWrapper {
 
-	private final List<XMeasurementEnvObject> modelContainingList;
+	private List<XMeasurementEnvObject> modelContainingList;
 	private final XMeasurementEnvObject wrappedModel;
+	private final List<XMeasurementEnvObject> children;
 
 	/**
 	 * Creates a new wrapper.
@@ -48,16 +50,32 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 		super(extension);
 		this.modelContainingList = allControllers;
 		this.wrappedModel = controller;
+		this.children = new ArrayList<>();
+	}
+
+	/**
+	 * Creates a new wrapper.
+	 * 
+	 * @param children
+	 *            the children of this wrapper
+	 */
+	public EnvironmentModelWrapper(List<XMeasurementEnvObject> children) {
+		super(null);
+		this.modelContainingList = new ArrayList<>();
+		this.wrappedModel = null;
+		this.children = children;
 	}
 
 	@Override
 	public List<XMConfiguration> getConfig() {
-		return wrappedModel.getConfig();
+		return wrappedModel != null ? wrappedModel.getConfig() : null;
 	}
 
 	@Override
 	public void setConfig(List<XMConfiguration> config) {
-		wrappedModel.setConfig(config);
+		if (wrappedModel != null) {
+			wrappedModel.setConfig(config);
+		}
 	}
 
 	@Override
@@ -65,9 +83,47 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 		return wrappedModel;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setXMLModelContainingList(List<?> modelContainingList) {
+		this.modelContainingList = (List<XMeasurementEnvObject>) modelContainingList;
+	}
+
+	@Override
+	public List<?> getChildren() {
+		return children;
+	}
+
+	@Override
+	public void added() {
+		if (modelContainingList != null && wrappedModel != null && !modelContainingList.contains(wrappedModel)) {
+			modelContainingList.add(wrappedModel);
+		}
+	}
+
 	@Override
 	public void removed() {
-		modelContainingList.remove(wrappedModel);
+		if (modelContainingList != null && wrappedModel != null) {
+			modelContainingList.remove(wrappedModel);
+		}
+	}
+
+	@Override
+	public void moved(int destinationIndex) {
+		if (modelContainingList == null || wrappedModel == null) {
+			return;
+		}
+
+		int index = modelContainingList.lastIndexOf(wrappedModel);
+		if (index != -1 && index != destinationIndex && destinationIndex >= 0
+				&& destinationIndex < modelContainingList.size()) {
+			modelContainingList.remove(wrappedModel);
+			if (destinationIndex < modelContainingList.size()) {
+				modelContainingList.add(destinationIndex, wrappedModel);
+			} else {
+				modelContainingList.add(wrappedModel);
+			}
+		}
 	}
 
 }

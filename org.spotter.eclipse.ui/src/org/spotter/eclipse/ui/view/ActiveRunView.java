@@ -139,7 +139,8 @@ public class ActiveRunView extends ViewPart {
 	}
 
 	private void createTreeViewer(Composite parent) {
-		treeViewer = ExtensionsGroupViewer.createTreeViewer(parent, extensionItemFactory.createExtensionItem(), false);
+		treeViewer = ExtensionsGroupViewer.createTreeViewer(parent, extensionItemFactory.createExtensionItem(), null,
+				false);
 
 		SpotterExtensionsLabelProvider labelProvider = new SpotterExtensionsLabelProvider() {
 			@Override

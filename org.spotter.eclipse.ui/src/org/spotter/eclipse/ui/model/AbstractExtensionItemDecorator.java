@@ -80,7 +80,7 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	public Image getImage() {
 		return delegate.getImage();
 	}
-	
+
 	@Override
 	public String getEditorId() {
 		return delegate.getEditorId();
@@ -147,8 +147,8 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	}
 
 	@Override
-	public void removed() {
-		delegate.removed();
+	public void removed(boolean propagate) {
+		delegate.removed(propagate);
 	}
 
 	@Override
@@ -167,13 +167,23 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	}
 
 	@Override
-	public void removeItem(int index) {
-		delegate.removeItem(index);
+	public void addItem(int index, IExtensionItem item) {
+		delegate.addItem(index, item);
 	}
 
 	@Override
-	public void removeItem(IExtensionItem item) {
-		delegate.removeItem(item);
+	public boolean moveItem(IExtensionItem item, int destinationIndex) {
+		return delegate.moveItem(item, destinationIndex);
+	}
+
+	@Override
+	public void removeItem(int index, boolean propagate) {
+		delegate.removeItem(index, propagate);
+	}
+
+	@Override
+	public void removeItem(IExtensionItem item, boolean propagate) {
+		delegate.removeItem(item, propagate);
 	}
 
 	@Override
@@ -199,6 +209,11 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	@Override
 	public IExtensionItem getParent() {
 		return delegate.getParent();
+	}
+
+	@Override
+	public boolean hasParent(IExtensionItem parent) {
+		return delegate.hasParent(parent);
 	}
 
 	@Override

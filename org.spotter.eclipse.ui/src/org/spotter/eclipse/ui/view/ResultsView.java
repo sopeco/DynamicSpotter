@@ -286,7 +286,7 @@ public class ResultsView extends ViewPart implements ISelectionListener {
 		SashForm container = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
 		hierarchyTreeViewer = ExtensionsGroupViewer.createTreeViewer(container,
-				extensionItemFactory.createExtensionItem(), false);
+				extensionItemFactory.createExtensionItem(), null, false);
 		SpotterExtensionsLabelProvider labelProvider = (SpotterExtensionsLabelProvider) hierarchyTreeViewer
 				.getLabelProvider();
 		imageProvider = new ResultExtensionsImageProvider();
