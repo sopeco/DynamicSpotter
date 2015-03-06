@@ -27,6 +27,7 @@ import org.aim.api.measurement.dataset.DatasetCollection;
 import org.aim.api.measurement.dataset.Parameter;
 import org.aim.description.InstrumentationDescription;
 import org.aim.description.builder.InstrumentationDescriptionBuilder;
+import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.extension.AbstractExtensionArtifact;
 import org.lpe.common.extension.IExtension;
@@ -233,6 +234,11 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 		long instrumentationStart = System.currentTimeMillis();
 
 		InstrumentationDescriptionBuilder descriptionBuilder = new InstrumentationDescriptionBuilder();
+		String excludes = GlobalConfiguration.getInstance().getProperty(ConfigKeys.INSTRUMENTATION_EXCLUDES, "");
+		for (String exc : excludes.split(ConfigParameterDescription.LIST_VALUE_SEPARATOR)) {
+			descriptionBuilder.newGlobalRestriction().excludePackage(exc);
+		}
+
 		descriptionBuilder.appendOtherDescription(instDescription);
 
 		for (IExperimentReuser reuser : experimentReuser) {
