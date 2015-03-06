@@ -33,9 +33,8 @@ public final class ConfigKeys {
 	private static final int _10 = 10;
 	public static final int DEFAULT_SUT_WARMUP_DURATION = 180;
 
-	
 	public static final String DETECTABLE_KEY = "org.spotter.detection.detectable";
-	
+
 	/**
 	 * Config-Key for the path to the performance problem hierarchy file.<br />
 	 * <b>Required configuration key.</b>
@@ -46,6 +45,8 @@ public final class ConfigKeys {
 	 * Specifies the directoy for the results. Required configuration key.
 	 */
 	public static final String RESULT_DIR = "org.spotter.resultDir";
+
+	public static final String INSTRUMENTATION_EXCLUDES = "instrumentation.excludes";
 
 	public static final String REPORT_FOR_NEGATIVE_RESULTS = "org.spotter.reportForNotDetected";
 
@@ -61,18 +62,17 @@ public final class ConfigKeys {
 	public static final String WORKLOAD_MAXUSERS = "org.spotter.workload.maxusers";
 
 	public static final String PPD_RUN_TIMESTAMP = "org.spotter.run.timestamp";
-	
+
 	public static final String PERFORMANCE_REQUIREMENT_THRESHOLD = "org.spotter.performanceRequirementThreshold";
 	public static final String PERFORMANCE_REQUIREMENT_CONFIDENCE = "org.spotter.performanceRequirementConfidence";
-	
+
 	public static final String SYSTEM_NODE_ROLE_APP = "org.spotter.systemnode.role.app";
 	public static final String SYSTEM_NODE_ROLE_DB = "org.spotter.systemnode.role.db";
-	
-	
+
 	public static final String CHART_BUILDER_KEY = "chart.builder";
 	public static final String CHART_BUILDER_XCHART = "XChart";
 	public static final String CHART_BUILDER_RCHART = "R Charts";
-	
+
 	/**
 	 * Defines how many users per interval (
 	 * {@link #EXPERIMENT_RAMP_UP_INTERVAL_LENGTH}) are put into the system. The
@@ -175,6 +175,15 @@ public final class ConfigKeys {
 	private ConfigKeys() {
 	}
 
+	private static ConfigParameterDescription getInstrExcludesParameter() {
+		ConfigParameterDescription parameter = new ConfigParameterDescription(INSTRUMENTATION_EXCLUDES,
+				LpeSupportedTypes.String);
+		parameter.setMandatory(false);
+		parameter.setASet(true);
+		parameter.setDescription("Packages to exclude for instrumentation!");
+		return parameter;
+	}
+
 	private static ConfigParameterDescription getMaxUsersParameter() {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(WORKLOAD_MAXUSERS,
 				LpeSupportedTypes.Integer);
@@ -267,29 +276,27 @@ public final class ConfigKeys {
 						+ "directly. (Instrumentation of an unloaded class would fail.)");
 		return parameter;
 	}
-	
+
 	private static ConfigParameterDescription getPerfRequirementThreshold() {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(PERFORMANCE_REQUIREMENT_THRESHOLD,
 				LpeSupportedTypes.Integer);
 		parameter.setMandatory(true);
 		parameter.setDefaultValue(String.valueOf(DEFAULT_PERFORMANCE_REQUIREMENT_THRESHOLD));
-		parameter
-				.setDescription("Specifies the global threshold for the performance requirement in milliseconds. "
-						+ "Services of the target system that exceed that threshold are "
-						+ "considered as performance problems.)");
+		parameter.setDescription("Specifies the global threshold for the performance requirement in milliseconds. "
+				+ "Services of the target system that exceed that threshold are "
+				+ "considered as performance problems.)");
 		return parameter;
 	}
-	
+
 	private static ConfigParameterDescription getPerfRequirementConfidence() {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(PERFORMANCE_REQUIREMENT_CONFIDENCE,
 				LpeSupportedTypes.Double);
 		parameter.setMandatory(true);
 		parameter.setDefaultValue(String.valueOf(DEFAULT_PERFORMANCE_REQUIREMENT_CONFIDENCE));
-		parameter
-				.setDescription("Specifies the confidence for the global performance requirement threshold. "
-						+ "Value between 0 (= 0%) and 1 (= 100%)."
-						+ "This value determines how many performance violation outliers are allowed "
-						+ "without that a performance problem is detected.");
+		parameter.setDescription("Specifies the confidence for the global performance requirement threshold. "
+				+ "Value between 0 (= 0%) and 1 (= 100%)."
+				+ "This value determines how many performance violation outliers are allowed "
+				+ "without that a performance problem is detected.");
 		return parameter;
 	}
 
@@ -298,21 +305,19 @@ public final class ConfigKeys {
 				LpeSupportedTypes.String);
 		parameter.setMandatory(true);
 		parameter.setASet(true);
-		parameter
-				.setDescription("Specifies a list of nodes (host-names) that constitute a application server.");
+		parameter.setDescription("Specifies a list of nodes (host-names) that constitute a application server.");
 		return parameter;
 	}
-	
+
 	private static ConfigParameterDescription getRoleDBParameter() {
 		ConfigParameterDescription parameter = new ConfigParameterDescription(SYSTEM_NODE_ROLE_DB,
 				LpeSupportedTypes.String);
 		parameter.setMandatory(true);
 		parameter.setASet(true);
-		parameter
-				.setDescription("Specifies a list of nodes (host-names) that constitute a database server.");
+		parameter.setDescription("Specifies a list of nodes (host-names) that constitute a database server.");
 		return parameter;
 	}
-	
+
 	private static ConfigParameterDescription createChartBuilderParameter() {
 		ConfigParameterDescription scopeParameter = new ConfigParameterDescription(CHART_BUILDER_KEY,
 				LpeSupportedTypes.String);
@@ -322,11 +327,10 @@ public final class ConfigKeys {
 		scopeOptions.add(CHART_BUILDER_RCHART);
 		scopeParameter.setOptions(scopeOptions);
 		scopeParameter.setDefaultValue(CHART_BUILDER_XCHART);
-		scopeParameter.setDescription("This parameter determines the strategy, "
-				+ "for creating charts.");
+		scopeParameter.setDescription("This parameter determines the strategy, " + "for creating charts.");
 		return scopeParameter;
 	}
-	
+
 	/**
 	 * 
 	 * @return returns a set of configuration parameters of Dynamic Spotter.
@@ -347,6 +351,7 @@ public final class ConfigKeys {
 		configParameters.add(getRoleAppParameter());
 		configParameters.add(getRoleDBParameter());
 		configParameters.add(createChartBuilderParameter());
+		configParameters.add(getInstrExcludesParameter());
 		return configParameters;
 	}
 }

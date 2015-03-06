@@ -198,4 +198,17 @@ public class XChartBuilder extends AnalysisChartBuilder{
 		scatterSeries.setMarkerColor(COLORS[seriesCounter % COLORS.length]);
 		seriesCounter++;
 	}
+
+	@Override
+	public void addScatterSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs,
+			String seriesTitle) {
+		updateAxisRanges(valuePairs);
+		Series scatterSeries = chart.addSeries(seriesTitle, valuePairs.getKeyListAsNumbers(),
+				valuePairs.getValueListAsNumbers());
+		scatterSeries.setLineStyle(SeriesLineStyle.SOLID);
+		scatterSeries.setMarker(SeriesMarker.CIRCLE);
+		scatterSeries.setMarkerColor(COLORS[seriesCounter % COLORS.length]);
+		seriesCounter++;
+		
+	}
 }
