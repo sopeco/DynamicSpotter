@@ -43,6 +43,24 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * 
  */
 public class ExtensionItem implements IExtensionItem {
+	
+	private class ConnectionUpdater implements Runnable {
+		private volatile boolean isCancelled = false;
+		
+		public void cancel() {
+			this.isCancelled = true;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				Boolean newConnection = ExtensionItem.this.modelWrapper.testConnection();
+				onConnectionUpdateComplete(this, newConnection, null);
+			} catch (Exception e) {
+				onConnectionUpdateComplete(this, null, e);
+			}
+		}
+	}
 
 	private static final String MSG_CONN_PENDING = "Connection test pending...";
 	private static final String MSG_CONN_AVAILABLE = "Connection OK";
@@ -66,7 +84,8 @@ public class ExtensionItem implements IExtensionItem {
 	private ServiceClientWrapper client;
 	private long lastCacheClearTime;
 	private Map<String, ConfigParameterDescription> paramsMap;
-	private Boolean connection;
+	private volatile Boolean connection;
+	private volatile ConnectionUpdater connectionUpdater;
 	private boolean ignoreConnection;
 	private boolean isPending;
 	private String extensionDescription;
@@ -131,10 +150,39 @@ public class ExtensionItem implements IExtensionItem {
 				this.extensionDescription = extDesc.getDefaultValue();
 			}
 		}
-		this.connection = null;
+		setConnection(null);
+		setConnectionUpdater(null);
 		this.ignoreConnection = false;
 		this.isPending = modelWrapper == null ? false : true;
 		this.errorMsg = null;
+	}
+	
+	private synchronized Boolean getConnection() {
+		return connection;
+	}
+	
+	private synchronized void setConnection(Boolean connection) {
+		this.connection = connection;
+	}
+	
+	private synchronized ConnectionUpdater getConnectionUpdater() {
+		return connectionUpdater;
+	}
+	
+	private synchronized void setConnectionUpdater(ConnectionUpdater connectionUpdater) {
+		this.connectionUpdater = connectionUpdater;
+	}
+	
+	private synchronized void onConnectionUpdateComplete(ConnectionUpdater updater, Boolean newConnection, Exception exception) {
+		if (!updater.isCancelled) {
+			if (exception == null) {
+				setConnection(newConnection);
+			} else {
+				errorMsg = exception.getMessage();
+			}
+			isPending = false;
+			fireItemAppearanceChangedOnUIThread();
+		}
 	}
 
 	@Override
@@ -163,8 +211,9 @@ public class ExtensionItem implements IExtensionItem {
 			return MSG_CONN_PENDING;
 		}
 		String tooltip = MSG_CONN_INVALID + (errorMsg == null ? "" : ": " + errorMsg);
-		if (connection != null) {
-			tooltip = connection ? MSG_CONN_AVAILABLE : MSG_CONN_UNAVAILABLE;
+		Boolean currentConnection = getConnection();
+		if (currentConnection != null) {
+			tooltip = currentConnection ? MSG_CONN_AVAILABLE : MSG_CONN_UNAVAILABLE;
 		}
 		return tooltip;
 	}
@@ -178,8 +227,9 @@ public class ExtensionItem implements IExtensionItem {
 			return IMG_CONN_PENDING;
 		}
 		Image image = IMG_CONN_INVALID;
-		if (connection != null) {
-			image = connection ? IMG_CONN_AVAILABLE : IMG_CONN_UNAVAILABLE;
+		Boolean currentConnection = getConnection();
+		if (currentConnection != null) {
+			image = currentConnection ? IMG_CONN_AVAILABLE : IMG_CONN_UNAVAILABLE;
 		}
 		return image;
 	}
@@ -236,27 +286,22 @@ public class ExtensionItem implements IExtensionItem {
 	}
 
 	@Override
-	public void updateConnectionStatus() {
+	public synchronized void updateConnectionStatus() {
 		if (isConnectionIgnored() || modelWrapper == null) {
 			return;
 		}
+		ConnectionUpdater currentUpdater = getConnectionUpdater();
+		if (currentUpdater != null) {
+			currentUpdater.cancel();
+		}
 		isPending = true;
 		errorMsg = null;
+		setConnection(null);
 
 		fireItemAppearanceChanged();
-		LpeSystemUtils.submitTask(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					connection = null;
-					connection = ExtensionItem.this.modelWrapper.testConnection();
-				} catch (Exception e) {
-					errorMsg = e.getMessage();
-				}
-				isPending = false;
-				fireItemAppearanceChangedOnUIThread();
-			}
-		});
+		currentUpdater = new ConnectionUpdater();
+		setConnectionUpdater(currentUpdater);
+		LpeSystemUtils.submitTask(currentUpdater);
 	}
 
 	@Override
