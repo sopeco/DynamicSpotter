@@ -74,10 +74,15 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 		boolean success = false;
 
 		if (extension != null) {
-			if (getCurrentOperation() == DND.DROP_MOVE) {
+			switch (getCurrentOperation()) {
+			case DND.DROP_MOVE:
 				success = move(extension, target, getCurrentLocation(), isInternal);
-			} else {
+				break;
+			case DND.DROP_COPY:
 				success = copy(extension, target, getCurrentLocation(), isInternal);
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -104,35 +109,44 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 	 * @return <code>true</code> on success, <code>false</code> otherwise
 	 */
 	private boolean move(IExtensionItem extension, Object target, int location, boolean isInternal) {
-		if (isInternal) {
-			if (target instanceof IExtensionItem) {
-				IExtensionItem targetExtension = (IExtensionItem) target;
-				IExtensionItem extensionParent = extension.getParent();
-				IExtensionItem targetParent = targetExtension.getParent();
-				boolean equalParents = extensionParent.equals(targetParent);
+		boolean success = false;
+		if (target == null && !isInternal || target instanceof IExtensionItem) {
+			IExtensionItem targetExtension = (IExtensionItem) target;
+			IExtensionItem extensionParent = extension.getParent();
+			IExtensionItem targetParent = target == null ? null : targetExtension.getParent();
+			boolean equalParents = extensionParent.equals(targetParent);
 
-				// the index of the extension only matters when parents are
-				// equal
-				int index = equalParents ? extensionParent.getItemIndex(extension) : -1;
-				int targetIndex = targetParent.getItemIndex(targetExtension);
-				targetIndex = fixTargetIndex(index, targetIndex, location);
+			// the index of the extension only matters when parents are equal
+			int index = equalParents ? extensionParent.getItemIndex(extension) : -1;
+			int targetIndex = target == null ? -1 : targetParent.getItemIndex(targetExtension);
+			targetIndex = fixTargetIndex(index, targetIndex, location);
 
-				if (equalParents && location != LOCATION_ON) {
-					return extensionParent.moveItem(extension, targetIndex);
-				} else if (!targetExtension.equals(extensionParent) || location != LOCATION_ON) {
+			if (equalParents && location != LOCATION_ON) {
+				success = extensionParent.moveItem(extension, targetIndex);
+			} else if (!extensionParent.equals(targetExtension) || location != LOCATION_ON) {
+				if (isInternal) {
 					extensionParent.removeItem(extension, false);
-					if (supportsHierarchy && location == LOCATION_ON) {
-						targetExtension.addItem(extension);
-					} else {
-						targetParent.addItem(targetIndex, extension);
+				}
+				if (supportsHierarchy && location == LOCATION_ON) {
+					targetExtension.addItem(extension);
+					success = true;
+				} else if (target == null) {
+					// only external
+					// no specific target, so just drop inside the viewer
+					Object input = getViewer().getInput();
+					if (input instanceof IExtensionItem) {
+						IExtensionItem parent = (IExtensionItem) input;
+						parent.addItem(extension);
+						success = true;
 					}
-					return true;
+				} else {
+					targetParent.addItem(targetIndex, extension);
+					success = true;
 				}
 			}
-
 		}
 
-		return false;
+		return success;
 	}
 
 	/**
@@ -147,6 +161,9 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 	 * @return the fixed target index
 	 */
 	private int fixTargetIndex(int index, int targetIndex, int location) {
+		if (targetIndex == -1) {
+			return targetIndex;
+		}
 		switch (location) {
 		case LOCATION_BEFORE:
 			if (index != -1 && index < targetIndex) {
