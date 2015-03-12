@@ -112,7 +112,7 @@ public class ExtensionsGroupViewer {
 	private Control viewerControl;
 	private TableViewer extensionsTblViewer;
 	private TreeViewer extensionsTreeViewer;
-	private ColumnViewer extensionsViewer;
+	private StructuredViewer extensionsViewer;
 	private Button btnAddExtension, btnAppendExtension, btnRemoveExtension, btnRefreshExtensions;
 
 	/**
@@ -168,7 +168,7 @@ public class ExtensionsGroupViewer {
 	/**
 	 * @return the underlying viewer
 	 */
-	public ColumnViewer getViewer() {
+	public StructuredViewer getViewer() {
 		return extensionsViewer;
 	}
 
