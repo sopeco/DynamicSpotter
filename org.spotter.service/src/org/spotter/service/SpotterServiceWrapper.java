@@ -23,7 +23,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -271,7 +270,7 @@ public class SpotterServiceWrapper {
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
 		IExtension<? extends IExtensionArtifact> extension = ExtensionRegistry.getSingleton().getExtension(extName);
 		if (extension == null) {
-			return Collections.emptySet();
+			return null;
 		}
 		return extension.getConfigParameters();
 	}

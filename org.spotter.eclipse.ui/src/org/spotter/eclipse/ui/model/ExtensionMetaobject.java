@@ -72,14 +72,12 @@ public class ExtensionMetaobject {
 	 * @return the configuration parameters
 	 */
 	public Set<ConfigParameterDescription> getConfigParams() {
-		Set<ConfigParameterDescription> params;
-		if (client == null) {
-			params = new HashSet<>();
-		} else {
+		Set<ConfigParameterDescription> params = null;
+		if (client != null) {
 			params = client.getExtensionConfigParamters(extensionName);
 		}
 
-		return params;
+		return params != null ? params : new HashSet<ConfigParameterDescription>();
 	}
 
 }
