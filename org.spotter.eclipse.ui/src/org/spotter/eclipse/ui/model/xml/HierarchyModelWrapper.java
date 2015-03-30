@@ -67,6 +67,14 @@ public class HierarchyModelWrapper extends AbstractModelWrapper {
 	}
 
 	@Override
+	public IModelWrapper copy() {
+		XPerformanceProblem modelCopy = HierarchyFactory.getInstance().copyPerformanceProblem(wrappedModel);
+		HierarchyModelWrapper wrapper = new HierarchyModelWrapper(extension, modelContainingList, modelCopy);
+
+		return wrapper;
+	}
+
+	@Override
 	public Object getXMLModel() {
 		return wrappedModel;
 	}

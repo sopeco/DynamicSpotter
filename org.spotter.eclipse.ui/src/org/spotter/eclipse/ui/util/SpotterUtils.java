@@ -140,6 +140,26 @@ public final class SpotterUtils {
 	}
 
 	/**
+	 * Copies the configuration list.
+	 * 
+	 * @param config
+	 *            the list to copy
+	 * @return a deep copy of the list
+	 */
+	public static List<XMConfiguration> copyConfigurationList(List<XMConfiguration> config) {
+		List<XMConfiguration> configCopy = new ArrayList<>();
+		if (config != null) {
+			for (XMConfiguration xmConfig : config) {
+				XMConfiguration xmConfigCopy = new XMConfiguration();
+				xmConfigCopy.setKey(xmConfig.getKey());
+				xmConfigCopy.setValue(xmConfig.getValue());
+				configCopy.add(xmConfigCopy);
+			}
+		}
+		return configCopy;
+	}
+
+	/**
 	 * Checks whether the given list of config parameters contains the key.
 	 * 
 	 * @param config

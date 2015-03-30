@@ -22,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.hierarchy.model.RawHierarchyFactory;
 import org.spotter.shared.hierarchy.model.XPerformanceProblem;
 
@@ -77,6 +78,26 @@ public final class HierarchyFactory {
 			LOGGER.error(message + " Cause: {}", e.getMessage());
 			throw new UICoreException(message, e);
 		}
+	}
+
+	/**
+	 * Copies the given performance problem. All unique keys are replaced by new
+	 * ones. Children are not copied.
+	 * 
+	 * @param problem
+	 *            the problem to copy
+	 * @return the copied problem
+	 */
+	public XPerformanceProblem copyPerformanceProblem(XPerformanceProblem problem) {
+		XPerformanceProblem copy = new XPerformanceProblem();
+		copy.setExtensionName(problem.getExtensionName());
+		copy.setUniqueId(RawHierarchyFactory.generateUniqueId());
+
+		if (problem.getConfig() != null) {
+			copy.setConfig(SpotterUtils.copyConfigurationList(problem.getConfig()));
+		}
+
+		return copy;
 	}
 
 }

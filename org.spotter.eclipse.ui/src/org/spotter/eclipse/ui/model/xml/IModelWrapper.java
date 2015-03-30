@@ -46,6 +46,14 @@ public interface IModelWrapper {
 	String NAME_KEY = ConfigKeys.SATELLITE_ADAPTER_NAME_KEY;
 
 	/**
+	 * Creates a copy of this wrapper including its underlying XML model. Any
+	 * unique keys are replaced by new ones. Children should not be copied.
+	 * 
+	 * @return a copy of this wrapper
+	 */
+	IModelWrapper copy();
+
+	/**
 	 * @return the name of the extension that the model is associated with
 	 */
 	String getExtensionName();
