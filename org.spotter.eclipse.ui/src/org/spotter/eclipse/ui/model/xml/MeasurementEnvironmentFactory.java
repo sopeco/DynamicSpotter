@@ -24,6 +24,7 @@ import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.eclipse.ui.UICoreException;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.environment.model.ObjectFactory;
 import org.spotter.shared.environment.model.XMeasurementEnvObject;
 import org.spotter.shared.environment.model.XMeasurementEnvironment;
@@ -100,6 +101,22 @@ public final class MeasurementEnvironmentFactory {
 		env.setWorkloadAdapter(workloadAdapters);
 
 		return env;
+	}
+
+	/**
+	 * Creates a copy of the given measurement environment object.
+	 * 
+	 * @param envObj
+	 *            the object to copy
+	 * @return the copy of the given object
+	 */
+	public XMeasurementEnvObject copyMeasurementEnvObject(XMeasurementEnvObject envObj) {
+		XMeasurementEnvObject envObjCopy = new XMeasurementEnvObject();
+		envObjCopy.setExtensionName(envObj.getExtensionName());
+		if (envObj.getConfig() != null) {
+			envObjCopy.setConfig(SpotterUtils.copyConfigurationList(envObj.getConfig()));
+		}
+		return envObjCopy;
 	}
 
 }

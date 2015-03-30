@@ -152,6 +152,11 @@ public abstract class AbstractExtensionItemDecorator implements IExtensionItem {
 	}
 
 	@Override
+	public IExtensionItem copyItem() {
+		return delegate.copyItem();
+	}
+	
+	@Override
 	public IExtensionItem getItem(int index) {
 		return delegate.getItem(index);
 	}

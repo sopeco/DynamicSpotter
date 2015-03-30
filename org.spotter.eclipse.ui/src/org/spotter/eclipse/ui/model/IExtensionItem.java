@@ -158,6 +158,15 @@ public interface IExtensionItem extends IHandlerMediator {
 	void removed(boolean propagate);
 
 	/**
+	 * Returns a deep copy of this item including its children. If this item
+	 * contained any unique keys, the copy will have new keys assigned instead
+	 * to ensure that all keys remain unique.
+	 * 
+	 * @return a copy of this item
+	 */
+	IExtensionItem copyItem();
+
+	/**
 	 * Returns a specific item determined by its index.
 	 * 
 	 * @param index

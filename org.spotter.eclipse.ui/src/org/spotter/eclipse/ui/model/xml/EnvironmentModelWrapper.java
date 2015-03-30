@@ -36,7 +36,8 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 	private final List<XMeasurementEnvObject> children;
 
 	/**
-	 * Creates a new wrapper.
+	 * Creates a new wrapper without any children. Only the root wrapper
+	 * assigned to the editor input is assumed to have children.
 	 * 
 	 * @param extension
 	 *            the associated extension
@@ -54,7 +55,8 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 	}
 
 	/**
-	 * Creates a new wrapper.
+	 * Creates a new wrapper. This constructor only serves for the root wrapper
+	 * which will be assigned to the editor input.
 	 * 
 	 * @param children
 	 *            the children of this wrapper
@@ -76,6 +78,15 @@ public class EnvironmentModelWrapper extends AbstractModelWrapper {
 		if (wrappedModel != null) {
 			wrappedModel.setConfig(config);
 		}
+	}
+
+	@Override
+	public IModelWrapper copy() {
+		XMeasurementEnvObject modelCopy = MeasurementEnvironmentFactory.getInstance().copyMeasurementEnvObject(
+				wrappedModel);
+		EnvironmentModelWrapper wrapper = new EnvironmentModelWrapper(extension, modelContainingList, modelCopy);
+
+		return wrapper;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import java.util.Set;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 import org.spotter.shared.environment.model.XMConfiguration;
 
 /**
@@ -37,6 +38,11 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 
 	private final String projectName;
 	private List<XMConfiguration> xmConfigList;
+
+	// private constructor for copy method
+	private SpotterConfigModelWrapper(String projectName) {
+		this.projectName = projectName;
+	}
 
 	/**
 	 * Creates an instance of this class using the given properties.
@@ -80,6 +86,13 @@ public class SpotterConfigModelWrapper implements IModelWrapper {
 	@Override
 	public void setConfig(List<XMConfiguration> config) {
 		this.xmConfigList = config;
+	}
+
+	@Override
+	public IModelWrapper copy() {
+		SpotterConfigModelWrapper wrapper = new SpotterConfigModelWrapper(projectName);
+		wrapper.setConfig(SpotterUtils.copyConfigurationList(getConfig()));
+		return wrapper;
 	}
 
 	/**

@@ -43,14 +43,14 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * 
  */
 public class ExtensionItem implements IExtensionItem {
-	
+
 	private class ConnectionUpdater implements Runnable {
 		private volatile boolean isCancelled = false;
-		
+
 		public void cancel() {
 			this.isCancelled = true;
 		}
-		
+
 		@Override
 		public void run() {
 			try {
@@ -156,24 +156,25 @@ public class ExtensionItem implements IExtensionItem {
 		this.isPending = modelWrapper == null ? false : true;
 		this.errorMsg = null;
 	}
-	
+
 	private synchronized Boolean getConnection() {
 		return connection;
 	}
-	
+
 	private synchronized void setConnection(Boolean connection) {
 		this.connection = connection;
 	}
-	
+
 	private synchronized ConnectionUpdater getConnectionUpdater() {
 		return connectionUpdater;
 	}
-	
+
 	private synchronized void setConnectionUpdater(ConnectionUpdater connectionUpdater) {
 		this.connectionUpdater = connectionUpdater;
 	}
-	
-	private synchronized void onConnectionUpdateComplete(ConnectionUpdater updater, Boolean newConnection, Exception exception) {
+
+	private synchronized void onConnectionUpdateComplete(ConnectionUpdater updater, Boolean newConnection,
+			Exception exception) {
 		if (!updater.isCancelled) {
 			if (exception == null) {
 				setConnection(newConnection);
@@ -204,7 +205,7 @@ public class ExtensionItem implements IExtensionItem {
 
 	@Override
 	public String getToolTip() {
-		if (ignoreConnection) {
+		if (isConnectionIgnored()) {
 			return extensionDescription != null ? extensionDescription : "";
 		}
 		if (isPending) {
@@ -220,7 +221,7 @@ public class ExtensionItem implements IExtensionItem {
 
 	@Override
 	public Image getImage() {
-		if (ignoreConnection) {
+		if (isConnectionIgnored()) {
 			return null;
 		}
 		if (isPending) {
@@ -364,6 +365,28 @@ public class ExtensionItem implements IExtensionItem {
 		}
 	}
 
+	/**
+	 * Copies this item including its children. Any attached handlers or
+	 * listeners will not be copied.
+	 * 
+	 * @return a copy of this item
+	 */
+	@Override
+	public IExtensionItem copyItem() {
+		ExtensionItem copy = new ExtensionItem(getParent(), getModelWrapper().copy(), getEditorId());
+		copy.setIgnoreConnection(isConnectionIgnored());
+
+		// copy children items as well
+		if (hasItems()) {
+			for (IExtensionItem child : getItems()) {
+				IExtensionItem childCopy = child.copyItem();
+				copy.addItem(childCopy);
+			}
+		}
+
+		return copy;
+	}
+
 	@Override
 	public IExtensionItem getItem(int index) {
 		return childrenItems.get(index);
@@ -391,7 +414,7 @@ public class ExtensionItem implements IExtensionItem {
 	private void doAddItem(IExtensionItem item) {
 		childrenItems.add(item);
 		item.setParent(this);
-		item.setIgnoreConnection(ignoreConnection);
+		item.setIgnoreConnection(isConnectionIgnored());
 		if (getModelWrapper() != null) {
 			List<?> modelContainingList = getModelWrapper().getChildren();
 			item.getModelWrapper().setXMLModelContainingList(modelContainingList);
