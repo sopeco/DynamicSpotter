@@ -399,11 +399,13 @@ public class ServiceClientWrapper {
 	}
 
 	/**
-	 * Returns the extension configuration parameters for the given extension.
+	 * Returns the extension configuration parameters for the given extension or
+	 * <code>null</code> if the extension doesn't exist.
 	 * 
 	 * @param extName
 	 *            The name of the extension
-	 * @return the extension configuration parameters for the extension
+	 * @return the extension configuration parameters for the extension or
+	 *         <code>null</code>
 	 */
 	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
 		return getExtensionConfigParamters(extName, HandlerStyle.SHOW);
@@ -420,8 +422,10 @@ public class ServiceClientWrapper {
 		}
 		try {
 			confParams = client.getExtensionConfigParamters(extName);
-			cachedExtensionConfParamters.put(extName, confParams);
-			cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
+			if (confParams != null) {
+				cachedExtensionConfParamters.put(extName, confParams);
+				cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
+			}
 		} catch (Exception e) {
 			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, style, false);
 		}

@@ -54,6 +54,10 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 */
 	protected static final String TITLE_ERR_DIALOG = "Editor Error";
 	/**
+	 * Title for configuration error dialogs.
+	 */
+	protected static final String TITLE_CONFIG_ERR_DIALOG = "Configuration Error";
+	/**
 	 * Error message for failure when saving.
 	 */
 	protected static final String ERR_MSG_SAVE = "Could not save file!";
@@ -77,7 +81,7 @@ public abstract class AbstractSpotterEditor extends EditorPart {
 	 * @return The name of the editor
 	 */
 	protected abstract String getEditorName();
-	
+
 	/**
 	 * @return The id of the editor
 	 */

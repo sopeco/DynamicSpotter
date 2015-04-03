@@ -15,6 +15,7 @@
  */
 package org.spotter.eclipse.ui.editors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -67,6 +68,7 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	@Override
 	public IExtensionItem getInitialExtensionsInput() {
 		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
+		List<XMeasurementEnvObject> errEnvObjects = new ArrayList<>();
 		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
 		IExtensionItem input = factory.createExtensionItem(new EnvironmentModelWrapper(envObjects));
 
@@ -76,15 +78,19 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 			String extName = envObj.getExtensionName();
 
 			if (client.getExtensionConfigParamters(extName) == null) {
-				DialogUtils.openWarning(TITLE_ERR_DIALOG,
-						"Creating initial input failed. Cause: Missing information to fully initialize ExtensionItem");
-				return factory.createExtensionItem();
+				DialogUtils.openWarning(TITLE_CONFIG_ERR_DIALOG, "Skipping extension item '" + extName
+						+ "' because the given extension does not exist! In order to "
+						+ "recover its configuration you may manually rename the extension "
+						+ "in the config file before saving it, otherwise the data will be lost.");
+				errEnvObjects.add(envObj);
+				continue;
 			}
 
 			ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
 			IModelWrapper wrapper = new EnvironmentModelWrapper(extension, envObjects, envObj);
 			input.addItem(factory.createExtensionItem(wrapper));
 		}
+		envObjects.removeAll(errEnvObjects);
 		return input;
 	}
 
