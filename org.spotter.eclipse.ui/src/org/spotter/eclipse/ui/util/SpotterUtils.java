@@ -181,6 +181,31 @@ public final class SpotterUtils {
 	}
 
 	/**
+	 * Returns the first element in the given selection matching the parameter
+	 * or <code>null</code> if none available.
+	 * 
+	 * @param <T>
+	 *            element type
+	 * @param selection
+	 *            the selection to extract from
+	 * @param clazz
+	 *            the class of the expected element
+	 * @return the first element or <code>null</code>
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T extractFirstElement(ISelection selection, Class<T> clazz) {
+		T result = null;
+		if (selection != null && !selection.isEmpty() && selection instanceof IStructuredSelection) {
+			Object element = ((IStructuredSelection) selection).getFirstElement();
+			if (clazz.isInstance(element)) {
+				result = (T) element;
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Extracts the config parameter with the given key.
 	 * 
 	 * @param config

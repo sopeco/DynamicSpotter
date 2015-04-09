@@ -17,7 +17,6 @@ package org.spotter.eclipse.ui.dnd;
 
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.dnd.DND;
@@ -28,6 +27,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Item;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
 import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * A drop listener for {@link IExtensionItem}.
@@ -70,7 +70,7 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 	public boolean performDrop(Object data) {
 		boolean isInternal = isThisViewerDragSource();
 		Object target = getCurrentTarget();
-		IExtensionItem extension = getExtension(target);
+		IExtensionItem extension = getExtension();
 		boolean success = false;
 
 		if (extension != null) {
@@ -280,7 +280,7 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 		boolean isValid = false;
 
 		boolean isSupported = LocalSelectionTransfer.getTransfer().isSupportedType(transferType);
-		IExtensionItem extension = isSupported ? getExtension(target) : null;
+		IExtensionItem extension = isSupported ? getExtension() : null;
 
 		boolean isCopyOp = operation == DND.DROP_COPY;
 		if (extension != null && (isCopyOp || !extension.equals(target)) && hasAcceptableEditorId(extension)) {
@@ -294,17 +294,9 @@ public class ExtensionDropListener extends ViewerDropAdapter {
 		return isValid;
 	}
 
-	private IExtensionItem getExtension(Object target) {
+	private IExtensionItem getExtension() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		IExtensionItem extension = null;
-		if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
-			Object element = ((IStructuredSelection) selection).getFirstElement();
-			if (element instanceof IExtensionItem) {
-				extension = (IExtensionItem) element;
-			}
-		}
-
-		return extension;
+		return SpotterUtils.extractFirstElement(selection, IExtensionItem.class);
 	}
 
 	private boolean hasAcceptableEditorId(IExtensionItem extension) {

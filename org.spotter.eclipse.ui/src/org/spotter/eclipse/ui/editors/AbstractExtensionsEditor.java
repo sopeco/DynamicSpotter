@@ -73,7 +73,7 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	 * @return a wrapper for the given component
 	 */
 	public abstract IModelWrapper createModelWrapper(Object parent, ExtensionMetaobject extensionComponent);
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		AbstractSpotterEditorInput editorInput = (AbstractSpotterEditorInput) getEditorInput();
@@ -113,6 +113,14 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	public void setFocus() {
 		if (extensionsGroupViewer != null) {
 			extensionsGroupViewer.setFocus();
+		}
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (extensionsGroupViewer != null) {
+			extensionsGroupViewer.dispose();
 		}
 	}
 

@@ -38,10 +38,9 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -55,14 +54,22 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.spotter.eclipse.ui.Activator;
 import org.spotter.eclipse.ui.ServiceClientWrapper;
+import org.spotter.eclipse.ui.actions.CopyExtensionAction;
+import org.spotter.eclipse.ui.actions.CutExtensionAction;
+import org.spotter.eclipse.ui.actions.DeleteExtensionAction;
+import org.spotter.eclipse.ui.actions.PasteExtensionAction;
 import org.spotter.eclipse.ui.dialogs.AddExtensionDialog;
 import org.spotter.eclipse.ui.dnd.ExtensionDragListener;
 import org.spotter.eclipse.ui.dnd.ExtensionDropListener;
 import org.spotter.eclipse.ui.editors.AbstractExtensionsEditor;
+import org.spotter.eclipse.ui.listeners.IItemChangedListener;
 import org.spotter.eclipse.ui.model.BasicEditorExtensionItemFactory;
 import org.spotter.eclipse.ui.model.ExtensionMetaobject;
 import org.spotter.eclipse.ui.model.IExtensionItem;
@@ -92,7 +99,7 @@ import org.spotter.shared.environment.model.XMConfiguration;
  * @author Denis Knoepfle
  * 
  */
-public class ExtensionsGroupViewer {
+public class ExtensionsGroupViewer implements IItemChangedListener {
 
 	private static final int VIEWER_CONTROL_STYLE = SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL
 			| SWT.V_SCROLL;
@@ -113,6 +120,8 @@ public class ExtensionsGroupViewer {
 	private TableViewer extensionsTblViewer;
 	private TreeViewer extensionsTreeViewer;
 	private StructuredViewer extensionsViewer;
+	private Clipboard clipboard;
+	private DeleteExtensionAction deleteExtensionAction;
 	private Button btnAddExtension, btnAppendExtension, btnRemoveExtension, btnRefreshExtensions;
 
 	/**
@@ -122,26 +131,30 @@ public class ExtensionsGroupViewer {
 	 * @param parent
 	 *            the parent of this viewer
 	 * @param editor
-	 *            the associated editor
+	 *            the associated editor, must not be <code>null</code>
 	 * @param hierarchical
 	 *            determines whether extension items can have children
-	 * @param dragAndDropSupport
-	 *            determines whether drag 'n drop is supported
+	 * @param editSupport
+	 *            determines whether edit support like copy, cut, paste, remove
+	 *            and drag 'n drop is enabled
 	 */
 	public ExtensionsGroupViewer(Composite parent, AbstractExtensionsEditor editor, boolean hierarchical,
-			boolean dragAndDropSupport) {
+			boolean editSupport) {
+		if (editor == null) {
+			throw new IllegalArgumentException("editor must not be null");
+		}
 		this.editor = editor;
 		this.isHierarchical = hierarchical;
 		this.extensionsInput = editor.getInitialExtensionsInput();
 		this.extensionItemFactory = new BasicEditorExtensionItemFactory(editor.getEditorId());
 		this.ignoreConnection = extensionsInput == null ? true : extensionsInput.isConnectionIgnored();
 
-		createExtensionsGroup(parent, dragAndDropSupport);
+		createExtensionsGroup(parent, editSupport);
 		addButtonListeners();
 		addSelectionListeners();
-		addKeyListeners();
 
 		if (extensionsInput != null) {
+			extensionsInput.addItemChangedListener(this);
 			extensionsInput.updateChildrenConnections();
 		}
 	}
@@ -163,6 +176,18 @@ public class ExtensionsGroupViewer {
 	 */
 	public void setFocus() {
 		viewerControl.setFocus();
+	}
+
+	/**
+	 * Disposes of this viewer.
+	 */
+	public void dispose() {
+		if (clipboard != null) {
+			clipboard.dispose();
+		}
+		if (extensionsInput != null) {
+			extensionsInput.removeItemChangedListener(this);
+		}
 	}
 
 	/**
@@ -289,12 +314,12 @@ public class ExtensionsGroupViewer {
 		viewer.addDropSupport(operations, transferTypes, new ExtensionDropListener(viewer, editor, hierarchical));
 	}
 
-	private void createExtensionsGroup(Composite container, boolean dragAndDropSupport) {
+	private void createExtensionsGroup(Composite container, boolean editSupport) {
 		Group grpConfiguredComponents = new Group(container, SWT.NONE);
 		grpConfiguredComponents.setText("configured components");
 		grpConfiguredComponents.setLayout(WidgetUtils.createGridLayout(2));
 
-		extensionsViewer = createViewerControl(grpConfiguredComponents, dragAndDropSupport);
+		extensionsViewer = createViewerControl(grpConfiguredComponents, editSupport);
 		viewerControl = extensionsViewer.getControl();
 
 		Composite buttonComp = new Composite(grpConfiguredComponents, SWT.NONE);
@@ -306,21 +331,44 @@ public class ExtensionsGroupViewer {
 		buttonCompLayout.spacing = WidgetUtils.DEFAULT_VERTICAL_SPACING;
 		buttonComp.setLayout(buttonCompLayout);
 
-		createButtons(buttonComp);
+		createButtons(buttonComp, editSupport);
 	}
 
-	private ColumnViewer createViewerControl(Composite parent, boolean dragAndDropSupport) {
+	private ColumnViewer createViewerControl(Composite parent, boolean editSupport) {
+		ColumnViewer columnViewer;
 		if (isHierarchical) {
-			extensionsTreeViewer = createTreeViewer(parent, extensionsInput, editor, dragAndDropSupport);
+			extensionsTreeViewer = createTreeViewer(parent, extensionsInput, editor, editSupport);
 			extensionsTreeViewer.expandAll();
-			return extensionsTreeViewer;
+			columnViewer = extensionsTreeViewer;
 		} else {
-			extensionsTblViewer = createTableViewer(parent, extensionsInput, editor, dragAndDropSupport);
-			return extensionsTblViewer;
+			extensionsTblViewer = createTableViewer(parent, extensionsInput, editor, editSupport);
+			columnViewer = extensionsTblViewer;
 		}
+
+		if (editSupport) {
+			IEditorSite editorSite = editor.getEditorSite();
+			if (editorSite == null) {
+				throw new IllegalStateException("cannot initialize actions when editor site is null");
+			}
+			// enable copy/cut/paste functionality
+			clipboard = new Clipboard(editorSite.getShell().getDisplay());
+			IActionBars bars = editorSite.getActionBars();
+			String editorId = editor.getEditorId();
+			deleteExtensionAction = new DeleteExtensionAction(columnViewer, editor);
+			CopyExtensionAction copyExtensionAction = new CopyExtensionAction(columnViewer, clipboard, editorId);
+			bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteExtensionAction);
+			bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new CutExtensionAction(columnViewer,
+					copyExtensionAction, deleteExtensionAction));
+			bars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyExtensionAction);
+			bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new PasteExtensionAction(columnViewer, editorId));
+
+			bars.updateActionBars();
+		}
+
+		return columnViewer;
 	}
 
-	private void createButtons(Composite parent) {
+	private void createButtons(Composite parent, boolean editSupport) {
 		btnAddExtension = new Button(parent, SWT.PUSH);
 		btnAddExtension.setText("Add...");
 		btnAddExtension.setToolTipText("Opens a dialog to add more extensions");
@@ -332,10 +380,12 @@ public class ExtensionsGroupViewer {
 			btnAppendExtension.setEnabled(false);
 		}
 
-		btnRemoveExtension = new Button(parent, SWT.PUSH);
-		btnRemoveExtension.setText("Remove");
-		btnRemoveExtension.setToolTipText("Removes the selected extension");
-		btnRemoveExtension.setEnabled(false);
+		if (editSupport) {
+			btnRemoveExtension = new Button(parent, SWT.PUSH);
+			btnRemoveExtension.setText("Remove");
+			btnRemoveExtension.setToolTipText("Removes the selected extension");
+			btnRemoveExtension.setEnabled(false);
+		}
 
 		if (!ignoreConnection) {
 			btnRefreshExtensions = new Button(parent, SWT.PUSH);
@@ -377,10 +427,6 @@ public class ExtensionsGroupViewer {
 				parentItem.addItem(item);
 				item.updateConnectionStatus();
 				lastAdded = item;
-			}
-			btnRemoveExtension.setEnabled(true);
-			if (!ignoreConnection) {
-				btnRefreshExtensions.setEnabled(true);
 			}
 			extensionsViewer.setSelection(new StructuredSelection(lastAdded));
 			editor.markDirty();
@@ -440,12 +486,14 @@ public class ExtensionsGroupViewer {
 			});
 		}
 
-		btnRemoveExtension.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				removeSelectedExtension();
-			}
-		});
+		if (btnRemoveExtension != null) {
+			btnRemoveExtension.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					deleteExtensionAction.run();
+				}
+			});
+		}
 
 		if (!ignoreConnection) {
 			btnRefreshExtensions.addSelectionListener(new SelectionAdapter() {
@@ -469,11 +517,12 @@ public class ExtensionsGroupViewer {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 				if (!sel.isEmpty()) {
 					btnRemoveExtension.setEnabled(true);
-					if (isHierarchical && !btnAppendExtension.isEnabled()) {
+					if (isHierarchical) {
 						btnAppendExtension.setEnabled(true);
 					}
 					currentSelectedExtension = (IExtensionItem) sel.getFirstElement();
 				} else {
+					btnRemoveExtension.setEnabled(false);
 					if (isHierarchical) {
 						btnAppendExtension.setEnabled(false);
 					}
@@ -495,17 +544,6 @@ public class ExtensionsGroupViewer {
 		}
 	}
 
-	private void addKeyListeners() {
-		viewerControl.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.DEL) {
-					removeSelectedExtension();
-				}
-			}
-		});
-	}
-
 	/**
 	 * Updates the properties in the <code>PropertiesGroupViewer</code> if one
 	 * is set and not <code>null</code>.
@@ -516,34 +554,23 @@ public class ExtensionsGroupViewer {
 		}
 	}
 
-	/**
-	 * Removes the selected extension.
-	 */
-	private void removeSelectedExtension() {
-		IStructuredSelection sel = (IStructuredSelection) extensionsViewer.getSelection();
-		if (sel.isEmpty()) {
-			return;
-		}
-		IExtensionItem item = (IExtensionItem) sel.getFirstElement();
-		IExtensionItem parentItem = item.getParent();
-		int index = parentItem.getItemIndex(item);
-		if (index != -1) {
-			parentItem.removeItem(index, true);
-			if (parentItem.hasItems()) {
-				// parent still has items left, so select next child
-				index = Math.min(index, parentItem.getItemCount() - 1);
-				extensionsViewer.setSelection(new StructuredSelection(parentItem.getItem(index)));
-			} else if (parentItem != extensionsInput) {
-				// root not reached yet, so select parent item
-				extensionsViewer.setSelection(new StructuredSelection(parentItem));
-			} else {
-				// no elements left
-				btnRemoveExtension.setEnabled(false);
-				if (!ignoreConnection) {
-					btnRefreshExtensions.setEnabled(false);
-				}
-			}
-			editor.markDirty();
+	@Override
+	public void childAdded(IExtensionItem parent, IExtensionItem item) {
+		updateRefreshButton();
+	}
+
+	@Override
+	public void childRemoved(IExtensionItem parent, IExtensionItem item) {
+		updateRefreshButton();
+	}
+
+	@Override
+	public void appearanceChanged(IExtensionItem item) {
+	}
+
+	private void updateRefreshButton() {
+		if (!ignoreConnection) {
+			btnRefreshExtensions.setEnabled(extensionsInput != null && extensionsInput.hasItems());
 		}
 	}
 
