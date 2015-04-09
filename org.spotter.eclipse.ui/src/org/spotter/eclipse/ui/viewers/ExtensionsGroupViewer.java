@@ -353,11 +353,14 @@ public class ExtensionsGroupViewer implements IItemChangedListener {
 			// enable copy/cut/paste functionality
 			clipboard = new Clipboard(editorSite.getShell().getDisplay());
 			IActionBars bars = editorSite.getActionBars();
+			String editorId = editor.getEditorId();
 			deleteExtensionAction = new DeleteExtensionAction(columnViewer, editor);
+			CopyExtensionAction copyExtensionAction = new CopyExtensionAction(columnViewer, clipboard, editorId);
 			bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), deleteExtensionAction);
-			bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new CutExtensionAction(columnViewer, clipboard));
-			bars.setGlobalActionHandler(ActionFactory.COPY.getId(), new CopyExtensionAction(columnViewer, clipboard));
-			bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new PasteExtensionAction(columnViewer, clipboard));
+			bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new CutExtensionAction(columnViewer,
+					copyExtensionAction, deleteExtensionAction));
+			bars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyExtensionAction);
+			bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new PasteExtensionAction(columnViewer, editorId));
 
 			bars.updateActionBars();
 		}

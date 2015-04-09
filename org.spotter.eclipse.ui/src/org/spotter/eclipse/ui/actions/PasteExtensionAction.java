@@ -16,8 +16,11 @@
 package org.spotter.eclipse.ui.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.swt.dnd.Clipboard;
+import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * Class for copying a selection of extensions from a view and placing them on
@@ -28,26 +31,46 @@ import org.eclipse.swt.dnd.Clipboard;
  */
 public class PasteExtensionAction extends Action {
 
-	//private final Clipboard clipboard;
-	//private final StructuredViewer viewer;
+	private final StructuredViewer viewer;
+	private final String acceptableEditorId;
 
 	/**
 	 * Creates a new action for the given viewer and clipboard.
 	 * 
 	 * @param viewer
 	 *            the associated viewer
-	 * @param clipboard
-	 *            the clipboard to use
+	 * @param acceptableEditorId
+	 *            the id of the editor that accepts the copied extensions
 	 */
-	public PasteExtensionAction(StructuredViewer viewer, Clipboard clipboard) {
+	public PasteExtensionAction(StructuredViewer viewer, String acceptableEditorId) {
 		super("Paste");
-		//this.viewer = viewer;
-		//this.clipboard = clipboard;
+		this.viewer = viewer;
+		this.acceptableEditorId = acceptableEditorId;
 	}
 
 	@Override
 	public void run() {
-		// TODO: implement paste action
+		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
+		CopyExtensionInfo info = SpotterUtils.extractFirstElement(selection, CopyExtensionInfo.class);
+		if (info == null || !info.getAcceptableEditorId().equals(acceptableEditorId)) {
+			return;
+		}
+
+		IExtensionItem item = info.getExtensionItem();
+		IExtensionItem targetExtension = SpotterUtils.extractFirstElement(viewer.getSelection(), IExtensionItem.class);
+		IExtensionItem targetParent = targetExtension == null ? null : targetExtension.getParent();
+
+		if (targetParent == null && viewer.getInput() instanceof IExtensionItem) {
+			targetParent = (IExtensionItem) viewer.getInput();
+		}
+
+		if (targetParent != null) {
+			IExtensionItem itemCopy = item.copyItem();
+			targetParent.addItem(itemCopy);
+
+			itemCopy.updateConnectionStatus();
+			itemCopy.updateChildrenConnections();
+		}
 	}
 
 }

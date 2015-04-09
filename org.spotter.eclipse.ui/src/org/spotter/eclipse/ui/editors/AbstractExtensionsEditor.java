@@ -119,7 +119,9 @@ public abstract class AbstractExtensionsEditor extends AbstractSpotterEditor {
 	@Override
 	public void dispose() {
 		super.dispose();
-		extensionsGroupViewer.dispose();
+		if (extensionsGroupViewer != null) {
+			extensionsGroupViewer.dispose();
+		}
 	}
 
 	/**

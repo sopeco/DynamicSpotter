@@ -17,7 +17,8 @@ package org.spotter.eclipse.ui.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.swt.dnd.Clipboard;
+import org.spotter.eclipse.ui.model.IExtensionItem;
+import org.spotter.eclipse.ui.util.SpotterUtils;
 
 /**
  * Class for cutting a selection of extensions from a view and placing them on
@@ -28,26 +29,37 @@ import org.eclipse.swt.dnd.Clipboard;
  */
 public class CutExtensionAction extends Action {
 
-	//private final Clipboard clipboard;
-	//private final StructuredViewer viewer;
+	private final StructuredViewer viewer;
+	private final CopyExtensionAction copyAction;
+	private final DeleteExtensionAction deleteAction;
 
 	/**
 	 * Creates a new action for the given viewer and clipboard.
 	 * 
 	 * @param viewer
 	 *            the associated viewer
-	 * @param clipboard
-	 *            the clipboard to use
+	 * @param copyAction
+	 *            the copy part of the cut action
+	 * @param deleteAction
+	 *            the delete part of the cut action
 	 */
-	public CutExtensionAction(StructuredViewer viewer, Clipboard clipboard) {
+	public CutExtensionAction(StructuredViewer viewer, CopyExtensionAction copyAction,
+			DeleteExtensionAction deleteAction) {
 		super("Cut");
-		//this.viewer = viewer;
-		//this.clipboard = clipboard;
+		this.viewer = viewer;
+		this.copyAction = copyAction;
+		this.deleteAction = deleteAction;
 	}
 
 	@Override
 	public void run() {
-		// TODO: implement cut action
+		IExtensionItem item = SpotterUtils.extractFirstElement(viewer.getSelection(), IExtensionItem.class);
+		if (item == null) {
+			return;
+		}
+
+		copyAction.run();
+		deleteAction.run();
 	}
 
 }
