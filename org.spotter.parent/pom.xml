@@ -25,11 +25,6 @@
 	</modules>
 
 	<repositories>
-		<repository>
-			<id>lpe-repos</id>
-			<name>LPE Repository</name>
-			<url>http://i43vm-saas.ipd.uka.de:8081/artifactory/lpe-repos</url>
-		</repository>
 	</repositories>
 
 	<dependencies>
