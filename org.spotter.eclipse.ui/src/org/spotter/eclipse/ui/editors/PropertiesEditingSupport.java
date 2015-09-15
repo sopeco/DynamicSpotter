@@ -140,7 +140,7 @@ public final class PropertiesEditingSupport extends EditingSupport {
 		}
 	}
 
-	private static final String[] BOOLEAN_VALUES = { Boolean.TRUE.toString(), Boolean.FALSE.toString() };
+	private static final String[] BOOLEAN_VALUES = { Boolean.TRUE.toString(), Boolean.FALSE.toString(), Boolean.TRUE.toString() };
 	private static final int COMBO_ACTIVATION_STYLE = ComboBoxCellEditor.DROP_DOWN_ON_MOUSE_ACTIVATION
 			| ComboBoxCellEditor.DROP_DOWN_ON_KEY_ACTIVATION | ComboBoxCellEditor.DROP_DOWN_ON_PROGRAMMATIC_ACTIVATION;
 
