@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.ws.rs.core.MediaType;
 
 import org.lpe.common.config.ConfigParameterDescription;
-import org.lpe.common.util.web.LpeWebUtils;
+import org.lpe.common.util.LpeHTTPUtils;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;
@@ -44,7 +44,7 @@ public class SpotterServiceClient {
 
 	private String url;
 	private WebResource webResource;
-	private Client client;
+	private final Client client;
 
 	/**
 	 * Constructor.
@@ -54,9 +54,9 @@ public class SpotterServiceClient {
 	 * @param port
 	 *            port where to reach service
 	 */
-	public SpotterServiceClient(String host, String port) {
+	public SpotterServiceClient(final String host, final String port) {
 		url = "http://" + host + ":" + port;
-		client = LpeWebUtils.getWebClient();
+		client = LpeHTTPUtils.getWebClient();
 		webResource = client.resource(url);
 	}
 
@@ -68,7 +68,7 @@ public class SpotterServiceClient {
 	 * @param port
 	 *            port where to reach service
 	 */
-	public void updateUrl(String host, String port) {
+	public void updateUrl(final String host, final String port) {
 		url = "http://" + host + ":" + port;
 		webResource = client.resource(url);
 	}
@@ -80,8 +80,8 @@ public class SpotterServiceClient {
 	 *            the job description to use
 	 * @return job id for the started diagnosis task
 	 */
-	public long startDiagnosis(JobDescription jobDescription) {
-		SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+	public long startDiagnosis(final JobDescription jobDescription) {
+		final SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_START_DIAG).type(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).post(new GenericType<SpotterServiceResponse<Long>>() {
 				}, jobDescription);
@@ -107,12 +107,12 @@ public class SpotterServiceClient {
 	 * @return input stream of the zipped run result folder or <code>null</code>
 	 *         if none found
 	 */
-	public InputStream requestResults(String jobId) {
-		ClientResponse response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+	public InputStream requestResults(final String jobId) {
+		final ClientResponse response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_REQU_RESULTS).type(MediaType.APPLICATION_JSON).accept("application/zip")
 				.post(ClientResponse.class, jobId);
 
-		InputStream inputStream = response.getEntityInputStream();
+		final InputStream inputStream = response.getEntityInputStream();
 		if (inputStream != null) {
 			return inputStream;
 		} else {
@@ -131,7 +131,7 @@ public class SpotterServiceClient {
 	 *         <code>false</code> otherwise
 	 */
 	public synchronized boolean isRunning() {
-		SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_IS_RUNNING).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Boolean>>() {
 				});
@@ -152,7 +152,7 @@ public class SpotterServiceClient {
 	 *         <code>null</code> if none
 	 */
 	public synchronized Exception getLastRunException() {
-		SpotterServiceResponse<Exception> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<Exception> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_LAST_EXCEPTION).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Exception>>() {
 				});
@@ -173,7 +173,7 @@ public class SpotterServiceClient {
 	 *         configuration.
 	 */
 	public synchronized Set<ConfigParameterDescription> getConfigurationParameters() {
-		SpotterServiceResponse<Set<ConfigParameterDescription>> response = webResource
+		final SpotterServiceResponse<Set<ConfigParameterDescription>> response = webResource
 				.path(ConfigKeys.SPOTTER_REST_BASE).path(ConfigKeys.SPOTTER_REST_CONFIG_PARAMS)
 				.accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Set<ConfigParameterDescription>>>() {
@@ -196,8 +196,8 @@ public class SpotterServiceClient {
 	 *            extension type of interest
 	 * @return list of names
 	 */
-	public Set<String> getAvailableExtensions(SpotterExtensionType extType) {
-		SpotterServiceResponse<Set<String>> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+	public Set<String> getAvailableExtensions(final SpotterExtensionType extType) {
+		final SpotterServiceResponse<Set<String>> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_EXTENSIONS).path(extType.toString()).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Set<String>>>() {
 				});
@@ -221,8 +221,8 @@ public class SpotterServiceClient {
 	 *            name of the extension of interest
 	 * @return list of configuration parameters
 	 */
-	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
-		SpotterServiceResponse<Set<ConfigParameterDescription>> response = webResource
+	public Set<ConfigParameterDescription> getExtensionConfigParamters(final String extName) {
+		final SpotterServiceResponse<Set<ConfigParameterDescription>> response = webResource
 				.path(ConfigKeys.SPOTTER_REST_BASE).path(ConfigKeys.SPOTTER_REST_EXTENSION_PARAMETERS).path(extName)
 				.accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Set<ConfigParameterDescription>>>() {
@@ -244,7 +244,7 @@ public class SpotterServiceClient {
 	 * @return the default hierarchy
 	 */
 	public XPerformanceProblem getDefaultHierarchy() {
-		SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_DEFAULT_HIERARCHY).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<XPerformanceProblem>>() {
 				});
@@ -265,7 +265,7 @@ public class SpotterServiceClient {
 	 * @return progress report
 	 */
 	public SpotterProgress getCurrentProgressReport() {
-		SpotterServiceResponse<SpotterProgress> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<SpotterProgress> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_CURRENT_PROGRESS).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<SpotterProgress>>() {
 				});
@@ -286,7 +286,7 @@ public class SpotterServiceClient {
 	 * @return id
 	 */
 	public Long getCurrentJobId() {
-		SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<Long> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_CURRENT_JOB).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Long>>() {
 				});
@@ -307,7 +307,7 @@ public class SpotterServiceClient {
 	 * @return the root problem
 	 */
 	public XPerformanceProblem getCurrentRootProblem() {
-		SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<XPerformanceProblem> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_CURRENT_ROOT_PROBLEM).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<XPerformanceProblem>>() {
 				});
@@ -339,8 +339,8 @@ public class SpotterServiceClient {
 	 *            port to connect to
 	 * @return true if connection could have been established, otherwise false
 	 */
-	public boolean testConnectionToSattelite(String extName, String host, String port) {
-		SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+	public boolean testConnectionToSattelite(final String extName, final String host, final String port) {
+		final SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_TEST_SATELLITE_CONNECTION).path(extName).path(host).path(port)
 				.accept(MediaType.APPLICATION_JSON).get(new GenericType<SpotterServiceResponse<Boolean>>() {
 				});
@@ -361,7 +361,7 @@ public class SpotterServiceClient {
 	 * @return true if connection could have been established, otherwise false
 	 */
 	public boolean testConnection() {
-		SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
+		final SpotterServiceResponse<Boolean> response = webResource.path(ConfigKeys.SPOTTER_REST_BASE)
 				.path(ConfigKeys.SPOTTER_REST_TEST_CONNECTION).accept(MediaType.APPLICATION_JSON)
 				.get(new GenericType<SpotterServiceResponse<Boolean>>() {
 				});

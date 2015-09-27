@@ -15,8 +15,8 @@
  */
 package org.spotter.core.test.dummies.detection;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
+import org.aim.aiminterface.exceptions.InstrumentationException;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.detection.AbstractDetectionController;

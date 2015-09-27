@@ -24,9 +24,9 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.measurement.MeasurementData;
+import org.aim.aiminterface.entities.measurements.MeasurementData;
+import org.aim.aiminterface.exceptions.InstrumentationException;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.artifacts.measurement.collector.StreamReader;
 import org.aim.description.builder.InstrumentationDescriptionBuilder;
 import org.junit.BeforeClass;

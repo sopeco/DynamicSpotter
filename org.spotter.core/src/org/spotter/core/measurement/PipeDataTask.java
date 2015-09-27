@@ -23,8 +23,8 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.measurement.AbstractRecord;
+import org.aim.aiminterface.entities.measurements.AbstractRecord;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.lpe.common.util.system.LpeSystemUtils;
 
 /**

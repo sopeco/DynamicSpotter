@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.measurement.AbstractRecord;
-import org.aim.api.measurement.MeasurementData;
+import org.aim.aiminterface.description.instrumentation.InstrumentationDescription;
+import org.aim.aiminterface.entities.measurements.AbstractRecord;
+import org.aim.aiminterface.entities.measurements.MeasurementData;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.artifacts.records.CPUUtilizationRecord;
 import org.aim.artifacts.records.ResponseTimeRecord;
-import org.aim.description.InstrumentationDescription;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.measurement.AbstractMeasurementAdapter;
 

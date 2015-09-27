@@ -22,8 +22,8 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.description.InstrumentationDescription;
+import org.aim.aiminterface.description.instrumentation.InstrumentationDescription;
+import org.aim.aiminterface.exceptions.InstrumentationException;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.system.LpeSystemUtils;
 

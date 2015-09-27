@@ -21,8 +21,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
+import org.aim.aiminterface.exceptions.InstrumentationException;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.LpeNumericUtils;

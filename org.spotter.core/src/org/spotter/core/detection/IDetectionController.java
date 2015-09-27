@@ -17,8 +17,8 @@ package org.spotter.core.detection;
 
 import java.util.Properties;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
+import org.aim.aiminterface.exceptions.InstrumentationException;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.lpe.common.extension.IExtensionArtifact;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.result.model.SpotterResult;
