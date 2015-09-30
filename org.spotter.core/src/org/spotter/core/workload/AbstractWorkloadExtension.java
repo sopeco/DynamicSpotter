@@ -28,7 +28,7 @@ import org.spotter.core.AbstractSpotterSatelliteExtension;
  * 
  */
 public abstract class AbstractWorkloadExtension extends AbstractSpotterSatelliteExtension implements
-		IExtension<IWorkloadAdapter> {
+		IExtension {
 	@Override
 	public final Set<ConfigParameterDescription> getConfigParameters() {
 		return configParameters;

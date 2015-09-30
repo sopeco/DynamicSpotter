@@ -16,9 +16,9 @@
 package org.spotter.core.test.dummies.satellites;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.workload.AbstractWorkloadExtension;
-import org.spotter.core.workload.IWorkloadAdapter;
 
 public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 
@@ -27,20 +27,21 @@ public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 		return "DummyWorkload";
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IWorkloadAdapter createExtensionArtifact() {
-		return new DummyWorkload(this);
+	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final String... patterns) {
+		return (EA) new DummyWorkload(this);
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-		ConfigParameterDescription parDescription = new ConfigParameterDescription("test.workload.parameter",
+		final ConfigParameterDescription parDescription = new ConfigParameterDescription("test.workload.parameter",
 				LpeSupportedTypes.Integer);
 		addConfigParameter(parDescription);
 	}
 
 	@Override
-	public boolean testConnection(String host, String port) {
+	public boolean testConnection(final String host, final String port) {
 		return true;
 	}
 

@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,6 +38,8 @@ import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.status.SpotterProgress;
 
 import com.sun.jersey.api.client.ClientHandlerException;
+
+import junit.framework.Assert;
 
 public class SpotterServiceClientTest {
 
@@ -61,12 +61,12 @@ public class SpotterServiceClientTest {
 		
 		// make sure the custom port is not used
 		try {
-			String[] argsShutdownCustomized = { "shutdown", "port=" + port };
+			final String[] argsShutdownCustomized = { "shutdown", "port=" + port };
 			ServerLauncher.main(argsShutdownCustomized);
 			Thread.sleep(SHUTDOWN_WAIT_DELAY);
-		} catch (ClientHandlerException e) {
+		} catch (final ClientHandlerException e) {
 			LOGGER.debug("shutdown not necessary, no currently running service!");
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			LOGGER.warn("interrupted sleep delay after shutdown!");
 		}
 		
@@ -86,7 +86,7 @@ public class SpotterServiceClientTest {
 	}
 	
 	private static void startServer() {
-		String[] argsStartCustomized = {"start", "port=" + port };
+		final String[] argsStartCustomized = {"start", "port=" + port };
 		ServerLauncher.main(argsStartCustomized);
 	}
 	
@@ -98,13 +98,13 @@ public class SpotterServiceClientTest {
 	
 	@Test
 	public void testIsRunningOnline() {
-		boolean status = ssc.isRunning();
+		final boolean status = ssc.isRunning();
 		Assert.assertEquals(false, status);
 	}
 
 	@Test
 	public void testGetLastRunException() {
-		Exception exception = ssc.getLastRunException();
+		final Exception exception = ssc.getLastRunException();
 		Assert.assertNull(exception);
 	}
 	
@@ -112,7 +112,7 @@ public class SpotterServiceClientTest {
 	public void testGetAvailableExtensions() {
 		registerExtension();
 
-		Set<String> set = ssc.getAvailableExtensions(SpotterExtensionType.WORKLOAD_EXTENSION);
+		final Set<String> set = ssc.getAvailableExtensions(SpotterExtensionType.WORKLOAD_EXTENSION);
 		Assert.assertEquals(1, set.size()); // we have one workload extension registered
 		
 		removeExtension();
@@ -122,7 +122,7 @@ public class SpotterServiceClientTest {
 	public void testGetConfigurationParameters() {
 		registerExtension();
 
-		Set<ConfigParameterDescription> cpd = ssc.getConfigurationParameters();
+		final Set<ConfigParameterDescription> cpd = ssc.getConfigurationParameters();
 		Assert.assertEquals(true, cpd.size() > 0);
 		
 		removeExtension();
@@ -132,7 +132,7 @@ public class SpotterServiceClientTest {
 	public void testGetExtensionConfigurationParameters() {
 		registerExtension();
 
-		Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
+		final Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
 		Assert.assertEquals(true, cpd.size() > 0);
 		
 		removeExtension();
@@ -140,14 +140,14 @@ public class SpotterServiceClientTest {
 
 	@Test
 	public void testGetCurrentJobId() {
-		long currentJobId = ssc.getCurrentJobId();
+		final long currentJobId = ssc.getCurrentJobId();
 		// no job is currently running
 		Assert.assertEquals(currentJobId, 0);
 	}
 	
 	@Test
 	public void testGetCurrentProgressReport() {
-		SpotterProgress sp = ssc.getCurrentProgressReport();
+		final SpotterProgress sp = ssc.getCurrentProgressReport();
 		Assert.assertEquals(0, sp.getProblemProgressMapping().size());
 	}
 	
@@ -155,7 +155,7 @@ public class SpotterServiceClientTest {
 	public void testConnectionToSattelite() {
 		registerExtension();
 		
-		boolean status = ssc.testConnectionToSattelite("DummyWorkload", "localhost", "8080");
+		final boolean status = ssc.testConnectionToSattelite("DummyWorkload", "localhost", "8080");
 		Assert.assertEquals(true, status);
 		
 		removeExtension();
@@ -163,7 +163,7 @@ public class SpotterServiceClientTest {
 	
 	@Test
 	public void testConnection() {
-		boolean status = ssc.testConnection();
+		final boolean status = ssc.testConnection();
 		Assert.assertEquals(true, status);
 	}
 	
@@ -175,8 +175,8 @@ public class SpotterServiceClientTest {
 		LpeFileUtils.createDir(tempDir.getAbsolutePath());
 	}
 	
-	private static void initGlobalConfigs(String baseDir) {
-		Properties properties = new Properties();
+	private static void initGlobalConfigs(final String baseDir) {
+		final Properties properties = new Properties();
 		properties.setProperty(ExtensionRegistry.APP_ROOT_DIR_PROPERTY_KEY, tempDir.getAbsolutePath());
 		properties.setProperty(ExtensionRegistry.PLUGINS_FOLDER_PROPERTY_KEY, "plugins");
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
@@ -191,12 +191,12 @@ public class SpotterServiceClientTest {
 	}
 	
 	private void registerExtension() {
-		IExtension<?> ext = new DummyWorkloadExtension();
+		final IExtension ext = new DummyWorkloadExtension();
 		ExtensionRegistry.getSingleton().addExtension(ext);
 	}
 	
 	private void removeExtension() {
-		IExtension<?> ext = new DummyWorkloadExtension();
+		final IExtension ext = new DummyWorkloadExtension();
 		ExtensionRegistry.getSingleton().removeExtension(ext.getName());
 	}
 	

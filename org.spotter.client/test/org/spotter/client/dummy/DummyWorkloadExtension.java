@@ -27,20 +27,21 @@ public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 		return "DummyWorkload";
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IWorkloadAdapter createExtensionArtifact() {
+	public IWorkloadAdapter createExtensionArtifact(final String ... args) {
 		return new DummyWorkload(this);
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-		ConfigParameterDescription parDescription = new ConfigParameterDescription("test.workload.parameter",
+		final ConfigParameterDescription parDescription = new ConfigParameterDescription("test.workload.parameter",
 				LpeSupportedTypes.Integer);
 		addConfigParameter(parDescription);
 	}
 
 	@Override
-	public boolean testConnection(String host, String port) {
+	public boolean testConnection(final String host, final String port) {
 		return true;
 	}
 

@@ -16,9 +16,9 @@
 package org.spotter.core.test.dummies.satellites;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
-import org.spotter.core.instrumentation.IInstrumentationAdapter;
 
 public class DummyInstrumentationExtension extends AbstractInstrumentationExtension{
 
@@ -27,20 +27,21 @@ public class DummyInstrumentationExtension extends AbstractInstrumentationExtens
 		return "DummyInstrumentation";
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IInstrumentationAdapter createExtensionArtifact() {
-		return new DummyInstrumentation(this);
+	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final String... patterns) {
+		return (EA) new DummyInstrumentation(this);
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-		ConfigParameterDescription parDescription = new ConfigParameterDescription("test.instrumentation.parameter", LpeSupportedTypes.Integer);
+		final ConfigParameterDescription parDescription = new ConfigParameterDescription("test.instrumentation.parameter", LpeSupportedTypes.Integer);
 		addConfigParameter(parDescription);
 		
 	}
 
 	@Override
-	public boolean testConnection(String host, String port) {
+	public boolean testConnection(final String host, final String port) {
 		return true;
 	}
 

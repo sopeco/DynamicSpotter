@@ -22,11 +22,13 @@ import org.lpe.common.extension.IExtension;
  * @author Alexander Wert
  *
  */
-public interface IDetectionExtension extends IExtension<IDetectionController> {
+public interface IDetectionExtension extends IExtension {
 	/**
 	 * Creates a new detection strategy provided by the extension.
 	 * 
 	 * @return returns an exploration strategy
 	 */
-	IDetectionController createExtensionArtifact();
+	@SuppressWarnings("unchecked")
+	@Override
+	IDetectionController createExtensionArtifact(String ... args);
 }

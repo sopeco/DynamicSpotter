@@ -20,8 +20,9 @@ import org.spotter.core.detection.IDetectionController;
 
 public class DetectionBExtension extends AbstractDetectionExtension{
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IDetectionController createExtensionArtifact() {
+	public IDetectionController createExtensionArtifact(final String ... args) {
 		return new DetectionB(this);
 	}
 

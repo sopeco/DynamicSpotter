@@ -21,14 +21,13 @@ import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.detection.AbstractDetectionController;
-import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.detection.IExperimentReuser;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.result.model.SpotterResult;
 
 public class DetectionB extends AbstractDetectionController implements IExperimentReuser {
 
-	public DetectionB(IExtension<IDetectionController> provider) {
+	public DetectionB(final IExtension provider) {
 		super(provider);
 	}
 
@@ -49,8 +48,8 @@ public class DetectionB extends AbstractDetectionController implements IExperime
 	}
 
 	@Override
-	protected SpotterResult analyze(DatasetCollection data) {
-		SpotterResult result = new SpotterResult();
+	protected SpotterResult analyze(final DatasetCollection data) {
+		final SpotterResult result = new SpotterResult();
 		result.setDetected(false);
 		return result;
 	}

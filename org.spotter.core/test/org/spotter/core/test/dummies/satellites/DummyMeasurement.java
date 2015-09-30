@@ -40,7 +40,7 @@ public class DummyMeasurement extends AbstractMeasurementAdapter{
 	public boolean enabled = false;
 	public boolean reportStored = false;
 	
-	public DummyMeasurement(IExtension<?> provider) {
+	public DummyMeasurement(final IExtension provider) {
 		super(provider);
 	}
 
@@ -58,15 +58,15 @@ public class DummyMeasurement extends AbstractMeasurementAdapter{
 
 	@Override
 	public MeasurementData getMeasurementData() throws MeasurementException {
-		List<AbstractRecord> records = new ArrayList<>();
-		Random rand = new Random();
+		final List<AbstractRecord> records = new ArrayList<>();
+		final Random rand = new Random();
 
 		for (long i = 0; i < NUM_RECORDS/3; i++) {
-			ResponseTimeRecord rtRecord = new ResponseTimeRecord(System.currentTimeMillis() + i * 10L, "operation-"
+			final ResponseTimeRecord rtRecord = new ResponseTimeRecord(System.currentTimeMillis() + i * 10L, "operation-"
 					+ (i % 5), (long) (rand.nextDouble() * 100L));
-			CPUUtilizationRecord cpuRecord = new CPUUtilizationRecord(System.currentTimeMillis() + i * 10L, "CPU-"
+			final CPUUtilizationRecord cpuRecord = new CPUUtilizationRecord(System.currentTimeMillis() + i * 10L, "CPU-"
 					+ (i % 2), rand.nextDouble());
-			CPUUtilizationRecord cpuRecordAgg = new CPUUtilizationRecord(System.currentTimeMillis() + i * 10L, CPUUtilizationRecord.RES_CPU_AGGREGATED, rand.nextDouble());
+			final CPUUtilizationRecord cpuRecordAgg = new CPUUtilizationRecord(System.currentTimeMillis() + i * 10L, CPUUtilizationRecord.RES_CPU_AGGREGATED, rand.nextDouble());
 			records.add(rtRecord);
 			records.add(cpuRecord);
 
@@ -74,32 +74,32 @@ public class DummyMeasurement extends AbstractMeasurementAdapter{
 
 		}
 
-		MeasurementData mData = new MeasurementData();
+		final MeasurementData mData = new MeasurementData();
 		mData.setRecords(records);
 
 		return mData;
 	}
 
 	@Override
-	public void pipeToOutputStream(OutputStream oStream) throws MeasurementException {
+	public void pipeToOutputStream(final OutputStream oStream) throws MeasurementException {
 		BufferedWriter writer = null;
 		try {
 
-			List<AbstractRecord> recordList = getMeasurementData().getRecords();
+			final List<AbstractRecord> recordList = getMeasurementData().getRecords();
 			writer = new BufferedWriter(new OutputStreamWriter(oStream), 1024);
 
-			for (AbstractRecord rec : recordList) {
+			for (final AbstractRecord rec : recordList) {
 				writer.write(rec.toString());
 				writer.newLine();
 			}
 
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new MeasurementException(e);
 		} finally {
 			if (writer != null) {
 				try {
 					writer.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					throw new MeasurementException(e);
 				}
 			}
@@ -118,13 +118,13 @@ public class DummyMeasurement extends AbstractMeasurementAdapter{
 	}
 
 	@Override
-	public void storeReport(String path) throws MeasurementException {
+	public void storeReport(final String path) throws MeasurementException {
 		reportStored=true;
 	}
 
 
 	@Override
-	public void prepareMonitoring(InstrumentationDescription monitoringDescription) throws MeasurementException {
+	public void prepareMonitoring(final InstrumentationDescription monitoringDescription) throws MeasurementException {
 		// TODO Auto-generated method stub
 		
 	}

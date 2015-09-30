@@ -63,22 +63,22 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 	 * @param instrumentationControllers
 	 *            instrumentation controllers
 	 */
-	public void setControllers(Collection<IWorkloadAdapter> instrumentationControllers) {
+	public void setControllers(final Collection<IWorkloadAdapter> instrumentationControllers) {
 		wlAdapters.clear();
 		wlAdapters.addAll(instrumentationControllers);
 	}
 
 	@Override
 	public void initialize() throws WorkloadException {
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			wlAdapter.initialize();
 		}
 
 	}
 
 	@Override
-	public void startLoad(LoadConfig loadConfig) throws WorkloadException {
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+	public void startLoad(final LoadConfig loadConfig) throws WorkloadException {
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			wlAdapter.startLoad(loadConfig);
 		}
 
@@ -86,7 +86,7 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 
 	@Override
 	public void waitForFinishedLoad() throws WorkloadException {
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			wlAdapter.waitForFinishedLoad();
 		}
 
@@ -94,8 +94,8 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 
 	@Override
 	public Properties getProperties() {
-		Properties props = new Properties();
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+		final Properties props = new Properties();
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			props.putAll(wlAdapter.getProperties());
 		}
 		return props;
@@ -103,7 +103,7 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 
 	@Override
 	public void waitForWarmupPhaseTermination() throws WorkloadException {
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			wlAdapter.waitForWarmupPhaseTermination();
 		}
 
@@ -111,14 +111,14 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 
 	@Override
 	public void waitForExperimentPhaseTermination() throws WorkloadException {
-		for (IWorkloadAdapter wlAdapter : wlAdapters) {
+		for (final IWorkloadAdapter wlAdapter : wlAdapters) {
 			wlAdapter.waitForExperimentPhaseTermination();
 		}
 
 	}
 
 	@Override
-	public IExtension<?> getProvider() {
+	public IExtension getProvider() {
 		return null;
 	}
 
@@ -138,7 +138,7 @@ public final class WorkloadAdapterBroker implements IWorkloadAdapter {
 	}
 
 	@Override
-	public void setProperties(Properties properties) {
+	public void setProperties(final Properties properties) {
 		// nothing to do
 	}
 

@@ -79,7 +79,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	 * @param instrumentationControllers
 	 *            collection of measurement controllers
 	 */
-	public void setControllers(Collection<IMeasurementAdapter> instrumentationControllers) {
+	public void setControllers(final Collection<IMeasurementAdapter> instrumentationControllers) {
 		this.controllers.clear();
 		this.controllers.addAll(instrumentationControllers);
 	}
@@ -87,7 +87,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	private static final long TWO = 2L;
 
 	@Override
-	public IExtension<?> getProvider() {
+	public IExtension getProvider() {
 		return null;
 	}
 
@@ -96,8 +96,8 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 		long controllerTime;
 		long startRequestTime;
 		long endRequestTime;
-		long triggerTime = System.currentTimeMillis();
-		for (IMeasurementAdapter controller : controllers) {
+		final long triggerTime = System.currentTimeMillis();
+		for (final IMeasurementAdapter controller : controllers) {
 			startRequestTime = System.currentTimeMillis();
 			controllerTime = controller.getCurrentTime();
 			endRequestTime = System.currentTimeMillis();
@@ -105,7 +105,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 					- (startRequestTime - triggerTime));
 		}
 
-		for (IMeasurementAdapter controller : controllers) {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.enableMonitoring();
 		}
 
@@ -113,7 +113,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 	@Override
 	public void disableMonitoring() throws MeasurementException {
-		for (IMeasurementAdapter controller : controllers) {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.disableMonitoring();
 		}
 	}
@@ -126,16 +126,16 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 			final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
-			for (IMeasurementAdapter mController : controllers) {
+			for (final IMeasurementAdapter mController : controllers) {
 				tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
 			}
-			MeasurementData result = new MeasurementData();
+			final MeasurementData result = new MeasurementData();
 			dataPipeliningFinished = false;
 
-			Future<?> terminationListeningTask = asyncListenForTermination(tasks);
+			final Future<?> terminationListeningTask = asyncListenForTermination(tasks);
 
 			while (!(records.isEmpty() && dataPipeliningFinished)) {
-				AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
+				final AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
 				if (record != null) {
 					result.getRecords().add(record);
 				}
@@ -143,23 +143,23 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 			try {
 				terminationListeningTask.get();
-			} catch (ExecutionException e) {
+			} catch (final ExecutionException e) {
 				throw new MeasurementException(e);
 			}
 
 			return result;
 
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			throw new MeasurementException(e);
 		}
 	}
 
 	private Future<?> asyncListenForTermination(final List<Future<?>> tasks) {
-		Future<?> terminationListeningTask = LpeSystemUtils.submitTask(new Runnable() {
+		final Future<?> terminationListeningTask = LpeSystemUtils.submitTask(new Runnable() {
 
 			@Override
 			public void run() {
-				for (Future<?> task : tasks) {
+				for (final Future<?> task : tasks) {
 					try {
 						task.get();
 					} catch (InterruptedException | ExecutionException e) {
@@ -175,7 +175,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 	@Override
 	public void initialize() throws MeasurementException {
-		for (IMeasurementAdapter controller : controllers) {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.initialize();
 		}
 
@@ -187,22 +187,22 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	}
 
 	@Override
-	public void pipeToOutputStream(OutputStream oStream) throws MeasurementException {
+	public void pipeToOutputStream(final OutputStream oStream) throws MeasurementException {
 
 		final List<Future<?>> tasks = new ArrayList<>();
 
 		final LinkedBlockingQueue<AbstractRecord> records = new LinkedBlockingQueue<AbstractRecord>();
 
-		for (IMeasurementAdapter mController : controllers) {
+		for (final IMeasurementAdapter mController : controllers) {
 			tasks.add(LpeSystemUtils.submitTask(new PipeDataTask(mController, records)));
 		}
 		dataPipeliningFinished = false;
 
-		Future<?> terminationListeningTask = asyncListenForTermination(tasks);
+		final Future<?> terminationListeningTask = asyncListenForTermination(tasks);
 
 		try (BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(oStream))) {
 			while (!(records.isEmpty() && dataPipeliningFinished)) {
-				AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
+				final AbstractRecord record = records.poll(1, TimeUnit.SECONDS);
 				if (record != null) {
 
 					bWriter.write(record.toString());
@@ -213,7 +213,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 			terminationListeningTask.get();
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new MeasurementException(e);
 		}
 
@@ -221,8 +221,8 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 	@Override
 	public Properties getProperties() {
-		Properties props = new Properties();
-		for (IMeasurementAdapter controller : controllers) {
+		final Properties props = new Properties();
+		for (final IMeasurementAdapter controller : controllers) {
 			props.putAll(controller.getProperties());
 		}
 		return props;
@@ -244,7 +244,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	}
 
 	@Override
-	public void setProperties(Properties properties) {
+	public void setProperties(final Properties properties) {
 		// nothing to do
 	}
 
@@ -254,20 +254,20 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 	}
 
 	@Override
-	public void setControllerRelativeTime(long relativeTime) {
+	public void setControllerRelativeTime(final long relativeTime) {
 		controllerRelativeTime = relativeTime;
 	}
 
 	@Override
-	public void storeReport(String path) throws MeasurementException {
-		for (IMeasurementAdapter controller : controllers) {
+	public void storeReport(final String path) throws MeasurementException {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.storeReport(path);
 		}
 	}
 
 	@Override
-	public void prepareMonitoring(InstrumentationDescription monitoringDescription) throws MeasurementException {
-		for (IMeasurementAdapter controller : controllers) {
+	public void prepareMonitoring(final InstrumentationDescription monitoringDescription) throws MeasurementException {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.prepareMonitoring(monitoringDescription);
 		}
 
@@ -275,7 +275,7 @@ public final class MeasurementBroker implements IMeasurementAdapter {
 
 	@Override
 	public void resetMonitoring() throws MeasurementException {
-		for (IMeasurementAdapter controller : controllers) {
+		for (final IMeasurementAdapter controller : controllers) {
 			controller.resetMonitoring();
 		}
 	}

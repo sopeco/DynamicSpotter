@@ -38,7 +38,7 @@ public abstract class AbstractWorkloadAdapter extends AbstractExtensionArtifact 
 	 * @param provider
 	 *            extension provider
 	 */
-	public AbstractWorkloadAdapter(IExtension<?> provider) {
+	public AbstractWorkloadAdapter(final IExtension provider) {
 		super(provider);
 	}
 
@@ -69,6 +69,7 @@ public abstract class AbstractWorkloadAdapter extends AbstractExtensionArtifact 
 	/**
 	 * @return the properties
 	 */
+	@Override
 	public Properties getProperties() {
 		if (properties == null) {
 			properties = new Properties();
@@ -80,7 +81,8 @@ public abstract class AbstractWorkloadAdapter extends AbstractExtensionArtifact 
 	 * @param properties
 	 *            the properties to set
 	 */
-	public void setProperties(Properties properties) {
+	@Override
+	public void setProperties(final Properties properties) {
 		this.properties = properties;
 	}
 

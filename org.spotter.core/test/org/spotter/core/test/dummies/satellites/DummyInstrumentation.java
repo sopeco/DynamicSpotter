@@ -25,7 +25,7 @@ public class DummyInstrumentation extends AbstractInstrumentationAdapter {
 	public boolean initialized = false;
 	public boolean instrumented = false;
 	
-	public DummyInstrumentation(IExtension<?> provider) {
+	public DummyInstrumentation(final IExtension provider) {
 		super(provider);
 	}
 
@@ -36,7 +36,7 @@ public class DummyInstrumentation extends AbstractInstrumentationAdapter {
 	}
 
 	@Override
-	public void instrument(InstrumentationDescription description) throws InstrumentationException {
+	public void instrument(final InstrumentationDescription description) throws InstrumentationException {
 		instrumented = true;
 
 	}
