@@ -27,8 +27,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import junit.framework.Assert;
-
 import org.aim.aiminterface.exceptions.InstrumentationException;
 import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.Parameter;
@@ -57,6 +55,8 @@ import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.result.model.ResultsContainer;
 import org.spotter.shared.result.model.SpotterResult;
 
+import junit.framework.Assert;
+
 public class AbstractDetectionControllerTest {
 	private AbstractDetectionController detectionController;
 	private File tempDir;
@@ -65,7 +65,7 @@ public class AbstractDetectionControllerTest {
 	public void initialize() throws URISyntaxException, IOException, InstrumentationException, MeasurementException,
 			WorkloadException {
 		GlobalConfiguration.initialize(new Properties());
-		String baseDir = creeateTempDir();
+		final String baseDir = creeateTempDir();
 		initGlobalConfigs(baseDir);
 
 		initializeMeasurementEnvironment();
@@ -82,8 +82,8 @@ public class AbstractDetectionControllerTest {
 	 */
 	private void initializeMeasurementEnvironment() throws InstrumentationException, MeasurementException,
 			WorkloadException, URISyntaxException {
-		URL url = AbstractDetectionControllerTest.class.getResource("/test-env.xml");
-		String meFile = url.toURI().getPath();
+		final URL url = AbstractDetectionControllerTest.class.getResource("/test-env.xml");
+		final String meFile = url.toURI().getPath();
 		initInstrumentationController(meFile);
 
 		initMeasurementController(meFile);
@@ -91,58 +91,58 @@ public class AbstractDetectionControllerTest {
 		initWorkloadAdapter(meFile);
 	}
 
-	private void initWorkloadAdapter(String measurementEnvironmentFile) throws WorkloadException {
+	private void initWorkloadAdapter(final String measurementEnvironmentFile) throws WorkloadException {
 
 		if (measurementEnvironmentFile == null) {
 			throw new WorkloadException("Measurement Environment File has not been specified!");
 		}
-		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(
+		final List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(
 				measurementEnvironmentFile);
-		WorkloadAdapterBroker workloadAdapter = WorkloadAdapterBroker.getInstance();
+		final WorkloadAdapterBroker workloadAdapter = WorkloadAdapterBroker.getInstance();
 		workloadAdapter.setControllers(wlAdapters);
 		workloadAdapter.initialize();
 	}
 
-	private void initMeasurementController(String measurementEnvironmentFile) throws InstrumentationException,
+	private void initMeasurementController(final String measurementEnvironmentFile) throws InstrumentationException,
 			MeasurementException {
 
 		if (measurementEnvironmentFile == null) {
 			throw new InstrumentationException("Measurement Environment File has not been specified!");
 		}
-		List<IMeasurementAdapter> controllers = MeasurementEnvironmentFactory.getInstance()
+		final List<IMeasurementAdapter> controllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(measurementEnvironmentFile);
-		MeasurementBroker measurementController = MeasurementBroker.getInstance();
+		final MeasurementBroker measurementController = MeasurementBroker.getInstance();
 		measurementController.setControllers(controllers);
 		measurementController.initialize();
 
 	}
 
-	private void initInstrumentationController(String measurementEnvironmentFile) throws InstrumentationException {
+	private void initInstrumentationController(final String measurementEnvironmentFile) throws InstrumentationException {
 
 		if (measurementEnvironmentFile == null) {
 			throw new InstrumentationException("Measurement Environment File has not been specified!");
 		}
-		List<IInstrumentationAdapter> instrumentations = MeasurementEnvironmentFactory.getInstance()
+		final List<IInstrumentationAdapter> instrumentations = MeasurementEnvironmentFactory.getInstance()
 				.createInstrumentationControllers(measurementEnvironmentFile);
-		InstrumentationBroker instrumentationController = InstrumentationBroker.getInstance();
+		final InstrumentationBroker instrumentationController = InstrumentationBroker.getInstance();
 		instrumentationController.setControllers(instrumentations);
 		instrumentationController.initialize();
 	}
 
 	private void readHierarchy() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/simple-hierarchy.xml");
-		String hierarchyFile = url.toURI().getPath();
-		ResultsContainer rContainer = new ResultsContainer();
+		final URL url = HierarchyTest.class.getResource("/simple-hierarchy.xml");
+		final String hierarchyFile = url.toURI().getPath();
+		final ResultsContainer rContainer = new ResultsContainer();
 
-		PerformanceProblem root = HierarchyFactory.getInstance().createPerformanceProblemHierarchy(hierarchyFile,
+		final PerformanceProblem root = HierarchyFactory.getInstance().createPerformanceProblemHierarchy(hierarchyFile,
 				rContainer);
 
 		detectionController = (AbstractDetectionController) root.getChildren().get(0).getDetectionController();
 	}
 
-	private void initGlobalConfigs(String baseDir) {
-		String dir = System.getProperty("user.dir");
-		Properties properties = new Properties();
+	private void initGlobalConfigs(final String baseDir) {
+		final String dir = System.getProperty("user.dir");
+		final Properties properties = new Properties();
 		properties.setProperty("org.lpe.common.extension.appRootDir", dir);
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
@@ -164,11 +164,11 @@ public class AbstractDetectionControllerTest {
 		return tempDir.getAbsolutePath();
 	}
 
-	private void preGenerateData(String dataDir, final DummyMeasurement dMeasurement, String controllerName)
+	private void preGenerateData(final String dataDir, final DummyMeasurement dMeasurement, final String controllerName)
 			throws MeasurementException {
 		for (int i = 1; i <= MockDetection.NUM_EXPERIMENTS; i++) {
 			try {
-				StringBuilder pathBuilder = new StringBuilder(dataDir);
+				final StringBuilder pathBuilder = new StringBuilder(dataDir);
 				pathBuilder.append(controllerName);
 				pathBuilder.append(System.getProperty("file.separator"));
 				pathBuilder.append("csv");
@@ -180,12 +180,12 @@ public class AbstractDetectionControllerTest {
 				final PipedOutputStream outStream = new PipedOutputStream();
 				final PipedInputStream inStream = new PipedInputStream(outStream);
 
-				Future<?> future = LpeSystemUtils.submitTask(new Runnable() {
+				final Future<?> future = LpeSystemUtils.submitTask(new Runnable() {
 					@Override
 					public void run() {
 						try {
 							dMeasurement.pipeToOutputStream(outStream);
-						} catch (MeasurementException e) {
+						} catch (final MeasurementException e) {
 							throw new RuntimeException("Failed Storing data!");
 						}
 					}
@@ -210,7 +210,7 @@ public class AbstractDetectionControllerTest {
 	public void testSimpleAnalysis() throws InstrumentationException, MeasurementException, WorkloadException {
 		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
-		SpotterResult result = detectionController.analyzeProblem();
+		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
 
 		Assert.assertEquals(MockDetection.NUM_EXPERIMENTS + 1, DummyWorkload.numExperiments);
@@ -221,7 +221,7 @@ public class AbstractDetectionControllerTest {
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_WARMUP, "true");
 		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
-		SpotterResult result = detectionController.analyzeProblem();
+		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
 
 		Assert.assertEquals(MockDetection.NUM_EXPERIMENTS, DummyWorkload.numExperiments);
@@ -232,7 +232,7 @@ public class AbstractDetectionControllerTest {
 	@Test
 	public void testWithoutExperiments() throws InstrumentationException, MeasurementException, WorkloadException,
 			IOException {
-		String dataDir = tempDir.getAbsolutePath() + System.getProperty("file.separator") + "data"
+		final String dataDir = tempDir.getAbsolutePath() + System.getProperty("file.separator") + "data"
 				+ System.getProperty("file.separator");
 
 		final DummyMeasurement dMeasurement = new DummyMeasurement(null);
@@ -244,7 +244,7 @@ public class AbstractDetectionControllerTest {
 		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
 		preGenerateData(dataDir, dMeasurement, "MockDetection-" + detectionController.getProblemId().hashCode());
-		SpotterResult result = detectionController.analyzeProblem();
+		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
 
 		Assert.assertEquals(0, DummyWorkload.numExperiments);

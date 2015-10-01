@@ -204,11 +204,12 @@ public abstract class AbstractDetectionController extends AbstractExtensionArtif
 				runExperiment(detectionController, MIN_NUM_USERS);
 			} else {
 
-				for (double dUsers = dMinUsers; dUsers <= (dMaxUsers + EPSILON); dUsers += dStep) {
+				for (double dUsers = dMinUsers; dUsers < dMaxUsers; dUsers += dStep) {
 					final int numUsers = new Double(dUsers).intValue();
 					runExperiment(detectionController, numUsers);
 				}
-
+				final int numUsers = new Double(dMaxUsers).intValue();
+				runExperiment(detectionController, numUsers);
 			}
 		}
 

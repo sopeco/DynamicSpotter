@@ -17,12 +17,15 @@ package org.spotter.core.instrumentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.aim.aiminterface.description.instrumentation.InstrumentationDescription;
+import org.aim.aiminterface.description.restriction.Restriction;
 import org.aim.aiminterface.exceptions.InstrumentationException;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.system.LpeSystemUtils;
@@ -175,14 +178,16 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 
 		@Override
 		protected void executeTask() throws InstrumentationException {
-
+			final Set<String> includesNew = new HashSet<>(description.getGlobalRestriction().getPackageIncludes());
+			final Set<String> excludesNew = new HashSet<>(description.getGlobalRestriction().getPackageExcludes());
+			
 			String csListIncludes = instController.getProperties().getProperty(
 					IInstrumentationAdapter.INSTRUMENTATION_INCLUDES);
 			csListIncludes = (csListIncludes == null || csListIncludes.isEmpty()) ? null : csListIncludes;
 			if (csListIncludes != null) {
 				final String[] includesArr = csListIncludes.split(",");
 				for (final String inc : includesArr) {
-					description.getGlobalRestriction().getPackageIncludes().add(inc);
+					includesNew.add(inc);
 				}
 			}
 			String csListExcludes = instController.getProperties().getProperty(
@@ -192,10 +197,13 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 			if (csListExcludes != null) {
 				final String[] excludesArr = csListExcludes.split(",");
 				for (final String exc : excludesArr) {
-					description.getGlobalRestriction().getPackageExcludes().add(exc);
+					excludesNew.add(exc);
 				}
 			}
-			instController.instrument(description);
+			final Restriction originalRestriction = description.getGlobalRestriction();
+			final Restriction adaptedRestriction = new Restriction(includesNew, excludesNew, originalRestriction.getModifierIncludes(), originalRestriction.getModifierExcludes(), originalRestriction.getGranularity());
+			final InstrumentationDescription newDescription = new InstrumentationDescription(description.getInstrumentationEntities(), description.getSamplingDescriptions(), adaptedRestriction);
+			instController.instrument(newDescription);
 
 		}
 	}

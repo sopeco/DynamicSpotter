@@ -37,7 +37,6 @@ import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.ExtensionRegistry;
 import org.lpe.common.extension.Extensions;
 import org.lpe.common.extension.IExtension;
-import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeFileUtils;
 import org.lpe.common.util.LpeStreamUtils;
 import org.slf4j.Logger;
@@ -94,7 +93,7 @@ public class SpotterServiceWrapper {
 		return instance;
 	}
 
-	private ExecutorService executor = Executors.newFixedThreadPool(1);
+	private final ExecutorService executor = Executors.newFixedThreadPool(1);
 
 	private Future<?> futureObject = null;
 
@@ -123,10 +122,10 @@ public class SpotterServiceWrapper {
 			@Override
 			public void run() {
 				try {
-					String configurationFile = createDynamicSpotterConfiguration(tempJobId, jobDescription);
+					final String configurationFile = createDynamicSpotterConfiguration(tempJobId, jobDescription);
 					Spotter.getInstance().startDiagnosis(configurationFile, tempJobId);
 					currentJobState = JobState.FINISHED;
-				} catch (Throwable e) {
+				} catch (final Throwable e) {
 					LOGGER.error("Diagnosis failed!", e);
 					writeDiagnosisErrorFile(Spotter.getInstance().getDiagnosisResultFolder(), e);
 					currentJobState = JobState.CANCELLED;
@@ -148,15 +147,15 @@ public class SpotterServiceWrapper {
 	 * @return output streaming the zipped run result folder or
 	 *         <code>null</code> if none found
 	 */
-	public StreamingOutput requestResults(String jobId) {
-		String location = getRuntimeLocation() + "/" + jobId;
-		File dir = new File(location);
+	public StreamingOutput requestResults(final String jobId) {
+		final String location = getRuntimeLocation() + "/" + jobId;
+		final File dir = new File(location);
 		if (dir.isDirectory()) {
 			final String resultsFolder = location + "/" + FileManager.DEFAULT_RESULTS_DIR_NAME;
 
-			StreamingOutput output = new StreamingOutput() {
+			final StreamingOutput output = new StreamingOutput() {
 				@Override
-				public void write(OutputStream os) {
+				public void write(final OutputStream os) {
 					pipeRunFolderToOutputStream(resultsFolder, os);
 				}
 			};
@@ -231,8 +230,8 @@ public class SpotterServiceWrapper {
 	 *            extension type of interest
 	 * @return list of names
 	 */
-	public Set<String> getAvailableExtensions(SpotterExtensionType extType) {
-		Class<? extends IExtension<? extends IExtensionArtifact>> extClass = null;
+	public Set<String> getAvailableExtensions(final SpotterExtensionType extType) {
+		Class<? extends IExtension> extClass = null;
 		switch (extType) {
 		case DETECTION_EXTENSION:
 			extClass = AbstractDetectionExtension.class;
@@ -250,10 +249,10 @@ public class SpotterServiceWrapper {
 		default:
 			break;
 		}
-		Extensions<? extends IExtension<? extends IExtensionArtifact>> extensions = ExtensionRegistry.getSingleton()
+		final Extensions<? extends IExtension> extensions = ExtensionRegistry.getSingleton()
 				.getExtensions(extClass);
-		Set<String> extensionNames = new HashSet<>();
-		for (IExtension<? extends IExtensionArtifact> ext : extensions.getList()) {
+		final Set<String> extensionNames = new HashSet<>();
+		for (final IExtension ext : extensions.getList()) {
 			extensionNames.add(ext.getName());
 		}
 		return extensionNames;
@@ -267,8 +266,8 @@ public class SpotterServiceWrapper {
 	 *            name of the extension of interest
 	 * @return list of configuration parameters
 	 */
-	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
-		IExtension<? extends IExtensionArtifact> extension = ExtensionRegistry.getSingleton().getExtension(extName);
+	public Set<ConfigParameterDescription> getExtensionConfigParamters(final String extName) {
+		final IExtension extension = ExtensionRegistry.getSingleton().getExtension(extName);
 		if (extension == null) {
 			return null;
 		}
@@ -296,13 +295,13 @@ public class SpotterServiceWrapper {
 	 *            port to connect to
 	 * @return true if connection could have been established, otherwise false
 	 */
-	public boolean testConnectionToSattelite(String extName, String host, String port) {
-		IExtension<? extends IExtensionArtifact> extension = ExtensionRegistry.getSingleton().getExtension(extName);
+	public boolean testConnectionToSattelite(final String extName, final String host, final String port) {
+		final IExtension extension = ExtensionRegistry.getSingleton().getExtension(extName);
 		if (extension == null) {
 			return false;
 		}
 		if (extension instanceof AbstractSpotterSatelliteExtension) {
-			AbstractSpotterSatelliteExtension satellite = (AbstractSpotterSatelliteExtension) extension;
+			final AbstractSpotterSatelliteExtension satellite = (AbstractSpotterSatelliteExtension) extension;
 			return satellite.testConnection(host, port);
 		}
 		return false;
@@ -318,9 +317,9 @@ public class SpotterServiceWrapper {
 	 *            the job description which holds the configuration information
 	 * @return the path to the DS configuration file which is required by DS
 	 */
-	private String createDynamicSpotterConfiguration(long jobId, JobDescription jobDescription) {
-		FileManager fileManager = FileManager.getInstance();
-		String location = getRuntimeLocation() + "/" + jobId;
+	private String createDynamicSpotterConfiguration(final long jobId, final JobDescription jobDescription) {
+		final FileManager fileManager = FileManager.getInstance();
+		final String location = getRuntimeLocation() + "/" + jobId;
 		LpeFileUtils.createDir(location);
 		String configurationFile = null;
 
@@ -330,7 +329,7 @@ public class SpotterServiceWrapper {
 			configurationFile = fileManager.writeSpotterConfig(location, jobDescription.getDynamicSpotterConfig());
 			LOGGER.info("Storing configuration for diagnosis run #" + jobId + " in " + location);
 		} catch (IOException | JAXBException e) {
-			String message = "Failed to create DS configuration.";
+			final String message = "Failed to create DS configuration.";
 			LOGGER.error(message, e);
 			throw new RuntimeException(message, e);
 		}
@@ -338,8 +337,8 @@ public class SpotterServiceWrapper {
 		return configurationFile;
 	}
 
-	private void writeDiagnosisErrorFile(String folder, Throwable throwable) {
-		String errorFile = folder + ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME;
+	private void writeDiagnosisErrorFile(final String folder, final Throwable throwable) {
+		final String errorFile = folder + ResultsLocationConstants.TXT_DIAGNOSIS_ERROR_FILE_NAME;
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new FileWriter(errorFile));
@@ -349,7 +348,7 @@ public class SpotterServiceWrapper {
 				pw.println(throwable.getMessage());
 			}
 			throwable.printStackTrace(pw);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			LOGGER.warn("Problem occurred while creating error file!", e);
 		} finally {
 			if (pw != null) {
@@ -362,14 +361,14 @@ public class SpotterServiceWrapper {
 		return SpotterServiceWrapper.WORKING_DIR + "/" + SpotterServiceWrapper.RUNTIME_FOLDER;
 	}
 
-	private void pipeRunFolderToOutputStream(String resultsDirLocation, OutputStream os) {
+	private void pipeRunFolderToOutputStream(final String resultsDirLocation, final OutputStream os) {
 		String location = resultsDirLocation;
-		File resultsDir = new File(location);
+		final File resultsDir = new File(location);
 
 		if (resultsDir.isDirectory()) {
-			File[] subdirs = resultsDir.listFiles(new FileFilter() {
+			final File[] subdirs = resultsDir.listFiles(new FileFilter() {
 				@Override
-				public boolean accept(File pathname) {
+				public boolean accept(final File pathname) {
 					return pathname.isDirectory();
 				}
 			});
@@ -381,7 +380,7 @@ public class SpotterServiceWrapper {
 				try {
 					fileInputStream = getZippedRunFolder(location);
 					LpeStreamUtils.pipe(fileInputStream, os);
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					LOGGER.error("Error while streaming results data.", e);
 					throw new RuntimeException(e);
 				} finally {
@@ -389,7 +388,7 @@ public class SpotterServiceWrapper {
 						if (fileInputStream != null) {
 							fileInputStream.close();
 						}
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						LOGGER.warn("Error while closing stream '{}'.", location);
 					}
 				}
@@ -401,18 +400,18 @@ public class SpotterServiceWrapper {
 		}
 	}
 
-	private FileInputStream getZippedRunFolder(String path) throws FileNotFoundException {
-		String zipFileName = path + ZIP_FILE_EXTENSION;
-		File zipFile = new File(zipFileName);
-		File source = new File(path);
+	private FileInputStream getZippedRunFolder(final String path) throws FileNotFoundException {
+		final String zipFileName = path + ZIP_FILE_EXTENSION;
+		final File zipFile = new File(zipFileName);
+		final File source = new File(path);
 
 		if (!zipFile.exists()) {
 			LOGGER.debug("Packing main results data from '{}' ...", path);
 
-			FileFilter fileFilter = new FileFilter() {
+			final FileFilter fileFilter = new FileFilter() {
 
 				@Override
-				public boolean accept(File pathname) {
+				public boolean accept(final File pathname) {
 					if (pathname.isFile()) {
 						return true;
 					}
@@ -429,7 +428,7 @@ public class SpotterServiceWrapper {
 			LOGGER.debug("Results data packed!");
 		}
 
-		FileInputStream fis = new FileInputStream(zipFileName);
+		final FileInputStream fis = new FileInputStream(zipFileName);
 
 		return fis;
 	}

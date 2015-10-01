@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +34,8 @@ import org.spotter.shared.configuration.SpotterExtensionType;
 import org.spotter.shared.service.ResponseStatus;
 import org.spotter.shared.service.SpotterServiceResponse;
 import org.spotter.shared.status.SpotterProgress;
+
+import junit.framework.Assert;
 
 /**
  * Test for the {@link SpotterService} class.
@@ -75,7 +75,7 @@ public class SpotterServiceTest {
 	 * DS should not run any experiments now.
 	 */
 	private static void testIsRunningBefore() {
-		SpotterServiceResponse<Boolean> r = ss.isRunning();
+		final SpotterServiceResponse<Boolean> r = ss.isRunning();
 		Assert.assertEquals(ResponseStatus.OK, r.getStatus());
 		Assert.assertEquals(false, r.getPayload().booleanValue());
 	}
@@ -136,7 +136,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testGetConfigurationParameters() {
-		SpotterServiceResponse<Set<ConfigParameterDescription>> rcpd = ss.getConfigurationParameters();
+		final SpotterServiceResponse<Set<ConfigParameterDescription>> rcpd = ss.getConfigurationParameters();
 		Assert.assertEquals(ResponseStatus.OK, rcpd.getStatus());
 	}	
 	
@@ -152,7 +152,7 @@ public class SpotterServiceTest {
 		SpotterServiceResponse<Set<String>> rss = ss.getAvailableExtensions("myextension");
 		Assert.assertEquals(ResponseStatus.SERVER_ERROR, rss.getStatus());
 		
-		for (SpotterExtensionType set : SpotterExtensionType.values()) {
+		for (final SpotterExtensionType set : SpotterExtensionType.values()) {
 			rss = ss.getAvailableExtensions(set.toString());
 			
 			// we have loaded a workload extension
@@ -179,8 +179,8 @@ public class SpotterServiceTest {
 		LpeFileUtils.createDir(tempDir.getAbsolutePath());
 	}
 	
-	private static void initGlobalConfigs(String baseDir) {
-		Properties properties = new Properties();
+	private static void initGlobalConfigs(final String baseDir) {
+		final Properties properties = new Properties();
 		properties.setProperty("org.lpe.common.extension.appRootDir", tempDir.getAbsolutePath());
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		properties.setProperty(ConfigKeys.RESULT_DIR, baseDir + System.getProperty("file.separator"));
@@ -194,7 +194,7 @@ public class SpotterServiceTest {
 	}
 	
 	private void registerExtension() {
-		IExtension<?> ext = new DummyWorkloadExtension();
+		final IExtension ext = new DummyWorkloadExtension();
 		ExtensionRegistry.getSingleton().addExtension(ext);
 	}
 
@@ -203,7 +203,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testGetExtensionConfigParamters() {
-		SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("DummyWorkload");
+		final SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("DummyWorkload");
 		// not extension with the name loaded when testing
 		Assert.assertEquals(ResponseStatus.OK, rscpd.getStatus());
 	}
@@ -213,7 +213,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testGetCurrentProgressReport() {
-		SpotterServiceResponse<SpotterProgress> rsp = ss.getCurrentProgressReport();
+		final SpotterServiceResponse<SpotterProgress> rsp = ss.getCurrentProgressReport();
 		Assert.assertEquals(ResponseStatus.OK, rsp.getStatus());
 	}
 	
@@ -222,7 +222,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testGetCurrentJobId() {
-		SpotterServiceResponse<Long> rl = ss.getCurrentJobId();
+		final SpotterServiceResponse<Long> rl = ss.getCurrentJobId();
 		Assert.assertEquals(ResponseStatus.OK, rl.getStatus());
 	}
 	
@@ -231,7 +231,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testTestConnection() {
-		SpotterServiceResponse<Boolean> rb = ss.testConnection();
+		final SpotterServiceResponse<Boolean> rb = ss.testConnection();
 		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
 		Assert.assertEquals(true, rb.getPayload().booleanValue());
 	}
@@ -241,7 +241,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testTestConnectionToSattelite() {
-		SpotterServiceResponse<Boolean> rb = ss.testConnectionToSattelite("DummyWorkload", null, null);
+		final SpotterServiceResponse<Boolean> rb = ss.testConnectionToSattelite("DummyWorkload", null, null);
 		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
 		Assert.assertEquals(true, rb.getPayload().booleanValue());
 	}
