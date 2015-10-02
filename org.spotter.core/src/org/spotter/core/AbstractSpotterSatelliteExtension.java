@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.IExtensionArtifact;
+import org.lpe.common.extension.ReflectiveAbstractExtension;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.shared.configuration.ConfigKeys;
 
@@ -28,7 +30,7 @@ import org.spotter.shared.configuration.ConfigKeys;
  * @author Alexander Wert
  * 
  */
-public abstract class AbstractSpotterSatelliteExtension {
+public abstract class AbstractSpotterSatelliteExtension extends ReflectiveAbstractExtension {
 
 	/**
 	 * property key for host.
@@ -53,7 +55,8 @@ public abstract class AbstractSpotterSatelliteExtension {
 	/**
 	 * Constructor.
 	 */
-	public AbstractSpotterSatelliteExtension() {
+	public AbstractSpotterSatelliteExtension(final Class<? extends IExtensionArtifact> extensionArtifactClass) {
+		super(extensionArtifactClass);
 		configParameters = new HashSet<ConfigParameterDescription>();
 		addConfigParameter(createNameParameter());
 		if (isRemoteExtension()) {
@@ -84,12 +87,12 @@ public abstract class AbstractSpotterSatelliteExtension {
 	 * @param parameter
 	 *            parameter to add to this extension
 	 */
-	protected void addConfigParameter(ConfigParameterDescription parameter) {
+	protected void addConfigParameter(final ConfigParameterDescription parameter) {
 		configParameters.add(parameter);
 	}
 
 	private ConfigParameterDescription createNameParameter() {
-		ConfigParameterDescription nameParameter = new ConfigParameterDescription(NAME_KEY, LpeSupportedTypes.String);
+		final ConfigParameterDescription nameParameter = new ConfigParameterDescription(NAME_KEY, LpeSupportedTypes.String);
 		nameParameter.setMandatory(true);
 		nameParameter.setASet(false);
 		nameParameter.setDefaultValue(getDefaultSatelleiteExtensionName());
@@ -99,7 +102,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	}
 
 	private ConfigParameterDescription createHostParameter() {
-		ConfigParameterDescription hostParameter = new ConfigParameterDescription(HOST_KEY, LpeSupportedTypes.String);
+		final ConfigParameterDescription hostParameter = new ConfigParameterDescription(HOST_KEY, LpeSupportedTypes.String);
 		hostParameter.setMandatory(true);
 		hostParameter.setASet(false);
 		hostParameter.setDefaultValue("localhost");
@@ -110,7 +113,7 @@ public abstract class AbstractSpotterSatelliteExtension {
 	}
 
 	private ConfigParameterDescription createPortParameter() {
-		ConfigParameterDescription portParameter = new ConfigParameterDescription(PORT_KEY, LpeSupportedTypes.Integer);
+		final ConfigParameterDescription portParameter = new ConfigParameterDescription(PORT_KEY, LpeSupportedTypes.Integer);
 		portParameter.setMandatory(true);
 		portParameter.setASet(false);
 		portParameter.setRange("0", "65535");

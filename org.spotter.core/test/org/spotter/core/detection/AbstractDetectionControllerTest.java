@@ -208,7 +208,7 @@ public class AbstractDetectionControllerTest {
 
 	@Test
 	public void testSimpleAnalysis() throws InstrumentationException, MeasurementException, WorkloadException {
-		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.detection.MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
 		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
@@ -219,7 +219,7 @@ public class AbstractDetectionControllerTest {
 	@Test
 	public void testWithoutWarmUp() throws InstrumentationException, MeasurementException, WorkloadException {
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_WARMUP, "true");
-		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.detection.MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
 		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
@@ -241,9 +241,9 @@ public class AbstractDetectionControllerTest {
 
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.OMIT_EXPERIMENTS, "true");
 		GlobalConfiguration.getInstance().putProperty(ConfigKeys.DUMMY_EXPERIMENT_DATA, dataDir);
-		Assert.assertEquals("MockDetection", detectionController.getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.detection.MockDetection", detectionController.getProvider().getName());
 		Assert.assertEquals("test.value", detectionController.getProblemDetectionConfiguration().get("test.key"));
-		preGenerateData(dataDir, dMeasurement, "MockDetection-" + detectionController.getProblemId().hashCode());
+		preGenerateData(dataDir, dMeasurement, "org.spotter.core.test.dummies.detection.MockDetection-" + detectionController.getProblemId().hashCode());
 		final SpotterResult result = detectionController.analyzeProblem();
 		Assert.assertTrue(result.isDetected());
 

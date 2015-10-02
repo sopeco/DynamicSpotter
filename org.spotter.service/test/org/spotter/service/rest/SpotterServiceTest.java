@@ -203,7 +203,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testGetExtensionConfigParamters() {
-		final SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("DummyWorkload");
+		final SpotterServiceResponse<Set<ConfigParameterDescription>> rscpd = ss.getExtensionConfigParamters("org.spotter.service.rest.dummy.DummyWorkload");
 		// not extension with the name loaded when testing
 		Assert.assertEquals(ResponseStatus.OK, rscpd.getStatus());
 	}
@@ -241,7 +241,7 @@ public class SpotterServiceTest {
 	 */
 	@Test
 	public void testTestConnectionToSattelite() {
-		final SpotterServiceResponse<Boolean> rb = ss.testConnectionToSattelite("DummyWorkload", null, null);
+		final SpotterServiceResponse<Boolean> rb = ss.testConnectionToSattelite("org.spotter.service.rest.dummy.DummyWorkload", null, null);
 		Assert.assertEquals(ResponseStatus.OK, rb.getStatus());
 		Assert.assertEquals(true, rb.getPayload().booleanValue());
 	}

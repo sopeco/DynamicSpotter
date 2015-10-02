@@ -25,7 +25,7 @@ import org.aim.aiminterface.exceptions.InstrumentationException;
 import org.aim.aiminterface.exceptions.MeasurementException;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
-import org.lpe.common.util.LpeNumericUtils;
+import org.lpe.common.utils.numeric.LpeNumericUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spotter.core.config.interpretation.HierarchyFactory;

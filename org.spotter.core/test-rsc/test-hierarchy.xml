@@ -22,31 +22,31 @@
 	<config key="org.spotter.detection.detectable" value="false" />
 	<uniqueId>18187b4e-32a7-49cb-863f-819da6810f90</uniqueId>
 	<problem>
-		<extensionName>DetectionA</extensionName>
+		<extensionName>org.spotter.core.test.dummies.detection.DetectionA</extensionName>
 		<uniqueId>18187b4e-32a7-49cb-863f-819da6810f80</uniqueId>
 		<config key="org.spotter.detection.detectable" value="true" />
 		<problem>
-			<extensionName>DetectionB</extensionName>
+			<extensionName>org.spotter.core.test.dummies.detection.DetectionB</extensionName>
 			<uniqueId>18187b4e-32a7-49cb-863f-819da6810f01</uniqueId>
 			<config key="org.spotter.detection.detectable" value="true" />
 		</problem>
 		<problem>
-			<extensionName>DetectionC</extensionName>
+			<extensionName>org.spotter.core.test.dummies.detection.DetectionC</extensionName>
 			<uniqueId>18187b4e-32a7-49cb-863f-819da6810f02</uniqueId>
 			<config key="org.spotter.detection.detectable" value="false" />
 			<problem>
-				<extensionName>DetectionD</extensionName>
+				<extensionName>org.spotter.core.test.dummies.detection.DetectionD</extensionName>
 				<uniqueId>18187b4e-32a7-49cb-863f-819da6810f03</uniqueId>
 				<config key="org.spotter.detection.detectable" value="true" />
 				<problem>
-					<extensionName>DetectionF</extensionName>
+					<extensionName>org.spotter.core.test.dummies.detection.DetectionF</extensionName>
 					<uniqueId>18187b4e-32a7-49cb-863f-819da6810f05</uniqueId>
 					<config key="org.spotter.detection.detectable" value="true" />
 					<config key="test.key" value="test.value" />
 				</problem>
 			</problem>
 			<problem>
-				<extensionName>DetectionE</extensionName>
+				<extensionName>org.spotter.core.test.dummies.detection.DetectionE</extensionName>
 				<uniqueId>18187b4e-32a7-49cb-863f-819da6810f04</uniqueId>
 				<config key="org.spotter.detection.detectable" value="true" />
 			</problem>

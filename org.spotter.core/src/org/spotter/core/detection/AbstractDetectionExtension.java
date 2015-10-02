@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.ReflectiveAbstractExtension;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.shared.configuration.ConfigKeys;
 
@@ -28,7 +29,7 @@ import org.spotter.shared.configuration.ConfigKeys;
  * @author Alexander Wert
  * 
  */
-public abstract class AbstractDetectionExtension implements IDetectionExtension {
+public abstract class AbstractDetectionExtension extends ReflectiveAbstractExtension implements IDetectionExtension {
 
 	public static final String REUSE_EXPERIMENTS_FROM_PARENT = "reuseExperimentsFromParent";
 
@@ -37,8 +38,8 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	/**
 	 * Constructor.
 	 */
-	public AbstractDetectionExtension() {
-
+	public AbstractDetectionExtension(final Class<? extends IDetectionController> extensionArtifactClass) {
+		super(extensionArtifactClass);
 		configParameters = new HashSet<ConfigParameterDescription>();
 		configParameters.add(createIsDetectableParameter());
 		if (this.createExtensionArtifact() instanceof IExperimentReuser) {
@@ -59,7 +60,7 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	 * @param parameter
 	 *            parameter to add to this extension
 	 */
-	protected void addConfigParameter(ConfigParameterDescription parameter) {
+	protected final void addConfigParameter(final ConfigParameterDescription parameter) {
 		configParameters.add(parameter);
 	}
 
@@ -69,7 +70,7 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	}
 
 	private ConfigParameterDescription createReuseExperimentsParameter() {
-		ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
+		final ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
 				REUSE_EXPERIMENTS_FROM_PARENT, LpeSupportedTypes.Boolean);
 		reuseExperimentsParameter.setDescription("Indicates whether the experiments from "
 				+ "the parent heuristic should be used for this heuristic.");
@@ -78,7 +79,7 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	}
 
 	private ConfigParameterDescription createIsDetectableParameter() {
-		ConfigParameterDescription nameParameter = new ConfigParameterDescription(ConfigKeys.DETECTABLE_KEY,
+		final ConfigParameterDescription nameParameter = new ConfigParameterDescription(ConfigKeys.DETECTABLE_KEY,
 				LpeSupportedTypes.Boolean);
 		nameParameter.setMandatory(true);
 		nameParameter.setASet(false);

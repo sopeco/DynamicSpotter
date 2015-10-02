@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.lpe.common.config.GlobalConfiguration;
-import org.lpe.common.util.NumericPair;
-import org.lpe.common.util.NumericPairList;
+import org.lpe.common.utils.numeric.NumericPair;
+import org.lpe.common.utils.numeric.NumericPairList;
 import org.spotter.shared.configuration.ConfigKeys;
 
 /**

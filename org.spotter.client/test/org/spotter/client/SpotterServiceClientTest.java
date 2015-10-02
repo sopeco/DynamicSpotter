@@ -132,7 +132,7 @@ public class SpotterServiceClientTest {
 	public void testGetExtensionConfigurationParameters() {
 		registerExtension();
 
-		final Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("DummyWorkload");
+		final Set<ConfigParameterDescription> cpd = ssc.getExtensionConfigParamters("org.spotter.client.dummy.DummyWorkload");
 		Assert.assertEquals(true, cpd.size() > 0);
 		
 		removeExtension();
@@ -155,7 +155,7 @@ public class SpotterServiceClientTest {
 	public void testConnectionToSattelite() {
 		registerExtension();
 		
-		final boolean status = ssc.testConnectionToSattelite("DummyWorkload", "localhost", "8080");
+		final boolean status = ssc.testConnectionToSattelite("org.spotter.client.dummy.DummyWorkload", "localhost", "8080");
 		Assert.assertEquals(true, status);
 		
 		removeExtension();

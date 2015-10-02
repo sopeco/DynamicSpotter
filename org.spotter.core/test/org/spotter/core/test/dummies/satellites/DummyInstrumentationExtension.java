@@ -22,15 +22,8 @@ import org.spotter.core.instrumentation.AbstractInstrumentationExtension;
 
 public class DummyInstrumentationExtension extends AbstractInstrumentationExtension{
 
-	@Override
-	public String getName() {
-		return "DummyInstrumentation";
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final String... patterns) {
-		return (EA) new DummyInstrumentation(this);
+	public DummyInstrumentationExtension() {
+		super(DummyInstrumentation.class);
 	}
 
 	@Override

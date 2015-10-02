@@ -16,21 +16,13 @@
 package org.spotter.core.test.dummies.satellites;
 
 import org.lpe.common.config.ConfigParameterDescription;
-import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.workload.AbstractWorkloadExtension;
 
 public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 
-	@Override
-	public String getName() {
-		return "DummyWorkload";
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final String... patterns) {
-		return (EA) new DummyWorkload(this);
+	public DummyWorkloadExtension() {
+		super(DummyWorkload.class);
 	}
 
 	@Override

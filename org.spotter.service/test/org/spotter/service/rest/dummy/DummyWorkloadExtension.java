@@ -16,21 +16,14 @@
 package org.spotter.service.rest.dummy;
 
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.workload.AbstractWorkloadExtension;
-import org.spotter.core.workload.IWorkloadAdapter;
 
 public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 
-	@Override
-	public String getName() {
-		return "DummyWorkload";
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public IWorkloadAdapter createExtensionArtifact(final String ... args) {
-		return new DummyWorkload(this);
+	public DummyWorkloadExtension() {
+		super(DummyWorkload.class);
 	}
 
 	@Override
@@ -51,4 +44,9 @@ public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final Object... constructorArgs) {
+		return (EA) new DummyWorkload(this);
+	}
 }

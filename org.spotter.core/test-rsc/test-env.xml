@@ -18,17 +18,17 @@
 -->
 <measurementEnvironment xmlns="org.spotter.shared.environment.model">
     <instrumentationController>
-        <extensionName>DummyInstrumentation</extensionName>
+        <extensionName>org.spotter.core.test.dummies.satellites.DummyInstrumentation</extensionName>
         <config key="org.spotter.satellite.port" value="0"/>
         <config key="org.spotter.satellite.host" value="X"/>
         <config key="org.spotter.satellite.adapter.name" value="Y"/>
     </instrumentationController>
     <measurementController>
-        <extensionName>DummyMeasurement</extensionName>
+        <extensionName>org.spotter.core.test.dummies.satellites.DummyMeasurement</extensionName>
         <config key="org.test.measurement.key" value="measurement.value"/>
     </measurementController>
     <workloadAdapter>
-        <extensionName>DummyWorkload</extensionName>
+        <extensionName>org.spotter.core.test.dummies.satellites.DummyWorkload</extensionName>
         <config key="org.test.workload.key" value="workload.value"/>
     </workloadAdapter>
 </measurementEnvironment>

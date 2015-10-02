@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.ws.rs.core.MediaType;
 
 import org.lpe.common.config.ConfigParameterDescription;
-import org.lpe.common.util.LpeHTTPUtils;
+import org.lpe.common.util.web.LpeHTTPUtils;
 import org.spotter.shared.configuration.ConfigKeys;
 import org.spotter.shared.configuration.JobDescription;
 import org.spotter.shared.configuration.SpotterExtensionType;

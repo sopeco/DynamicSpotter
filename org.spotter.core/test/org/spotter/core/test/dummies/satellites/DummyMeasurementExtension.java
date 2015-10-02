@@ -16,21 +16,13 @@
 package org.spotter.core.test.dummies.satellites;
 
 import org.lpe.common.config.ConfigParameterDescription;
-import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
 
 public class DummyMeasurementExtension extends AbstractMeasurmentExtension{
 
-	@Override
-	public String getName() {
-		return "DummyMeasurement";
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <EA extends IExtensionArtifact> EA createExtensionArtifact(final String... patterns) {
-		return (EA) new DummyMeasurement(this);
+	public DummyMeasurementExtension() {
+		super(DummyMeasurement.class);
 	}
 
 	@Override

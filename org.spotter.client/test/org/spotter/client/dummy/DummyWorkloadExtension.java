@@ -18,19 +18,11 @@ package org.spotter.client.dummy;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.workload.AbstractWorkloadExtension;
-import org.spotter.core.workload.IWorkloadAdapter;
 
 public class DummyWorkloadExtension extends AbstractWorkloadExtension {
 
-	@Override
-	public String getName() {
-		return "DummyWorkload";
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public IWorkloadAdapter createExtensionArtifact(final String ... args) {
-		return new DummyWorkload(this);
+	public DummyWorkloadExtension() {
+		super(DummyWorkload.class);
 	}
 
 	@Override

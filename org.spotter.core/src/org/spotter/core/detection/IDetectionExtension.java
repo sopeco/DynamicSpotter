@@ -23,12 +23,5 @@ import org.lpe.common.extension.IExtension;
  *
  */
 public interface IDetectionExtension extends IExtension {
-	/**
-	 * Creates a new detection strategy provided by the extension.
-	 * 
-	 * @return returns an exploration strategy
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	IDetectionController createExtensionArtifact(String ... args);
+
 }
