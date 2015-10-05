@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://www.sopeco.org/PerformanceProblemHierarchySchema">
+    <uniqueId>c0c02b63-a268-481b-9888-a721f9e75248</uniqueId>
+    <config key="org.spotter.detection.detectable" value="false"/>
+    <problem>
+        <extensionName>Excessive Messaging</extensionName>
+        <uniqueId>ab7615fa-c0ab-479f-980f-c4498cfe3215</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+        <problem>
+            <extensionName>Blob</extensionName>
+            <uniqueId>f590a96b-6f46-4d0d-be52-dbee6b44592f</uniqueId>
+            <config key="org.spotter.detection.detectable" value="true"/>
+        </problem>
+        <problem>
+            <extensionName>EmptySemiTrucks</extensionName>
+            <uniqueId>f4f23452-b4b9-43b8-bd46-bfd78b609ded</uniqueId>
+            <config key="org.spotter.detection.detectable" value="true"/>
+        </problem>
+    </problem>
+    <problem>
+        <extensionName>Stifle</extensionName>
+        <uniqueId>8a5c9826-45d3-4bfa-a8d9-ea58ea53ed13</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+    </problem>
+    <problem>
+        <extensionName>Expensive Database Call</extensionName>
+        <uniqueId>76bf7901-11f5-4890-ab5b-b7e56b4029cf</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+    </problem>
+    <problem>
+        <extensionName>The Ramp</extensionName>
+        <uniqueId>0256ccb1-8ea5-478b-9e84-94b32e8bd0a3</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+    </problem>
+    <problem>
+        <extensionName>Traffic Jam</extensionName>
+        <uniqueId>ddf9f349-f740-43f0-88a5-6dea278c4ade</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+        <problem>
+            <extensionName>One Lane Bridge</extensionName>
+            <uniqueId>791746cc-c4c4-4a72-a284-e01965cc4edd</uniqueId>
+            <config key="org.spotter.detection.detectable" value="true"/>
+        </problem>
+    </problem>
+    <problem>
+        <extensionName>Application Hiccups</extensionName>
+        <uniqueId>13e3e7f8-310d-4da2-a187-eecd34b4755a</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+    </problem>
+    <problem>
+        <extensionName>Continuouos Violation</extensionName>
+        <uniqueId>1d59f631-c69f-4798-88fe-bc5a1be33a1f</uniqueId>
+        <config key="org.spotter.detection.detectable" value="true"/>
+    </problem>
+</root>
