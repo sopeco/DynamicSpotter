@@ -15,9 +15,6 @@
  */
 package org.spotter.core;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.IExtensionArtifact;
 import org.lpe.common.extension.ReflectiveAbstractExtension;
@@ -48,16 +45,10 @@ public abstract class AbstractSpotterSatelliteExtension extends ReflectiveAbstra
 	public static final String NAME_KEY = ConfigKeys.SATELLITE_ADAPTER_NAME_KEY;
 
 	/**
-	 * The set contains all the configuration for this extension.
-	 */
-	protected final Set<ConfigParameterDescription> configParameters;
-
-	/**
 	 * Constructor.
 	 */
 	public AbstractSpotterSatelliteExtension(final Class<? extends IExtensionArtifact> extensionArtifactClass) {
 		super(extensionArtifactClass);
-		configParameters = new HashSet<ConfigParameterDescription>();
 		addConfigParameter(createNameParameter());
 		if (isRemoteExtension()) {
 			addConfigParameter(createHostParameter());
@@ -79,16 +70,6 @@ public abstract class AbstractSpotterSatelliteExtension extends ReflectiveAbstra
 	 */
 	protected String getDefaultSatelleiteExtensionName() {
 		return "Spotter Satellite Adapter";
-	}
-
-	/**
-	 * Adds a configuration parameter to the extension.
-	 * 
-	 * @param parameter
-	 *            parameter to add to this extension
-	 */
-	protected void addConfigParameter(final ConfigParameterDescription parameter) {
-		configParameters.add(parameter);
 	}
 
 	private ConfigParameterDescription createNameParameter() {

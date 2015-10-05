@@ -58,12 +58,14 @@ public class MEFactoryTest {
 		Assert.assertEquals("X", instrumentations.get(0).getHost());
 		Assert.assertEquals("Y", instrumentations.get(0).getName());
 
-		Assert.assertEquals(2, instrumentations.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(4, instrumentations.get(0).getProvider().getConfigParameters().size());
 		ConfigParameterDescription cpDesription = null;
 		for (final ConfigParameterDescription cpd : instrumentations.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 			Assert.assertTrue(cpDesription.getName().equals("test.instrumentation.parameter")
-					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY));
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY));
 		}
 
 		// *****************************
@@ -76,7 +78,7 @@ public class MEFactoryTest {
 		Assert.assertEquals("measurement.value",
 				measurementControllers.get(0).getProperties().get("org.test.measurement.key"));
 
-		Assert.assertEquals(4, measurementControllers.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(6, measurementControllers.get(0).getProvider().getConfigParameters().size());
 		cpDesription = null;
 		for (final ConfigParameterDescription cpd : measurementControllers.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
@@ -84,6 +86,8 @@ public class MEFactoryTest {
 			Assert.assertTrue(cpDesription.getName().equals("test.measurement.parameter")
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY)
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_HOST_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY)
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_PORT_KEY));
 		}
 
@@ -95,12 +99,14 @@ public class MEFactoryTest {
 		Assert.assertEquals("org.spotter.core.test.dummies.satellites.DummyWorkload", wlAdapters.get(0).getProvider().getName());
 		Assert.assertEquals("workload.value", wlAdapters.get(0).getProperties().get("org.test.workload.key"));
 
-		Assert.assertEquals(2, wlAdapters.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(4, wlAdapters.get(0).getProvider().getConfigParameters().size());
 		cpDesription = null;
 		for (final ConfigParameterDescription cpd : wlAdapters.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 			Assert.assertTrue(cpDesription.getName().equals("test.workload.parameter")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name"));
+					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name")
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY));
 		}
 
 		

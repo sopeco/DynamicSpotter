@@ -15,9 +15,6 @@
  */
 package org.spotter.core.detection;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.ReflectiveAbstractExtension;
 import org.lpe.common.util.LpeSupportedTypes;
@@ -33,17 +30,14 @@ public abstract class AbstractDetectionExtension extends ReflectiveAbstractExten
 
 	public static final String REUSE_EXPERIMENTS_FROM_PARENT = "reuseExperimentsFromParent";
 
-	private final Set<ConfigParameterDescription> configParameters;
-
 	/**
 	 * Constructor.
 	 */
 	public AbstractDetectionExtension(final Class<? extends IDetectionController> extensionArtifactClass) {
 		super(extensionArtifactClass);
-		configParameters = new HashSet<ConfigParameterDescription>();
-		configParameters.add(createIsDetectableParameter());
+		addConfigParameter(createIsDetectableParameter());
 		if (this.createExtensionArtifact() instanceof IExperimentReuser) {
-			configParameters.add(createReuseExperimentsParameter());
+			addConfigParameter(createReuseExperimentsParameter());
 		}
 		initializeConfigurationParameters();
 	}
@@ -53,21 +47,6 @@ public abstract class AbstractDetectionExtension extends ReflectiveAbstractExten
 	 * parameters.
 	 */
 	protected abstract void initializeConfigurationParameters();
-
-	/**
-	 * Adds a configuration parameter to the extension.
-	 * 
-	 * @param parameter
-	 *            parameter to add to this extension
-	 */
-	protected final void addConfigParameter(final ConfigParameterDescription parameter) {
-		configParameters.add(parameter);
-	}
-
-	@Override
-	public final Set<ConfigParameterDescription> getConfigParameters() {
-		return configParameters;
-	}
 
 	private ConfigParameterDescription createReuseExperimentsParameter() {
 		final ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
@@ -88,4 +67,14 @@ public abstract class AbstractDetectionExtension extends ReflectiveAbstractExten
 
 		return nameParameter;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.lpe.common.extension.ReflectiveAbstractExtension#getDisplayLabel()
+	 */
+	@Override
+	public String getDisplayLabel() {
+		return super.getDisplayLabel().replace("Detection", "").replace("Controller", "").trim();
+	}
+	
+	
 }

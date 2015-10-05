@@ -71,12 +71,12 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	}
 
 	@Override
-	public void doSave(IProgressMonitor monitor) {
+	public void doSave(final IProgressMonitor monitor) {
 		try {
-			HierarchyEditorInput input = (HierarchyEditorInput) getEditorInput();
+			final HierarchyEditorInput input = (HierarchyEditorInput) getEditorInput();
 			SpotterProjectSupport.saveHierarchy(input.getFile(), input.getPerformanceProblemRoot());
 			super.doSave(monitor);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			DialogUtils.handleError(ERR_MSG_SAVE, e);
 		}
 	}
@@ -84,31 +84,31 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	@Override
 	public IExtensionItem getInitialExtensionsInput() {
 		if (problemRoot == null) {
-			HierarchyEditorInput editorInput = (HierarchyEditorInput) getEditorInput();
+			final HierarchyEditorInput editorInput = (HierarchyEditorInput) getEditorInput();
 			problemRoot = editorInput.getPerformanceProblemRoot();
 		}
 
-		String projectName = getProject().getName();
-		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
+		final String projectName = getProject().getName();
+		final IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
 		return createPerformanceProblemHierarchy(projectName, factory, problemRoot);
 	}
 
 	@Override
 	public ExtensionMetaobject[] getAvailableExtensions() {
-		String projectName = getProject().getName();
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		final String projectName = getProject().getName();
+		final ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		return client.getAvailableExtensions(EXTENSION_TYPE);
 	}
 
 	@Override
-	protected AbstractSpotterEditorInput createEditorInput(IFile file) {
+	protected AbstractSpotterEditorInput createEditorInput(final IFile file) {
 		return ElementFactory.createEditorInput(ID, file);
 	}
 
 	@Override
-	public IModelWrapper createModelWrapper(Object parent, ExtensionMetaobject extensionComponent) {
-		XPerformanceProblem container = (XPerformanceProblem) parent;
-		XPerformanceProblem problem = new XPerformanceProblem();
+	public IModelWrapper createModelWrapper(final Object parent, final ExtensionMetaobject extensionComponent) {
+		final XPerformanceProblem container = (XPerformanceProblem) parent;
+		final XPerformanceProblem problem = new XPerformanceProblem();
 		problem.setExtensionName(extensionComponent.getExtensionName());
 		problem.setUniqueId(RawHierarchyFactory.generateUniqueId());
 		if (container.getProblem() == null) {
@@ -123,14 +123,14 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	}
 
 	@Override
-	protected boolean isInputApplicable(AbstractSpotterEditorInput input) throws Exception {
+	protected boolean isInputApplicable(final AbstractSpotterEditorInput input) throws Exception {
 		return HierarchyFactory.getInstance().parseHierarchyFile(input.getPath().toString()) != null;
 	}
 
 	@Override
-	protected void makeInputApplicable(AbstractSpotterEditorInput input) throws UICoreException {
-		String projectName = input.getProject().getName();
-		XPerformanceProblem problem = Activator.getDefault().getClient(projectName).getDefaultHierarchy();
+	protected void makeInputApplicable(final AbstractSpotterEditorInput input) throws UICoreException {
+		final String projectName = input.getProject().getName();
+		final XPerformanceProblem problem = Activator.getDefault().getClient(projectName).getDefaultHierarchy();
 
 		SpotterProjectSupport.saveHierarchy(input.getFile(), problem);
 	}
@@ -147,22 +147,22 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 	 *            The XML root problem model
 	 * @return an ExtensionItem containing the hierarchy
 	 */
-	public static IExtensionItem createPerformanceProblemHierarchy(String projectName, IExtensionItemFactory factory,
-			XPerformanceProblem rootProblem) {
-		IModelWrapper rootModel = new HierarchyModelWrapper(null, null, rootProblem);
-		IExtensionItem input = factory.createExtensionItem(rootModel);
+	public static IExtensionItem createPerformanceProblemHierarchy(final String projectName, final IExtensionItemFactory factory,
+			final XPerformanceProblem rootProblem) {
+		final IModelWrapper rootModel = new HierarchyModelWrapper(null, null, rootProblem);
+		final IExtensionItem input = factory.createExtensionItem(rootModel);
 		input.setIgnoreConnection(true);
 
 		if (rootProblem.getProblem() == null) {
 			rootProblem.setProblem(new ArrayList<XPerformanceProblem>());
 		}
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
-		Iterator<XPerformanceProblem> problemIter = rootProblem.getProblem().iterator();
+		final ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		final Iterator<XPerformanceProblem> problemIter = rootProblem.getProblem().iterator();
 		while (problemIter.hasNext()) {
 			try {
 				buildRecursiveTree(client, factory, input, rootProblem, problemIter);
-			} catch (UICoreException e) {
-				String message = "Creating performance problem hierarchy failed.";
+			} catch (final UICoreException e) {
+				final String message = "Creating performance problem hierarchy failed.";
 				LOGGER.warn(message, e);
 				DialogUtils.openWarning(TITLE_ERR_DIALOG, DialogUtils.appendCause(message, e.getMessage()));
 				return factory.createExtensionItem(rootModel);
@@ -171,11 +171,11 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 		return input;
 	}
 
-	private static void buildRecursiveTree(ServiceClientWrapper client, IExtensionItemFactory factory,
-			IExtensionItem parent, XPerformanceProblem parentProblem, Iterator<XPerformanceProblem> problemIter)
+	private static void buildRecursiveTree(final ServiceClientWrapper client, final IExtensionItemFactory factory,
+			final IExtensionItem parent, final XPerformanceProblem parentProblem, final Iterator<XPerformanceProblem> problemIter)
 			throws UICoreException {
-		XPerformanceProblem problem = problemIter.next();
-		String extName = problem.getExtensionName();
+		final XPerformanceProblem problem = problemIter.next();
+		final String extName = problem.getExtensionName();
 
 		if (client.getExtensionConfigParamters(extName) == null) {
 			DialogUtils.openWarning(TITLE_CONFIG_ERR_DIALOG, "Skipping extension item '" + extName
@@ -186,13 +186,13 @@ public class HierarchyEditor extends AbstractExtensionsEditor {
 			return;
 		}
 
-		String projectName = client.getProjectName();
-		ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
-		IModelWrapper wrapper = new HierarchyModelWrapper(extension, parentProblem.getProblem(), problem);
-		IExtensionItem child = factory.createExtensionItem(wrapper);
+		final String projectName = client.getProjectName();
+		final ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName, client.getExtensionLabel(extName));
+		final IModelWrapper wrapper = new HierarchyModelWrapper(extension, parentProblem.getProblem(), problem);
+		final IExtensionItem child = factory.createExtensionItem(wrapper);
 		parent.addItem(child);
 		if (problem.getProblem() != null) {
-			Iterator<XPerformanceProblem> childIter = problem.getProblem().iterator();
+			final Iterator<XPerformanceProblem> childIter = problem.getProblem().iterator();
 			while (childIter.hasNext()) {
 				buildRecursiveTree(client, factory, child, problem, childIter);
 			}
