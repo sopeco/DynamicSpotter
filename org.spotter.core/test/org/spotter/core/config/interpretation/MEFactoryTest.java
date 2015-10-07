@@ -20,8 +20,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.Assert;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.config.ConfigParameterDescription;
@@ -31,12 +29,14 @@ import org.spotter.core.measurement.IMeasurementAdapter;
 import org.spotter.core.workload.IWorkloadAdapter;
 import org.spotter.shared.configuration.ConfigKeys;
 
+import junit.framework.Assert;
+
 public class MEFactoryTest {
 	@BeforeClass
 	public static void initializeGlobalConfig() {
 		GlobalConfiguration.initialize(new Properties());
-		String dir = System.getProperty("user.dir");
-		Properties properties = new Properties();
+		final String dir = System.getProperty("user.dir");
+		final Properties properties = new Properties();
 		properties.setProperty("org.lpe.common.extension.appRootDir", dir);
 		properties.setProperty("org.spotter.conf.pluginDirNames", "plugins");
 		GlobalConfiguration.reinitialize(properties);
@@ -44,8 +44,8 @@ public class MEFactoryTest {
 
 	@Test
 	public void testMeasurementEnvironmentCreation() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
 
 		// *****************************
 		// INSTRUMENTATION CONTROLLERS
@@ -53,17 +53,19 @@ public class MEFactoryTest {
 		List<IInstrumentationAdapter> instrumentations = MeasurementEnvironmentFactory.getInstance()
 				.createInstrumentationControllers(envFile);
 		Assert.assertEquals(1, instrumentations.size());
-		Assert.assertEquals("DummyInstrumentation", instrumentations.get(0).getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.satellites.DummyInstrumentation", instrumentations.get(0).getProvider().getName());
 		Assert.assertEquals("0", instrumentations.get(0).getPort());
 		Assert.assertEquals("X", instrumentations.get(0).getHost());
 		Assert.assertEquals("Y", instrumentations.get(0).getName());
 
-		Assert.assertEquals(2, instrumentations.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(4, instrumentations.get(0).getProvider().getConfigParameters().size());
 		ConfigParameterDescription cpDesription = null;
-		for (ConfigParameterDescription cpd : instrumentations.get(0).getProvider().getConfigParameters()) {
+		for (final ConfigParameterDescription cpd : instrumentations.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 			Assert.assertTrue(cpDesription.getName().equals("test.instrumentation.parameter")
-					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY));
+					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY));
 		}
 
 		// *****************************
@@ -72,18 +74,20 @@ public class MEFactoryTest {
 		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
-		Assert.assertEquals("DummyMeasurement", measurementControllers.get(0).getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.satellites.DummyMeasurement", measurementControllers.get(0).getProvider().getName());
 		Assert.assertEquals("measurement.value",
 				measurementControllers.get(0).getProperties().get("org.test.measurement.key"));
 
-		Assert.assertEquals(4, measurementControllers.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(6, measurementControllers.get(0).getProvider().getConfigParameters().size());
 		cpDesription = null;
-		for (ConfigParameterDescription cpd : measurementControllers.get(0).getProvider().getConfigParameters()) {
+		for (final ConfigParameterDescription cpd : measurementControllers.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 
 			Assert.assertTrue(cpDesription.getName().equals("test.measurement.parameter")
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_ADAPTER_NAME_KEY)
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_HOST_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY)
 					|| cpDesription.getName().equals(ConfigKeys.SATELLITE_PORT_KEY));
 		}
 
@@ -92,23 +96,25 @@ public class MEFactoryTest {
 		// *****************************
 		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
 		Assert.assertEquals(1, wlAdapters.size());
-		Assert.assertEquals("DummyWorkload", wlAdapters.get(0).getProvider().getName());
+		Assert.assertEquals("org.spotter.core.test.dummies.satellites.DummyWorkload", wlAdapters.get(0).getProvider().getName());
 		Assert.assertEquals("workload.value", wlAdapters.get(0).getProperties().get("org.test.workload.key"));
 
-		Assert.assertEquals(2, wlAdapters.get(0).getProvider().getConfigParameters().size());
+		Assert.assertEquals(4, wlAdapters.get(0).getProvider().getConfigParameters().size());
 		cpDesription = null;
-		for (ConfigParameterDescription cpd : wlAdapters.get(0).getProvider().getConfigParameters()) {
+		for (final ConfigParameterDescription cpd : wlAdapters.get(0).getProvider().getConfigParameters()) {
 			cpDesription = cpd;
 			Assert.assertTrue(cpDesription.getName().equals("test.workload.parameter")
-					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name"));
+					|| cpDesription.getName().equals("org.spotter.satellite.adapter.name")
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)
+					|| cpDesription.getName().equals(ConfigParameterDescription.EXT_LABEL_KEY));
 		}
 
 		
 		// *****************************
 		// EMPTY ENVIRONMENT
 		// *****************************
-		URL emptyEnv_url = HierarchyTest.class.getResource("/empty-env.xml");
-		String emptyEnvFile = emptyEnv_url.toURI().getPath();
+		final URL emptyEnv_url = HierarchyTest.class.getResource("/empty-env.xml");
+		final String emptyEnvFile = emptyEnv_url.toURI().getPath();
 
 		instrumentations = MeasurementEnvironmentFactory.getInstance().createInstrumentationControllers(emptyEnvFile);
 		Assert.assertTrue(instrumentations.isEmpty());
@@ -123,24 +129,24 @@ public class MEFactoryTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testInvalidInstrumentationSatellite() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/invalid-env.xml");
-		String envFile = url.toURI().getPath();
+		final URL url = HierarchyTest.class.getResource("/invalid-env.xml");
+		final String envFile = url.toURI().getPath();
 
 		MeasurementEnvironmentFactory.getInstance().createInstrumentationControllers(envFile);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testInvalidMeasurementSatellite() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/invalid-env.xml");
-		String envFile = url.toURI().getPath();
+		final URL url = HierarchyTest.class.getResource("/invalid-env.xml");
+		final String envFile = url.toURI().getPath();
 
 		MeasurementEnvironmentFactory.getInstance().createMeasurementControllers(envFile);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testInvalidWorkloadSatellite() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/invalid-env.xml");
-		String envFile = url.toURI().getPath();
+		final URL url = HierarchyTest.class.getResource("/invalid-env.xml");
+		final String envFile = url.toURI().getPath();
 
 		MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
 	}
@@ -152,9 +158,9 @@ public class MEFactoryTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidHostMeasurement() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getHost());
@@ -162,9 +168,9 @@ public class MEFactoryTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidPortMeasurement() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getPort());
@@ -172,27 +178,27 @@ public class MEFactoryTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidHostWorkload() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
 		Assert.assertEquals(1, wlAdapters.size());
 		Assert.assertNull(wlAdapters.get(0).getHost());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidPortWorkload() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
 		Assert.assertEquals(1, wlAdapters.size());
 		Assert.assertNull(wlAdapters.get(0).getPort());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidNameMeasurement() throws URISyntaxException {
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IMeasurementAdapter> measurementControllers = MeasurementEnvironmentFactory.getInstance()
 				.createMeasurementControllers(envFile);
 		Assert.assertEquals(1, measurementControllers.size());
 		Assert.assertNull(measurementControllers.get(0).getName());
@@ -201,9 +207,9 @@ public class MEFactoryTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidNameWorkload() throws URISyntaxException {
 	
-		URL url = HierarchyTest.class.getResource("/test-env.xml");
-		String envFile = url.toURI().getPath();
-		List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
+		final URL url = HierarchyTest.class.getResource("/test-env.xml");
+		final String envFile = url.toURI().getPath();
+		final List<IWorkloadAdapter> wlAdapters = MeasurementEnvironmentFactory.getInstance().createWorkloadAdapters(envFile);
 		Assert.assertEquals(1, wlAdapters.size());
 		Assert.assertNull(wlAdapters.get(0).getName());
 	}

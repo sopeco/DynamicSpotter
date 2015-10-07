@@ -67,15 +67,15 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 
 	@Override
 	public IExtensionItem getInitialExtensionsInput() {
-		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
-		List<XMeasurementEnvObject> errEnvObjects = new ArrayList<>();
-		IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
-		IExtensionItem input = factory.createExtensionItem(new EnvironmentModelWrapper(envObjects));
+		final List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
+		final List<XMeasurementEnvObject> errEnvObjects = new ArrayList<>();
+		final IExtensionItemFactory factory = new BasicEditorExtensionItemFactory(getEditorId());
+		final IExtensionItem input = factory.createExtensionItem(new EnvironmentModelWrapper(envObjects));
 
-		String projectName = getProject().getName();
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
-		for (XMeasurementEnvObject envObj : envObjects) {
-			String extName = envObj.getExtensionName();
+		final String projectName = getProject().getName();
+		final ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		for (final XMeasurementEnvObject envObj : envObjects) {
+			final String extName = envObj.getExtensionName();
 
 			if (client.getExtensionConfigParamters(extName) == null) {
 				DialogUtils.openWarning(TITLE_CONFIG_ERR_DIALOG, "Skipping extension item '" + extName
@@ -85,9 +85,9 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 				errEnvObjects.add(envObj);
 				continue;
 			}
-
-			ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName);
-			IModelWrapper wrapper = new EnvironmentModelWrapper(extension, envObjects, envObj);
+			final String displayLabel = client.getExtensionLabel(extName);
+			final ExtensionMetaobject extension = new ExtensionMetaobject(projectName, extName, displayLabel);
+			final IModelWrapper wrapper = new EnvironmentModelWrapper(extension, envObjects, envObj);
 			input.addItem(factory.createExtensionItem(wrapper));
 		}
 		envObjects.removeAll(errEnvObjects);
@@ -96,40 +96,40 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 
 	@Override
 	public ExtensionMetaobject[] getAvailableExtensions() {
-		String projectName = getProject().getName();
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+		final String projectName = getProject().getName();
+		final ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 		return client.getAvailableExtensions(getExtensionType());
 	}
 
 	@Override
-	public IModelWrapper createModelWrapper(Object parent, ExtensionMetaobject extensionComponent) {
-		List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
-		XMeasurementEnvObject envObject = new XMeasurementEnvObject();
+	public IModelWrapper createModelWrapper(final Object parent, final ExtensionMetaobject extensionComponent) {
+		final List<XMeasurementEnvObject> envObjects = getMeasurementEnvironmentObjects();
+		final XMeasurementEnvObject envObject = new XMeasurementEnvObject();
 		envObject.setExtensionName(extensionComponent.getExtensionName());
 		return new EnvironmentModelWrapper(extensionComponent, envObjects, envObject);
 	}
 
 	@Override
-	public void doSave(IProgressMonitor monitor) {
-		AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) getEditorInput();
+	public void doSave(final IProgressMonitor monitor) {
+		final AbstractSpotterEditorInput input = (AbstractSpotterEditorInput) getEditorInput();
 
 		try {
-			MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
-			XMeasurementEnvironment measurementEnv = factory.parseXMLFile(input.getPath().toString());
+			final MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
+			final XMeasurementEnvironment measurementEnv = factory.parseXMLFile(input.getPath().toString());
 
 			applyChanges(measurementEnv);
 			SpotterProjectSupport.saveEnvironment(input.getFile(), measurementEnv);
 
 			super.doSave(monitor);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			DialogUtils.handleError(ERR_MSG_SAVE, e);
 		}
 	}
 
 	@Override
-	protected boolean isInputApplicable(AbstractSpotterEditorInput input) throws Exception {
-		MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
-		XMeasurementEnvironment env = factory.parseXMLFile(input.getPath().toString());
+	protected boolean isInputApplicable(final AbstractSpotterEditorInput input) throws Exception {
+		final MeasurementEnvironmentFactory factory = MeasurementEnvironmentFactory.getInstance();
+		final XMeasurementEnvironment env = factory.parseXMLFile(input.getPath().toString());
 
 		return env != null;
 
@@ -155,8 +155,8 @@ public abstract class AbstractEnvironmentEditor extends AbstractExtensionsEditor
 	}
 
 	@Override
-	protected void makeInputApplicable(AbstractSpotterEditorInput input) throws UICoreException {
-		XMeasurementEnvironment mEnv = MeasurementEnvironmentFactory.getInstance().createMeasurementEnvironment();
+	protected void makeInputApplicable(final AbstractSpotterEditorInput input) throws UICoreException {
+		final XMeasurementEnvironment mEnv = MeasurementEnvironmentFactory.getInstance().createMeasurementEnvironment();
 		SpotterProjectSupport.saveEnvironment(input.getFile(), mEnv);
 	}
 

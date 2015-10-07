@@ -38,28 +38,28 @@ public class AddExtensionDialog extends AbstractAddDialog {
 	 * @param extensions
 	 *            the extensions as input
 	 */
-	public AddExtensionDialog(Shell parentShell, ExtensionMetaobject[] extensions) {
+	public AddExtensionDialog(final Shell parentShell, final ExtensionMetaobject[] extensions) {
 		super(parentShell, extensions);
 	}
 
 	@Override
-	protected String getElementName(Object element) {
-		return ((ExtensionMetaobject) element).getExtensionName();
+	protected String getElementName(final Object element) {
+		return ((ExtensionMetaobject) element).getExtensionDisplayLabel() + " <" + ((ExtensionMetaobject) element).getExtensionName() + ">";
 	}
 
 	@Override
-	protected String getElementDescription(Object element) {
-		ExtensionMetaobject extension = (ExtensionMetaobject) element;
-		String projectName = extension.getProjectName();
-		ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
+	protected String getElementDescription(final Object element) {
+		final ExtensionMetaobject extension = (ExtensionMetaobject) element;
+		final String projectName = extension.getProjectName();
+		final ServiceClientWrapper client = Activator.getDefault().getClient(projectName);
 
-		String description = client.getExtensionDescription(extension.getExtensionName());
+		final String description = client.getExtensionDescription(extension.getExtensionName());
 
 		return description;
 	}
 
 	@Override
-	protected Control createDialogArea(Composite parent) {
+	protected Control createDialogArea(final Composite parent) {
 		setMessage("Choose which extensions you want to add.");
 		setTitle("Add Extensions");
 

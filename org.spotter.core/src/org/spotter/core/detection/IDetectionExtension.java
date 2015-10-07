@@ -22,11 +22,6 @@ import org.lpe.common.extension.IExtension;
  * @author Alexander Wert
  *
  */
-public interface IDetectionExtension extends IExtension<IDetectionController> {
-	/**
-	 * Creates a new detection strategy provided by the extension.
-	 * 
-	 * @return returns an exploration strategy
-	 */
-	IDetectionController createExtensionArtifact();
+public interface IDetectionExtension extends IExtension {
+
 }

@@ -17,13 +17,16 @@ package org.spotter.core.instrumentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.description.InstrumentationDescription;
+import org.aim.aiminterface.description.instrumentation.InstrumentationDescription;
+import org.aim.aiminterface.description.restriction.Restriction;
+import org.aim.aiminterface.exceptions.InstrumentationException;
 import org.lpe.common.extension.IExtension;
 import org.lpe.common.util.system.LpeSystemUtils;
 
@@ -68,7 +71,7 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	 * @param instrumentationControllers
 	 *            controllers
 	 */
-	public void setControllers(Collection<IInstrumentationAdapter> instrumentationControllers) {
+	public void setControllers(final Collection<IInstrumentationAdapter> instrumentationControllers) {
 		this.instrumentationControllers.clear();
 		this.instrumentationControllers.addAll(instrumentationControllers);
 	}
@@ -76,13 +79,13 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	@Override
 	public void initialize() throws InstrumentationException {
 		try {
-			List<Future<?>> tasks = new ArrayList<>();
+			final List<Future<?>> tasks = new ArrayList<>();
 
-			for (IInstrumentationAdapter instController : instrumentationControllers) {
+			for (final IInstrumentationAdapter instController : instrumentationControllers) {
 				tasks.add(LpeSystemUtils.submitTask(new InitializeTask(instController)));
 			}
 			// wait for termination of all initialization tasks
-			for (Future<?> task : tasks) {
+			for (final Future<?> task : tasks) {
 				task.get();
 			}
 		} catch (InterruptedException | ExecutionException e) {
@@ -92,18 +95,18 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	}
 
 	@Override
-	public void instrument(InstrumentationDescription description) throws InstrumentationException {
+	public void instrument(final InstrumentationDescription description) throws InstrumentationException {
 		try {
 			if (description == null) {
 				throw new InstrumentationException("Instrumentation description must not be null!");
 			}
-			List<Future<?>> tasks = new ArrayList<>();
-			for (IInstrumentationAdapter instController : instrumentationControllers) {
+			final List<Future<?>> tasks = new ArrayList<>();
+			for (final IInstrumentationAdapter instController : instrumentationControllers) {
 
 				tasks.add(LpeSystemUtils.submitTask(new InstrumentTask(instController, description)));
 			}
 			// wait for termination of all instrumentation tasks
-			for (Future<?> task : tasks) {
+			for (final Future<?> task : tasks) {
 				task.get();
 			}
 		} catch (InterruptedException | ExecutionException e) {
@@ -115,14 +118,14 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	@Override
 	public void uninstrument() throws InstrumentationException {
 		try {
-			List<Future<?>> tasks = new ArrayList<>();
-			for (IInstrumentationAdapter instController : instrumentationControllers) {
+			final List<Future<?>> tasks = new ArrayList<>();
+			for (final IInstrumentationAdapter instController : instrumentationControllers) {
 
 				tasks.add(LpeSystemUtils.submitTask(new UninstrumentTask(instController)));
 			}
 
 			// wait for termination of all uninstrumentation tasks
-			for (Future<?> task : tasks) {
+			for (final Future<?> task : tasks) {
 				task.get();
 			}
 		} catch (InterruptedException | ExecutionException e) {
@@ -133,15 +136,15 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 
 	@Override
 	public Properties getProperties() {
-		Properties props = new Properties();
-		for (IInstrumentationAdapter instController : instrumentationControllers) {
+		final Properties props = new Properties();
+		for (final IInstrumentationAdapter instController : instrumentationControllers) {
 			props.putAll(instController.getProperties());
 		}
 		return props;
 	}
 
 	@Override
-	public IExtension<?> getProvider() {
+	public IExtension getProvider() {
 		return null;
 	}
 
@@ -152,7 +155,7 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 			try {
 
 				executeTask();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
 
@@ -166,7 +169,7 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 		IInstrumentationAdapter instController;
 		InstrumentationDescription description;
 
-		public InstrumentTask(IInstrumentationAdapter instController, InstrumentationDescription description)
+		public InstrumentTask(final IInstrumentationAdapter instController, final InstrumentationDescription description)
 				throws InterruptedException {
 
 			this.instController = instController;
@@ -175,14 +178,16 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 
 		@Override
 		protected void executeTask() throws InstrumentationException {
-
+			final Set<String> includesNew = new HashSet<>(description.getGlobalRestriction().getPackageIncludes());
+			final Set<String> excludesNew = new HashSet<>(description.getGlobalRestriction().getPackageExcludes());
+			
 			String csListIncludes = instController.getProperties().getProperty(
 					IInstrumentationAdapter.INSTRUMENTATION_INCLUDES);
 			csListIncludes = (csListIncludes == null || csListIncludes.isEmpty()) ? null : csListIncludes;
 			if (csListIncludes != null) {
-				String[] includesArr = csListIncludes.split(",");
-				for (String inc : includesArr) {
-					description.getGlobalRestriction().getPackageIncludes().add(inc);
+				final String[] includesArr = csListIncludes.split(",");
+				for (final String inc : includesArr) {
+					includesNew.add(inc);
 				}
 			}
 			String csListExcludes = instController.getProperties().getProperty(
@@ -190,12 +195,15 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 			csListExcludes = (csListExcludes == null || csListExcludes.isEmpty()) ? null : csListExcludes;
 
 			if (csListExcludes != null) {
-				String[] excludesArr = csListExcludes.split(",");
-				for (String exc : excludesArr) {
-					description.getGlobalRestriction().getPackageExcludes().add(exc);
+				final String[] excludesArr = csListExcludes.split(",");
+				for (final String exc : excludesArr) {
+					excludesNew.add(exc);
 				}
 			}
-			instController.instrument(description);
+			final Restriction originalRestriction = description.getGlobalRestriction();
+			final Restriction adaptedRestriction = new Restriction(includesNew, excludesNew, originalRestriction.getModifierIncludes(), originalRestriction.getModifierExcludes(), originalRestriction.getGranularity());
+			final InstrumentationDescription newDescription = new InstrumentationDescription(description.getInstrumentationEntities(), description.getSamplingDescriptions(), adaptedRestriction);
+			instController.instrument(newDescription);
 
 		}
 	}
@@ -203,7 +211,7 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	private class UninstrumentTask extends Task {
 		IInstrumentationAdapter instController;
 
-		public UninstrumentTask(IInstrumentationAdapter instController) throws InterruptedException {
+		public UninstrumentTask(final IInstrumentationAdapter instController) throws InterruptedException {
 			this.instController = instController;
 		}
 
@@ -215,9 +223,9 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	}
 
 	private class InitializeTask extends Task {
-		private IInstrumentationAdapter instController;
+		private final IInstrumentationAdapter instController;
 
-		public InitializeTask(IInstrumentationAdapter instController) throws InterruptedException {
+		public InitializeTask(final IInstrumentationAdapter instController) throws InterruptedException {
 			this.instController = instController;
 		}
 
@@ -244,7 +252,7 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	}
 
 	@Override
-	public void setProperties(Properties properties) {
+	public void setProperties(final Properties properties) {
 		// nothing to do
 	}
 
@@ -258,10 +266,10 @@ public final class InstrumentationBroker implements IInstrumentationAdapter {
 	 *            Class type of the controllers
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends IInstrumentationAdapter> List<T> getInstrumentationControllers(Class<T> type) {
-		List<T> result = new ArrayList<>();
+	public <T extends IInstrumentationAdapter> List<T> getInstrumentationControllers(final Class<T> type) {
+		final List<T> result = new ArrayList<>();
 
-		for (IInstrumentationAdapter controller : instrumentationControllers) {
+		for (final IInstrumentationAdapter controller : instrumentationControllers) {
 			if (type.isAssignableFrom(controller.getClass())) {
 				result.add((T) controller);
 			}

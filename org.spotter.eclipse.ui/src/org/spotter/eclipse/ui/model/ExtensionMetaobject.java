@@ -34,6 +34,7 @@ public class ExtensionMetaobject {
 	private final String projectName;
 	private final ServiceClientWrapper client;
 	private final String extensionName;
+	private final String extensionDisplayLabel;
 
 	/**
 	 * Create a new instance for the given project.
@@ -43,7 +44,7 @@ public class ExtensionMetaobject {
 	 * @param extensionName
 	 *            The name of the extension
 	 */
-	public ExtensionMetaobject(String projectName, String extensionName) {
+	public ExtensionMetaobject(final String projectName, final String extensionName, final String extensionDisplayLabel) {
 		this.projectName = projectName;
 		if (projectName == null) {
 			this.client = null;
@@ -52,6 +53,7 @@ public class ExtensionMetaobject {
 		}
 
 		this.extensionName = extensionName;
+		this.extensionDisplayLabel = extensionDisplayLabel;
 	}
 
 	/**
@@ -66,6 +68,13 @@ public class ExtensionMetaobject {
 	 */
 	public String getExtensionName() {
 		return extensionName;
+	}
+	
+	/**
+	 * @return the extension display label
+	 */
+	public String getExtensionDisplayLabel() {
+		return extensionDisplayLabel;
 	}
 
 	/**

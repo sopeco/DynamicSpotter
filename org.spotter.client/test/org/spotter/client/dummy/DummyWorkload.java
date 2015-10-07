@@ -27,7 +27,7 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	public boolean warmUpTerminated = false;
 	public boolean experimentTerminated = false;
 
-	public DummyWorkload(IExtension<?> provider) {
+	public DummyWorkload(final IExtension provider) {
 		super(provider);
 	}
 
@@ -38,7 +38,7 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	}
 
 	@Override
-	public void startLoad(LoadConfig loadCofig) throws WorkloadException {
+	public void startLoad(final LoadConfig loadCofig) throws WorkloadException {
 		loadStarted = true;
 		numExperiments++;
 	}

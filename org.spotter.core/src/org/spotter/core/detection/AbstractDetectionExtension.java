@@ -15,10 +15,8 @@
  */
 package org.spotter.core.detection;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.lpe.common.config.ConfigParameterDescription;
+import org.lpe.common.extension.ReflectiveAbstractExtension;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.shared.configuration.ConfigKeys;
 
@@ -28,21 +26,18 @@ import org.spotter.shared.configuration.ConfigKeys;
  * @author Alexander Wert
  * 
  */
-public abstract class AbstractDetectionExtension implements IDetectionExtension {
+public abstract class AbstractDetectionExtension extends ReflectiveAbstractExtension implements IDetectionExtension {
 
 	public static final String REUSE_EXPERIMENTS_FROM_PARENT = "reuseExperimentsFromParent";
-
-	private final Set<ConfigParameterDescription> configParameters;
 
 	/**
 	 * Constructor.
 	 */
-	public AbstractDetectionExtension() {
-
-		configParameters = new HashSet<ConfigParameterDescription>();
-		configParameters.add(createIsDetectableParameter());
+	public AbstractDetectionExtension(final Class<? extends IDetectionController> extensionArtifactClass) {
+		super(extensionArtifactClass);
+		addConfigParameter(createIsDetectableParameter());
 		if (this.createExtensionArtifact() instanceof IExperimentReuser) {
-			configParameters.add(createReuseExperimentsParameter());
+			addConfigParameter(createReuseExperimentsParameter());
 		}
 		initializeConfigurationParameters();
 	}
@@ -53,23 +48,8 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	 */
 	protected abstract void initializeConfigurationParameters();
 
-	/**
-	 * Adds a configuration parameter to the extension.
-	 * 
-	 * @param parameter
-	 *            parameter to add to this extension
-	 */
-	protected void addConfigParameter(ConfigParameterDescription parameter) {
-		configParameters.add(parameter);
-	}
-
-	@Override
-	public final Set<ConfigParameterDescription> getConfigParameters() {
-		return configParameters;
-	}
-
 	private ConfigParameterDescription createReuseExperimentsParameter() {
-		ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
+		final ConfigParameterDescription reuseExperimentsParameter = new ConfigParameterDescription(
 				REUSE_EXPERIMENTS_FROM_PARENT, LpeSupportedTypes.Boolean);
 		reuseExperimentsParameter.setDescription("Indicates whether the experiments from "
 				+ "the parent heuristic should be used for this heuristic.");
@@ -78,7 +58,7 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 	}
 
 	private ConfigParameterDescription createIsDetectableParameter() {
-		ConfigParameterDescription nameParameter = new ConfigParameterDescription(ConfigKeys.DETECTABLE_KEY,
+		final ConfigParameterDescription nameParameter = new ConfigParameterDescription(ConfigKeys.DETECTABLE_KEY,
 				LpeSupportedTypes.Boolean);
 		nameParameter.setMandatory(true);
 		nameParameter.setASet(false);
@@ -87,4 +67,14 @@ public abstract class AbstractDetectionExtension implements IDetectionExtension 
 
 		return nameParameter;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.lpe.common.extension.ReflectiveAbstractExtension#getDisplayLabel()
+	 */
+	@Override
+	public String getDisplayLabel() {
+		return super.getDisplayLabel().replace("Detection", "").replace("Controller", "").trim();
+	}
+	
+	
 }

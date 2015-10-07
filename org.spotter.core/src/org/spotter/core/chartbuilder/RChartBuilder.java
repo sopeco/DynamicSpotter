@@ -9,10 +9,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.lpe.common.util.LpeFileUtils;
-import org.lpe.common.util.LpeNumericUtils;
-import org.lpe.common.util.NumericPair;
-import org.lpe.common.util.NumericPairList;
 import org.lpe.common.util.system.LpeSystemUtils;
+import org.lpe.common.utils.csv.LpeCsvUtils;
+import org.lpe.common.utils.numeric.LpeNumericUtils;
+import org.lpe.common.utils.numeric.NumericPair;
+import org.lpe.common.utils.numeric.NumericPairList;
 
 public class RChartBuilder extends AnalysisChartBuilder {
 
@@ -21,7 +22,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	private static final String EMPTY_PLOT = "plot(c(), c(), main=plotTitle, "
 			+ "xlab=xLabel, ylab=yLabel, type=\"n\",ylim=yRange,xlim=xRange,cex.lab=1.4,cex.axis=1.5)\n";
 
-	private StringBuilder scriptBuilder = new StringBuilder();
+	private final StringBuilder scriptBuilder = new StringBuilder();
 	private StringBuilder legendLinesBuilder = null;
 	private StringBuilder legendPointsBuilder = null;
 	private StringBuilder legendNamesBuilder = null;
@@ -30,7 +31,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	private int lineCounter = 1;
 
 	@Override
-	public void startChart(String title, String xLabel, String yLabel) {
+	public void startChart(final String title, final String xLabel, final String yLabel) {
 		this.title = title;
 		this.xLabel = xLabel;
 		this.yLabel = yLabel;
@@ -43,16 +44,16 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void startChartWithoutLegend(String title, String xLabel, String yLabel) {
+	public void startChartWithoutLegend(final String title, final String xLabel, final String yLabel) {
 		this.title = title;
 		this.xLabel = xLabel;
 		this.yLabel = yLabel;
 	}
 
 	@Override
-	public void build(String targetFile) {
+	public void build(final String targetFile) {
 		finishLegend();
-		StringBuilder strBuilder = new StringBuilder();
+		final StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(getTitlesString());
 		strBuilder.append(getRangesString());
 
@@ -68,8 +69,8 @@ public class RChartBuilder extends AnalysisChartBuilder {
 					+ ",bg=\"white\",cex=1.3,bty =\"n\",ncol=" + (seriesCounter <= 1 ? "1" : "2") + ")\n");
 		}
 		strBuilder.append("dev.off()\n");
-		String script = strBuilder.toString();
-		String scriptFile = storeScriptFile(script);
+		final String script = strBuilder.toString();
+		final String scriptFile = storeScriptFile(script);
 
 		extractCopy(targetFile.replace(System.getProperty("file.separator"), "/"), script);
 		
@@ -80,7 +81,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 			break;
 		case WINDOWS:
 			try {
-				Process p = Runtime.getRuntime().exec("Rscript.exe " + scriptFile);
+				final Process p = Runtime.getRuntime().exec("Rscript.exe " + scriptFile);
 				p.waitFor();
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -94,17 +95,17 @@ public class RChartBuilder extends AnalysisChartBuilder {
 		cleanUpTmpFiles();
 	}
 
-	private String storeScriptFile(String script) {
+	private String storeScriptFile(final String script) {
 		String scriptFile = LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR);
 		scriptFile = LpeFileUtils.concatFileName(scriptFile, "chartTmp");
 		scriptFile = LpeFileUtils.concatFileName(scriptFile, "script-" + seriesCounter + ".r");
 		try {
-			FileWriter fWriter = new FileWriter(scriptFile, false);
+			final FileWriter fWriter = new FileWriter(scriptFile, false);
 			fWriter.append(script);
 			fWriter.flush();
 
 			fWriter.close();
-		} catch (IOException e1) {
+		} catch (final IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -112,13 +113,13 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addUtilizationScatterSeries(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			String seriesTitle, boolean scale) {
+	public void addUtilizationScatterSeries(final NumericPairList<? extends Number, ? extends Number> valuePairs,
+			final String seriesTitle, final boolean scale) {
 		updateAxisRanges(valuePairs.getKeyMin().doubleValue(), valuePairs.getKeyMax().doubleValue(), 0.0, _100_PERCENT);
-		NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
+		final NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
 		String dataFile = "";
 		if (scale) {
-			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+			for (final NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
 				scaledPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() * _100_PERCENT);
 			}
 			dataFile = storeCSV(scaledPairs);
@@ -136,13 +137,13 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addUtilizationLineSeries(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			String seriesTitle, boolean scale) {
+	public void addUtilizationLineSeries(final NumericPairList<? extends Number, ? extends Number> valuePairs,
+			final String seriesTitle, final boolean scale) {
 		updateAxisRanges(valuePairs.getKeyMin().doubleValue(), valuePairs.getKeyMax().doubleValue(), 0.0, _100_PERCENT);
-		NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
+		final NumericPairList<Double, Double> scaledPairs = new NumericPairList<>();
 		String dataFile = "";
 		if (scale) {
-			for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+			for (final NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
 				scaledPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() * _100_PERCENT);
 			}
 			dataFile = storeCSV(scaledPairs);
@@ -162,10 +163,10 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addScatterSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
+	public void addScatterSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, final String seriesTitle) {
 		valuePairs = scaleSeriesYAxis(valuePairs, getYScale(valuePairs));
 		updateAxisRanges(valuePairs);
-		String dataFile = storeCSV(valuePairs);
+		final String dataFile = storeCSV(valuePairs);
 		scriptBuilder.append("data <- read.csv(file=\"" + dataFile + "\",head=TRUE,sep=\";\")\n");
 		scriptBuilder.append("xData <- data[[1]]\n");
 		scriptBuilder.append("yData <- data[[2]]\n");
@@ -177,10 +178,10 @@ public class RChartBuilder extends AnalysisChartBuilder {
 
 	@Override
 	public void addScatterSeriesWithLine(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			String seriesTitle) {
+			final String seriesTitle) {
 		valuePairs = scaleSeriesYAxis(valuePairs, getYScale(valuePairs));
 		updateAxisRanges(valuePairs);
-		String dataFile = storeCSV(valuePairs);
+		final String dataFile = storeCSV(valuePairs);
 		scriptBuilder.append("data <- read.csv(file=\"" + dataFile + "\",head=TRUE,sep=\";\")\n");
 		scriptBuilder.append("xData <- data[[1]]\n");
 		scriptBuilder.append("yData <- data[[2]]\n");
@@ -195,27 +196,27 @@ public class RChartBuilder extends AnalysisChartBuilder {
 
 	@Override
 	public void addScatterSeriesWithErrorBars(NumericPairList<? extends Number, ? extends Number> valuePairs,
-			List<Number> errors, String seriesTitle) {
-		double yScale = getYScale(valuePairs);
+			List<Number> errors, final String seriesTitle) {
+		final double yScale = getYScale(valuePairs);
 		valuePairs = scaleSeriesYAxis(valuePairs, yScale);
-		List<Number> scaledErrors = new ArrayList<>();
-		for (Number n : errors) {
+		final List<Number> scaledErrors = new ArrayList<>();
+		for (final Number n : errors) {
 			scaledErrors.add(n.doubleValue() * yScale);
 		}
 		errors = scaledErrors;
 
-		NumericPairList<Double, Double> minPairs = new NumericPairList<>();
-		NumericPairList<Double, Double> maxPairs = new NumericPairList<>();
+		final NumericPairList<Double, Double> minPairs = new NumericPairList<>();
+		final NumericPairList<Double, Double> maxPairs = new NumericPairList<>();
 
 		int i = 0;
-		for (NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
+		for (final NumericPair<? extends Number, ? extends Number> pair : valuePairs) {
 			minPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() - errors.get(i).doubleValue());
 			maxPairs.add(pair.getKey().doubleValue(), pair.getValue().doubleValue() + errors.get(i).doubleValue());
 			i++;
 		}
 		updateAxisRanges(minPairs);
 		updateAxisRanges(maxPairs);
-		String dataFile = storeCSV(valuePairs.getKeyList(), valuePairs.getValueList(), errors);
+		final String dataFile = storeCSV(valuePairs.getKeyList(), valuePairs.getValueList(), errors);
 		scriptBuilder.append("data <- read.csv(file=\"" + dataFile + "\",head=TRUE,sep=\";\")\n");
 		scriptBuilder.append("xData <- data[[1]]\n");
 		scriptBuilder.append("yData <- data[[2]]\n");
@@ -228,10 +229,10 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addLineSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, String seriesTitle) {
+	public void addLineSeries(NumericPairList<? extends Number, ? extends Number> valuePairs, final String seriesTitle) {
 		valuePairs = scaleSeriesYAxis(valuePairs, getYScale(valuePairs));
 		updateAxisRanges(valuePairs);
-		String dataFile = storeCSV(valuePairs);
+		final String dataFile = storeCSV(valuePairs);
 		scriptBuilder.append("data <- read.csv(file=\"" + dataFile + "\",head=TRUE,sep=\";\")\n");
 		scriptBuilder.append("xData <- data[[1]]\n");
 		scriptBuilder.append("yData <- data[[2]]\n");
@@ -242,12 +243,12 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addCDFSeries(Collection<? extends Number> values, String seriesTitle) {
-		double scale = getScale(LpeNumericUtils.max(values).doubleValue());
+	public void addCDFSeries(final Collection<? extends Number> values, final String seriesTitle) {
+		final double scale = getScale(LpeNumericUtils.max(values).doubleValue());
 		this.xScale = scale;
 		updateAxisRanges(LpeNumericUtils.min(values).doubleValue() * scale, LpeNumericUtils.max(values).doubleValue()
 				* scale, 0.0, 100.0);
-		String unit = getUnit(scale);
+		final String unit = getUnit(scale);
 
 		if (xLabel.contains("[")) {
 			xLabel = xLabel.substring(0, xLabel.lastIndexOf("["));
@@ -255,17 +256,17 @@ public class RChartBuilder extends AnalysisChartBuilder {
 		}
 		xLabel += " " + unit;
 
-		int size = values.size();
-		List<Number> xValues = new ArrayList<>(size);
-		List<Number> yValues = new ArrayList<>(size);
+		final int size = values.size();
+		final List<Number> xValues = new ArrayList<>(size);
+		final List<Number> yValues = new ArrayList<>(size);
 
-		for (Number val : values) {
+		for (final Number val : values) {
 			xValues.add(val.doubleValue() * scale);
 		}
 
 		Collections.sort(xValues, new Comparator<Number>() {
 			@Override
-			public int compare(Number o1, Number o2) {
+			public int compare(final Number o1, final Number o2) {
 				if (o1.doubleValue() < o2.doubleValue()) {
 					return -1;
 				} else if (o1.doubleValue() == o2.doubleValue()) {
@@ -276,13 +277,13 @@ public class RChartBuilder extends AnalysisChartBuilder {
 			}
 		});
 
-		double inc = 100.0 / (double) size;
+		final double inc = 100.0 / size;
 		double sum = 0.0;
 		for (int i = 0; i < xValues.size(); i++) {
 			sum += inc;
 			yValues.add(sum);
 		}
-		String dataFile = storeCSV(xValues, yValues);
+		final String dataFile = storeCSV(xValues, yValues);
 		scriptBuilder.append("data <- read.csv(file=\"" + dataFile + "\",head=TRUE,sep=\";\")\n");
 		scriptBuilder.append("xData <- data[[1]]\n");
 		scriptBuilder.append("yData <- data[[2]]\n");
@@ -293,10 +294,10 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addHorizontalLine(double yValue, String seriesTitle) {
+	public void addHorizontalLine(double yValue, final String seriesTitle) {
 		yValue *= yScale;
 		updateAxisRanges(xMin, xMax, yValue, yValue);
-		String valueStr = "c(" + yValue + "," + yValue + ")";
+		final String valueStr = "c(" + yValue + "," + yValue + ")";
 		scriptBuilder.append("lines(c(xRange), " + valueStr + ",lty=" + lineCounter + ",lwd=2)\n");
 		addLegendItem(seriesTitle, false, true);
 		seriesCounter++;
@@ -304,10 +305,10 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	@Override
-	public void addVerticalLine(double xValue, String seriesTitle) {
+	public void addVerticalLine(double xValue, final String seriesTitle) {
 		xValue *= xScale;
 		updateAxisRanges(xValue, xValue, yMin, yMax);
-		String valueStr = "c(" + xValue + "," + xValue + ")";
+		final String valueStr = "c(" + xValue + "," + xValue + ")";
 		scriptBuilder.append("lines(" + valueStr + ",c(yRange), lty=" + lineCounter + ",lwd=2)\n");
 		addLegendItem(seriesTitle, false, true);
 		seriesCounter++;
@@ -315,7 +316,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	private String getRangesString() {
-		StringBuilder strBuilder = new StringBuilder();
+		final StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("xRange <- c(");
 		strBuilder.append(xMin);
 		strBuilder.append(",");
@@ -332,7 +333,7 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	}
 
 	private String getTitlesString() {
-		StringBuilder strBuilder = new StringBuilder();
+		final StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("plotTitle <- \"");
 		strBuilder.append(title);
 		strBuilder.append("\"");
@@ -351,8 +352,8 @@ public class RChartBuilder extends AnalysisChartBuilder {
 
 	}
 
-	private void extractCopy(String targetFile, String scriptStr) {
-		String fileName = targetFile.substring(targetFile.lastIndexOf("/") + 1, targetFile.lastIndexOf("."));
+	private void extractCopy(final String targetFile, String scriptStr) {
+		final String fileName = targetFile.substring(targetFile.lastIndexOf("/") + 1, targetFile.lastIndexOf("."));
 		String targetDir = targetFile.substring(0, targetFile.lastIndexOf("/"));
 
 		targetDir = LpeFileUtils.concatFileName(targetDir, "chartData");
@@ -361,54 +362,54 @@ public class RChartBuilder extends AnalysisChartBuilder {
 		LpeFileUtils.createDir(targetDir);
 		copyCSVs(targetDir);
 
-		String originalDir = LpeFileUtils.concatFileName(
+		final String originalDir = LpeFileUtils.concatFileName(
 				LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR), "chartTmp")
 				.replace(System.getProperty("file.separator"), "/");
 		scriptStr = scriptStr.replace(originalDir, targetDir);
 
-		String scriptFile = LpeFileUtils.concatFileName(targetDir, "script-" + seriesCounter + ".r");
+		final String scriptFile = LpeFileUtils.concatFileName(targetDir, "script-" + seriesCounter + ".r");
 		try {
-			FileWriter fWriter = new FileWriter(scriptFile, false);
+			final FileWriter fWriter = new FileWriter(scriptFile, false);
 			fWriter.append(scriptStr);
 			fWriter.flush();
 
 			fWriter.close();
-		} catch (IOException e1) {
+		} catch (final IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
 	}
 
-	private void copyCSVs(String target) {
+	private void copyCSVs(final String target) {
 		LpeFileUtils.createDir(target);
 
 		String dir = LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR);
 		dir = LpeFileUtils.concatFileName(dir, "chartTmp");
 		try {
 			LpeFileUtils.copyDirectory(dir, target);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	private String storeCSV(NumericPairList<? extends Number, ? extends Number> valuePairs) {
+	private String storeCSV(final NumericPairList<? extends Number, ? extends Number> valuePairs) {
 		String file = LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR);
 		file = LpeFileUtils.concatFileName(file, "chartTmp");
 		LpeFileUtils.createDir(file);
 		file = LpeFileUtils.concatFileName(file, "data-" + seriesCounter + ".csv");
-		LpeNumericUtils.exportAsCSV(valuePairs, file, "Col1", "Col2");
+		LpeCsvUtils.exportAsCSV(valuePairs, file, "Col1", "Col2");
 
 		return file.replace(System.getProperty("file.separator"), "/");
 	}
 
-	private String storeCSV(List<? extends Number>... data) {
+	private String storeCSV(final List<? extends Number>... data) {
 		String file = LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR);
 		file = LpeFileUtils.concatFileName(file, "chartTmp");
 		LpeFileUtils.createDir(file);
 		file = LpeFileUtils.concatFileName(file, "data-" + seriesCounter + ".csv");
-		LpeNumericUtils.exportAsCSV(file, data);
+		LpeCsvUtils.exportAsCSV(file, data);
 
 		return file.replace(System.getProperty("file.separator"), "/");
 	}
@@ -416,12 +417,12 @@ public class RChartBuilder extends AnalysisChartBuilder {
 	private void cleanUpTmpFiles() {
 		try {
 			LpeFileUtils.removeDir(LpeFileUtils.concatFileName(LpeSystemUtils.getSystemTempDir(), DYNAMIC_SPOTTER_DIR));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void addLegendItem(String legendTitle, boolean point, boolean line) {
+	private void addLegendItem(final String legendTitle, final boolean point, final boolean line) {
 		if (legendNamesBuilder != null) {
 			if (!legendNamesBuilder.toString().endsWith("(")) {
 				legendNamesBuilder.append(",");

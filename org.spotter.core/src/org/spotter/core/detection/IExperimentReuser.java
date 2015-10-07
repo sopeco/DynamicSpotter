@@ -15,7 +15,7 @@
  */
 package org.spotter.core.detection;
 
-import org.aim.description.InstrumentationDescription;
+import org.aim.aiminterface.description.instrumentation.InstrumentationDescription;
 
 /**
  * Decorates a detection controller with the feature to use experiment data from

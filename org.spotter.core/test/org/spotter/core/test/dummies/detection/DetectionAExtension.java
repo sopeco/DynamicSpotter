@@ -15,8 +15,6 @@
  */
 package org.spotter.core.test.dummies.detection;
 
-import java.beans.ParameterDescriptor;
-
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.detection.AbstractDetectionExtension;
@@ -24,19 +22,13 @@ import org.spotter.core.detection.IDetectionController;
 
 public class DetectionAExtension extends AbstractDetectionExtension{
 
-	@Override
-	public IDetectionController createExtensionArtifact() {
-		return new DetectionA(this);
-	}
-
-	@Override
-	public String getName() {
-		return "DetectionA";
+	public DetectionAExtension() {
+		super(DetectionA.class);
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-		ConfigParameterDescription parDescription = new ConfigParameterDescription("test.parameter", LpeSupportedTypes.Integer);
+		final ConfigParameterDescription parDescription = new ConfigParameterDescription("test.parameter", LpeSupportedTypes.Integer);
 		addConfigParameter(parDescription);
 	}
 

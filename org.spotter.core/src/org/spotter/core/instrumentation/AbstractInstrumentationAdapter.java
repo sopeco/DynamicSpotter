@@ -38,7 +38,7 @@ public abstract class AbstractInstrumentationAdapter extends AbstractExtensionAr
 	 * @param provider
 	 *            extension provider
 	 */
-	public AbstractInstrumentationAdapter(IExtension<?> provider) {
+	public AbstractInstrumentationAdapter(final IExtension provider) {
 		super(provider);
 	}
 
@@ -84,7 +84,7 @@ public abstract class AbstractInstrumentationAdapter extends AbstractExtensionAr
 	 *            the properties to set
 	 */
 	@Override
-	public void setProperties(Properties properties) {
+	public void setProperties(final Properties properties) {
 		this.properties = properties;
 	}
 

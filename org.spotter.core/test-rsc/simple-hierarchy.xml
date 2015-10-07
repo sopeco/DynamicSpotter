@@ -12,7 +12,7 @@
 	<config key="org.spotter.detection.detectable" value="false" />
 	<uniqueId>18187b4e-32a7-49cb-863f-819da6810f90</uniqueId>
 	<problem>
-		<extensionName>MockDetection</extensionName>
+		<extensionName>org.spotter.core.test.dummies.detection.MockDetection</extensionName>
 		<uniqueId>18187b4e-32a7-49cb-863f-324da6810f80</uniqueId>
 		<config key="org.spotter.detection.detectable" value="true" />
 		<config key="test.key" value="test.value" />

@@ -93,10 +93,10 @@ public class ServiceClientWrapper {
 	// used for caching
 	private Set<ConfigParameterDescription> cachedSpotterConfParameters;
 	private Map<String, ConfigParameterDescription> cachedSpotterConfParamsMap;
-	private Map<SpotterExtensionType, Set<String>> cachedExtensionNames = new HashMap<>();
-	private Map<SpotterExtensionType, ExtensionMetaobject[]> cachedExtensionMetaobjects = new HashMap<>();
-	private Map<String, Set<ConfigParameterDescription>> cachedExtensionConfParamters = new HashMap<>();
-	private Map<String, String> cachedExtensionDescriptions = new HashMap<>();
+	private final Map<SpotterExtensionType, Set<String>> cachedExtensionNames = new HashMap<>();
+	private final Map<SpotterExtensionType, ExtensionMetaobject[]> cachedExtensionMetaobjects = new HashMap<>();
+	private final Map<String, Set<ConfigParameterDescription>> cachedExtensionConfParamters = new HashMap<>();
+	private final Map<String, String> cachedExtensionDescriptions = new HashMap<>();
 	private long lastClearTime;
 
 	/**
@@ -115,11 +115,11 @@ public class ServiceClientWrapper {
 	 *            The project the settings should be saved for or
 	 *            <code>null</code> to store them at the plugin's root scope
 	 */
-	public ServiceClientWrapper(String projectName) {
+	public ServiceClientWrapper(final String projectName) {
 		this(projectName, false);
 	}
 
-	private ServiceClientWrapper(String projectName, boolean useDefaults) {
+	private ServiceClientWrapper(final String projectName, final boolean useDefaults) {
 		if (useDefaults) {
 			this.host = DEFAULT_SERVICE_HOST;
 			this.port = DEFAULT_SERVICE_PORT;
@@ -181,7 +181,7 @@ public class ServiceClientWrapper {
 	 * @param newPort
 	 *            The new port
 	 */
-	public void updateUrl(String newHost, String newPort) {
+	public void updateUrl(final String newHost, final String newPort) {
 		if (!host.equals(newHost) || !port.equals(newPort)) {
 			client.updateUrl(newHost, newPort);
 			host = newHost;
@@ -200,15 +200,15 @@ public class ServiceClientWrapper {
 	 *            The new port
 	 * @return <code>true</code> on success, otherwise <code>false</code>
 	 */
-	public boolean saveServiceClientSettings(String newHost, String newPort) {
+	public boolean saveServiceClientSettings(final String newHost, final String newPort) {
 		Preferences prefs;
 		if (projectName == null) {
 			prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 		} else {
 			prefs = SpotterProjectSupport.getProjectPreferences(projectName);
 		}
-		String oldHost = prefs.get(KEY_SERVICE_HOST, DEFAULT_SERVICE_HOST);
-		String oldPort = prefs.get(KEY_SERVICE_PORT, DEFAULT_SERVICE_PORT);
+		final String oldHost = prefs.get(KEY_SERVICE_HOST, DEFAULT_SERVICE_HOST);
+		final String oldPort = prefs.get(KEY_SERVICE_PORT, DEFAULT_SERVICE_PORT);
 
 		prefs.put(KEY_SERVICE_HOST, newHost);
 		prefs.put(KEY_SERVICE_PORT, newPort);
@@ -219,7 +219,7 @@ public class ServiceClientWrapper {
 			// update current client
 			updateUrl(newHost, newPort);
 			return true;
-		} catch (BackingStoreException e) {
+		} catch (final BackingStoreException e) {
 			LOGGER.error("Saving Service Client settings failed.", e);
 			// restore old values
 			prefs.put(KEY_SERVICE_HOST, oldHost);
@@ -242,7 +242,7 @@ public class ServiceClientWrapper {
 		lastClientException = null;
 		try {
 			return client.startDiagnosis(jobDescription);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("startDiagnosis", MSG_START_DIAGNOSIS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
@@ -260,7 +260,7 @@ public class ServiceClientWrapper {
 		lastClientException = null;
 		try {
 			return client.requestResults(jobId);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("requestResults", MSG_REQU_RESULTS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
@@ -275,12 +275,12 @@ public class ServiceClientWrapper {
 	 * @return <code>true</code> if currently running, otherwise
 	 *         <code>false</code>
 	 */
-	public boolean isRunning(boolean silent) {
+	public boolean isRunning(final boolean silent) {
 		lastClientException = null;
 		try {
 			return client.isRunning();
-		} catch (Exception e) {
-			HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
+		} catch (final Exception e) {
+			final HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
 			handleException("isRunning", MSG_NO_STATUS, e, style, true);
 		}
 		return false;
@@ -295,12 +295,12 @@ public class ServiceClientWrapper {
 	 * @return the exception thrown during the last diagnosis run or
 	 *         <code>null</code> if none
 	 */
-	public Exception getLastRunException(boolean silent) {
+	public Exception getLastRunException(final boolean silent) {
 		lastClientException = null;
 		try {
 			return client.getLastRunException();
-		} catch (Exception e) {
-			HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
+		} catch (final Exception e) {
+			final HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
 			handleException("getLastRunException", MSG_NO_RUN_EXCEPTION, e, style, true);
 		}
 		return null;
@@ -317,7 +317,7 @@ public class ServiceClientWrapper {
 		}
 		try {
 			cachedSpotterConfParameters = client.getConfigurationParameters();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getConfigurationParameters", MSG_NO_CONFIG_PARAMS, e, HandlerStyle.SHOW, false);
 		}
 		return cachedSpotterConfParameters;
@@ -331,7 +331,7 @@ public class ServiceClientWrapper {
 	 *            name of the description object to retrieve
 	 * @return the matching description object or <code>null</code> if not found
 	 */
-	public ConfigParameterDescription getSpotterConfigParam(String name) {
+	public ConfigParameterDescription getSpotterConfigParam(final String name) {
 		lastClientException = null;
 		if (cachedSpotterConfParamsMap == null) {
 			cachedSpotterConfParamsMap = initSpotterConfParamsMap();
@@ -351,24 +351,24 @@ public class ServiceClientWrapper {
 	 * @return array of extension meta objects for the given extension type. In
 	 *         the case of an error <code>null</code> is returned.
 	 */
-	public ExtensionMetaobject[] getAvailableExtensions(SpotterExtensionType extType) {
+	public ExtensionMetaobject[] getAvailableExtensions(final SpotterExtensionType extType) {
 		lastClientException = null;
 		ExtensionMetaobject[] metaobjects = cachedExtensionMetaobjects.get(extType);
 		if (metaobjects != null) {
 			return metaobjects;
 		}
-		Set<String> extNames = getAvailableExtensionNames(extType);
+		final Set<String> extNames = getAvailableExtensionNames(extType);
 		if (extNames == null) {
 			return null;
 		}
 
-		List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();
-		for (String extName : extNames) {
+		final List<ExtensionMetaobject> list = new ArrayList<ExtensionMetaobject>();
+		for (final String extName : extNames) {
 			// force caching and ignore invalid extensions
 			if (getExtensionConfigParamters(extName, HandlerStyle.LOG_ONLY) == null) {
 				continue;
 			}
-			list.add(new ExtensionMetaobject(projectName, extName));
+			list.add(new ExtensionMetaobject(projectName, extName, getExtensionLabel(extName)));
 		}
 
 		metaobjects = list.toArray(new ExtensionMetaobject[list.size()]);
@@ -383,7 +383,7 @@ public class ServiceClientWrapper {
 	 *            extension type of interest
 	 * @return a set of extension names for the given extension type
 	 */
-	public Set<String> getAvailableExtensionNames(SpotterExtensionType extType) {
+	public Set<String> getAvailableExtensionNames(final SpotterExtensionType extType) {
 		lastClientException = null;
 		Set<String> extNames = cachedExtensionNames.get(extType);
 		if (extNames != null) {
@@ -392,7 +392,7 @@ public class ServiceClientWrapper {
 		try {
 			extNames = client.getAvailableExtensions(extType);
 			cachedExtensionNames.put(extType, extNames);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getAvailableExtensions", MSG_NO_EXTENSIONS, e, HandlerStyle.SHOW, false);
 		}
 		return extNames;
@@ -407,16 +407,16 @@ public class ServiceClientWrapper {
 	 * @return the extension configuration parameters for the extension or
 	 *         <code>null</code>
 	 */
-	public Set<ConfigParameterDescription> getExtensionConfigParamters(String extName) {
+	public Set<ConfigParameterDescription> getExtensionConfigParamters(final String extName) {
 		return getExtensionConfigParamters(extName, HandlerStyle.SHOW);
 	}
 
-	private Set<ConfigParameterDescription> getExtensionConfigParamters(String extName, HandlerStyle style) {
+	private Set<ConfigParameterDescription> getExtensionConfigParamters(final String extName, final HandlerStyle style) {
 		lastClientException = null;
 		Set<ConfigParameterDescription> confParams = cachedExtensionConfParamters.get(extName);
 		if (confParams != null) {
 			if (!cachedExtensionDescriptions.containsKey(extName)) {
-				cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
+				cachedExtensionDescriptions.put(extName, findExtensionDescription(ConfigParameterDescription.EXT_DESCRIPTION_KEY,confParams));
 			}
 			return confParams;
 		}
@@ -424,9 +424,9 @@ public class ServiceClientWrapper {
 			confParams = client.getExtensionConfigParamters(extName);
 			if (confParams != null) {
 				cachedExtensionConfParamters.put(extName, confParams);
-				cachedExtensionDescriptions.put(extName, findExtensionDescription(confParams));
+				cachedExtensionDescriptions.put(extName, findExtensionDescription(ConfigParameterDescription.EXT_DESCRIPTION_KEY,confParams));
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getExtensionConfigParameters", MSG_NO_CONFIG_PARAMS, e, style, false);
 		}
 		return confParams;
@@ -439,7 +439,7 @@ public class ServiceClientWrapper {
 	 *            The name of the extension
 	 * @return the textual description of the given extension
 	 */
-	public String getExtensionDescription(String extName) {
+	public String getExtensionDescription(final String extName) {
 		lastClientException = null;
 		if (!cachedExtensionConfParamters.containsKey(extName)) {
 			// force caching of the extension description
@@ -457,7 +457,7 @@ public class ServiceClientWrapper {
 		lastClientException = null;
 		try {
 			return client.getDefaultHierarchy();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getDefaultHierarchy", MSG_NO_DEFAULT_HIER, e, HandlerStyle.LOG_ONLY, true);
 		}
 		return RawHierarchyFactory.getInstance().createEmptyHierarchy();
@@ -472,7 +472,7 @@ public class ServiceClientWrapper {
 		lastClientException = null;
 		try {
 			return client.getCurrentProgressReport();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getCurrentProgressReport", MSG_NO_STATUS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
@@ -487,7 +487,7 @@ public class ServiceClientWrapper {
 		lastClientException = null;
 		try {
 			return client.getCurrentJobId();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("getCurrentJobId", MSG_NO_STATUS, e, HandlerStyle.SHOW, false);
 		}
 		return null;
@@ -500,12 +500,12 @@ public class ServiceClientWrapper {
 	 *            <code>true</code> to disable dialog pop-up and logging
 	 * @return the root problem
 	 */
-	public XPerformanceProblem getCurrentRootProblem(boolean silent) {
+	public XPerformanceProblem getCurrentRootProblem(final boolean silent) {
 		lastClientException = null;
 		try {
 			return client.getCurrentRootProblem();
-		} catch (Exception e) {
-			HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
+		} catch (final Exception e) {
+			final HandlerStyle style = silent ? HandlerStyle.SILENT : HandlerStyle.SHOW;
 			handleException("getCurrentRootProblem", MSG_NO_STATUS, e, style, false);
 		}
 		return null;
@@ -525,11 +525,11 @@ public class ServiceClientWrapper {
 	 * @return <code>true</code> if connection could have been established,
 	 *         otherwise <code>false</code>
 	 */
-	public boolean testConnectionToSattelite(String extName, String host, String port) {
+	public boolean testConnectionToSattelite(final String extName, final String host, final String port) {
 		lastClientException = null;
 		try {
 			return client.testConnectionToSattelite(extName, host, port);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			handleException("testConnectionToSattelite", MSG_NO_SATTELITE_TEST, e, HandlerStyle.SHOW, false);
 		}
 		return false;
@@ -544,12 +544,12 @@ public class ServiceClientWrapper {
 	 * @return <code>true</code> if connection could have been established,
 	 *         otherwise <code>false</code>
 	 */
-	public boolean testConnection(boolean showErrorDialog) {
+	public boolean testConnection(final boolean showErrorDialog) {
 		lastClientException = null;
 		boolean connection;
 		try {
 			connection = client.testConnection();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			connection = false;
 			lastClientException = e;
 		}
@@ -620,7 +620,7 @@ public class ServiceClientWrapper {
 	 *            <code>true</code> to show a warning only, otherwise an error
 	 *            is shown
 	 */
-	public static void showConnectionProblemMessage(String cause, String host, String port, boolean warning) {
+	public static void showConnectionProblemMessage(final String cause, final String host, final String port, final boolean warning) {
 		String msg = String.format(ERR_MSG_CONN, host, port);
 		if (cause != null) {
 			msg += "\n\n" + cause;
@@ -648,8 +648,8 @@ public class ServiceClientWrapper {
 	 * @param warning
 	 *            <code>true</code> for warning, <code>false</code> for error
 	 */
-	private void handleException(String requestName, String requestErrorMsg, Exception exception, HandlerStyle style,
-			boolean warning) {
+	private void handleException(final String requestName, final String requestErrorMsg, final Exception exception, final HandlerStyle style,
+			final boolean warning) {
 		lastClientException = exception;
 
 		if (style == HandlerStyle.SILENT) {
@@ -670,12 +670,12 @@ public class ServiceClientWrapper {
 			showConnectionProblemMessage(requestErrorMsg, host, port, warning);
 		} else {
 			// illegal response state or server error
-			String header = "DS Service returned with an error!";
+			final String header = "DS Service returned with an error!";
 			String message = exception.getMessage();
 			if (message == null) {
 				message = "Exception (" + exception.getClass().getName() + ") contains no message.";
 			}
-			String fullMessage = header + "\n\n" + message;
+			final String fullMessage = header + "\n\n" + message;
 			if (warning) {
 				DialogUtils.openWarning(DIALOG_TITLE, fullMessage);
 			} else {
@@ -685,24 +685,33 @@ public class ServiceClientWrapper {
 	}
 
 	private Map<String, ConfigParameterDescription> initSpotterConfParamsMap() {
-		Map<String, ConfigParameterDescription> map = new HashMap<String, ConfigParameterDescription>();
-		Set<ConfigParameterDescription> settings = getConfigurationParameters();
+		final Map<String, ConfigParameterDescription> map = new HashMap<String, ConfigParameterDescription>();
+		final Set<ConfigParameterDescription> settings = getConfigurationParameters();
 		if (settings == null) {
 			return null;
 		}
-		for (ConfigParameterDescription desc : settings) {
+		for (final ConfigParameterDescription desc : settings) {
 			map.put(desc.getName(), desc);
 		}
 		return map;
 	}
 
-	private String findExtensionDescription(Set<ConfigParameterDescription> confParams) {
-		for (ConfigParameterDescription desc : confParams) {
-			if (desc.getName().equals(ConfigParameterDescription.EXT_DESCRIPTION_KEY)) {
+	private String findExtensionDescription(final String key, final Set<ConfigParameterDescription> confParams) {
+		for (final ConfigParameterDescription desc : confParams) {
+			if (desc.getName().equals(key)) {
 				return desc.getDefaultValue();
 			}
 		}
 		return null;
+	}
+
+	public String getExtensionLabel(final String extName) {
+		Set<ConfigParameterDescription> confParams = client.getExtensionConfigParamters(extName);
+		if (confParams != null) {
+			cachedExtensionConfParamters.put(extName, confParams);
+		}
+		confParams = client.getExtensionConfigParamters(extName);
+		return findExtensionDescription(ConfigParameterDescription.EXT_LABEL_KEY,confParams);
 	}
 
 }

@@ -15,13 +15,12 @@
  */
 package org.spotter.core.test.dummies.detection;
 
-import org.aim.api.exceptions.InstrumentationException;
-import org.aim.api.exceptions.MeasurementException;
+import org.aim.aiminterface.exceptions.InstrumentationException;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.aim.description.builder.InstrumentationDescriptionBuilder;
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.detection.AbstractDetectionController;
-import org.spotter.core.detection.IDetectionController;
 import org.spotter.core.test.dummies.satellites.DummyMeasurement;
 import org.spotter.exceptions.WorkloadException;
 import org.spotter.shared.result.model.SpotterResult;
@@ -30,7 +29,7 @@ public class MockDetection extends AbstractDetectionController {
 
 	public static final int NUM_EXPERIMENTS = 5;
 
-	public MockDetection(IExtension<IDetectionController> provider) {
+	public MockDetection(final IExtension provider) {
 		super(provider);
 	}
 
@@ -52,8 +51,8 @@ public class MockDetection extends AbstractDetectionController {
 	}
 
 	@Override
-	protected SpotterResult analyze(DatasetCollection data) {
-		SpotterResult result = new SpotterResult();
+	protected SpotterResult analyze(final DatasetCollection data) {
+		final SpotterResult result = new SpotterResult();
 		result.setDetected(data.getRecords().size() == NUM_EXPERIMENTS * DummyMeasurement.NUM_RECORDS);
 
 		return result;

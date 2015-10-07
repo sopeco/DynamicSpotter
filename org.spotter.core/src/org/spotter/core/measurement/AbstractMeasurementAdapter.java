@@ -38,7 +38,7 @@ public abstract class AbstractMeasurementAdapter extends AbstractExtensionArtifa
 	 * @param provider
 	 *            Extension provider of that object
 	 */
-	public AbstractMeasurementAdapter(IExtension<?> provider) {
+	public AbstractMeasurementAdapter(final IExtension provider) {
 		super(provider);
 	}
 
@@ -72,6 +72,7 @@ public abstract class AbstractMeasurementAdapter extends AbstractExtensionArtifa
 	/**
 	 * @return the properties
 	 */
+	@Override
 	public Properties getProperties() {
 		if (properties == null) {
 			properties = new Properties();
@@ -83,7 +84,8 @@ public abstract class AbstractMeasurementAdapter extends AbstractExtensionArtifa
 	 * @param properties
 	 *            the properties to set
 	 */
-	public void setProperties(Properties properties) {
+	@Override
+	public void setProperties(final Properties properties) {
 		this.properties = properties;
 	}
 
@@ -100,7 +102,7 @@ public abstract class AbstractMeasurementAdapter extends AbstractExtensionArtifa
 	 *            the relativeTime to set
 	 */
 	@Override
-	public void setControllerRelativeTime(long relativeTime) {
+	public void setControllerRelativeTime(final long relativeTime) {
 		this.relativeTime = relativeTime;
 	}
 

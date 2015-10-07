@@ -18,29 +18,22 @@ package org.spotter.core.test.dummies.satellites;
 import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.util.LpeSupportedTypes;
 import org.spotter.core.measurement.AbstractMeasurmentExtension;
-import org.spotter.core.measurement.IMeasurementAdapter;
 
 public class DummyMeasurementExtension extends AbstractMeasurmentExtension{
 
-	@Override
-	public String getName() {
-		return "DummyMeasurement";
-	}
-
-	@Override
-	public IMeasurementAdapter createExtensionArtifact() {
-		return new DummyMeasurement(this);
+	public DummyMeasurementExtension() {
+		super(DummyMeasurement.class);
 	}
 
 	@Override
 	protected void initializeConfigurationParameters() {
-		ConfigParameterDescription parDescription = new ConfigParameterDescription("test.measurement.parameter", LpeSupportedTypes.Integer);
+		final ConfigParameterDescription parDescription = new ConfigParameterDescription("test.measurement.parameter", LpeSupportedTypes.Integer);
 		addConfigParameter(parDescription);
 		
 	}
 
 	@Override
-	public boolean testConnection(String host, String port) {
+	public boolean testConnection(final String host, final String port) {
 		return true;
 	}
 

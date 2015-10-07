@@ -15,10 +15,8 @@
  */
 package org.spotter.core.measurement;
 
-import java.util.Set;
-
-import org.lpe.common.config.ConfigParameterDescription;
 import org.lpe.common.extension.IExtension;
+import org.lpe.common.extension.IExtensionArtifact;
 import org.spotter.core.AbstractSpotterSatelliteExtension;
 
 /**
@@ -28,9 +26,9 @@ import org.spotter.core.AbstractSpotterSatelliteExtension;
  * 
  */
 public abstract class AbstractMeasurmentExtension extends AbstractSpotterSatelliteExtension implements
-		IExtension<IMeasurementAdapter> {
-	@Override
-	public final Set<ConfigParameterDescription> getConfigParameters() {
-		return configParameters;
+		IExtension {
+	
+	public AbstractMeasurmentExtension(final Class<? extends IExtensionArtifact> extensionArtifactClass) {
+		super(extensionArtifactClass);
 	}
 }

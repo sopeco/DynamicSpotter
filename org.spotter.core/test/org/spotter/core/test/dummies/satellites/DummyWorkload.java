@@ -15,8 +15,6 @@
  */
 package org.spotter.core.test.dummies.satellites;
 
-import java.util.Properties;
-
 import org.lpe.common.extension.IExtension;
 import org.spotter.core.workload.AbstractWorkloadAdapter;
 import org.spotter.core.workload.LoadConfig;
@@ -29,7 +27,7 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	public boolean warmUpTerminated = false;
 	public boolean experimentTerminated = false;
 
-	public DummyWorkload(IExtension<?> provider) {
+	public DummyWorkload(final IExtension provider) {
 		super(provider);
 	}
 
@@ -40,7 +38,7 @@ public class DummyWorkload extends AbstractWorkloadAdapter {
 	}
 
 	@Override
-	public void startLoad(LoadConfig loadConfig) throws WorkloadException {
+	public void startLoad(final LoadConfig loadConfig) throws WorkloadException {
 		loadStarted = true;
 		numExperiments++;
 	}

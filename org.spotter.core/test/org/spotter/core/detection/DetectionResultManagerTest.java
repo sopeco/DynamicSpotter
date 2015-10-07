@@ -27,8 +27,8 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.aim.api.exceptions.MeasurementException;
-import org.aim.api.measurement.MeasurementData;
+import org.aim.aiminterface.entities.measurements.MeasurementData;
+import org.aim.aiminterface.exceptions.MeasurementException;
 import org.aim.api.measurement.dataset.DatasetCollection;
 import org.aim.api.measurement.dataset.Parameter;
 import org.aim.artifacts.records.CPUUtilizationRecord;
@@ -39,8 +39,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lpe.common.config.GlobalConfiguration;
 import org.lpe.common.util.LpeFileUtils;
-import org.lpe.common.util.NumericPairList;
 import org.lpe.common.util.system.LpeSystemUtils;
+import org.lpe.common.utils.numeric.NumericPairList;
 import org.spotter.core.chartbuilder.XChartBuilder;
 import org.spotter.core.test.dummies.satellites.DummyMeasurement;
 import org.spotter.shared.configuration.ConfigKeys;

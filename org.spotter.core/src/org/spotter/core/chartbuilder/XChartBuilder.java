@@ -8,9 +8,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.lpe.common.util.LpeNumericUtils;
-import org.lpe.common.util.NumericPair;
-import org.lpe.common.util.NumericPairList;
+import org.lpe.common.utils.numeric.LpeNumericUtils;
+import org.lpe.common.utils.numeric.NumericPair;
+import org.lpe.common.utils.numeric.NumericPairList;
 
 import com.xeiam.xchart.BitmapEncoder;
 import com.xeiam.xchart.Chart;

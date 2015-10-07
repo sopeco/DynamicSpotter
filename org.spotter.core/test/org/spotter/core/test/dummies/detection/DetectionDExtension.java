@@ -20,14 +20,8 @@ import org.spotter.core.detection.IDetectionController;
 
 public class DetectionDExtension extends AbstractDetectionExtension{
 
-	@Override
-	public IDetectionController createExtensionArtifact() {
-		return new DetectionD(this);
-	}
-
-	@Override
-	public String getName() {
-		return "DetectionD";
+	public DetectionDExtension() {
+		super(DetectionD.class);
 	}
 
 	@Override
