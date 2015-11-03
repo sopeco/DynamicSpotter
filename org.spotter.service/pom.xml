@@ -37,6 +37,21 @@
 			<artifactId>org.spotter.runner</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.utils</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.jmeter</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lpe.common</groupId>
+			<artifactId>org.lpe.common.utils.sql</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
