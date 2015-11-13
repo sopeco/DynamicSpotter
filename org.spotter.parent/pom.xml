@@ -25,6 +25,13 @@
 	</modules>
 
 	<repositories>
+
+		<repository>
+			<id>lpe-repos</id>
+			<name>LPE Repository</name>
+			<url>http://cloudscale.xlab.si/cse/repository/</url>
+		</repository>
+		
 	</repositories>
 
 	<dependencies>
