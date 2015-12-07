@@ -3,26 +3,6 @@
     <uniqueId>7af8520f-ac09-4072-a6bc-625fc73c2d45</uniqueId>
     <config key="org.spotter.detection.detectable" value="false"/>
     <problem>
-        <extensionName>org.spotter.ext.detection.excessiveMessaging.ExcessiveMessagingDetectionController</extensionName>
-        <uniqueId>5d6e1965-b3f1-4095-b2f8-a1f402f2aada</uniqueId>
-        <config key="org.spotter.detection.detectable" value="true"/>
-        <problem>
-            <extensionName>org.spotter.ext.detection.blob.BlobDetectionController</extensionName>
-            <uniqueId>d3aa7c83-810f-4ccf-a7bd-bfeba14e0b11</uniqueId>
-            <config key="org.spotter.detection.detectable" value="true"/>
-        </problem>
-        <problem>
-            <extensionName>org.spotter.ext.detection.est.EmptySemiTrucksDetectionController</extensionName>
-            <uniqueId>add785fe-c45c-40e0-82ab-071963e6a3ce</uniqueId>
-            <config key="org.spotter.detection.detectable" value="true"/>
-        </problem>
-    </problem>
-    <problem>
-        <extensionName>org.spotter.ext.detection.stifle.StifleDetectionController</extensionName>
-        <uniqueId>c37bcddb-292c-456f-b01e-62e155338855</uniqueId>
-        <config key="org.spotter.detection.detectable" value="true"/>
-    </problem>
-    <problem>
         <extensionName>org.spotter.ext.detection.appHiccups.AppHiccupsController</extensionName>
         <uniqueId>e5a2761d-742e-49d7-9051-8453c43cb0fb</uniqueId>
         <config key="org.spotter.detection.detectable" value="true"/>
@@ -31,38 +11,58 @@
         <extensionName>org.spotter.ext.detection.continuousViolation.ContinuousViolationController</extensionName>
         <uniqueId>7a2fff0f-4032-4ce2-92cc-bf1721ad454a</uniqueId>
         <config key="org.spotter.detection.detectable" value="true"/>
-    </problem>
-    <problem>
-        <extensionName>org.spotter.ext.detection.ramp.RampDetectionController</extensionName>
-        <uniqueId>f54702c9-1a7d-418c-b048-578e4b0eb8f7</uniqueId>
-        <config key="org.spotter.detection.detectable" value="true"/>
-    </problem>
-    <problem>
-        <extensionName>org.spotter.ext.detection.trafficJam.TrafficJamDetectionController</extensionName>
-        <uniqueId>12a1a9e9-f02a-456d-b4bf-cc3e133415c5</uniqueId>
-        <config key="org.spotter.detection.detectable" value="true"/>
         <problem>
-            <extensionName>org.spotter.ext.detection.olb.OLBDetectionController</extensionName>
-            <uniqueId>018eb0ce-54b9-46e7-a400-c9bbdfba141a</uniqueId>
+            <extensionName>org.spotter.ext.detection.trafficJam.TrafficJamDetectionController</extensionName>
+            <uniqueId>12a1a9e9-f02a-456d-b4bf-cc3e133415c5</uniqueId>
             <config key="org.spotter.detection.detectable" value="true"/>
-            <config key="scope" value="entry point scope"/>
+            <problem>
+                <extensionName>org.spotter.ext.detection.olb.OLBDetectionController</extensionName>
+                <uniqueId>018eb0ce-54b9-46e7-a400-c9bbdfba141a</uniqueId>
+                <config key="org.spotter.detection.detectable" value="true"/>
+                <config key="scope" value="entry point scope"/>
+            </problem>
             <problem>
                 <extensionName>org.spotter.ext.detection.dbcongestion.DBCongestionDetectionController</extensionName>
                 <uniqueId>cdd157cb-29f5-4c78-9301-388705ea9c58</uniqueId>
                 <config key="org.spotter.detection.detectable" value="true"/>
                 <config key="strategy" value="queueing theory strategy"/>
+                <problem>
+                    <extensionName>org.spotter.ext.detection.stifle.StifleDetectionController</extensionName>
+                    <uniqueId>c37bcddb-292c-456f-b01e-62e155338855</uniqueId>
+                    <config key="org.spotter.detection.detectable" value="true"/>
+                </problem>
+                <problem>
+                    <extensionName>org.spotter.ext.detection.edc.EDCDetectionController</extensionName>
+                    <uniqueId>ed31e86c-c6e2-46ea-b59e-5a6492921fb2</uniqueId>
+                    <config key="org.spotter.detection.detectable" value="true"/>
+                </problem>
+                <problem>
+                    <extensionName>org.spotter.ext.detection.olb.OLBDetectionController</extensionName>
+                    <uniqueId>cce9739f-8b9b-4780-8665-3d21a4d49374</uniqueId>
+                    <config key="org.spotter.detection.detectable" value="true"/>
+                    <config key="scope" value="database scope"/>
+                </problem>
             </problem>
             <problem>
-                <extensionName>org.spotter.ext.detection.olb.OLBDetectionController</extensionName>
-                <uniqueId>cce9739f-8b9b-4780-8665-3d21a4d49374</uniqueId>
+                <extensionName>org.spotter.ext.detection.excessiveMessaging.ExcessiveMessagingDetectionController</extensionName>
+                <uniqueId>5d6e1965-b3f1-4095-b2f8-a1f402f2aada</uniqueId>
                 <config key="org.spotter.detection.detectable" value="true"/>
-                <config key="scope" value="database scope"/>
+                <problem>
+                    <extensionName>org.spotter.ext.detection.blob.BlobDetectionController</extensionName>
+                    <uniqueId>d3aa7c83-810f-4ccf-a7bd-bfeba14e0b11</uniqueId>
+                    <config key="org.spotter.detection.detectable" value="true"/>
+                </problem>
+                <problem>
+                    <extensionName>org.spotter.ext.detection.est.EmptySemiTrucksDetectionController</extensionName>
+                    <uniqueId>add785fe-c45c-40e0-82ab-071963e6a3ce</uniqueId>
+                    <config key="org.spotter.detection.detectable" value="true"/>
+                </problem>
             </problem>
         </problem>
     </problem>
     <problem>
-        <extensionName>org.spotter.ext.detection.edc.EDCDetectionController</extensionName>
-        <uniqueId>ed31e86c-c6e2-46ea-b59e-5a6492921fb2</uniqueId>
+        <extensionName>org.spotter.ext.detection.ramp.RampDetectionController</extensionName>
+        <uniqueId>f54702c9-1a7d-418c-b048-578e4b0eb8f7</uniqueId>
         <config key="org.spotter.detection.detectable" value="true"/>
     </problem>
 </root>
