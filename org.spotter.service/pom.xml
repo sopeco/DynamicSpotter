@@ -52,6 +52,11 @@
 			<artifactId>org.lpe.common.utils.sql</artifactId>
 			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.aim</groupId>
+			<artifactId>org.aim.mainagent.json</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
